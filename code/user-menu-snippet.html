@@ -1,0 +1,47 @@
+<!-- User Menu Dropdown - Add this inside the user-avatar div -->
+<div class="user-menu-dropdown" id="userMenuDropdown">
+    <div class="user-menu-header">
+        <div class="user-menu-name" id="userMenuName">Loading...</div>
+        <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+    </div>
+    <div class="user-menu-items">
+        <a href="settings.html" class="user-menu-item">
+            <span class="user-menu-item-icon">⚙️</span>
+            <span>Settings</span>
+        </a>
+        <a href="demo-account.html" target="_blank" class="user-menu-item">
+            <span class="user-menu-item-icon">👁️</span>
+            <span>View Demo Account</span>
+        </a>
+        <div class="user-menu-item logout" onclick="handleLogout()">
+            <span class="user-menu-item-icon">🚪</span>
+            <span>Logout</span>
+        </div>
+    </div>
+</div>
+
+<!-- Script to Initialize - Add before </body> tag -->
+<script src="user-menu.js"></script>
+<script>
+    // Initialize user menu with user data
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = getCurrentUser();
+        if (user) {
+            const nameEl = document.getElementById('userMenuName');
+            const emailEl = document.getElementById('userMenuEmail');
+            if (nameEl) nameEl.textContent = user.userName || user.familyName || 'User';
+            if (emailEl) emailEl.textContent = user.email || '';
+
+            // Update user avatar initial
+            const avatarEl = document.querySelector('.user-avatar');
+            if (avatarEl && !avatarEl.querySelector('.user-menu-dropdown')) {
+                const initial = user.userName ? user.userName.charAt(0).toUpperCase() :
+                               user.email ? user.email.charAt(0).toUpperCase() : 'U';
+                // Only update text content if it's just showing 'M'
+                if (avatarEl.childNodes[0] && avatarEl.childNodes[0].nodeType === 3) {
+                    avatarEl.childNodes[0].textContent = initial;
+                }
+            }
+        }
+    });
+</script>

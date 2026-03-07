@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #0a0f1e;
+            color: #e8eaed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        /* Sidebar - Copy from option2.html */
+        .sidebar {
+            background: #0f1624;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { margin-bottom: 40px; }
+
+        .nav-section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #6b7280;
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e8eaed;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 1.25rem; width: 24px; text-align: center; }
+
+        .portfolio-summary {
+            margin-top: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06) 0%, rgba(0, 102, 255, 0.06) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .portfolio-summary-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portfolio-summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: #e8eaed; }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        /* Portfolio Value */
+        .portfolio-hero {
+            background: #0f1624;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 32px;
+        }
+
+        .portfolio-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .portfolio-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.04em;
+            margin-bottom: 16px;
+        }
+
+        .portfolio-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* Holdings */
+        .holdings-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+        }
+
+        .holdings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .holding-card {
+            background: #0f1624;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .holding-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .holding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .holding-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .holding-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .holding-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .holding-type {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .holding-value {
+            text-align: right;
+        }
+
+        .holding-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .holding-units {
+            font-size: 0.8125rem;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .holding-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e8eaed;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-value.positive { color: #22c55e; }
+        .stat-value.negative { color: #ef4444; }
+
+        @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">Wealth<span>OS</span></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="option2.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="option2-portfolio.html" class="nav-item active" style="text-decoration: none;">
+                    <span class="nav-icon">💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="option2-transactions.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span>
+                    <span>Transactions</span>
+                </a>
+                <a href="option2-analytics.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Manage</div>
+                <a href="option2-wallet.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💰</span>
+                    <span>Wallet</span>
+                </a>
+                <a href="option2-goals.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="#" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="portfolio-summary">
+                <div class="portfolio-summary-label">Total Value</div>
+                <div class="portfolio-summary-value">₹14.8L</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                <span>Back to options</span>
+            </a>
+
+            <div class="page-header">
+                <h1 class="page-title">Investment Portfolio</h1>
+                <p class="page-subtitle">Detailed view of your holdings and performance</p>
+            </div>
+
+            <div class="portfolio-hero">
+                <div class="portfolio-label">Total Portfolio Value</div>
+                <div class="portfolio-value">₹14,82,350</div>
+                <div class="portfolio-change">
+                    <span>↑</span>
+                    <span>+₹32,450 (2.24%) Today</span>
+                </div>
+            </div>
+
+            <div class="holdings-section">
+                <h2 class="section-title">Your Holdings</h2>
+                <div class="holdings-grid">
+                    <div class="holding-card">
+                        <div class="holding-header">
+                            <div class="holding-info">
+                                <div class="holding-icon">📈</div>
+                                <div>
+                                    <div class="holding-name">Nifty 50 Index Fund</div>
+                                    <div class="holding-type">Mutual Fund • Large Cap</div>
+                                </div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">₹4,85,200</div>
+                                <div class="holding-units">285 units</div>
+                            </div>
+                        </div>
+                        <div class="holding-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Invested</span>
+                                <span class="stat-value">₹4,32,500</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Returns</span>
+                                <span class="stat-value positive">+₹52,700</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gain</span>
+                                <span class="stat-value positive">+12.2%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holding-card">
+                        <div class="holding-header">
+                            <div class="holding-info">
+                                <div class="holding-icon">💎</div>
+                                <div>
+                                    <div class="holding-name">HDFC Bank Ltd</div>
+                                    <div class="holding-type">Equity • Banking</div>
+                                </div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">₹3,24,500</div>
+                                <div class="holding-units">200 shares</div>
+                            </div>
+                        </div>
+                        <div class="holding-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Invested</span>
+                                <span class="stat-value">₹2,98,400</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Returns</span>
+                                <span class="stat-value positive">+₹26,100</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gain</span>
+                                <span class="stat-value positive">+8.7%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holding-card">
+                        <div class="holding-header">
+                            <div class="holding-info">
+                                <div class="holding-icon">⚡</div>
+                                <div>
+                                    <div class="holding-name">Reliance Industries</div>
+                                    <div class="holding-type">Equity • Energy & Materials</div>
+                                </div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">₹2,85,450</div>
+                                <div class="holding-units">110 shares</div>
+                            </div>
+                        </div>
+                        <div class="holding-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Invested</span>
+                                <span class="stat-value">₹2,47,500</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Returns</span>
+                                <span class="stat-value positive">+₹37,950</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gain</span>
+                                <span class="stat-value positive">+15.3%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holding-card">
+                        <div class="holding-header">
+                            <div class="holding-info">
+                                <div class="holding-icon">🏦</div>
+                                <div>
+                                    <div class="holding-name">ICICI Liquid Fund</div>
+                                    <div class="holding-type">Debt Fund • Ultra Short Term</div>
+                                </div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">₹2,15,800</div>
+                                <div class="holding-units">1,850 units</div>
+                            </div>
+                        </div>
+                        <div class="holding-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Invested</span>
+                                <span class="stat-value">₹2,07,100</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Returns</span>
+                                <span class="stat-value positive">+₹8,700</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gain</span>
+                                <span class="stat-value positive">+4.2%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holding-card">
+                        <div class="holding-header">
+                            <div class="holding-info">
+                                <div class="holding-icon">🌟</div>
+                                <div>
+                                    <div class="holding-name">Gold ETF</div>
+                                    <div class="holding-type">Commodity • Precious Metals</div>
+                                </div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">₹1,71,400</div>
+                                <div class="holding-units">320 units</div>
+                            </div>
+                        </div>
+                        <div class="holding-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Invested</span>
+                                <span class="stat-value">₹1,60,500</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Returns</span>
+                                <span class="stat-value positive">+₹10,900</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gain</span>
+                                <span class="stat-value positive">+6.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

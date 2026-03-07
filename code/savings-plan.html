@@ -1,0 +1,3678 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Monthly Investments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <link rel="stylesheet" href="dark-overrides.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --warning: #fb923c;
+            --error: #FF3B30;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+            --input-bg: #f8f9fa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-tertiary: #141d2e;
+            --bg-elevated: #141d2e;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255,255,255,0.09);
+            --border-subtle: rgba(255,255,255,0.05);
+            --accent-primary: #0066ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #22c55e;
+            --warning: #fb923c;
+            --error: #ef4444;
+            --card-shadow: none;
+            --hover-bg: rgba(255, 255, 255, 0.04);
+            --input-bg: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+        
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .back-link:hover { color: var(--text-primary); }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            letter-spacing: -0.01em;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: #ffffff;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover { background: var(--hover-bg); }
+
+        .btn-icon-delete {
+            width: 36px; height: 36px; padding: 0;
+            background: transparent; border: 1px solid transparent;
+            border-radius: 8px; cursor: pointer;
+            color: var(--text-tertiary);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .btn-icon-delete:hover {
+            background: rgba(239,68,68,0.08);
+            border-color: rgba(239,68,68,0.25);
+            color: var(--error, #ef4444);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+            margin: 48px 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Cash & Liquid Assets Section */
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .account-cards {
+            grid-column: span 8;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .account-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+
+        .account-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .account-number {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .account-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.375rem;
+        }
+
+        .account-icon.bank {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+        }
+
+        .account-icon.liquid {
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%);
+        }
+
+        .account-balance {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .emergency-card {
+            grid-column: span 4;
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.08) 0%, rgba(34, 197, 94, 0.08) 100%);
+            border: 1px solid rgba(0, 200, 5, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .emergency-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .emergency-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--success);
+        }
+
+        .emergency-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+        }
+
+        .emergency-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(0, 200, 5, 0.1);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .emergency-status-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .emergency-detail {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .emi-calendar-card {
+            grid-column: span 8;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .emi-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .emi-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .emi-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .emi-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .emi-day {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .emi-month {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .emi-info {
+            flex: 1;
+        }
+
+        .emi-name {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .emi-detail {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .emi-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .bill-reminders-card {
+            grid-column: span 4;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .bill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bill-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .bill-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+        }
+
+        .bill-info {
+            flex: 1;
+        }
+
+        .bill-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .bill-due {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .bill-amount {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .transfer-card {
+            grid-column: span 12;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .transfer-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr 1fr;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .form-select,
+        .form-input {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus,
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .transfer-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        /* Monthly Tracking Section */
+        .tracking-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .month-selector {
+            grid-column: span 12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 24px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .month-nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-nav-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .current-month {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .income-card,
+        .expense-card {
+            grid-column: span 6;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .income-entries,
+        .expense-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .entry-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .entry-emoji {
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input-bg);
+            border-radius: 10px;
+        }
+
+        .entry-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .entry-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .entry-input.amount {
+            width: 140px;
+            text-align: right;
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .add-entry-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .add-entry-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 102, 255, 0.05);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            margin-top: 8px;
+        }
+
+        .total-label {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .total-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .expense-mode-toggle {
+            display: flex;
+            gap: 8px;
+            padding: 4px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--bg-elevated);
+            color: var(--accent-primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .expense-quick-mode {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .quick-input-wrapper {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .quick-input-large {
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', monospace;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .quick-input-large:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .quick-hint {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+        }
+
+        .category-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+
+        .category-emoji {
+            font-size: 1.25rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .category-input {
+            width: 120px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', monospace;
+            text-align: right;
+            transition: all 0.2s ease;
+        }
+
+        .category-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .savings-card {
+            grid-column: span 12;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 212, 255, 0.08) 100%);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .savings-metric {
+            text-align: center;
+        }
+
+        .savings-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .savings-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .savings-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .savings-badge.excellent {
+            background: rgba(0, 200, 5, 0.15);
+            color: var(--success);
+        }
+
+        .savings-badge.good {
+            background: rgba(0, 102, 255, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .savings-badge.average {
+            background: rgba(251, 146, 60, 0.15);
+            color: var(--warning);
+        }
+
+        .savings-badge.poor {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--error);
+        }
+
+        .timeline-card {
+            grid-column: span 12;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .timeline {
+            display: flex;
+            gap: 16px;
+            min-width: max-content;
+            padding: 8px 0;
+        }
+
+        .timeline-month {
+            flex: 0 0 140px;
+            padding: 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-month:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .timeline-month.current {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border-color: var(--accent-primary);
+        }
+
+        .timeline-month-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .timeline-month.current .timeline-month-name {
+            color: var(--accent-primary);
+        }
+
+        .timeline-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .timeline-savings {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .timeline-savings-rate {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .timeline-savings-rate.positive {
+            color: var(--success);
+        }
+
+        .timeline-savings-rate.negative {
+            color: var(--error);
+        }
+
+        /* CRUD UI Elements */
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 59, 48, 0.1);
+            border-color: var(--error);
+        }
+
+        .delete-btn-small {
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--error);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .delete-btn-small:hover {
+            background: rgba(255, 59, 48, 0.1);
+            border-color: var(--error);
+        }
+
+        .mark-paid-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            color: var(--success);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .mark-paid-btn:hover {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .bill-item.paid {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .add-category-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            background: transparent;
+            border: 2px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .add-category-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 102, 255, 0.05);
+        }
+
+        .entry-row {
+            position: relative;
+        }
+
+        .editable-field {
+            cursor: text;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .editable-field:hover {
+            background: var(--hover-bg);
+        }
+
+        .account-balance[contenteditable="true"]:hover {
+            background: var(--hover-bg);
+            border-radius: 8px;
+            padding: 4px 8px;
+            cursor: text;
+        }
+
+        .bill-amount[contenteditable="true"]:hover {
+            background: var(--hover-bg);
+            border-radius: 6px;
+            padding: 2px 6px;
+            cursor: text;
+        }
+
+        .action-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-badge:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* Person Tabs — shared styles live in user-menu.css */
+
+        /* Import Section */
+        .import-section {
+            background: var(--bg-elevated);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+        }
+
+        .uncategorized-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .uncategorized-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .uncategorized-item:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .investment-info {
+            flex: 1;
+        }
+
+        .investment-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .investment-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .categorize-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-primary);
+            background: var(--accent-primary);
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.15s;
+        }
+
+        .categorize-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+            font-size: 0.9375rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .investment-details {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Investment List */
+        .investments-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .investments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .investments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .investments-table th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg-secondary);
+        }
+
+        .investments-table th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .investments-table th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        .inv-table-controls {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+        }
+        .inv-tc-label { font-size: 0.75rem; color: var(--text-tertiary); font-weight: 600; }
+        .inv-tc-btn {
+            padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-color);
+            background: var(--bg-elevated); font-size: 0.75rem; font-weight: 600;
+            color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+        }
+        .inv-tc-btn.active { background: rgba(0,102,255,0.12); border-color: var(--accent-primary); color: var(--accent-primary); }
+        .inv-tc-sep { width: 1px; height: 14px; background: var(--border-color); margin: 0 2px; }
+
+        .investments-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        .investments-table tbody tr:last-child td { border-bottom: none; }
+        .investments-table tbody tr:hover { background: var(--hover-bg); }
+
+        .inv-name { font-weight: 600; color: var(--text-primary); }
+        .inv-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .inv-badge.equity { background: rgba(0,102,255,0.12); color: #0066ff; }
+        .inv-badge.debt { background: rgba(251,146,60,0.15); color: #d97706; }
+        .inv-badge.gold { background: rgba(234,179,8,0.15); color: #b45309; }
+        .inv-badge.others { background: rgba(139,92,246,0.15); color: #7c3aed; }
+
+        .inv-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .inv-actions { display: flex; gap: 6px; }
+
+        .edit-btn {
+            padding: 5px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .edit-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        /* Monthly Breakup Section */
+        .monthly-breakup-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .monthly-breakup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .month-nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .month-nav-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+        .current-month-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .breakup-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .breakup-cards-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .breakup-asset-card {
+            border-radius: 14px;
+            padding: 20px;
+            border: 1.5px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .breakup-asset-card.equity { background: rgba(0,102,255,0.06); border-color: rgba(0,102,255,0.15); }
+        .breakup-asset-card.debt { background: rgba(251,146,60,0.06); border-color: rgba(251,146,60,0.2); }
+        .breakup-asset-card.gold { background: rgba(234,179,8,0.06); border-color: rgba(234,179,8,0.2); }
+        .breakup-asset-card.others { background: rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.2); }
+
+        .breakup-card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+        .breakup-asset-card.equity .breakup-card-label { color: #0066ff; }
+        .breakup-asset-card.debt .breakup-card-label { color: #d97706; }
+        .breakup-asset-card.gold .breakup-card-label { color: #b45309; }
+        .breakup-asset-card.others .breakup-card-label { color: #7c3aed; }
+
+        .breakup-card-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .breakup-card-count {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .breakup-card-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .breakup-card-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8125rem;
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.03);
+        }
+        [data-theme="dark"] .breakup-card-item { background: rgba(255,255,255,0.04); }
+
+        .breakup-item-name {
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .breakup-item-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .breakup-empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        /* Equity Insights Section */
+        .equity-insights-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .equity-insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .equity-insights-grid { grid-template-columns: 1fr; }
+        }
+
+        .insights-panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .insights-panel-title {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .insight-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .insight-row:last-child { border-bottom: none; }
+
+        .insight-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .insight-pct {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .insight-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .insight-bar-wrap {
+            grid-column: 1 / -1;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: -4px;
+        }
+
+        .insight-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Instrument type badge */
+        .inv-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .inv-type-badge.mutual-fund { background: rgba(0,102,255,0.1); color: #0066ff; }
+        .inv-type-badge.etf { background: rgba(0,200,5,0.12); color: #00a803; }
+        .inv-type-badge.stock { background: rgba(234,179,8,0.15); color: #b45309; }
+        .inv-type-badge.bond-fd { background: rgba(251,146,60,0.15); color: #c2410c; }
+        .inv-type-badge.other { background: rgba(139,92,246,0.12); color: #7c3aed; }
+
+        /* Add Investment Form */
+        .add-investment-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .add-form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            align-items: end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .add-form-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .total-monthly-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 28px;
+            background: linear-gradient(135deg, rgba(0,102,255,0.08) 0%, rgba(0,212,255,0.08) 100%);
+            border: 1px solid rgba(0,102,255,0.2);
+            border-radius: 14px;
+            margin-bottom: 24px;
+        }
+
+        .total-monthly-label {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .total-monthly-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            letter-spacing: -0.02em;
+        }
+
+        /* Targets Section */
+        .targets-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .targets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .targets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .target-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .target-field-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .target-field-input {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .target-field-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .age-based-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .age-based-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .age-based-label {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .age-based-desc {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        /* Allocation Dashboard */
+        .allocation-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .dashboard-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+
+        .allocation-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .allocation-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 60px;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .allocation-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .allocation-bar-container {
+            height: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .allocation-bar {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+
+        .allocation-bar.equity {
+            background: linear-gradient(90deg, #0066ff, #00d4ff);
+        }
+
+        .allocation-bar.debt {
+            background: linear-gradient(90deg, #fb923c, #fbbf24);
+        }
+
+        .allocation-bar.gold {
+            background: linear-gradient(90deg, #eab308, #fde047);
+        }
+
+        .allocation-bar.others {
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+        }
+
+        .allocation-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .total-invested {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .total-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Equity Breakdown */
+        .equity-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .breakdown-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .breakdown-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .breakdown-dot.large-cap {
+            background: #0066ff;
+        }
+
+        .breakdown-dot.mid-cap {
+            background: #00d4ff;
+        }
+
+        .breakdown-dot.small-cap {
+            background: #fb923c;
+        }
+
+        .breakdown-dot.international {
+            background: #8b5cf6;
+        }
+
+        .breakdown-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* Recommendations */
+        .recommendations-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .recommendations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .targets-info {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .targets-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .recommendation-item {
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9375rem;
+        }
+
+        .recommendation-item.warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            color: var(--warning);
+        }
+
+        .recommendation-item.success {
+            background: rgba(0, 200, 5, 0.1);
+            border: 1px solid rgba(0, 200, 5, 0.3);
+            color: var(--success);
+        }
+
+        .recommendation-icon {
+            font-size: 1.25rem;
+        }
+
+        .recommendation-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        /* History Table */
+        .history-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .history-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table thead {
+            background: var(--bg-secondary);
+        }
+
+        .history-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-table th:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .history-table th:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .history-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+        }
+
+        .history-table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-cell {
+            text-align: center;
+            color: var(--text-tertiary);
+            padding: 40px 20px !important;
+        }
+
+        .history-table td:first-child {
+            font-weight: 600;
+        }
+
+        .history-table td:not(:first-child) {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1280px) {
+            .allocation-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .account-cards {
+                grid-column: span 12;
+            }
+
+            .emergency-card {
+                grid-column: span 12;
+            }
+
+            .emi-calendar-card {
+                grid-column: span 12;
+            }
+
+            .bill-reminders-card {
+                grid-column: span 12;
+            }
+
+            .income-card,
+            .expense-card {
+                grid-column: span 12;
+            }
+
+            .savings-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 24px 20px;
+            }
+
+            .account-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .transfer-form {
+                grid-template-columns: 1fr;
+            }
+
+            .savings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .person-tabs-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .person-tabs {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .person-tab {
+                padding: 8px 16px;
+                font-size: 0.875rem;
+                white-space: nowrap;
+            }
+
+            .history-table-container {
+                overflow-x: auto;
+            }
+
+            .allocation-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Page Control Bar (month nav + action buttons) ── */
+        .page-control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .month-nav-controls {
+            display: flex;
+            align-items: center;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .month-nav-btn {
+            background: none;
+            border: none;
+            padding: 9px 16px;
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            line-height: 1;
+        }
+        .month-nav-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .month-display {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 8px 20px;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            min-width: 150px;
+            text-align: center;
+        }
+        .page-btns { display: flex; gap: 10px; align-items: center; }
+
+        /* ── Combined Monthly Section ── */
+        .combined-monthly-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+        .combined-monthly-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .combined-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .combined-total-wrap { text-align: right; }
+        .combined-total-label { font-size: 0.75rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .combined-total-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            letter-spacing: -0.02em;
+        }
+        .alloc-section-label {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+        }
+
+        /* ── Investment Add/Edit Modal ── */
+        .inv-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .inv-modal {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px 36px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+        }
+        .inv-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .inv-modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .inv-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            line-height: 1;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .inv-modal-close:hover { color: var(--text-primary); background: var(--hover-bg); }
+        .inv-modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
+            flex-wrap: wrap;
+        }
+        .opt-label {
+            font-weight: 400;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+        }
+    </style>
+    <link rel="stylesheet" href="controls.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside id="sidebar-root"></aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-header">
+                    <div class="page-title">Monthly Investments</div>
+                    <div class="page-subtitle">Track SIPs, stocks & ETFs — with full allocation insights</div>
+                </div>
+                <div class="top-actions">
+                    <div class="user-avatar" id="userAvatarBtn">U
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <div class="user-menu-header">
+                                <div class="user-menu-name" id="userMenuName">Loading...</div>
+                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+                            </div>
+                            <div class="user-menu-items">
+                                <a href="settings.html" class="user-menu-item">
+                                    <span class="user-menu-item-icon">⚙️</span>
+                                    <span>Settings</span>
+                                </a>
+                                <div class="user-menu-item logout" id="logoutBtn">
+                                    <span class="user-menu-item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No family members empty state -->
+            <div id="noMembersState" style="display:none;">
+                <div class="empty-state" style="padding: 80px 20px; font-size: 1.0625rem; color: var(--text-secondary);">
+                    No family members found. <a href="settings.html" style="color: var(--accent-primary); font-weight: 600;">Add family members in Settings first.</a>
+                </div>
+            </div>
+
+            <!-- Main plan content — shown when members exist -->
+            <div id="planContent" style="display:none;">
+
+                <!-- Page Control Bar: month nav + actions -->
+                <div class="page-control-bar">
+                    <div class="month-nav-controls">
+                        <button class="month-nav-btn" onclick="changeMonth(-1)" title="Previous month">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <div class="month-display" id="monthLabel">–</div>
+                        <button class="month-nav-btn" onclick="changeMonth(1)" title="Next month">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                    <div class="page-btns">
+                        <button id="deleteAllInvBtn" class="btn-icon-delete" style="display:none;" onclick="deleteAllInvestments()" title="Delete all investments for this member">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg>
+                        </button>
+                        <button class="action-btn secondary" onclick="openImportModal()">Import via AI</button>
+                        <button class="action-btn primary" onclick="openInvModal()">+ Add Investment</button>
+                    </div>
+                </div>
+
+                <!-- Person Tabs -->
+                <div class="person-tabs-container">
+                    <div class="person-tabs" id="personTabsList"></div>
+                    <div class="person-tabs-actions">
+                        <a href="settings.html" class="settings-link-btn">Manage Members</a>
+                    </div>
+                </div>
+
+                <!-- Combined: Monthly Allocation + Breakup -->
+                <div class="combined-monthly-section">
+                    <div class="combined-monthly-header">
+                        <div class="combined-section-title">Monthly Overview</div>
+                        <div class="combined-total-wrap">
+                            <div class="combined-total-label">Total this month</div>
+                            <div class="combined-total-val" id="combinedMonthTotal">₹0</div>
+                        </div>
+                    </div>
+
+                    <!-- Allocation bars -->
+                    <div class="alloc-section-label">Allocation</div>
+                    <div class="allocation-bars" id="allocationBars">
+                        <div class="allocation-row">
+                            <div class="allocation-label">Equity</div>
+                            <div class="allocation-bar-container">
+                                <div class="allocation-bar equity" id="equityBar" style="width: 0%"></div>
+                            </div>
+                            <div class="allocation-value" id="equityValue">0%</div>
+                        </div>
+                        <div class="allocation-row">
+                            <div class="allocation-label">Debt</div>
+                            <div class="allocation-bar-container">
+                                <div class="allocation-bar debt" id="debtBar" style="width: 0%"></div>
+                            </div>
+                            <div class="allocation-value" id="debtValue">0%</div>
+                        </div>
+                        <div class="allocation-row">
+                            <div class="allocation-label">Gold</div>
+                            <div class="allocation-bar-container">
+                                <div class="allocation-bar gold" id="goldBar" style="width: 0%"></div>
+                            </div>
+                            <div class="allocation-value" id="goldValue">0%</div>
+                        </div>
+                        <div class="allocation-row">
+                            <div class="allocation-label">Others</div>
+                            <div class="allocation-bar-container">
+                                <div class="allocation-bar others" id="othersBar" style="width: 0%"></div>
+                            </div>
+                            <div class="allocation-value" id="othersValue">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Breakup cards -->
+                    <div class="alloc-section-label" style="margin-top:24px;">Breakup by Category</div>
+                    <div class="breakup-cards-grid" id="breakupCardsGrid"></div>
+                </div>
+
+                <!-- Equity Insights -->
+                <div class="equity-insights-section" id="equityInsightsSection" style="display:none;">
+                    <h2 class="card-title" style="margin-bottom:4px;">Equity Insights</h2>
+                    <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:20px;">Breakdown of equity investments by instrument type and market cap</div>
+                    <div class="equity-insights-grid">
+                        <div class="insights-panel">
+                            <div class="insights-panel-title">By Instrument Type</div>
+                            <div id="equityByTypePanel"></div>
+                        </div>
+                        <div class="insights-panel">
+                            <div class="insights-panel-title">Mutual Fund Breakdown by Cap</div>
+                            <div id="equityByCapPanel"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investments List -->
+                <div class="investments-section">
+                    <div class="investments-header">
+                        <div>
+                            <h2 class="card-title" style="margin-bottom:4px;">All Investments</h2>
+                            <div style="font-size:0.875rem;color:var(--text-secondary);">SIPs, stocks, ETFs and all recurring investments</div>
+                        </div>
+                    </div>
+                    <div class="inv-table-controls" id="invTableControls" style="display:none;">
+                        <span class="inv-tc-label">Sort:</span>
+                        <button class="inv-tc-btn active" data-inv-sort="amount" onclick="setInvSort('amount')">Amount ↓</button>
+                        <button class="inv-tc-btn" data-inv-sort="name" onclick="setInvSort('name')">Name</button>
+                        <div class="inv-tc-sep"></div>
+                        <span class="inv-tc-label">Filter:</span>
+                        <button class="inv-tc-btn active" data-inv-filter="all" onclick="setInvFilter('all')">All</button>
+                        <button class="inv-tc-btn" data-inv-filter="Mutual Fund" onclick="setInvFilter('Mutual Fund')">MF</button>
+                        <button class="inv-tc-btn" data-inv-filter="Stock" onclick="setInvFilter('Stock')">Stocks</button>
+                        <button class="inv-tc-btn" data-inv-filter="ETF" onclick="setInvFilter('ETF')">ETF</button>
+                        <button class="inv-tc-btn" data-inv-filter="Bond/FD" onclick="setInvFilter('Bond/FD')">FD/Bond</button>
+                    </div>
+                    <div id="investmentsListContainer"></div>
+                </div>
+
+            </div><!-- end #planContent -->
+        </main>
+    </div>
+
+    <script src="/api.js"></script>
+    <script>
+        // ===========================
+        // THEME
+        // ===========================
+        (function() {
+            const t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            const toggle = document.getElementById('themeToggle');
+            if (toggle && t === 'dark') toggle.classList.add('active');
+        })();
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (toggle) {
+                newTheme === 'dark' ? toggle.classList.add('active') : toggle.classList.remove('active');
+            }
+        }
+
+        // ===========================
+        // CONSTANTS
+        // ===========================
+        // Sub-categories by asset class (general)
+        const SUB_CATEGORIES = {
+            'Equity': ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF', 'Nifty 50 ETF', 'Nifty Next 50 ETF', 'Sectoral ETF', 'International ETF', 'Momentum ETF', 'Direct Equity'],
+            'Debt': ['PPF', 'Fixed Deposit', 'Debt Mutual Fund', 'Corporate Bonds', 'NPS', 'EPF', 'Liquid Fund', 'G-Sec / T-Bills'],
+            'Gold': ['Sovereign Gold Bond', 'Gold ETF', 'Physical Gold', 'Gold Mutual Fund'],
+            'Others': ['Real Estate', 'Crypto', 'REITs', 'InvITs', 'Commodities', 'Others']
+        };
+
+        // Sub-categories by instrument type within Equity
+        const EQUITY_INSTRUMENT_SUBCATEGORIES = {
+            'Mutual Fund': ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF'],
+            'ETF': ['Nifty 50 ETF', 'Nifty Next 50 ETF', 'Sectoral ETF', 'International ETF', 'Momentum ETF'],
+            'Stock': ['Direct Equity'],
+            'Bond/FD': ['Corporate Bonds', 'G-Sec / T-Bills']
+        };
+
+        const INSTRUMENT_TYPES = ['Mutual Fund', 'ETF', 'Stock', 'Bond/FD', 'Other'];
+
+        const MF_CAP_CATEGORIES = ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF'];
+
+        // ===========================
+        // STATE
+        // ===========================
+        let familyMembers = [];
+        let currentMemberId = null;
+        let currentMemberAge = null;
+        let currentInvestments = [];
+        let currentTargets = { equityPct: 60, debtPct: 25, goldPct: 10, othersPct: 5, useAgeBased: false };
+        let editingInvId = null;
+        let monthOffset = 0; // 0 = current month, -1 = prev, etc.
+        let invSortCol = 'amount';
+        let invSortDir = 'desc';
+        let invFilterType = 'all';
+
+        function setInvSort(col) {
+            if (invSortCol === col) invSortDir = invSortDir === 'desc' ? 'asc' : 'desc';
+            else { invSortCol = col; invSortDir = 'desc'; }
+            document.querySelectorAll('[data-inv-sort]').forEach(b => {
+                b.classList.toggle('active', b.dataset.invSort === col);
+                if (b.dataset.invSort === col) b.textContent = (col === 'amount' ? 'Amount' : 'Name') + (invSortDir === 'desc' ? ' ↓' : ' ↑');
+            });
+            renderInvestmentsList();
+        }
+
+        function setInvFilter(type) {
+            invFilterType = type;
+            document.querySelectorAll('[data-inv-filter]').forEach(b => b.classList.toggle('active', b.dataset.invFilter === type));
+            renderInvestmentsList();
+        }
+
+        // ===========================
+        // HELPERS
+        // ===========================
+        function toMonthlyEquivalent(amount, frequency) {
+            if (frequency === 'monthly') return amount;
+            if (frequency === 'quarterly') return amount / 3;
+            if (frequency === 'yearly') return amount / 12;
+            return amount;
+        }
+
+        function showToast(msg, isError) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position:fixed;top:20px;right:20px;
+                background:${isError ? '#ef4444' : '#00C805'};
+                color:#fff;padding:14px 22px;border-radius:12px;font-weight:600;
+                box-shadow:0 8px 20px rgba(0,0,0,0.2);z-index:10000;font-size:0.9375rem;
+            `;
+            toast.textContent = (isError ? '' : '✓ ') + msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { try { document.body.removeChild(toast); } catch(e){} }, 3000);
+        }
+
+        // ===========================
+        // PAGE INIT
+        // ===========================
+        document.addEventListener('DOMContentLoaded', async () => {
+            WealthAPI.auth.requireAuth();
+
+            // User info
+            const user = WealthAPI.auth.getCachedUser();
+            if (user) {
+                const nameEl = document.getElementById('userMenuName');
+                const emailEl = document.getElementById('userMenuEmail');
+                const avatarEl = document.getElementById('userAvatarBtn');
+                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+                if (avatarEl) {
+                    const initial = (user.familyName || user.email || 'U').charAt(0).toUpperCase();
+                    const textNode = avatarEl.childNodes[0];
+                    if (textNode && textNode.nodeType === 3) textNode.textContent = initial;
+                }
+            }
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                WealthAPI.auth.logout();
+            });
+
+            // User avatar dropdown toggle
+            const avatarBtn = document.getElementById('userAvatarBtn');
+            const dropdown = document.getElementById('userMenuDropdown');
+            if (avatarBtn && dropdown) {
+                avatarBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                });
+                document.addEventListener('click', () => dropdown.classList.remove('open'));
+            }
+
+            // Load family members
+            try {
+                familyMembers = await WealthAPI.family.getMembers();
+            } catch (e) {
+                familyMembers = [];
+            }
+
+            if (!familyMembers || familyMembers.length === 0) {
+                document.getElementById('noMembersState').style.display = 'block';
+                document.getElementById('planContent').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('noMembersState').style.display = 'none';
+            document.getElementById('planContent').style.display = 'block';
+
+            // Build person tabs
+            buildPersonTabs();
+
+            // Load overall first
+            await switchToMember('overall');
+        });
+
+        // ===========================
+        // PERSON TABS
+        // ===========================
+        function buildPersonTabs() {
+            const tabsList = document.getElementById('personTabsList');
+            tabsList.innerHTML = '';
+            // Overall tab first
+            const overall = document.createElement('button');
+            overall.className = 'person-tab overall-tab active';
+            overall.setAttribute('data-member-id', 'overall');
+            overall.textContent = 'Overall';
+            overall.addEventListener('click', () => switchToMember('overall'));
+            tabsList.appendChild(overall);
+            familyMembers.forEach(m => {
+                const btn = document.createElement('button');
+                btn.className = 'person-tab';
+                btn.setAttribute('data-member-id', m.id);
+                btn.textContent = m.name;
+                btn.addEventListener('click', () => switchToMember(m.id));
+                tabsList.appendChild(btn);
+            });
+        }
+
+        async function switchToMember(memberId) {
+            currentMemberId = memberId === 'overall' ? null : memberId;
+            const member = memberId === 'overall' ? null : familyMembers.find(m => m.id === memberId);
+            currentMemberAge = member ? member.age : null;
+
+            // Update active tab
+            document.querySelectorAll('.person-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-member-id') === String(memberId));
+            });
+
+            // Update age-based desc
+            const ageDesc = document.getElementById('ageBasedDesc');
+            if (ageDesc) {
+                if (currentMemberAge) ageDesc.textContent = `(age ${currentMemberAge})`;
+                else if (memberId === 'overall') ageDesc.textContent = '(all members combined)';
+                else ageDesc.textContent = '';
+            }
+
+            // Cancel any active edit
+            cancelEdit();
+            monthOffset = 0;
+
+            if (memberId === 'overall') {
+                await loadOverallData();
+            } else {
+                await loadMemberData(memberId);
+            }
+        }
+
+        async function loadOverallData() {
+            try {
+                const allData = await Promise.all(familyMembers.map(m => WealthAPI.savings.get(m.id).catch(() => ({ investments: [] }))));
+                currentInvestments = allData.flatMap(d => d.investments || []);
+                currentTargets = { equityPct: 60, debtPct: 25, goldPct: 10, othersPct: 5, useAgeBased: false };
+            } catch (e) {
+                currentInvestments = [];
+                currentTargets = { equityPct: 60, debtPct: 25, goldPct: 10, othersPct: 5, useAgeBased: false };
+            }
+            renderInvestmentsList();
+            renderMonthlyBreakup();
+            renderEquityInsights();
+        }
+
+        // ===========================
+        // LOAD MEMBER DATA
+        // ===========================
+        async function loadMemberData(memberId) {
+            try {
+                const data = await WealthAPI.savings.get(memberId);
+                currentInvestments = data.investments || [];
+                currentTargets = data.targets || { equityPct: 60, debtPct: 25, goldPct: 10, othersPct: 5, useAgeBased: false };
+            } catch (e) {
+                currentInvestments = [];
+                currentTargets = { equityPct: 60, debtPct: 25, goldPct: 10, othersPct: 5, useAgeBased: false };
+            }
+
+            renderInvestmentsList();
+            renderMonthlyBreakup();
+            renderEquityInsights();
+        }
+
+        // ===========================
+        // INVESTMENTS LIST
+        // ===========================
+        function getTypeBadgeClass(type) {
+            if (!type) return 'other';
+            const map = { 'Mutual Fund': 'mutual-fund', 'ETF': 'etf', 'Stock': 'stock', 'Bond/FD': 'bond-fd' };
+            return map[type] || 'other';
+        }
+
+        function renderInvestmentsList() {
+            const container = document.getElementById('investmentsListContainer');
+            const controls = document.getElementById('invTableControls');
+
+            const deleteAllBtn = document.getElementById('deleteAllInvBtn');
+            if (!currentInvestments || currentInvestments.length === 0) {
+                if (controls) controls.style.display = 'none';
+                if (deleteAllBtn) deleteAllBtn.style.display = 'none';
+                container.innerHTML = `<div class="empty-state" style="padding:40px 0;">
+                    Add your first SIP, stock, or ETF below to start tracking your allocation.
+                </div>`;
+                return;
+            }
+            if (controls) controls.style.display = 'flex';
+            if (deleteAllBtn) deleteAllBtn.style.display = 'flex';
+
+            // Apply filter
+            let displayInvs = currentInvestments.filter(inv => {
+                if (invFilterType === 'all') return true;
+                return (inv.instrumentType || '') === invFilterType;
+            });
+
+            // Apply sort
+            displayInvs = [...displayInvs].sort((a, b) => {
+                let av, bv;
+                if (invSortCol === 'amount') { av = a.amount || 0; bv = b.amount || 0; }
+                else { av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); }
+                if (av < bv) return invSortDir === 'desc' ? 1 : -1;
+                if (av > bv) return invSortDir === 'desc' ? -1 : 1;
+                return 0;
+            });
+
+            const totalAmount = displayInvs.reduce((s, inv) => s + toMonthlyEquivalent(inv.amount, inv.frequency), 0);
+
+            const rows = displayInvs.map(inv => {
+                const monthlyAmt = toMonthlyEquivalent(inv.amount, inv.frequency);
+                const weightPct = totalAmount > 0 ? ((monthlyAmt / totalAmount) * 100).toFixed(1) : '0.0';
+                const cls = (inv.assetClass || '').toLowerCase().replace(/\s+/g, '-');
+                const typeCls = getTypeBadgeClass(inv.instrumentType);
+                const typeBadge = inv
+                    ? `<span class="inv-type-badge ${typeCls}">${escapeHtml(inv.instrumentType)}</span>`
+                    : '';
+                const fundHouseHtml = inv
+                    ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">${escapeHtml(inv.fundHouse)}</div>`
+                    : '';
+                const platformHtml = inv
+                    ? `<span style="font-size:0.75rem;color:var(--text-tertiary);">${escapeHtml(inv.platform)}</span>`
+                    : '–';
+                const freqDisplay = inv.frequency === 'one-time' ? 'One-time' : (inv.frequency || '').charAt(0).toUpperCase() + (inv.frequency || '').slice(1);
+                return `
+                <tr>
+                    <td>
+                        <span class="inv-name">${escapeHtml(inv.name)}</span>
+                        ${fundHouseHtml}
+                    </td>
+                    <td>
+                        ${typeBadge}
+                        <div style="margin-top:3px;"><span class="inv-badge ${cls}">${escapeHtml(inv.assetClass)}</span></div>
+                    </td>
+                    <td style="color:var(--text-secondary);font-size:0.875rem;">${escapeHtml(inv.subCategory)}</td>
+                    <td>${inv.indexType ? `<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;background:${inv.indexType==='Index'?'rgba(139,92,246,0.12)':'rgba(0,200,5,0.1)'};color:${inv.indexType==='Index'?'#8b5cf6':'#16a34a'};">${escapeHtml(inv.indexType)}</span>` : '<span style="color:var(--text-tertiary)">–</span>'}</td>
+                    <td class="inv-amount">${WealthAPI.formatCurrency(inv.amount)}</td>
+                    <td style="color:var(--text-secondary);font-size:0.875rem;">${freqDisplay}</td>
+                    <td style="text-align:right;font-weight:700;color:var(--text-primary);white-space:nowrap;">
+                        ${weightPct}%
+                        <div style="margin-top:3px;height:3px;background:var(--border-subtle);border-radius:2px;width:40px;margin-left:auto;">
+                            <div style="height:3px;border-radius:2px;background:var(--accent-primary);width:${Math.min(parseFloat(weightPct), 100)}%;"></div>
+                        </div>
+                    </td>
+                    <td>${platformHtml}</td>
+                    <td>
+                        <div class="inv-actions">
+                            <button class="edit-btn" onclick="startEditInvestment('${inv.id}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteInvestment('${inv.id}')" title="Delete">×</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+            <table class="investments-table">
+                <thead>
+                    <tr>
+                        <th>Name / Fund House</th>
+                        <th>Type / Asset</th>
+                        <th>Sub-Category</th>
+                        <th>Index/Active</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        <th style="text-align:right;">Weight</th>
+                        <th>Platform</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // ===========================
+        // ALLOCATION DISPLAY
+        // (called from renderMonthlyBreakup, uses filtered investments)
+        // ===========================
+        function renderAllocation(filteredInvestments) {
+            const totals = { Equity: 0, Debt: 0, Gold: 0, Others: 0 };
+            (filteredInvestments || []).forEach(inv => {
+                const ac = inv.assetClass;
+                if (totals.hasOwnProperty(ac)) totals[ac] += toMonthlyEquivalent(inv.amount, inv.frequency);
+                else totals.Others += toMonthlyEquivalent(inv.amount, inv.frequency);
+            });
+            const grandTotal = totals.Equity + totals.Debt + totals.Gold + totals.Others;
+            const pct = v => grandTotal > 0 ? Math.round((v / grandTotal) * 100) : 0;
+            document.getElementById('equityBar').style.width = pct(totals.Equity) + '%';
+            document.getElementById('debtBar').style.width = pct(totals.Debt) + '%';
+            document.getElementById('goldBar').style.width = pct(totals.Gold) + '%';
+            document.getElementById('othersBar').style.width = pct(totals.Others) + '%';
+            document.getElementById('equityValue').textContent = pct(totals.Equity) + '%';
+            document.getElementById('debtValue').textContent = pct(totals.Debt) + '%';
+            document.getElementById('goldValue').textContent = pct(totals.Gold) + '%';
+            document.getElementById('othersValue').textContent = pct(totals.Others) + '%';
+            document.getElementById('totalMonthlyValue') && (document.getElementById('totalMonthlyValue').textContent = WealthAPI.formatCurrency(Math.round(grandTotal)));
+        }
+
+        // ===========================
+        // ADD / EDIT INVESTMENT FORM
+        // ===========================
+        function updateInvSubcategories() {
+            const assetClass = document.getElementById('invAssetClass').value;
+            const instrumentType = document.getElementById('invInstrumentType').value;
+            const subSel = document.getElementById('invSubCategory');
+            const indexTypeGroup = document.getElementById('invIndexTypeGroup');
+            const indexTypeSel = document.getElementById('invIndexType');
+
+            let options = [];
+
+            if (assetClass === 'Equity' && instrumentType && EQUITY_INSTRUMENT_SUBCATEGORIES[instrumentType]) {
+                options = EQUITY_INSTRUMENT_SUBCATEGORIES[instrumentType];
+            } else if (assetClass && SUB_CATEGORIES[assetClass]) {
+                options = SUB_CATEGORIES[assetClass];
+            }
+
+            if (options.length === 0) {
+                subSel.innerHTML = '<option value="">Select type &amp; class first</option>';
+            } else {
+                subSel.innerHTML = '<option value="">Select sub-category</option>' +
+                    options.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+
+            // Show Index/Active only for Mutual Fund or ETF
+            const showIndex = (instrumentType === 'Mutual Fund' || instrumentType === 'ETF');
+            if (indexTypeGroup) {
+                indexTypeGroup.style.display = showIndex ? '' : 'none';
+                if (!showIndex && indexTypeSel) indexTypeSel.value = '';
+            }
+        }
+
+        function startEditInvestment(invId) {
+            const inv = currentInvestments.find(i => i.id === invId || i.id === Number(invId));
+            if (!inv) return;
+            editingInvId = inv.id;
+
+            document.getElementById('invModalTitle').textContent = 'Edit Investment';
+            document.getElementById('saveInvBtn').textContent = 'Save Changes';
+            document.getElementById('saveAddAnotherBtn').style.display = 'none';
+
+            document.getElementById('invName').value = inv.name || '';
+            document.getElementById('invInstrumentType').value = inv.instrumentType || '';
+            document.getElementById('invAssetClass').value = inv.assetClass || '';
+            updateInvSubcategories();
+            document.getElementById('invSubCategory').value = inv.subCategory || '';
+            document.getElementById('invIndexType').value = inv.indexType || '';
+            document.getElementById('invFundHouse').value = inv.fundHouse || '';
+            document.getElementById('invPlatform').value = inv.platform || '';
+            document.getElementById('invAmount').value = inv.amount || '';
+            document.getElementById('invFrequency').value = inv.frequency || 'monthly';
+            document.getElementById('invStartMonth').value = inv.startMonth || '';
+            document.getElementById('invNotes').value = inv.notes || '';
+
+            document.getElementById('invModal').style.display = 'flex';
+        }
+
+        function openInvModal() {
+            editingInvId = null;
+            document.getElementById('invModalTitle').textContent = 'Add Investment';
+            document.getElementById('saveInvBtn').textContent = 'Add Investment';
+            document.getElementById('saveAddAnotherBtn').style.display = '';
+            document.getElementById('invName').value = '';
+            document.getElementById('invInstrumentType').value = '';
+            document.getElementById('invAssetClass').value = '';
+            document.getElementById('invSubCategory').innerHTML = '<option value="">Select type &amp; class first</option>';
+            document.getElementById('invIndexType').value = '';
+            document.getElementById('invFundHouse').value = '';
+            document.getElementById('invPlatform').value = '';
+            document.getElementById('invAmount').value = '';
+            document.getElementById('invFrequency').value = 'monthly';
+            document.getElementById('invStartMonth').value = '';
+            document.getElementById('invNotes').value = '';
+            document.getElementById('invModal').style.display = 'flex';
+        }
+
+        function closeInvModal() {
+            document.getElementById('invModal').style.display = 'none';
+            editingInvId = null;
+        }
+
+        function cancelEdit() {
+            closeInvModal();
+        }
+
+        async function saveInvestment(addAnother) {
+            const name = document.getElementById('invName').value.trim();
+            const instrumentType = document.getElementById('invInstrumentType').value;
+            const assetClass = document.getElementById('invAssetClass').value;
+            const subCategory = document.getElementById('invSubCategory').value;
+            const indexType = document.getElementById('invIndexType').value;
+            const fundHouse = document.getElementById('invFundHouse').value.trim();
+            const platform = document.getElementById('invPlatform').value;
+            const amount = parseFloat(document.getElementById('invAmount').value);
+            const frequency = document.getElementById('invFrequency').value;
+            const startMonth = document.getElementById('invStartMonth').value;
+            const notes = document.getElementById('invNotes').value.trim();
+
+            if (!name) { showToast('Please enter a name', true); return; }
+            if (!assetClass) { showToast('Please select an asset class', true); return; }
+            if (!amount || isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount', true); return; }
+
+            const item = { name, instrumentType, assetClass, subCategory, indexType, fundHouse, platform, amount, frequency, startMonth, notes };
+
+            try {
+                if (editingInvId != null) {
+                    await WealthAPI.savings.update(currentMemberId, editingInvId, item);
+                    showToast('Investment updated!');
+                    closeInvModal();
+                } else {
+                    await WealthAPI.savings.add(currentMemberId, item);
+                    showToast('Investment added!');
+                    if (addAnother) {
+                        // Clear form but keep modal open for next entry
+                        document.getElementById('invName').value = '';
+                        document.getElementById('invAmount').value = '';
+                        document.getElementById('invNotes').value = '';
+                        document.getElementById('invName').focus();
+                    } else {
+                        closeInvModal();
+                    }
+                }
+                await loadMemberData(currentMemberId);
+            } catch (e) {
+                showToast('Failed to save: ' + (e.message || e), true);
+            }
+        }
+
+        async function deleteInvestment(invId) {
+            if (!confirm('Delete this investment?')) return;
+            try {
+                await WealthAPI.savings.remove(currentMemberId, invId);
+                showToast('Investment deleted.');
+                await loadMemberData(currentMemberId);
+            } catch (e) {
+                showToast('Failed to delete: ' + (e.message || e), true);
+            }
+        }
+
+        async function deleteAllInvestments() {
+            if (!currentInvestments || currentInvestments.length === 0) return;
+            if (!confirm(`Delete all ${currentInvestments.length} investment${currentInvestments.length !== 1 ? 's' : ''} for this member? This cannot be undone.`)) return;
+            try {
+                for (const inv of [...currentInvestments]) {
+                    await WealthAPI.savings.remove(currentMemberId, inv.id);
+                }
+                await loadMemberData(currentMemberId);
+                showToast('All investments deleted.');
+            } catch (e) {
+                showToast('Failed to delete: ' + (e.message || e), true);
+            }
+        }
+
+        // ===========================
+        // MONTHLY BREAKUP
+        // ===========================
+        function getBreakupMonthDate() {
+            const d = new Date();
+            d.setDate(1);
+            d.setMonth(d.getMonth() + monthOffset);
+            return d;
+        }
+
+        function changeMonth(delta) {
+            const now = new Date();
+            const newOffset = monthOffset + delta;
+            const testDate = new Date();
+            testDate.setDate(1);
+            testDate.setMonth(testDate.getMonth() + newOffset);
+            if (testDate > now) return;
+            monthOffset = newOffset;
+            renderMonthlyBreakup();
+            renderEquityInsights();
+        }
+
+        function renderMonthlyBreakup() {
+            const d = getBreakupMonthDate();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yearMonth = `${yyyy}-${mm}`;
+            const monthLabel = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+            document.getElementById('monthLabel').textContent = monthLabel;
+
+            // Filter investments active in this month
+            const activeInvestments = (currentInvestments || []).filter(inv => {
+                if (!inv.startMonth) return true;
+                return inv.startMonth <= yearMonth;
+            });
+
+            const groups = { Equity: [], Debt: [], Gold: [], Others: [] };
+            activeInvestments.forEach(inv => {
+                const ac = inv.assetClass;
+                if (groups[ac]) groups[ac].push(inv);
+                else groups['Others'].push(inv);
+            });
+
+            const acColors = { Equity: 'equity', Debt: 'debt', Gold: 'gold', Others: 'others' };
+            let grandTotal = 0;
+
+            const cardsHtml = Object.entries(groups).map(([ac, invs]) => {
+                const total = invs.reduce((s, i) => s + toMonthlyEquivalent(i.amount, i.frequency), 0);
+                grandTotal += total;
+                const cls = acColors[ac] || 'others';
+
+                const itemsHtml = invs.length === 0
+                    ? `<div style="font-size:0.75rem;color:var(--text-tertiary);padding:4px 0;">No investments</div>`
+                    : invs.slice(0, 5).map(inv => `
+                        <div class="breakup-card-item">
+                            <span class="breakup-item-name" title="${escapeHtml(inv.name)}">${escapeHtml(inv.name)}</span>
+                            <span class="breakup-item-amount">${WealthAPI.formatCurrency(Math.round(toMonthlyEquivalent(inv.amount, inv.frequency)))}</span>
+                        </div>`).join('') +
+                        (invs.length > 5 ? `<div style="font-size:0.75rem;color:var(--text-tertiary);padding:4px 8px;">+${invs.length - 5} more</div>` : '');
+
+                return `
+                <div class="breakup-asset-card ${cls}">
+                    <div class="breakup-card-label">${ac}</div>
+                    <div class="breakup-card-amount">${WealthAPI.formatCurrency(Math.round(total))}</div>
+                    <div class="breakup-card-count">${invs.length} investment${invs.length !== 1 ? 's' : ''}</div>
+                    <div class="breakup-card-items">${itemsHtml}</div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('breakupCardsGrid').innerHTML = cardsHtml;
+            document.getElementById('combinedMonthTotal').textContent = WealthAPI.formatCurrency(Math.round(grandTotal));
+            renderAllocation(activeInvestments);
+        }
+
+        // ===========================
+        // EQUITY INSIGHTS
+        // ===========================
+        function renderEquityInsights() {
+            const equityInvs = (currentInvestments || []).filter(i => i.assetClass === 'Equity');
+
+            const insightsSection = document.getElementById('equityInsightsSection');
+            if (equityInvs.length === 0) {
+                insightsSection.style.display = 'none';
+                return;
+            }
+            insightsSection.style.display = '';
+
+            const equityTotal = equityInvs.reduce((s, i) => s + toMonthlyEquivalent(i.amount, i.frequency), 0);
+
+            // --- By instrument type ---
+            const typeGroups = {};
+            equityInvs.forEach(inv => {
+                const t = inv.instrumentType || 'Other';
+                typeGroups[t] = (typeGroups[t] || 0) + toMonthlyEquivalent(inv.amount, inv.frequency);
+            });
+
+            const typeColors = {
+                'Mutual Fund': '#0066ff',
+                'ETF': '#00a803',
+                'Stock': '#d97706',
+                'Bond/FD': '#c2410c',
+                'Other': '#7c3aed'
+            };
+
+            const typeRows = Object.entries(typeGroups).sort((a, b) => b[1] - a[1]).map(([type, amt]) => {
+                const pct = equityTotal > 0 ? Math.round((amt / equityTotal) * 100) : 0;
+                const color = typeColors[type] || '#888';
+                return `
+                <div class="insight-row">
+                    <div class="insight-label">
+                        <span class="insight-dot" style="background:${color};"></span>
+                        ${escapeHtml(type)}
+                    </div>
+                    <div class="insight-pct">${pct}%</div>
+                    <div class="insight-amount">${WealthAPI.formatCurrency(Math.round(amt))}</div>
+                    <div class="insight-bar-wrap">
+                        <div class="insight-bar-fill" style="width:${pct}%;background:${color};"></div>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('equityByTypePanel').innerHTML = typeRows ||
+                '<div style="color:var(--text-tertiary);font-size:0.875rem;">No equity investments yet.</div>';
+
+            // --- MF cap breakdown ---
+            const mfInvs = equityInvs.filter(i => i.instrumentType === 'Mutual Fund');
+            const mfTotal = mfInvs.reduce((s, i) => s + toMonthlyEquivalent(i.amount, i.frequency), 0);
+
+            if (mfInvs.length === 0) {
+                document.getElementById('equityByCapPanel').innerHTML =
+                    '<div style="color:var(--text-tertiary);font-size:0.875rem;">No mutual funds in equity. Add MF investments to see breakdown.</div>';
+                return;
+            }
+
+            const capGroups = {};
+            mfInvs.forEach(inv => {
+                const sub = inv.subCategory || 'Other';
+                capGroups[sub] = (capGroups[sub] || 0) + toMonthlyEquivalent(inv.amount, inv.frequency);
+            });
+
+            const capColors = {
+                'Large Cap MF': '#0066ff',
+                'Mid Cap MF': '#00d4ff',
+                'Small Cap MF': '#fb923c',
+                'Flexi Cap MF': '#22c55e',
+                'Index Fund': '#8b5cf6',
+                'ELSS': '#ec4899',
+                'Sectoral/Thematic MF': '#f59e0b',
+                'International MF': '#06b6d4'
+            };
+
+            const capRows = Object.entries(capGroups).sort((a, b) => b[1] - a[1]).map(([cap, amt]) => {
+                const pct = mfTotal > 0 ? Math.round((amt / mfTotal) * 100) : 0;
+                const color = capColors[cap] || '#888';
+                return `
+                <div class="insight-row">
+                    <div class="insight-label">
+                        <span class="insight-dot" style="background:${color};"></span>
+                        ${escapeHtml(cap)}
+                    </div>
+                    <div class="insight-pct">${pct}%</div>
+                    <div class="insight-amount">${WealthAPI.formatCurrency(Math.round(amt))}</div>
+                    <div class="insight-bar-wrap">
+                        <div class="insight-bar-fill" style="width:${pct}%;background:${color};"></div>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('equityByCapPanel').innerHTML = capRows;
+        }
+
+        // ===========================
+        // AI IMPORT MODAL
+        // ===========================
+        let _importActiveTab = 'paste';
+        let _importImageBase64 = null;
+        let _importImageMediaType = null;
+
+        function switchImportTab(tab) {
+            _importActiveTab = tab;
+            document.getElementById('importPasteTab').style.display = tab === 'paste' ? '' : 'none';
+            document.getElementById('importFileTab').style.display = tab === 'csv' ? '' : 'none';
+            document.getElementById('importScreenshotTab').style.display = tab === 'screenshot' ? '' : 'none';
+            const btnIds = { paste: 'tabPasteBtn', csv: 'tabCsvBtn', screenshot: 'tabScreenshotBtn' };
+            Object.keys(btnIds).forEach(t => {
+                const btn = document.getElementById(btnIds[t]);
+                if (t === tab) {
+                    btn.style.background = 'var(--accent-primary)';
+                    btn.style.color = '#fff';
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--text-secondary)';
+                }
+            });
+        }
+
+        function onCsvFileSelected(input) {
+            const name = input.files[0] ? input.files[0].name : '';
+            document.getElementById('csvFileName').textContent = name ? '📄 ' + name : '';
+        }
+
+        function onImageSelected(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const dataUrl = e.target.result;
+                const [header, base64] = dataUrl.split(',');
+                _importImageBase64 = base64;
+                _importImageMediaType = file.type || 'image/png';
+                document.getElementById('screenshotPreviewImg').src = dataUrl;
+                document.getElementById('screenshotPreviewContainer').style.display = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function onImageDrop(event) {
+            event.preventDefault();
+            document.getElementById('screenshotDropZone').style.borderColor = 'var(--border-color)';
+            const file = event.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            document.getElementById('importImageInput').files = dt.files;
+            onImageSelected(document.getElementById('importImageInput'));
+        }
+
+        function clearScreenshot() {
+            _importImageBase64 = null;
+            _importImageMediaType = null;
+            document.getElementById('importImageInput').value = '';
+            document.getElementById('screenshotPreviewContainer').style.display = 'none';
+        }
+
+        function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            document.getElementById('importInput').value = '';
+            document.getElementById('importPreview').innerHTML = '';
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('importConfirmBtn').style.display = 'none';
+            document.getElementById('importFileInput').value = '';
+            document.getElementById('importStatusMsg').textContent = '';
+            document.getElementById('csvFileName').textContent = '';
+            document.getElementById('screenshotPreviewContainer').style.display = 'none';
+            _importImageBase64 = null;
+            _importImageMediaType = null;
+            window._importParsed = null;
+            switchImportTab('paste');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        const PARSE_PROMPT_TEMPLATE = `You are a financial data parser for an Indian investment tracking app. The user has provided investment data.
+
+Extract all individual investments into a JSON array. Each item should have these fields (use null if unknown):
+- name: string (fund/stock/ETF/instrument name)
+- instrumentType: one of ["Mutual Fund", "ETF", "Stock", "Bond/FD", "Other"]
+- assetClass: one of ["Equity", "Debt", "Gold", "Others"]
+- subCategory: string — the cap category for MFs/ETFs (e.g. "Large Cap MF", "Mid Cap MF", "Small Cap MF", "Flexi Cap MF", "ELSS", "Sectoral/Thematic MF", "International MF", "Nifty 50 ETF", "Direct Equity", "PPF", "Fixed Deposit", "Sovereign Gold Bond", "Liquid Fund", "Arbitrage Fund", "NPS", "ULIP", etc.) — do NOT use "Index Fund" as a sub-category
+- indexType: one of ["Index", "Active", null] — for Mutual Funds and ETFs only; use "Index" if the fund tracks an index (index fund/ETF), "Active" if actively managed, null otherwise
+- fundHouse: string or null (AMC name e.g. "HDFC", "Mirae Asset", "Axis", "SBI")
+- platform: string or null (e.g. "Zerodha", "Groww", "Kuvera", "Coin by Zerodha")
+- amount: number (monthly SIP or investment amount in INR; if annual or quarterly, convert to monthly equivalent)
+- frequency: one of ["monthly", "quarterly", "yearly", "one-time"]
+- notes: string or null (any extra detail like "Direct plan", "Growth option")
+
+Return ONLY a valid JSON array, no explanation or markdown. Example:
+[{"name":"HDFC Midcap Opportunities","instrumentType":"Mutual Fund","assetClass":"Equity","subCategory":"Mid Cap MF","indexType":"Active","fundHouse":"HDFC","platform":"Groww","amount":5000,"frequency":"monthly","notes":"Direct plan"}]`;
+
+        async function runAIImport() {
+            const statusEl = document.getElementById('importStatusMsg');
+            const previewEl = document.getElementById('importPreview');
+            const confirmBtn = document.getElementById('importConfirmBtn');
+
+            statusEl.textContent = '⏳ Parsing with Claude AI…';
+            previewEl.style.display = 'none';
+            confirmBtn.style.display = 'none';
+
+            try {
+                let body = {};
+
+                if (_importActiveTab === 'screenshot') {
+                    if (!_importImageBase64) {
+                        statusEl.textContent = 'Please upload a screenshot first.';
+                        return;
+                    }
+                    body = {
+                        prompt: PARSE_PROMPT_TEMPLATE + '\n\nExtract investments from the screenshot above.',
+                        imageBase64: _importImageBase64,
+                        imageMediaType: _importImageMediaType
+                    };
+                } else if (_importActiveTab === 'csv') {
+                    const fileInput = document.getElementById('importFileInput');
+                    if (!fileInput.files.length) {
+                        statusEl.textContent = 'Please upload a CSV file first.';
+                        return;
+                    }
+                    const content = await fileInput.files[0].text();
+                    body = { prompt: PARSE_PROMPT_TEMPLATE + '\n\nInput data:\n' + content.substring(0, 4000) };
+                } else {
+                    const text = document.getElementById('importInput').value.trim();
+                    if (!text) {
+                        statusEl.textContent = 'Please paste some data first.';
+                        return;
+                    }
+                    body = { prompt: PARSE_PROMPT_TEMPLATE + '\n\nInput data:\n' + text.substring(0, 4000) };
+                }
+
+                const resp = await fetch('/api/ai-parse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '')
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) throw new Error('API error ' + resp.status);
+                const data = await resp.json();
+                const raw = (data.result || '').trim();
+
+                const jsonMatch = raw.match(/\[[\s\S]*\]/);
+                if (!jsonMatch) throw new Error('Could not extract investment data from response');
+                const parsed = JSON.parse(jsonMatch[0]);
+
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('No investments found in the provided data');
+
+                window._importParsed = parsed;
+                statusEl.textContent = `✓ Found ${parsed.length} investment${parsed.length !== 1 ? 's' : ''}. Review and confirm below.`;
+                previewEl.style.display = 'block';
+                confirmBtn.style.display = '';
+
+                previewEl.innerHTML = `
+                <div style="padding:12px 16px;background:rgba(0,200,5,0.06);border-bottom:1px solid var(--border-subtle);font-size:0.8125rem;color:var(--text-secondary);">
+                    ${parsed.length} investment${parsed.length !== 1 ? 's' : ''} detected · Review details below before importing
+                </div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.8125rem;">
+                    <thead>
+                        <tr style="background:var(--bg-secondary);">
+                            <th style="padding:10px 12px;text-align:left;color:var(--text-tertiary);font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;">Fund / Instrument</th>
+                            <th style="padding:10px 12px;text-align:left;color:var(--text-tertiary);font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;">Type</th>
+                            <th style="padding:10px 12px;text-align:left;color:var(--text-tertiary);font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;">Asset · Sub-Cat</th>
+                            <th style="padding:10px 12px;text-align:right;color:var(--text-tertiary);font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;">Amount</th>
+                            <th style="padding:10px 12px;text-align:left;color:var(--text-tertiary);font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;">Freq</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${parsed.map(inv => `
+                        <tr style="border-bottom:1px solid var(--border-subtle);">
+                            <td style="padding:10px 12px;">
+                                <div style="font-weight:600;color:var(--text-primary);">${escapeHtml(inv.name || '–')}</div>
+                                ${inv.fundHouse ? `<div style="font-size:0.6875rem;color:var(--text-tertiary);margin-top:2px;">${escapeHtml(inv.fundHouse)}</div>` : ''}
+                                ${inv.platform ? `<div style="font-size:0.6875rem;color:var(--text-tertiary);">${escapeHtml(inv.platform)}</div>` : ''}
+                            </td>
+                            <td style="padding:10px 12px;color:var(--text-secondary);">${escapeHtml(inv.instrumentType || '–')}</td>
+                            <td style="padding:10px 12px;">
+                                <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.6875rem;font-weight:700;background:rgba(0,102,255,0.08);color:var(--accent-primary);">${escapeHtml(inv.assetClass || '–')}</span>
+                                ${inv.subCategory ? `<div style="font-size:0.6875rem;color:var(--text-tertiary);margin-top:3px;">${escapeHtml(inv.subCategory)}</div>` : ''}
+                            </td>
+                            <td style="padding:10px 12px;text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-primary);">₹${Number(inv.amount || 0).toLocaleString('en-IN')}</td>
+                            <td style="padding:10px 12px;color:var(--text-secondary);text-transform:capitalize;">${escapeHtml(inv.frequency || 'monthly')}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+            } catch (e) {
+                statusEl.textContent = '⚠️ ' + (e.message || 'Could not parse data. Try reformatting your input.');
+                previewEl.style.display = 'none';
+            }
+        }
+
+        async function confirmImport() {
+            const parsed = window._importParsed;
+            if (!parsed || !parsed.length) return;
+
+            const statusEl = document.getElementById('importStatusMsg');
+            const confirmBtn = document.getElementById('importConfirmBtn');
+            confirmBtn.disabled = true;
+            statusEl.textContent = '⏳ Saving investments…';
+
+            const now = new Date();
+            const defaultMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+            let saved = 0, failed = 0;
+            for (const inv of parsed) {
+                try {
+                    const item = {
+                        name: inv.name || 'Unnamed',
+                        instrumentType: inv.instrumentType || '',
+                        assetClass: inv.assetClass || 'Equity',
+                        subCategory: inv.subCategory || '',
+                        indexType: inv.indexType || '',
+                        fundHouse: inv.fundHouse || '',
+                        platform: inv.platform || '',
+                        amount: Number(inv.amount) || 0,
+                        frequency: inv.frequency || 'monthly',
+                        startMonth: defaultMonth,
+                        notes: inv.notes || ''
+                    };
+                    await WealthAPI.savings.add(currentMemberId, item);
+                    saved++;
+                } catch (e) { failed++; }
+            }
+
+            confirmBtn.disabled = false;
+            statusEl.textContent = `✓ Saved ${saved} investments${failed > 0 ? `, ${failed} failed` : ''}.`;
+            setTimeout(() => {
+                closeImportModal();
+                loadMemberData(currentMemberId);
+                showToast(`${saved} investment${saved !== 1 ? 's' : ''} imported!`);
+            }, 1200);
+        }
+    </script>
+
+    <!-- Add / Edit Investment Modal -->
+    <div id="invModal" class="inv-modal-overlay" style="display:none;" onclick="if(event.target===this)closeInvModal()">
+        <div class="inv-modal">
+            <div class="inv-modal-header">
+                <div class="inv-modal-title" id="invModalTitle">Add Investment</div>
+                <button class="inv-modal-close" onclick="closeInvModal()">×</button>
+            </div>
+
+            <div class="add-form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
+                <div class="form-group">
+                    <label class="form-label">Fund / Stock / Instrument Name *</label>
+                    <input type="text" class="form-input" id="invName" placeholder="e.g. HDFC Midcap Opportunities Fund">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Instrument Type</label>
+                    <select class="form-select" id="invInstrumentType" onchange="updateInvSubcategories()">
+                        <option value="">Select type</option>
+                        <option value="Mutual Fund">Mutual Fund</option>
+                        <option value="ETF">ETF</option>
+                        <option value="Stock">Stock</option>
+                        <option value="Bond/FD">Bond / FD</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Asset Class *</label>
+                    <select class="form-select" id="invAssetClass" onchange="updateInvSubcategories()">
+                        <option value="">Select</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Debt">Debt</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sub-Category</label>
+                    <select class="form-select" id="invSubCategory">
+                        <option value="">Select type &amp; class first</option>
+                    </select>
+                </div>
+                <div class="form-group" id="invIndexTypeGroup" style="display:none;">
+                    <label class="form-label">Index / Active</label>
+                    <select class="form-select" id="invIndexType">
+                        <option value="">Select</option>
+                        <option value="Index">Index</option>
+                        <option value="Active">Active</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="add-form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:12px;">
+                <div class="form-group">
+                    <label class="form-label">Amount (₹) *</label>
+                    <input type="number" class="form-input" id="invAmount" placeholder="5000" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Frequency *</label>
+                    <select class="form-select" id="invFrequency">
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="one-time">One-time</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fund House / AMC <span class="opt-label">(optional)</span></label>
+                    <input type="text" class="form-input" id="invFundHouse" placeholder="e.g. HDFC, Mirae, Axis">
+                </div>
+            </div>
+
+            <div class="add-form-grid" style="grid-template-columns: 1fr 1fr; margin-top:12px;">
+                <div class="form-group">
+                    <label class="form-label">Platform <span class="opt-label">(optional)</span></label>
+                    <select class="form-select" id="invPlatform">
+                        <option value="">Select platform</option>
+                        <option value="Zerodha">Zerodha</option>
+                        <option value="Groww">Groww</option>
+                        <option value="Coin by Zerodha">Coin by Zerodha</option>
+                        <option value="Paytm Money">Paytm Money</option>
+                        <option value="ET Money">ET Money</option>
+                        <option value="MFCentral">MFCentral</option>
+                        <option value="HDFC Securities">HDFC Securities</option>
+                        <option value="ICICI Direct">ICICI Direct</option>
+                        <option value="Kuvera">Kuvera</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Month <span class="opt-label">(optional)</span></label>
+                    <input type="month" class="form-input" id="invStartMonth">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:12px;">
+                <label class="form-label">Notes <span class="opt-label">(optional)</span></label>
+                <input type="text" class="form-input" id="invNotes" placeholder="e.g. Direct plan, IDCW option, step-up SIP…">
+            </div>
+
+            <div class="inv-modal-footer">
+                <button class="action-btn primary" id="saveInvBtn" onclick="saveInvestment(false)">Add Investment</button>
+                <button class="action-btn secondary" id="saveAddAnotherBtn" onclick="saveInvestment(true)">Save &amp; Add Another</button>
+                <button class="action-btn secondary" onclick="closeInvModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Import Modal -->
+    <div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:20px;padding:36px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.375rem;font-weight:700;color:var(--text-primary);">⚡ Import Investments with AI</h2>
+                <button onclick="closeImportModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);line-height:1;">×</button>
+            </div>
+            <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:24px;">
+                Paste a CSV, copy a table from Google Sheets, or describe your investments in plain text. Claude AI will extract and populate all fields automatically.
+            </div>
+
+            <!-- Tab Switcher -->
+            <div style="display:flex;gap:8px;margin-bottom:16px;background:var(--bg-secondary);padding:4px;border-radius:10px;width:fit-content;">
+                <button id="tabPasteBtn" onclick="switchImportTab('paste')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--accent-primary);color:#fff;transition:all 0.2s;">📋 Paste / Type</button>
+                <button id="tabCsvBtn" onclick="switchImportTab('csv')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;color:var(--text-secondary);transition:all 0.2s;">📁 Upload CSV</button>
+                <button id="tabScreenshotBtn" onclick="switchImportTab('screenshot')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;color:var(--text-secondary);transition:all 0.2s;">📷 Screenshot</button>
+            </div>
+
+            <!-- Paste Tab -->
+            <div id="importPasteTab">
+                <textarea id="importInput" style="width:100%;min-height:150px;padding:14px;border:1px solid var(--border-color);border-radius:12px;background:var(--input-bg);color:var(--text-primary);font-size:0.875rem;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;" placeholder="Paste CSV rows, Google Sheets table, or describe your investments:
+
+Fund Name, Amount, Frequency, Type
+HDFC Midcap Opportunities, 5000, Monthly, MF
+Nifty 50 ETF, 3000, Monthly, ETF
+Infosys, 2000, Monthly, Stock
+PPF, 12500, Monthly, Debt
+
+— OR —
+
+I invest ₹5000/month in HDFC Midcap MF (Mid Cap), ₹3000 in Nifty 50 ETF, and ₹12500 monthly in PPF via SBI."></textarea>
+            </div>
+
+            <!-- CSV Upload Tab -->
+            <div id="importFileTab" style="display:none;">
+                <label style="display:block;border:2px dashed var(--border-color);border-radius:12px;padding:32px;text-align:center;cursor:pointer;background:var(--input-bg);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                    <div style="font-size:2rem;margin-bottom:8px;">📁</div>
+                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">Click to upload CSV file</div>
+                    <div style="font-size:0.8125rem;color:var(--text-tertiary);">Supports .csv and .txt files · Exported from Zerodha, Groww, Kuvera, etc.</div>
+                    <input type="file" id="importFileInput" accept=".csv,.txt" style="display:none;" onchange="onCsvFileSelected(this)">
+                </label>
+                <div id="csvFileName" style="margin-top:10px;font-size:0.875rem;color:var(--text-secondary);"></div>
+            </div>
+
+            <!-- Screenshot Tab -->
+            <div id="importScreenshotTab" style="display:none;">
+                <div id="screenshotDropZone" style="border:2px dashed var(--border-color);border-radius:12px;padding:32px;text-align:center;cursor:pointer;background:var(--input-bg);transition:border-color 0.2s;" onclick="document.getElementById('importImageInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent-primary)'" ondragleave="this.style.borderColor='var(--border-color)'" ondrop="onImageDrop(event)">
+                    <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">Drop screenshot here or click to upload</div>
+                    <div style="font-size:0.8125rem;color:var(--text-tertiary);">PNG, JPG — brokerage app screenshots, statements, portfolio tables</div>
+                    <input type="file" id="importImageInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;" onchange="onImageSelected(this)">
+                </div>
+                <div id="screenshotPreviewContainer" style="display:none;margin-top:12px;">
+                    <img id="screenshotPreviewImg" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border-color);" alt="Screenshot preview">
+                    <button onclick="clearScreenshot()" style="display:block;margin-top:8px;background:none;border:1px solid var(--border-color);border-radius:6px;padding:4px 12px;font-size:0.8125rem;color:var(--text-secondary);cursor:pointer;">Remove</button>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:16px;align-items:center;">
+                <button class="action-btn primary" onclick="runAIImport()" style="display:flex;align-items:center;gap:8px;">
+                    <span>✨</span> Parse with Claude AI
+                </button>
+                <span id="importStatusMsg" style="font-size:0.875rem;color:var(--text-secondary);"></span>
+            </div>
+
+            <div id="importPreview" style="display:none;margin-top:20px;border:1px solid var(--border-color);border-radius:12px;overflow:auto;max-height:280px;"></div>
+
+            <div style="margin-top:16px;display:flex;gap:12px;">
+                <button id="importConfirmBtn" class="action-btn primary" onclick="confirmImport()" style="display:none;background:var(--success,#00C805);border-color:var(--success,#00C805);">
+                    Import All
+                </button>
+                <button class="action-btn secondary" onclick="closeImportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="sidebar.js"></script>
+</body>
+</html>

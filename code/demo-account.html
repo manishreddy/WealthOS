@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Demo Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --error: #FF3B30;
+            --warning: #ff9500;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #0f1624;
+            --bg-tertiary: #0f1624;
+            --bg-elevated: #0f1624;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.03);
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #00d4ff;
+            --gradient-end: #0066ff;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #fb923c;
+            --card-shadow: none;
+            --hover-bg: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { margin-bottom: 40px; }
+
+        .nav-section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 1.25rem; width: 24px; text-align: center; }
+
+        .theme-toggle {
+            margin-top: auto;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+        }
+
+        .theme-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+
+        .toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(22px);
+        }
+
+        .portfolio-summary {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 212, 255, 0.08) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+
+        .portfolio-summary-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portfolio-summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            letter-spacing: -0.01em;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: #ffffff;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--hover-bg);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* View Switcher */
+        .view-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: var(--bg-elevated);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: fit-content;
+        }
+
+        .view-tab {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .view-tab.active {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Metric Cards */
+        .metric-cards {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .metric-subvalue {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .metric-change.positive {
+            background: rgba(0, 200, 5, 0.1);
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--error);
+        }
+
+        /* Charts */
+        .chart-card {
+            grid-column: span 8;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-card.full-width {
+            grid-column: span 12;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .chart-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .chart-tab:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .chart-tab.active {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .chart-area {
+            height: 220px;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-grid {
+            stroke: var(--border-subtle);
+            stroke-width: 1;
+        }
+
+        /* Gauge Chart */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 220px;
+            position: relative;
+        }
+
+        .gauge-svg {
+            width: 180px;
+            height: 180px;
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 12;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke: url(#gaugeGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease;
+        }
+
+        .gauge-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .gauge-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* Goals */
+        .goals-grid {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .goal-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goal-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+        }
+
+        .goal-card.expanded {
+            grid-column: span 2;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .goal-icon {
+            font-size: 2rem;
+        }
+
+        .goal-progress-ring {
+            width: 48px;
+            height: 48px;
+        }
+
+        .goal-ring-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 4;
+        }
+
+        .goal-ring-progress {
+            fill: none;
+            stroke: var(--accent-primary);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .goal-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .goal-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+
+        .goal-current {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .goal-target {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .goal-progress-bar {
+            height: 6px;
+            background: var(--border-subtle);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-percentage {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .goal-details {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .goal-card.expanded .goal-details {
+            display: block;
+        }
+
+        .goal-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8125rem;
+        }
+
+        .goal-detail-label {
+            color: var(--text-secondary);
+        }
+
+        .goal-detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Activity & Allocation */
+        .activity-card {
+            grid-column: span 4;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .activity-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            padding: 10px;
+            margin: -10px;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.buy {
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%);
+        }
+
+        .activity-icon.sell {
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.15) 0%, rgba(239, 68, 68, 0.15) 100%);
+        }
+
+        .activity-icon.transfer {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+        }
+
+        .activity-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .activity-details {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .activity-amount {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .activity-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .activity-time {
+            font-size: 0.6875rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Allocation */
+        .allocation-card {
+            grid-column: span 6;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .allocation-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .allocation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .allocation-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .allocation-color {
+            width: 4px;
+            height: 36px;
+            border-radius: 2px;
+        }
+
+        .allocation-info {
+            flex: 1;
+        }
+
+        .allocation-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .allocation-bar {
+            height: 6px;
+            background: var(--border-subtle);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .allocation-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .allocation-stats {
+            text-align: right;
+        }
+
+        .allocation-percentage {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .allocation-value {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Expandable Sections */
+        .section-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-toggle-icon {
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        .section-toggle.expanded .section-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section-content.expanded {
+            max-height: 2000px;
+        }
+
+        /* Income vs Expense */
+        .income-expense-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .ie-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ie-label {
+            width: 80px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .ie-bar {
+            flex: 1;
+            height: 32px;
+            background: var(--border-subtle);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ie-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
+            transition: width 0.5s ease;
+        }
+
+        .ie-bar-fill.income {
+            background: linear-gradient(90deg, #00C805 0%, #22c55e 100%);
+        }
+
+        .ie-bar-fill.expense {
+            background: linear-gradient(90deg, #ff9500 0%, #ff6b00 100%);
+        }
+
+        .ie-value {
+            width: 100px;
+            text-align: right;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Demo Banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1a1a1a;
+            padding: 16px 24px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+        }
+
+        .demo-banner-icon {
+            font-size: 1.5rem;
+        }
+
+        .close-tab-btn {
+            padding: 10px 24px;
+            background: rgba(0, 0, 0, 0.1);
+            color: #1a1a1a;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 16px;
+        }
+
+        .close-tab-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Onboarding Cards */
+        .onboarding-section {
+            grid-column: span 12;
+            margin-bottom: 20px;
+            opacity: 1;
+            transition: opacity 0.5s ease, max-height 0.5s ease;
+        }
+
+        .onboarding-section.hidden {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .onboarding-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .onboarding-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .onboarding-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+
+        .onboarding-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 102, 255, 0.15);
+            border-color: var(--accent-primary);
+        }
+
+        .onboarding-card-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .onboarding-card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .onboarding-card-description {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .onboarding-card-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .onboarding-card:hover .onboarding-card-cta {
+            transform: translateX(4px);
+        }
+
+        /* Demo Button */
+        .demo-btn {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .demo-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--hover-bg);
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 0.9375rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 1536px) {
+            .metric-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .goals-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1280px) {
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .goals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-card {
+                grid-column: span 12;
+            }
+
+            .activity-card,
+            .allocation-card {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 24px 20px;
+            }
+
+            .metric-cards,
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-card,
+            .allocation-card {
+                grid-column: span 12;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .onboarding-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Banner -->
+    <div class="demo-banner">
+        <span class="demo-banner-icon">📊</span>
+        <span>Demo Account - This is an example to show you what WealthOS can do</span>
+        <button class="close-tab-btn" onclick="window.close()">Start My Own Account</button>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">Wealth<span>OS</span></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="dashboard.html" class="nav-item active" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="portfolio.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="monthly-tracker.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📅</span>
+                    <span>Monthly Tracker</span>
+                </a>
+                <a href="savings-plan.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💰</span>
+                    <span>Monthly Investments</span>
+                </a>
+                <a href="goals.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="financial-planning.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📈</span>
+                    <span>Financial Planning</span>
+                </a>
+                <a href="settings.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-label">Dark Mode</span>
+                <div class="toggle-switch" id="themeToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="portfolio-summary">
+                <div class="portfolio-summary-label" id="sidebarLabel">Sharma Family Net Worth</div>
+                <div class="portfolio-summary-value" id="sidebarValue">₹2.45Cr</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-header">
+                    <div class="page-title" id="pageTitle">Sharma Family Dashboard</div>
+                    <div class="page-subtitle" id="pageSubtitle">Complete overview of Sharma family wealth and goals</div>
+                </div>
+                <div class="top-actions">
+                    <button class="action-btn secondary">₹ INR</button>
+                    <button class="action-btn primary">+ Add Transaction</button>
+                    <div class="user-avatar">M
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <div class="user-menu-header">
+                                <div class="user-menu-name" id="userMenuName">Loading...</div>
+                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+                            </div>
+                            <div class="user-menu-items">
+                                <a href="settings.html" class="user-menu-item">
+                                    <span class="user-menu-item-icon">⚙️</span>
+                                    <span>Settings</span>
+                                </a>
+                                <a href="demo-account.html" target="_blank" class="user-menu-item">
+                                    <span class="user-menu-item-icon">👁️</span>
+                                    <span>View Demo Account</span>
+                                </a>
+                                <div class="user-menu-item logout" onclick="handleLogout()">
+                                    <span class="user-menu-item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Switcher -->
+            <div class="view-switcher">
+                <button class="view-tab active" onclick="switchView('family')" data-view="family">
+                    <span>👨‍👩‍👧‍👦</span>
+                    <span>Sharma Family</span>
+                </button>
+                <button class="view-tab" onclick="switchView('manish')" data-view="manish">
+                    <span>👨</span>
+                    <span>Rajesh</span>
+                </button>
+                <button class="view-tab" onclick="switchView('raghavi')" data-view="raghavi">
+                    <span>👩</span>
+                    <span>Priya</span>
+                </button>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Metric Cards -->
+                <div class="metric-cards" id="metricCards">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Main Chart -->
+                <div class="chart-card" id="mainChart">
+                    <div class="chart-header">
+                        <div class="chart-title" id="chartTitle">Net Worth Growth</div>
+                        <div class="chart-tabs">
+                            <button class="chart-tab">1M</button>
+                            <button class="chart-tab active">3M</button>
+                            <button class="chart-tab">6M</button>
+                            <button class="chart-tab">1Y</button>
+                            <button class="chart-tab">ALL</button>
+                        </div>
+                    </div>
+                    <div class="chart-area">
+                        <svg class="chart-svg" viewBox="0 0 800 220" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.2" />
+                                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <line x1="0" y1="44" x2="800" y2="44" class="chart-grid"/>
+                            <line x1="0" y1="88" x2="800" y2="88" class="chart-grid"/>
+                            <line x1="0" y1="132" x2="800" y2="132" class="chart-grid"/>
+                            <line x1="0" y1="176" x2="800" y2="176" class="chart-grid"/>
+                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60 L 800 220 L 0 220 Z"
+                                  fill="url(#chartGradient)"/>
+                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60"
+                                  stroke="var(--accent-primary)"
+                                  stroke-width="3"
+                                  fill="none"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Savings Rate Gauge -->
+                <div class="chart-card" id="savingsGauge">
+                    <div class="chart-header">
+                        <div class="chart-title">Savings Rate</div>
+                    </div>
+                    <div class="gauge-container">
+                        <svg class="gauge-svg" viewBox="0 0 180 180">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:var(--gradient-start)" />
+                                    <stop offset="100%" style="stop-color:var(--gradient-end)" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-bg" cx="90" cy="90" r="70"/>
+                            <circle class="gauge-progress" cx="90" cy="90" r="70"
+                                    style="stroke-dasharray: 329.87 439.82; stroke-dashoffset: 0; transform: rotate(-90deg); transform-origin: center;"/>
+                        </svg>
+                        <div style="position: absolute; text-align: center;">
+                            <div class="gauge-value" id="gaugeValue">42%</div>
+                            <div class="gauge-label">of income saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goals Section -->
+                <div class="goals-grid" id="goalsGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Income vs Expense Chart -->
+                <div class="chart-card full-width" id="incomeExpenseChart">
+                    <div class="section-toggle" onclick="toggleSection(this)">
+                        <div class="chart-title">Income vs Expenses (Last 6 Months)</div>
+                        <span class="section-toggle-icon">▼</span>
+                    </div>
+                    <div class="section-content expanded">
+                        <div class="income-expense-bars">
+                            <div class="ie-row">
+                                <div class="ie-label">Income</div>
+                                <div class="ie-bar">
+                                    <div class="ie-bar-fill income" style="width: 100%;">₹2,85,000</div>
+                                </div>
+                                <div class="ie-value">₹2.85L</div>
+                            </div>
+                            <div class="ie-row">
+                                <div class="ie-label">Expenses</div>
+                                <div class="ie-bar">
+                                    <div class="ie-bar-fill expense" style="width: 58%;">₹1,65,000</div>
+                                </div>
+                                <div class="ie-value">₹1.65L</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation -->
+                <div class="allocation-card" id="allocationCard">
+                    <div class="allocation-title" id="allocationTitle">Family Asset Allocation</div>
+                    <div class="allocation-list" id="allocationList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-card" id="activityCard">
+                    <div class="activity-title">Recent Activity</div>
+                    <div class="activity-list" id="activityList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Demo Data for Sharma Family
+        const sampleData = {
+            family: {
+                netWorth: 24500000,
+                totalIncome: 285000,
+                totalExpenses: 165000,
+                savingsRate: 42,
+                investments: 21000000,
+                cash: 2500000,
+                debt: 0,
+                metrics: [
+                    { label: 'Net Worth', icon: '💎', value: '₹2.45Cr', change: '+12.5%', positive: true },
+                    { label: 'Monthly Income', icon: '💰', value: '₹2.85L', change: '+8.2%', positive: true },
+                    { label: 'Monthly Expenses', icon: '📊', value: '₹1.65L', change: '-2.5%', positive: true },
+                    { label: 'Savings Rate', icon: '🎯', value: '42%', change: '+5%', positive: true },
+                    { label: 'Investments', icon: '📈', value: '₹2.1Cr', change: '+15.3%', positive: true },
+                    { label: 'Emergency Fund', icon: '🛡️', value: '₹6.5L', change: '+3.2%', positive: true }
+                ],
+                goals: [
+                    { icon: '🏠', title: 'House Purchase', current: 4500000, target: 10000000, percentage: 45, monthly: 85000, years: 5.2 },
+                    { icon: '🎓', title: 'Kids Education', current: 3100000, target: 5000000, percentage: 62, monthly: 45000, years: 3.5 },
+                    { icon: '🚗', title: 'New Car', current: 640000, target: 800000, percentage: 80, monthly: 20000, years: 0.7 },
+                    { icon: '🌴', title: 'Retirement Fund', current: 1500000, target: 10000000, percentage: 15, monthly: 60000, years: 11.8 },
+                    { icon: '✈️', title: 'Europe Vacation', current: 300000, target: 300000, percentage: 100, monthly: 0, years: 0 },
+                    { icon: '💍', title: 'Gold Investment', current: 850000, target: 2000000, percentage: 43, monthly: 35000, years: 2.7 }
+                ],
+                allocation: [
+                    { name: 'Mutual Funds', percentage: 32, value: 6720000, color: 'linear-gradient(90deg, #00C805 0%, #22c55e 100%)' },
+                    { name: 'Stocks', percentage: 28, value: 5880000, color: 'linear-gradient(90deg, #0066ff 0%, #00d4ff 100%)' },
+                    { name: 'Fixed Deposits', percentage: 18, value: 3780000, color: 'linear-gradient(90deg, #a855f7 0%, #7e22ce 100%)' },
+                    { name: 'Real Estate', percentage: 12, value: 2520000, color: 'linear-gradient(90deg, #fb923c 0%, #ea580c 100%)' },
+                    { name: 'PPF', percentage: 6, value: 1260000, color: 'linear-gradient(90deg, #10b981 0%, #059669 100%)' },
+                    { name: 'Gold', percentage: 4, value: 840000, color: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)' }
+                ],
+                activities: [
+                    { icon: 'buy', type: '✓', name: 'Reliance Industries', details: 'Rajesh bought 100 shares', value: '₹2,45,000', time: '1h ago' },
+                    { icon: 'buy', type: '✓', name: 'HDFC Flexi Cap Fund', details: 'Priya SIP Investment', value: '₹25,000', time: '3h ago' },
+                    { icon: 'transfer', type: '↔', name: 'PPF Contribution', details: 'Yearly deposit completed', value: '₹1,50,000', time: '1d ago' },
+                    { icon: 'buy', type: '✓', name: 'Gold Sovereign Bonds', details: 'Rajesh bought 50 units', value: '₹82,500', time: '2d ago' },
+                    { icon: 'buy', type: '✓', name: 'ICICI Bank FD', details: 'Fixed deposit created', value: '₹5,00,000', time: '3d ago' },
+                    { icon: 'sell', type: '✗', name: 'Infosys Ltd', details: 'Rajesh sold 80 shares', value: '₹1,15,200', time: '4d ago' },
+                    { icon: 'buy', type: '✓', name: 'SBI Blue Chip Fund', details: 'Priya monthly SIP', value: '₹15,000', time: '5d ago' },
+                    { icon: 'transfer', type: '↔', name: 'Emergency Fund', details: 'Monthly savings added', value: '₹30,000', time: '1w ago' }
+                ]
+            },
+            manish: {
+                netWorth: 1482000,
+                income: 245000,
+                expenses: 128000,
+                savingsRate: 48,
+                investments: 1125000,
+                cash: 165000,
+                metrics: [
+                    { label: 'Net Worth', icon: '💎', value: '₹14.82L', change: '+10.2%', positive: true },
+                    { label: 'Monthly Income', icon: '💰', value: '₹2.45L', change: '+6.5%', positive: true },
+                    { label: 'My Expenses', icon: '📊', value: '₹1.28L', change: '-2.8%', positive: true },
+                    { label: 'Savings Rate', icon: '🎯', value: '48%', change: '+5%', positive: true },
+                    { label: 'Investments', icon: '📈', value: '₹11.25L', change: '+15.2%', positive: true },
+                    { label: 'Cash Balance', icon: '💵', value: '₹1.65L', change: '+3.2%', positive: true }
+                ],
+                goals: [
+                    { icon: '🏠', title: 'Home Down Payment', current: 720000, target: 1500000, percentage: 48, monthly: 30000, years: 2.2 },
+                    { icon: '📚', title: 'MBA Fund', current: 450000, target: 1200000, percentage: 38, monthly: 20000, years: 3.1 },
+                    { icon: '🎮', title: 'Gaming Setup', current: 85000, target: 150000, percentage: 57, monthly: 5000, years: 1.1 },
+                    { icon: '🏍️', title: 'Bike Upgrade', current: 180000, target: 350000, percentage: 51, monthly: 10000, years: 1.4 }
+                ],
+                allocation: [
+                    { name: 'Equity', percentage: 52, value: 585000, color: 'linear-gradient(90deg, #0066ff 0%, #00d4ff 100%)' },
+                    { name: 'Mutual Funds', percentage: 24, value: 270000, color: 'linear-gradient(90deg, #00C805 0%, #22c55e 100%)' },
+                    { name: 'Fixed Deposits', percentage: 14, value: 157500, color: 'linear-gradient(90deg, #a855f7 0%, #7e22ce 100%)' },
+                    { name: 'Crypto', percentage: 7, value: 78750, color: 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)' },
+                    { name: 'Gold ETF', percentage: 3, value: 33750, color: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)' }
+                ],
+                activities: [
+                    { icon: 'buy', type: '✓', name: 'HDFC Bank', details: 'Bought 50 shares', value: '₹81,250', time: '2h ago' },
+                    { icon: 'sell', type: '✗', name: 'TCS Ltd', details: 'Sold 30 shares', value: '₹1,05,450', time: '5h ago' },
+                    { icon: 'buy', type: '✓', name: 'Gold ETF', details: 'Bought 25 units', value: '₹13,375', time: '2d ago' },
+                    { icon: 'transfer', type: '↔', name: 'Emergency Fund', details: 'Monthly contribution', value: '₹15,000', time: '3d ago' },
+                    { icon: 'buy', type: '✓', name: 'Bitcoin', details: 'Bought 0.02 BTC', value: '₹45,000', time: '5d ago' }
+                ]
+            },
+            raghavi: {
+                netWorth: 968000,
+                income: 140000,
+                expenses: 95000,
+                savingsRate: 32,
+                investments: 695000,
+                cash: 165000,
+                metrics: [
+                    { label: 'Net Worth', icon: '💎', value: '₹9.68L', change: '+6.8%', positive: true },
+                    { label: 'Monthly Income', icon: '💰', value: '₹1.40L', change: '+4.2%', positive: true },
+                    { label: 'My Expenses', icon: '📊', value: '₹95K', change: '-4.5%', positive: true },
+                    { label: 'Savings Rate', icon: '🎯', value: '32%', change: '+3%', positive: true },
+                    { label: 'Investments', icon: '📈', value: '₹6.95L', change: '+9.5%', positive: true },
+                    { label: 'Cash Balance', icon: '💵', value: '₹1.65L', change: '+1.8%', positive: true }
+                ],
+                goals: [
+                    { icon: '🎓', title: 'Education Fund', current: 480000, target: 800000, percentage: 60, monthly: 15000, years: 1.8 },
+                    { icon: '💍', title: 'Jewelry Collection', current: 350000, target: 500000, percentage: 70, monthly: 8000, years: 1.6 },
+                    { icon: '✈️', title: 'Europe Trip', current: 120000, target: 400000, percentage: 30, monthly: 12000, years: 1.9 },
+                    { icon: '🎨', title: 'Art Classes', current: 45000, target: 100000, percentage: 45, monthly: 3000, years: 1.5 }
+                ],
+                allocation: [
+                    { name: 'Mutual Funds', percentage: 38, value: 264100, color: 'linear-gradient(90deg, #00C805 0%, #22c55e 100%)' },
+                    { name: 'Equity', percentage: 28, value: 194600, color: 'linear-gradient(90deg, #0066ff 0%, #00d4ff 100%)' },
+                    { name: 'Fixed Deposits', percentage: 22, value: 152900, color: 'linear-gradient(90deg, #a855f7 0%, #7e22ce 100%)' },
+                    { name: 'Gold', percentage: 8, value: 55600, color: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)' },
+                    { name: 'PPF', percentage: 4, value: 27800, color: 'linear-gradient(90deg, #10b981 0%, #059669 100%)' }
+                ],
+                activities: [
+                    { icon: 'buy', type: '✓', name: 'Nifty 50 Fund', details: 'SIP Investment', value: '₹10,000', time: '1d ago' },
+                    { icon: 'buy', type: '✓', name: 'Gold Coin', details: 'Bought 5g gold', value: '₹32,500', time: '3d ago' },
+                    { icon: 'transfer', type: '↔', name: 'PPF Contribution', details: 'Quarterly deposit', value: '₹12,500', time: '5d ago' },
+                    { icon: 'buy', type: '✓', name: 'HDFC Equity Fund', details: 'Lumpsum investment', value: '₹50,000', time: '1w ago' },
+                    { icon: 'buy', type: '✓', name: 'FD Renewal', details: 'Fixed deposit matured', value: '₹1,00,000', time: '2w ago' }
+                ]
+            }
+        };
+
+        let currentView = 'family';
+
+        // Initialize page
+        function loadData() {
+            const data = sampleData[currentView];
+
+            // Update sidebar
+            document.getElementById('sidebarLabel').textContent =
+                currentView === 'family' ? 'Sharma Family Net Worth' :
+                currentView === 'manish' ? "Rajesh's Net Worth" : "Priya's Net Worth";
+            document.getElementById('sidebarValue').textContent = formatCurrency(data.netWorth);
+
+            // Update title
+            document.getElementById('pageTitle').textContent =
+                currentView === 'family' ? 'Sharma Family Dashboard' :
+                currentView === 'manish' ? "Rajesh's Dashboard" : "Priya's Dashboard";
+            document.getElementById('pageSubtitle').textContent =
+                currentView === 'family' ? 'Complete overview of Sharma family wealth and goals' :
+                currentView === 'manish' ? 'Personal wealth and investment tracking' : 'Personal wealth and investment tracking';
+
+            // Update metrics
+            renderMetrics(data.metrics);
+
+            // Update goals
+            renderGoals(data.goals);
+
+            // Update allocation
+            renderAllocation(data.allocation);
+
+            // Update activities
+            renderActivities(data.activities);
+
+            // Update gauge
+            updateGauge(data.savingsRate);
+
+            // Update allocation title
+            document.getElementById('allocationTitle').textContent =
+                currentView === 'family' ? 'Sharma Family Asset Allocation' :
+                currentView === 'manish' ? "Rajesh's Asset Allocation" : "Priya's Asset Allocation";
+        }
+
+        function formatCurrency(value) {
+            if (value >= 10000000) {
+                return '₹' + (value / 10000000).toFixed(2) + 'Cr';
+            } else if (value >= 100000) {
+                return '₹' + (value / 100000).toFixed(2) + 'L';
+            } else if (value >= 1000) {
+                return '₹' + (value / 1000).toFixed(2) + 'K';
+            }
+            return '₹' + value.toFixed(0);
+        }
+
+        function renderMetrics(metrics) {
+            const container = document.getElementById('metricCards');
+            container.innerHTML = metrics.map(metric => `
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-label">${metric.label}</div>
+                        <div class="metric-icon">${metric.icon}</div>
+                    </div>
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-change ${metric.positive ? 'positive' : 'negative'}">
+                        <span>${metric.positive ? '↑' : '↓'}</span>
+                        <span>${metric.change}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGoals(goals) {
+            const container = document.getElementById('goalsGrid');
+            const circumference = 2 * Math.PI * 22; // radius = 22
+
+            container.innerHTML = goals.map((goal, index) => {
+                const offset = circumference - (goal.percentage / 100 * circumference);
+                return `
+                    <div class="goal-card" onclick="toggleGoalExpand(this)">
+                        <div class="goal-header">
+                            <div class="goal-icon">${goal.icon}</div>
+                            <svg class="goal-progress-ring" viewBox="0 0 48 48">
+                                <circle class="goal-ring-bg" cx="24" cy="24" r="22"/>
+                                <circle class="goal-ring-progress" cx="24" cy="24" r="22"
+                                        style="stroke-dasharray: ${circumference};
+                                               stroke-dashoffset: ${offset};
+                                               transform: rotate(-90deg);
+                                               transform-origin: center;"/>
+                            </svg>
+                        </div>
+                        <div class="goal-title">${goal.title}</div>
+                        <div class="goal-stats">
+                            <div class="goal-current">${formatCurrency(goal.current)}</div>
+                            <div class="goal-target">of ${formatCurrency(goal.target)}</div>
+                        </div>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${goal.percentage}%"></div>
+                        </div>
+                        <div class="goal-percentage">${goal.percentage}% complete</div>
+                        <div class="goal-details">
+                            <div class="goal-detail-row">
+                                <span class="goal-detail-label">Monthly Contribution</span>
+                                <span class="goal-detail-value">${formatCurrency(goal.monthly)}</span>
+                            </div>
+                            <div class="goal-detail-row">
+                                <span class="goal-detail-label">Time to Goal</span>
+                                <span class="goal-detail-value">${goal.years} years</span>
+                            </div>
+                            <div class="goal-detail-row">
+                                <span class="goal-detail-label">Remaining</span>
+                                <span class="goal-detail-value">${formatCurrency(goal.target - goal.current)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAllocation(allocation) {
+            const container = document.getElementById('allocationList');
+            container.innerHTML = allocation.map(item => `
+                <div class="allocation-item">
+                    <div class="allocation-color" style="background: ${item.color};"></div>
+                    <div class="allocation-info">
+                        <div class="allocation-name">${item.name}</div>
+                        <div class="allocation-bar">
+                            <div class="allocation-bar-fill" style="width: ${item.percentage}%; background: ${item.color};"></div>
+                        </div>
+                    </div>
+                    <div class="allocation-stats">
+                        <div class="allocation-percentage">${item.percentage}%</div>
+                        <div class="allocation-value">${formatCurrency(item.value)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderActivities(activities) {
+            const container = document.getElementById('activityList');
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.icon}">${activity.type}</div>
+                    <div class="activity-info">
+                        <div class="activity-name">${activity.name}</div>
+                        <div class="activity-details">${activity.details}</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="activity-value">${activity.value}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGauge(percentage) {
+            const circumference = 2 * Math.PI * 70; // radius = 70
+            const offset = circumference - (percentage / 100 * circumference * 0.75); // 75% of circle
+            const gauge = document.querySelector('.gauge-progress');
+            gauge.style.strokeDasharray = `${circumference}`;
+            gauge.style.strokeDashoffset = `${offset}`;
+            document.getElementById('gaugeValue').textContent = percentage + '%';
+        }
+
+        function switchView(view) {
+            currentView = view;
+
+            // Update view tabs
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.view === view) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Reload data
+            loadData();
+        }
+
+        function toggleGoalExpand(element) {
+            element.classList.toggle('expanded');
+        }
+
+        function toggleSection(element) {
+            element.classList.toggle('expanded');
+            const content = element.nextElementSibling;
+            content.classList.toggle('expanded');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'dark') {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        if (currentTheme === 'dark') {
+            document.getElementById('themeToggle').classList.add('active');
+        }
+
+        // Load initial data
+        loadData();
+
+        // Demo account - no onboarding needed
+
+        // Disable authentication check for demo
+        console.log('%c📊 WealthOS Demo Account', 'color: #fbbf24; font-size: 16px; font-weight: bold;');
+        console.log('This is a demonstration account showing sample data for the Sharma Family');
+    </script>
+    <script src="user-menu.js"></script>
+    <script>
+        // Initialize user menu with user data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (user) {
+                const nameEl = document.getElementById('userMenuName');
+                const emailEl = document.getElementById('userMenuEmail');
+                if (nameEl) nameEl.textContent = user.userName || user.familyName || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+
+                // Update user avatar initial
+                const avatarEl = document.querySelector('.user-avatar');
+                if (avatarEl) {
+                    const initial = user.userName ? user.userName.charAt(0).toUpperCase() :
+                                   user.email ? user.email.charAt(0).toUpperCase() : 'U';
+                    const firstChild = avatarEl.childNodes[0];
+                    if (firstChild && firstChild.nodeType === 3) {
+                        firstChild.textContent = initial;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

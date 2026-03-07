@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Proj vs Actuals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <link rel="stylesheet" href="dark-overrides.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #666666; --text-tertiary: #999999;
+            --border-color: #e5e7eb; --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff; --gradient-start: #0066ff; --gradient-end: #00d4ff;
+            --success: #00C805; --error: #FF3B30; --warning: #fb923c;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.06); --hover-bg: #f8f9fa;
+        }
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e; --bg-secondary: #111827; --bg-elevated: #141d2e;
+            --text-primary: #e8eaed; --text-secondary: #9ca3af; --text-tertiary: #6b7280;
+            --border-color: rgba(255,255,255,0.09); --border-subtle: rgba(255,255,255,0.05);
+            --accent-primary: #0066ff; --gradient-start: #0066ff; --gradient-end: #00d4ff;
+            --success: #22c55e; --error: #ef4444; --warning: #fb923c;
+            --card-shadow: none; --hover-bg: rgba(255,255,255,0.04);
+        }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+        
+        /* Main */
+        .main-content { padding: 32px 40px; overflow-y: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: #fff; cursor: pointer; }
+
+        /* Summary cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+        .summary-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; }
+        .summary-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+        .summary-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+        .summary-sub { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 4px; }
+
+        /* Table */
+        .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 28px; }
+        .table-card-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .table-card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; }
+        .table-note { font-size: 0.8125rem; color: var(--text-tertiary); }
+        .table-wrapper { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        thead th { background: var(--bg-secondary); padding: 10px 14px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
+        thead th:first-child { text-align: left; }
+        thead th.group-header { background: var(--bg-primary); text-align: center; font-size: 0.6875rem; letter-spacing: 0.06em; padding: 6px; border-bottom: 1px solid var(--border-subtle); color: var(--text-tertiary); }
+        tbody td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border-subtle); font-size: 0.8125rem; white-space: nowrap; }
+        tbody td:first-child { text-align: left; font-weight: 600; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--hover-bg); }
+        tbody tr.no-data td { text-align: center; color: var(--text-tertiary); padding: 32px; font-size: 0.875rem; }
+
+        .positive { color: var(--success); font-weight: 600; }
+        .negative { color: var(--error); font-weight: 600; }
+        .neutral { color: var(--text-tertiary); }
+
+        /* Variance indicator */
+        .var-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .var-pos { background: rgba(0,200,5,0.12); color: var(--success); }
+        .var-neg { background: rgba(255,59,48,0.12); color: var(--error); }
+        .var-zero { background: rgba(100,100,100,0.1); color: var(--text-tertiary); }
+
+        /* Progress bar */
+        .progress-wrap { height: 6px; background: var(--border-subtle); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+        .progress-fill.good { background: var(--success); }
+        .progress-fill.warn { background: var(--warning); }
+        .progress-fill.bad { background: var(--error); }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 64px 32px; }
+        .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+        .empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .empty-text { font-size: 0.9375rem; color: var(--text-secondary); max-width: 400px; margin: 0 auto 24px; }
+        .empty-link { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border-radius: 10px; font-weight: 600; font-size: 0.875rem; text-decoration: none; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; z-index: 9999; transform: translateY(20px); opacity: 0; transition: all 0.3s; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); color: white; }
+        .toast.error { background: var(--error); color: white; }
+
+        /* Section divider */
+        .section-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin: 28px 0 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
+
+        /* col group shading */
+        .planned-col { background: rgba(0,102,255,0.04); }
+        .actual-col { background: rgba(0,200,5,0.04); }
+        .var-col { background: rgba(251,146,60,0.04); }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside id="sidebar-root"></aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div>
+                <div class="page-title">Proj vs Actuals</div>
+                <div class="page-subtitle">How we're tracking against the plan — completed FYs</div>
+            </div>
+            <div class="user-avatar" id="userAvatar">U</div>
+        </div>
+
+        <div id="emptyState" style="display:none;">
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <div class="empty-title">No Actual Data Found</div>
+                <div class="empty-text">Start recording your monthly income and expenses in Monthly Tracker to compare against your plan here.</div>
+                <a href="monthly-tracker.html" class="empty-link">Go to Monthly Tracker</a>
+            </div>
+        </div>
+
+        <div id="mainContent">
+            <!-- Summary Cards -->
+            <div class="summary-grid" id="summaryCards"></div>
+
+            <!-- Main comparison table -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">FY-wise Planned vs Actual</div>
+                    <div class="table-note">FY = Indian Financial Year (Apr–Mar) · All amounts in Lakhs (L)</div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="text-align:left; vertical-align:bottom;">FY</th>
+                                <th colspan="3" class="group-header">INCOME (L)</th>
+                                <th colspan="3" class="group-header">EXPENSES (L)</th>
+                                <th colspan="3" class="group-header">NET SAVINGS (L)</th>
+                                <th colspan="2" class="group-header">SAVINGS RATE</th>
+                            </tr>
+                            <tr>
+                                <th class="planned-col">Planned</th>
+                                <th class="actual-col">Actual</th>
+                                <th class="var-col">Variance</th>
+                                <th class="planned-col">Planned</th>
+                                <th class="actual-col">Actual</th>
+                                <th class="var-col">Variance</th>
+                                <th class="planned-col">Planned</th>
+                                <th class="actual-col">Actual</th>
+                                <th class="var-col">Variance</th>
+                                <th class="planned-col">Planned</th>
+                                <th class="actual-col">Actual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mainTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly detail for selected FY -->
+            <div id="monthlyDetailSection">
+                <div class="section-label">Monthly Detail — <span id="selectedFYLabel">FY2024</span></div>
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <div class="table-card-title">Month-by-Month Breakdown</div>
+                        <div class="table-note">Click a row in the FY table above to change FY</div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Month</th>
+                                    <th class="planned-col">Planned Income</th>
+                                    <th class="actual-col">Actual Income</th>
+                                    <th class="planned-col">Planned Expense</th>
+                                    <th class="actual-col">Actual Expense</th>
+                                    <th class="planned-col">Planned Savings</th>
+                                    <th class="actual-col">Actual Savings</th>
+                                    <th class="var-col">Savings Var</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthlyDetailBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="api.js"></script>
+    <script src="sidebar.js"></script>
+<script src="auth.js"></script>
+<script src="user-menu.js"></script>
+<script>
+const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (isError ? 'error' : 'success');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function fmtL(n) { return (n >= 0 ? '' : '') + n.toFixed(1); }
+function varBadge(v, invert) {
+    // For expenses, positive variance (actual > planned) is bad
+    const good = invert ? v <= 0 : v >= 0;
+    const cls = Math.abs(v) < 0.1 ? 'var-zero' : good ? 'var-pos' : 'var-neg';
+    const sign = v > 0 ? '+' : '';
+    return `<span class="var-badge ${cls}">${sign}${v.toFixed(1)}</span>`;
+}
+function rateBadge(rate) {
+    if (rate === null || isNaN(rate)) return '<span class="neutral">—</span>';
+    const cls = rate >= 40 ? 'positive' : rate >= 20 ? '' : 'negative';
+    return `<span class="${cls}">${Math.round(rate)}%</span>`;
+}
+
+let allProjections = [];
+let allActuals = [];
+let selectedFY = null;
+
+function renderSummaryCards(fyRows) {
+    const container = document.getElementById('summaryCards');
+    if (!fyRows.length) { container.innerHTML = ''; return; }
+
+    // Aggregate over all completed FYs
+    const totalPlannedIncome = fyRows.reduce((s, r) => s + r.plannedIncome, 0);
+    const totalActualIncome = fyRows.reduce((s, r) => s + r.actualIncome, 0);
+    const totalPlannedExp = fyRows.reduce((s, r) => s + r.plannedExpense, 0);
+    const totalActualExp = fyRows.reduce((s, r) => s + r.actualExpense, 0);
+    const totalPlannedSav = fyRows.reduce((s, r) => s + r.plannedSavings, 0);
+    const totalActualSav = fyRows.reduce((s, r) => s + r.actualSavings, 0);
+
+    const incVar = totalActualIncome - totalPlannedIncome;
+    const expVar = totalActualExp - totalPlannedExp;
+    const savVar = totalActualSav - totalPlannedSav;
+
+    const incCls = incVar >= 0 ? 'positive' : 'negative';
+    const expCls = expVar <= 0 ? 'positive' : 'negative'; // less expense is good
+    const savCls = savVar >= 0 ? 'positive' : 'negative';
+
+    container.innerHTML = `
+        <div class="summary-card">
+            <div class="summary-label">Income Variance (${fyRows.length} FY${fyRows.length>1?'s':''})</div>
+            <div class="summary-value ${incCls}">${incVar >= 0 ? '+' : ''}${incVar.toFixed(1)}L</div>
+            <div class="summary-sub">Actual ${totalActualIncome.toFixed(1)}L vs Planned ${totalPlannedIncome.toFixed(1)}L</div>
+            <div class="progress-wrap"><div class="progress-fill ${incVar>=0?'good':'bad'}" style="width:${Math.min(100,Math.abs(incVar/totalPlannedIncome*100+50))}%"></div></div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Expense Variance (${fyRows.length} FY${fyRows.length>1?'s':''})</div>
+            <div class="summary-value ${expCls}">${expVar >= 0 ? '+' : ''}${expVar.toFixed(1)}L</div>
+            <div class="summary-sub">Actual ${totalActualExp.toFixed(1)}L vs Planned ${totalPlannedExp.toFixed(1)}L</div>
+            <div class="progress-wrap"><div class="progress-fill ${expVar<=0?'good':'bad'}" style="width:${Math.min(100,Math.abs(expVar/totalPlannedExp*100+50))}%"></div></div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Savings Variance (${fyRows.length} FY${fyRows.length>1?'s':''})</div>
+            <div class="summary-value ${savCls}">${savVar >= 0 ? '+' : ''}${savVar.toFixed(1)}L</div>
+            <div class="summary-sub">Actual ${totalActualSav.toFixed(1)}L vs Planned ${totalPlannedSav.toFixed(1)}L</div>
+            <div class="progress-wrap"><div class="progress-fill ${savVar>=0?'good':'bad'}" style="width:${Math.min(100,Math.abs(savVar/Math.abs(totalPlannedSav)*100+50))}%"></div></div>
+        </div>
+    `;
+}
+
+function renderMainTable(fyRows) {
+    const tbody = document.getElementById('mainTableBody');
+    if (!fyRows.length) {
+        tbody.innerHTML = '<tr class="no-data"><td colspan="12">No completed FYs with actual data found. Record monthly data in Monthly Tracker to see comparisons here.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '';
+    fyRows.forEach((row, i) => {
+        const incVar = row.actualIncome - row.plannedIncome;
+        const expVar = row.actualExpense - row.plannedExpense;
+        const savVar = row.actualSavings - row.plannedSavings;
+        const actualRate = row.actualIncome > 0 ? (row.actualSavings / row.actualIncome * 100) : null;
+        const plannedRate = row.plannedIncome > 0 ? (row.plannedSavings / row.plannedIncome * 100) : null;
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        if (i === 0 || (selectedFY && selectedFY === row.fy)) tr.style.background = 'rgba(0,102,255,0.05)';
+        tr.onclick = () => loadMonthlyDetail(row.fy);
+        tr.innerHTML = `
+            <td>FY${row.fy}</td>
+            <td class="planned-col">${row.plannedIncome.toFixed(1)}</td>
+            <td class="actual-col">${row.actualIncome.toFixed(1)}</td>
+            <td class="var-col">${varBadge(incVar, false)}</td>
+            <td class="planned-col">${row.plannedExpense.toFixed(1)}</td>
+            <td class="actual-col">${row.actualExpense.toFixed(1)}</td>
+            <td class="var-col">${varBadge(expVar, true)}</td>
+            <td class="planned-col">${row.plannedSavings.toFixed(1)}</td>
+            <td class="actual-col">${row.actualSavings.toFixed(1)}</td>
+            <td class="var-col">${varBadge(savVar, false)}</td>
+            <td class="planned-col">${rateBadge(plannedRate)}</td>
+            <td class="actual-col">${rateBadge(actualRate)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Helper: FY to list of {year, month} for April–March
+function fyToMonths(fy) {
+    const months = [];
+    for (let m = 4; m <= 12; m++) months.push({ year: fy - 1, month: m });
+    for (let m = 1; m <= 3; m++) months.push({ year: fy, month: m });
+    return months;
+}
+
+async function loadMonthlyDetail(fy) {
+    selectedFY = fy;
+    document.getElementById('selectedFYLabel').textContent = 'FY' + fy;
+    const tbody = document.getElementById('monthlyDetailBody');
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-tertiary);">Loading...</td></tr>';
+
+    // Find planned monthly values from projections
+    const planRow = allProjections.find(r => r.fy === fy);
+    const plannedMonthlyIncome = planRow ? planRow.totalIncome / 12 : 0;
+    const plannedMonthlyExpense = planRow ? planRow.totalExpenses / 12 : 0;
+    const plannedMonthlySavings = plannedMonthlyIncome - plannedMonthlyExpense;
+
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        const months = fyToMonths(fy);
+        tbody.innerHTML = '';
+        let hasAny = false;
+
+        for (let i = 0; i < months.length; i++) {
+            const { year, month } = months[i];
+            const res = await fetch(`/api/monthly/${year}/${month}`, { headers: { Authorization: 'Bearer ' + token } });
+            const members = res.ok ? await res.json() : [];
+
+            const totalIncome = members.reduce((s, m) => s + (m.income || 0), 0);
+            const totalExp = members.reduce((s, m) => s + (m.expenditure || 0) + (m.investments || 0), 0);
+            const hasData = members.some(m => m.income > 0 || m.expenditure > 0 || m.investments > 0);
+
+            const actualIncome = totalIncome / 100000;
+            const actualExp = totalExp / 100000;
+            const actualSav = actualIncome - actualExp;
+            const savVar = actualSav - plannedMonthlySavings;
+
+            if (hasData) hasAny = true;
+
+            const monthLabel = `${MONTHS[i]} ${year}`;
+            const tr = document.createElement('tr');
+            if (!hasData) tr.style.color = 'var(--text-tertiary)';
+            tr.innerHTML = `
+                <td>${monthLabel}</td>
+                <td class="planned-col">${plannedMonthlyIncome.toFixed(1)}</td>
+                <td class="actual-col">${hasData ? actualIncome.toFixed(1) : '—'}</td>
+                <td class="planned-col">${plannedMonthlyExpense.toFixed(1)}</td>
+                <td class="actual-col">${hasData ? actualExp.toFixed(1) : '—'}</td>
+                <td class="planned-col">${plannedMonthlySavings.toFixed(1)}</td>
+                <td class="actual-col">${hasData ? actualSav.toFixed(1) : '—'}</td>
+                <td class="var-col">${hasData ? varBadge(savVar, false) : '—'}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+    } catch (e) {
+        tbody.innerHTML = `<tr class="no-data"><td colspan="8">Failed to load monthly detail: ${e.message}</td></tr>`;
+    }
+}
+
+// Build FY comparison rows from projections + actuals
+function buildFYRows(projections, actuals) {
+    const rows = [];
+    actuals.forEach(actual => {
+        const plan = projections.find(p => p.fy === actual.fy);
+        if (!plan) return;
+        rows.push({
+            fy: actual.fy,
+            plannedIncome: plan.totalIncome,
+            plannedExpense: plan.totalExpenses,
+            plannedSavings: plan.netSavings,
+            actualIncome: actual.actualIncomeLakhs,
+            actualExpense: actual.actualExpenseLakhs,
+            actualSavings: actual
+        });
+    });
+    return rows.sort((a, b) => a.fy - b.fy);
+}
+
+async function loadAll() {
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        if (!token) { window.location.href = 'login.html'; return; }
+
+        // Load projections
+        const projRes = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } });
+        allProjections = projRes.ok ? await projRes.json() : [];
+
+        // Load actuals (FY2024 to current FY2026)
+        const currentFY = 2026;
+        const actualsRes = await fetch(`/api/projections/actuals?startFY=2024&endFY=${currentFY}`, { headers: { Authorization: 'Bearer ' + token } });
+        allActuals = actualsRes.ok ? await actualsRes.json() : [];
+
+        const fyRows = buildFYRows(allProjections, allActuals);
+
+        document.getElementById('mainContent').style.display = fyRows.length ? '' : 'none';
+        document.getElementById('emptyState').style.display = fyRows.length ? 'none' : '';
+
+        if (fyRows.length) {
+            renderSummaryCards(fyRows);
+            renderMainTable(fyRows);
+            // Load detail for most recent FY with data
+            selectedFY = fyRows[fyRows.length - 1].fy;
+            loadMonthlyDetail(selectedFY);
+        }
+
+        // Sidebar
+        try {
+            const port = await WealthAPI.portfolio.getAssets();
+            const total = (port || []).reduce((s, a) => s + (a.current_value || 0), 0);
+            document.getElementById('sidebarTotal').textContent = WealthAPI.formatCurrency(total);
+        } catch {}
+    } catch (e) {
+        showToast('Failed to load data: ' + e.message, true);
+    }
+}
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeToggle').classList.toggle('active', !isDark);
+    localStorage.setItem('wealthos_theme', isDark ? 'light' : 'dark');
+}
+
+(function() {
+    const theme = localStorage.getItem('wealthos_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') document.getElementById('themeToggle').classList.add('active');
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const name = payload.familyName || 'U';
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+    } catch {}
+})();
+
+loadAll();
+</script>
+</body>
+</html>

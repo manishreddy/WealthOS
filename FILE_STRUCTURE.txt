@@ -1,0 +1,105 @@
+WealthOS Authentication System - File Structure
+================================================
+
+WealthOS/
+│
+├── Prototype/                              # Auth & Landing Pages
+│   ├── index.html                          # ⭐ START HERE - Landing Page
+│   ├── login.html                          # Login Page
+│   ├── signup.html                         # Sign Up Page
+│   ├── onboarding.html                     # Onboarding Wizard
+│   ├── auth.js                             # Auth Utility
+│   ├── index-prototypes.html               # Design Prototype Selector
+│   ├── index-prototypes-main.html          # Original Prototype Showcase
+│   ├── option1.html                        # Minimalist Pro Design
+│   ├── option2.html                        # Professional Dashboard Design
+│   └── [other prototype files...]
+│
+├── code/                                   # Main Application Pages
+│   ├── auth.js                             # Auth Utility (copy)
+│   ├── dashboard.html                      # 🔒 Protected - Main Dashboard
+│   ├── portfolio.html                      # 🔒 Protected - Portfolio View
+│   ├── goals.html                          # 🔒 Protected - Financial Goals
+│   ├── settings.html                       # 🔒 Protected - User Settings
+│   ├── wealthbot.html                      # 🔒 Protected - AI Assistant
+│   ├── expenditure.html                    # Expense Tracking
+│   ├── financial-planning.html             # Financial Planning
+│   └── [other app files...]
+│
+├── Documentation/                          # Auth Documentation
+│   ├── AUTH_IMPLEMENTATION_SUMMARY.md      # 📄 High-level Overview
+│   ├── AUTH_SYSTEM_README.md               # 📄 Technical Documentation
+│   └── AUTHENTICATION_SETUP.md             # 📄 Quick Start Guide
+│
+└── [Other Project Files...]
+
+Legend:
+⭐ = Start here
+🔒 = Protected (requires login)
+📄 = Documentation
+
+Quick Links:
+-----------
+1. Landing Page:     /Prototype/index.html
+2. Login:            /Prototype/login.html
+3. Sign Up:          /Prototype/signup.html
+4. Onboarding:       /Prototype/onboarding.html
+5. Dashboard:        /code/dashboard.html
+
+Documentation:
+-------------
+- AUTH_IMPLEMENTATION_SUMMARY.md - Overview & features
+- AUTH_SYSTEM_README.md          - Technical details & API
+- AUTHENTICATION_SETUP.md        - Setup & testing guide
+- FILE_STRUCTURE.txt             - This file
+
+Auth System Files:
+-----------------
+✅ index.html          - Landing page with CTAs
+✅ login.html          - User authentication
+✅ signup.html         - New user registration
+✅ onboarding.html     - 3-step setup wizard
+✅ auth.js             - Authentication library
+✅ Protected pages     - 5 pages with auth checks
+
+Protected Pages:
+---------------
+dashboard.html         - Main dashboard view
+portfolio.html         - Investment portfolio
+goals.html             - Financial goals tracker
+settings.html          - Account settings
+wealthbot.html         - AI financial assistant
+
+Storage Keys:
+------------
+wealthos_user          - Array of registered users
+wealthos_session       - Current user session
+
+Session Duration:
+----------------
+Default:               24 hours
+With "Remember me":    30 days
+Auto-expires:          Yes
+
+Test Flow:
+---------
+1. Open /Prototype/index.html
+2. Click "Get Started"
+3. Fill signup form
+4. Complete onboarding (or skip)
+5. Access dashboard
+6. Navigate to other protected pages
+
+Browser DevTools:
+----------------
+View Data:
+  - Press F12
+  - Application → Local Storage
+  - Check wealthos_user & wealthos_session
+
+Clear Session:
+  - Delete wealthos_session key
+  - Refresh page → Redirects to login
+
+Implementation Status: ✅ Complete
+Last Updated: February 17, 2024

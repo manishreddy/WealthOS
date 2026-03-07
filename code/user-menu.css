@@ -1,0 +1,274 @@
+/* User Menu Styles - WealthOS */
+
+/* User Avatar - Common Base */
+.user-avatar {
+    position: relative;
+}
+
+/* User Menu Dropdown */
+.user-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 240px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.user-menu-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* User Info Section */
+.user-menu-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--hover-bg);
+}
+
+.user-menu-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+}
+
+.user-menu-email {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Menu Items */
+.user-menu-items {
+    padding: 8px 0;
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.user-menu-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.user-menu-item-icon {
+    font-size: 1.125rem;
+    width: 20px;
+    text-align: center;
+}
+
+.user-menu-item.logout {
+    color: var(--error);
+    border-top: 1px solid var(--border-color);
+    margin-top: 4px;
+}
+
+.user-menu-item.logout:hover {
+    background: rgba(255, 59, 48, 0.1);
+    color: var(--error);
+}
+
+/* Light Theme Specific */
+:root[data-theme="light"] .user-menu-dropdown {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme Specific */
+:root[data-theme="dark"] .user-menu-dropdown {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Animation for dropdown arrow */
+.user-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.user-avatar.menu-open::after {
+    opacity: 1;
+}
+
+/* Sidebar Logout Button */
+.sidebar-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    background: rgba(255, 59, 48, 0.06);
+    color: var(--error, #FF3B30);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: -0.01em;
+}
+
+.sidebar-logout-btn:hover {
+    background: rgba(255, 59, 48, 0.14);
+    border-color: rgba(255, 59, 48, 0.45);
+    transform: translateX(2px);
+}
+
+/* ============================================================
+   Person / Member Tabs  –  shared across all pages
+   ============================================================ */
+
+.person-tabs-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    gap: 12px;
+}
+
+.person-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-secondary);
+    padding: 4px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.person-tab {
+    padding: 8px 20px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.person-tab:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.person-tab.active {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(0, 102, 255, 0.25);
+}
+
+
+/* Right-side actions area inside the container */
+.person-tabs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Shared "Manage Members" / settings link */
+.settings-link-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.settings-link-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .person-tabs-container {
+        flex-wrap: wrap;
+        padding: 10px 12px;
+    }
+    .person-tabs {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    .person-tab {
+        padding: 7px 14px;
+        font-size: 0.8125rem;
+    }
+}
+
+/* ============================================================ */
+
+/* Responsive */
+@media (max-width: 768px) {
+    .user-menu-dropdown {
+        width: 200px;
+    }
+
+    .user-menu-name {
+        font-size: 0.875rem;
+    }
+
+    .user-menu-email {
+        font-size: 0.75rem;
+    }
+
+    .user-menu-item {
+        padding: 10px 14px;
+        font-size: 0.8125rem;
+    }
+}

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Your Family's Financial Operating System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --text-on-gradient: #ffffff;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-brand: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+            --gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-border: #e5e7eb;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-text {
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .demo-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .demo-option {
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .demo-option.active {
+            background: var(--gradient-brand);
+            color: white;
+        }
+
+        .header-btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--gradient-brand);
+            color: white;
+        }
+
+        .header-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--bg-hero);
+            padding: 120px 40px 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-logo {
+            font-size: 4rem;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--text-on-gradient);
+            margin-bottom: 24px;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+        }
+
+        .hero-tagline {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .hero-description {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 48px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-on-gradient);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-stat-label {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 48px;
+            background: white;
+            color: #667eea;
+            border-radius: 14px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-cta-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 40px;
+            max-width: 1400px;
+            margin: -100px auto 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .features-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.03em;
+        }
+
+        .features-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: var(--accent-primary);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+        }
+
+        .feature-card:nth-child(1) .feature-icon { background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%); }
+        .feature-card:nth-child(2) .feature-icon { background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%); }
+        .feature-card:nth-child(3) .feature-icon { background: linear-gradient(135deg, rgba(0, 200, 5, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%); }
+        .feature-card:nth-child(4) .feature-icon { background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(126, 34, 206, 0.15) 100%); }
+        .feature-card:nth-child(5) .feature-icon { background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%); }
+        .feature-card:nth-child(6) .feature-icon { background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%); }
+        .feature-card:nth-child(7) .feature-icon { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%); }
+        .feature-card:nth-child(8) .feature-icon { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%); }
+        .feature-card:nth-child(9) .feature-icon { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%); }
+        .feature-card:nth-child(10) .feature-icon { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%); }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-description {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            transition: gap 0.2s ease;
+        }
+
+        .feature-card:hover .feature-link {
+            gap: 12px;
+        }
+
+        /* Quick Actions Section */
+        .quick-actions {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .quick-actions-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .quick-action-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--card-border);
+            padding: 60px 40px 40px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 60px;
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-text {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .footer-link:hover {
+            gap: 12px;
+        }
+
+        .footer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 40px auto 0;
+            padding-top: 40px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-bottom-link {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-bottom-link:hover {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .hero {
+                padding: 80px 20px 120px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-tagline {
+                font-size: 1.25rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .features {
+                padding: 60px 20px;
+                margin-top: -80px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                padding: 0 20px;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                padding: 40px 20px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .demo-toggle {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.15s; }
+        .feature-card:nth-child(3) { animation-delay: 0.2s; }
+        .feature-card:nth-child(4) { animation-delay: 0.25s; }
+        .feature-card:nth-child(5) { animation-delay: 0.3s; }
+        .feature-card:nth-child(6) { animation-delay: 0.35s; }
+        .feature-card:nth-child(7) { animation-delay: 0.4s; }
+        .feature-card:nth-child(8) { animation-delay: 0.45s; }
+        .feature-card:nth-child(9) { animation-delay: 0.5s; }
+        .feature-card:nth-child(10) { animation-delay: 0.55s; }
+
+        /* Counter Animation */
+        .counter {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span>💎</span>
+            <span>Wealth<span class="logo-text">OS</span></span>
+        </div>
+        <div class="header-actions">
+            <a href="index.html" style="text-decoration: none; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; transition: color 0.2s ease;"
+               onmouseover="this.style.color='var(--text-primary)'"
+               onmouseout="this.style.color='var(--text-secondary)'">
+                ← Design Prototypes
+            </a>
+            <div class="demo-toggle">
+                <span style="font-size: 0.75rem; color: var(--text-tertiary);">View as:</span>
+                <span class="demo-option active" id="familyView">👨‍👩‍👧‍👦 Family</span>
+                <span class="demo-option" id="manishView">👤 Manish</span>
+            </div>
+            <a href="option2.html" class="header-btn">Enter Dashboard →</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-logo">💎</div>
+            <h1 class="hero-title">WealthOS</h1>
+            <p class="hero-tagline">Your Family's Financial Operating System</p>
+            <p class="hero-description">
+                Take control of your family's wealth with powerful tracking, intelligent insights,
+                and comprehensive financial management—all in one beautiful platform.
+            </p>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value"><span class="counter" data-target="14.82">0</span>L</div>
+                    <div class="hero-stat-label">Total Portfolio</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">+<span class="counter" data-target="18.59">0</span>%</div>
+                    <div class="hero-stat-label">Returns</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value"><span class="counter" data-target="12">0</span></div>
+                    <div class="hero-stat-label">Active Goals</div>
+                </div>
+            </div>
+
+            <a href="option2.html" class="hero-cta">
+                <span>Enter Dashboard</span>
+                <span class="hero-cta-icon">→</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="features-header">
+            <h2 class="features-title">Everything You Need to Manage Wealth</h2>
+            <p class="features-subtitle">
+                Comprehensive tools designed for modern families who want complete control over their finances
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Dashboard -->
+            <a href="../code/dashboard.html" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Dashboard</h3>
+                <p class="feature-description">
+                    Get a bird's eye view of your entire financial life. Real-time portfolio values,
+                    performance charts, and key metrics at a glance.
+                </p>
+                <span class="feature-link">Explore Dashboard →</span>
+            </a>
+
+            <!-- Portfolio -->
+            <a href="../code/portfolio.html" class="feature-card">
+                <div class="feature-icon">💼</div>
+                <h3 class="feature-title">Portfolio Management</h3>
+                <p class="feature-description">
+                    Manage stocks, mutual funds, bonds, and more. Track performance, analyze
+                    allocation, and make informed investment decisions.
+                </p>
+                <span class="feature-link">View Portfolio →</span>
+            </a>
+
+            <!-- Monthly Tracker -->
+            <a href="../code/monthly-tracker.html" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Monthly Tracker</h3>
+                <p class="feature-description">
+                    Complete transaction history with smart filters and search. Export reports
+                    and analyze spending patterns over time.
+                </p>
+                <span class="feature-link">View Monthly Tracker →</span>
+            </a>
+
+            <!-- Savings Plan -->
+            <a href="../code/savings-plan.html" class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">Savings Plan</h3>
+                <p class="feature-description">
+                    Manage all your bank accounts, savings goals, and track your monthly savings rate.
+                    Plan and achieve your financial milestones.
+                </p>
+                <span class="feature-link">View Savings Plan →</span>
+            </a>
+
+            <!-- Goals -->
+            <a href="../code/goals.html" class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Financial Goals</h3>
+                <p class="feature-description">
+                    Set and track goals for education, retirement, home purchase, and more.
+                    Get AI-powered recommendations to stay on track.
+                </p>
+                <span class="feature-link">Set Goals →</span>
+            </a>
+
+            <!-- Financial Planning -->
+            <a href="../code/financial-planning.html" class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">Financial Planning</h3>
+                <p class="feature-description">
+                    Deep insights into your financial health. Trend analysis, forecasting,
+                    and personalized recommendations powered by AI.
+                </p>
+                <span class="feature-link">View Financial Planning →</span>
+            </a>
+
+            <!-- Settings -->
+            <a href="../code/settings.html" class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3 class="feature-title">Settings</h3>
+                <p class="feature-description">
+                    Configure your preferences, manage accounts, update profile information,
+                    and customize your WealthOS experience.
+                </p>
+                <span class="feature-link">Open Settings →</span>
+            </a>
+
+            <!-- WealthBot -->
+            <a href="#" class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">WealthBot AI</h3>
+                <p class="feature-description">
+                    Your personal financial assistant. Get instant answers, insights, and
+                    recommendations through natural conversation.
+                </p>
+                <span class="feature-link">Chat with Bot →</span>
+            </a>
+
+            <!-- Reports -->
+            <a href="#" class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title">Reports & Export</h3>
+                <p class="feature-description">
+                    Generate comprehensive financial reports. Export data in multiple formats
+                    for taxes, audits, or personal records.
+                </p>
+                <span class="feature-link">Create Report →</span>
+            </a>
+
+            <!-- Settings -->
+            <a href="#" class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3 class="feature-title">Settings & Control</h3>
+                <p class="feature-description">
+                    Customize your experience, manage family members, set preferences,
+                    and configure integrations with banks and services.
+                </p>
+                <span class="feature-link">Configure →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+        <h2 class="quick-actions-title">⚡ Quick Actions</h2>
+        <div class="quick-actions-grid">
+            <a href="option2.html" class="quick-action-btn">
+                <span class="quick-action-icon">📊</span>
+                <span>View Dashboard</span>
+            </a>
+            <a href="option2-portfolio.html" class="quick-action-btn">
+                <span class="quick-action-icon">📈</span>
+                <span>Check Portfolio</span>
+            </a>
+            <a href="option2-transactions.html" class="quick-action-btn">
+                <span class="quick-action-icon">💸</span>
+                <span>Add Transaction</span>
+            </a>
+            <a href="option2-goals.html" class="quick-action-btn">
+                <span class="quick-action-icon">🎯</span>
+                <span>Track Goals</span>
+            </a>
+            <a href="#" class="quick-action-btn">
+                <span class="quick-action-icon">🤖</span>
+                <span>Ask WealthBot</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-title">About WealthOS</div>
+                <p class="footer-text">
+                    A comprehensive financial operating system designed for modern families.
+                    Built with love using Claude Code, combining powerful features with
+                    beautiful design.
+                </p>
+                <div class="footer-badge">
+                    <span>🤖</span>
+                    <span>Built with Claude Code</span>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <div class="footer-title">Project Resources</div>
+                <a href="project-tracker.html" class="footer-link">
+                    <span>📋</span>
+                    <span>Project Tracker</span>
+                </a>
+                <a href="#" class="footer-link">
+                    <span>📝</span>
+                    <span>Implementation Plan</span>
+                </a>
+                <a href="#" class="footer-link">
+                    <span>📚</span>
+                    <span>Documentation</span>
+                </a>
+                <a href="index.html" class="footer-link">
+                    <span>🎨</span>
+                    <span>Design Prototypes</span>
+                </a>
+            </div>
+
+            <div class="footer-section">
+                <div class="footer-title">Features</div>
+                <a href="../code/dashboard.html" class="footer-link">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="../code/portfolio.html" class="footer-link">
+                    <span>💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="../code/monthly-tracker.html" class="footer-link">
+                    <span>📊</span>
+                    <span>Monthly Tracker</span>
+                </a>
+                <a href="../code/savings-plan.html" class="footer-link">
+                    <span>💰</span>
+                    <span>Savings Plan</span>
+                </a>
+                <a href="../code/goals.html" class="footer-link">
+                    <span>🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="../code/financial-planning.html" class="footer-link">
+                    <span>📈</span>
+                    <span>Financial Planning</span>
+                </a>
+                <a href="../code/settings.html" class="footer-link">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="footer-section">
+                <div class="footer-title">Version Info</div>
+                <p class="footer-text">
+                    <strong>Version:</strong> 1.0.0-beta<br>
+                    <strong>Updated:</strong> February 2026<br>
+                    <strong>Status:</strong> 🟢 Active Development
+                </p>
+                <p class="footer-text" style="margin-top: 16px; font-size: 0.8125rem;">
+                    Built with Space Grotesk & DM Sans typography<br>
+                    Optimized for modern browsers
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>© 2026 WealthOS. A Claude Code Project.</div>
+            <div class="footer-links">
+                <a href="#" class="footer-bottom-link">Privacy</a>
+                <a href="#" class="footer-bottom-link">Terms</a>
+                <a href="#" class="footer-bottom-link">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Counter Animation
+        function animateCounter(element) {
+            const target = parseFloat(element.getAttribute('data-target'));
+            const duration = 2000;
+            const steps = 60;
+            const increment = target / steps;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = current.toFixed(2);
+            }, duration / steps);
+        }
+
+        // Animate counters when page loads
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.counter').forEach(counter => {
+                animateCounter(counter);
+            });
+        });
+
+        // Demo Toggle
+        const familyView = document.getElementById('familyView');
+        const manishView = document.getElementById('manishView');
+
+        familyView.addEventListener('click', () => {
+            familyView.classList.add('active');
+            manishView.classList.remove('active');
+            // Could update stats here for family view
+            console.log('Switched to Family View');
+        });
+
+        manishView.addEventListener('click', () => {
+            manishView.classList.add('active');
+            familyView.classList.remove('active');
+            // Could update stats here for individual view
+            console.log('Switched to Manish View');
+        });
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add hover effect to feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add click tracking
+        document.querySelectorAll('.feature-card, .quick-action-btn').forEach(element => {
+            element.addEventListener('click', function(e) {
+                const title = this.querySelector('.feature-title')?.textContent ||
+                             this.textContent.trim();
+                console.log(`Navigating to: ${title}`);
+            });
+        });
+    </script>
+</body>
+</html>

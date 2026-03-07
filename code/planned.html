@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Planned</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <link rel="stylesheet" href="dark-overrides.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --error: #FF3B30;
+            --warning: #fb923c;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --hover-bg: #f8f9fa;
+            --row-highlight: #fffde7;
+        }
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-tertiary: #141d2e;
+            --bg-elevated: #141d2e;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255,255,255,0.09);
+            --border-subtle: rgba(255,255,255,0.05);
+            --accent-primary: #0066ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #fb923c;
+            --card-shadow: none;
+            --hover-bg: rgba(255,255,255,0.04);
+            --row-highlight: rgba(255,220,50,0.08);
+        }
+
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+        /* Main */
+        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg-primary); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; margin-bottom: 8px; }
+        .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: #fff; cursor: pointer; position: relative; }
+
+        /* Sub-tabs */
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 28px; border-bottom: 1px solid var(--border-color); padding-bottom: 0; }
+        .sub-tab { padding: 10px 20px; font-size: 0.9375rem; font-weight: 600; color: var(--text-secondary); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.2s; letter-spacing: -0.01em; font-family: 'DM Sans', sans-serif; }
+        .sub-tab:hover { color: var(--text-primary); }
+        .sub-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Table styles */
+        .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .table-card-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .table-card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+        .table-wrapper { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        thead th { background: var(--bg-secondary); padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
+        thead th:first-child, thead th:nth-child(2) { text-align: left; }
+        tbody td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; white-space: nowrap; }
+        tbody td:first-child, tbody td:nth-child(2) { text-align: left; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--hover-bg); }
+        tbody tr.highlight-row { background: var(--row-highlight); font-weight: 700; }
+        tbody tr.category-header td { background: var(--bg-secondary); font-weight: 700; color: var(--text-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        tbody tr.total-row td { background: var(--bg-secondary); font-weight: 700; font-size: 0.875rem; border-top: 2px solid var(--border-color); }
+        .negative { color: var(--error) !important; }
+        .positive { color: var(--success) !important; }
+
+        /* Monthly plan editable */
+        .plan-input { width: 90px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: 'DM Sans', sans-serif; text-align: right; }
+        .plan-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-elevated); }
+
+        /* Config panel */
+        .config-panel { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .config-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .config-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+        .config-section-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 10px; }
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+        .config-field { display: flex; flex-direction: column; gap: 4px; }
+        .config-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .config-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: 'DM Sans', sans-serif; }
+        .config-input:focus { outline: none; border-color: var(--accent-primary); }
+
+        /* EMI Schedule */
+        .emi-schedule-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .emi-schedule-table th { background: var(--bg-secondary); padding: 8px 10px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .emi-schedule-table td { padding: 6px 6px; border-bottom: 1px solid var(--border-subtle); }
+        .emi-schedule-table tr:last-child td { border-bottom: none; }
+        .emi-input { width: 80px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: 'DM Sans', sans-serif; text-align: right; }
+        .emi-input:focus { outline: none; border-color: var(--accent-primary); }
+
+        .btn { padding: 10px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; border: none; }
+        .btn-primary { background: var(--accent-primary); color: white; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .btn-sm { padding: 5px 12px; font-size: 0.8125rem; border-radius: 7px; }
+        .btn-danger-sm { padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,59,48,0.1); color: var(--error); border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+        .btn-danger-sm:hover { background: rgba(255,59,48,0.2); }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; z-index: 9999; transform: translateY(20px); opacity: 0; transition: all 0.3s ease; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); color: white; }
+        .toast.error { background: var(--error); color: white; }
+
+        /* Rate badge */
+        .rate-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .rate-high { background: rgba(0,200,5,0.15); color: var(--success); }
+        .rate-mid { background: rgba(251,146,60,0.15); color: var(--warning); }
+        .rate-low { background: rgba(255,59,48,0.15); color: var(--error); }
+
+        /* Sticky header for long tables */
+        .sticky-table thead th { position: sticky; top: 0; z-index: 2; }
+
+        /* FY notes */
+        .fy-note { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px; }
+
+        /* AI Import Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 20px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; }
+        .modal-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+        .modal-header p { font-size: 0.8125rem; color: var(--text-secondary); margin-top: 4px; }
+        .modal-close { background: none; border: none; font-size: 1.25rem; color: var(--text-secondary); cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+        .modal-close:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; justify-content: flex-end; }
+
+        .ai-textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: 'DM Sans', sans-serif; resize: vertical; line-height: 1.5; }
+        .ai-textarea:focus { outline: none; border-color: var(--accent-primary); }
+        .ai-hint { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 8px; line-height: 1.5; }
+
+        .ai-preview { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-top: 14px; }
+        .ai-preview-title { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+        .ai-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .ai-preview-item { font-size: 0.8125rem; display: flex; justify-content: space-between; padding: 3px 0; }
+        .ai-preview-key { color: var(--text-secondary); }
+        .ai-preview-val { font-weight: 600; color: var(--text-primary); }
+
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside id="sidebar-root"></aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div>
+                <div class="page-title">Planned</div>
+                <div class="page-subtitle">Financial projections and planned expenses by FY</div>
+            </div>
+            <div class="user-avatar" id="userAvatar">U</div>
+        </div>
+
+        <div class="sub-tabs">
+            <button class="sub-tab active" onclick="showTab('monthly-plans', this)">Monthly Plans</button>
+            <button class="sub-tab" onclick="showTab('yearly-expenses', this)">Yearly View of Expenses</button>
+            <button class="sub-tab" onclick="showTab('savings-rate', this)">Net Savings &amp; Rate</button>
+        </div>
+
+        <!-- Tab 1: Monthly Plans -->
+        <div id="tab-monthly-plans" class="tab-panel active">
+            <div class="config-panel">
+                <div class="config-header">
+                    <div class="config-title">Plan Configuration</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span id="autoSaveStatus" style="font-size:0.8125rem; color:var(--text-tertiary);">Auto-save on</span>
+                        <button class="btn btn-sm btn-secondary" onclick="openAiImport()">AI Import</button>
+                        <button class="btn btn-sm btn-secondary" onclick="resetConfig()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="config-section-label" id="incomeLabel">Income</div>
+                <div class="config-grid" id="configGridIncome"></div>
+
+                <div class="config-section-label">Growth & Retirement</div>
+                <div class="config-grid" id="configGridGrowth"></div>
+
+                <div class="config-section-label">Inflation & Projection</div>
+                <div class="config-grid" id="configGridInflation"></div>
+
+                <div class="config-section-label">EMI Schedule</div>
+                <table class="emi-schedule-table">
+                    <thead>
+                        <tr>
+                            <th>From FY</th>
+                            <th>To FY</th>
+                            <th>Yearly (Lakhs)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="emiScheduleBody"></tbody>
+                </table>
+                <div style="margin-top:10px;">
+                    <button class="btn btn-sm btn-secondary" onclick="addEmiRow()">+ Add Row</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Monthly Expense Breakdown — Base Year (FY<span id="baseYearLabel">2024</span>)</div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="monthlyPlanTable">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Category</th>
+                                <th style="text-align:left;">Sub-Category</th>
+                                <th>Monthly (₹)</th>
+                                <th>Yearly (₹)</th>
+                                <th>Yearly (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyPlanBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Yearly View of Expenses -->
+        <div id="tab-yearly-expenses" class="tab-panel">
+            <div class="fy-note">All amounts in Lakhs (L). Projections based on configured inflation rates. FY = Indian Financial Year (April–March).</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Yearly Expense Projection</div>
+                </div>
+                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">FY</th>
+                                <th style="text-align:left;">Year</th>
+                                <th>Total (L)</th>
+                                <th>EMIs</th>
+                                <th>Rent</th>
+                                <th>Household</th>
+                                <th>Leisure</th>
+                                <th>Kids</th>
+                                <th>Other</th>
+                                <th>Monthly (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yearlyExpenseBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Net Savings & Rate -->
+        <div id="tab-savings-rate" class="tab-panel">
+            <div class="fy-note">All amounts in Lakhs (L). Net Savings = Total Income − Total Expenses. Savings Rate = Net Savings / Total Income.</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Income, Expenses &amp; Savings Rate</div>
+                </div>
+                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr id="savingsRateHeader">
+                                <th style="text-align:left;">FY</th>
+                                <th style="text-align:left;">Year</th>
+                                <th>Total Income (L)</th>
+                                <th>Person 1</th>
+                                <th>Person 2</th>
+                                <th>Other</th>
+                                <th>Total Expenses</th>
+                                <th>Net Savings</th>
+                                <th>Savings Rate</th>
+                                <th>Monthly Income</th>
+                                <th>Monthly Expense</th>
+                                <th>Monthly Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody id="savingsRateBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- AI Import Modal -->
+<div id="aiImportModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <h2>AI Import — Financial Plan</h2>
+                <p>Paste salary, expense, or retirement plan details. AI will extract config values.</p>
+            </div>
+            <button class="modal-close" onclick="closeAiImport()">✕</button>
+        </div>
+        <div class="modal-body">
+            <textarea class="ai-textarea" id="aiImportText" placeholder="Example:
+Manish salary FY2025: 46L, growing at 12% per year, retiring in 2045
+Raghavi salary FY2025: 24L, growing at 10% per year, retiring in 2060
+Monthly rent: 70,000
+Monthly food: 20,000
+Utilities: 15,000
+Travel domestic: 20,000
+Inflation: 6% general, 10% rent, 8% leisure
+Projection till FY2065"></textarea>
+            <div class="ai-hint">Tip: Copy-paste from a spreadsheet, type freeform, or describe your financial situation.</div>
+            <div id="aiPreviewBox" style="display:none;" class="ai-preview">
+                <div class="ai-preview-title">Extracted Values (preview)</div>
+                <div class="ai-preview-grid" id="aiPreviewGrid"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeAiImport()">Cancel</button>
+            <button class="btn btn-primary" id="aiParseBtn" onclick="runAiParse()">Parse with AI</button>
+            <button class="btn btn-primary" id="aiApplyBtn" onclick="applyAiConfig()" style="display:none;">Apply to Config</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="api.js"></script>
+<script src="sidebar.js"></script>
+<script src="auth.js"></script>
+<script src="user-menu.js"></script>
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+let familyMembers = [];
+let currentConfig = null;
+let parsedAiConfig = null;
+let autoSaveTimer = null;
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+}
+
+function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (isError ? 'error' : 'success');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Member name helpers ───────────────────────────────────────────────────────
+function getActiveMembers() {
+    return (familyMembers || []).filter(m => m.is_active !== 0);
+}
+function getMemberName(index) {
+    const m = getActiveMembers()[index];
+    return m ? m.name : (index === 0 ? 'Person 1' : 'Person 2');
+}
+
+// ── Config field definitions (dynamic labels) ─────────────────────────────────
+function getIncomeFields() {
+    const n1 = getMemberName(0), n2 = getMemberName(1);
+    return [
+        { key: 'manishIncomeFY2025', label: `${n1} Income FY2025 (L)`, type: 'number', step: '0.1' },
+        { key: 'raghaviIncomeFY2025', label: `${n2} Income FY2025 (L)`, type: 'number', step: '0.1' },
+        { key: 'otherIncomeFY2025', label: 'Other Income FY2025 (L)', type: 'number', step: '0.1' },
+    ];
+}
+function getGrowthFields() {
+    const n1 = getMemberName(0), n2 = getMemberName(1);
+    return [
+        { key: 'manishGrowthRate', label: `${n1} Salary Growth (%)`, type: 'percent' },
+        { key: 'raghaviGrowthRate', label: `${n2} Salary Growth (%)`, type: 'percent' },
+        { key: 'manishRetireFY', label: `${n1} Retire FY`, type: 'number', step: '1' },
+        { key: 'raghaviRetireFY', label: `${n2} Retire FY`, type: 'number', step: '1' },
+    ];
+}
+function getInflationFields() {
+    return [
+        { key: 'expenseInflationRate', label: 'Expense Inflation (%)', type: 'percent' },
+        { key: 'rentInflationRate', label: 'Rent Inflation (%)', type: 'percent' },
+        { key: 'leisureInflationRate', label: 'Leisure Inflation (%)', type: 'percent' },
+        { key: 'projectionEndFY', label: 'Projection End FY', type: 'number', step: '1' },
+    ];
+}
+
+// ── Monthly expense rows ───────────────────────────────────────────────────────
+const MONTHLY_EXPENSE_ROWS = [
+    { category: 'Rent', sub: 'Rent', key: 'rent' },
+    { category: 'Living', sub: 'Utilities (maid, elec etc)', key: 'utilities' },
+    { category: 'Living', sub: 'Food', key: 'food' },
+    { category: 'Living', sub: 'Commute (Petrol/cabs/maintenance)', key: 'commute' },
+    { category: 'Living', sub: 'Shopping', key: 'shopping' },
+    { category: 'Living', sub: 'Travel (Family Domestic)', key: 'travelFamily' },
+    { category: 'Living', sub: 'Events', key: 'events' },
+    { category: 'Living', sub: 'Gifts (F&F)', key: 'giftsFnF' },
+    { category: 'Leisure', sub: 'Entertainment (Restros, Movies etc)', key: 'entertainment' },
+    { category: 'Leisure', sub: 'Personal Expense (Elecs/Books)', key: 'personalExpense' },
+    { category: 'Leisure', sub: 'Travel (Leisure Domestic)', key: 'travelDomestic' },
+    { category: 'Leisure', sub: 'Travel (International)', key: 'travelInternational' },
+    { category: 'Leisure', sub: 'Gifts (Self)', key: 'giftsSelf' },
+    { category: 'Leisure', sub: 'Kids General', key: 'kidsGeneral' },
+    { category: 'Kids', sub: 'Kids Education', key: 'kidsEducation' },
+    { category: 'Other', sub: 'Medical', key: 'medical' },
+    { category: 'Other', sub: 'Insurance (Medical, Car, Health)', key: 'insurance' },
+    { category: 'Other', sub: 'Misc', key: 'misc' },
+];
+
+// ── Auto-save status ──────────────────────────────────────────────────────────
+function setAutoSaveStatus(state) {
+    const el = document.getElementById('autoSaveStatus');
+    if (!el) return;
+    if (state === 'saving') { el.textContent = 'Saving…'; el.style.color = 'var(--text-tertiary)'; }
+    else if (state === 'saved') { el.textContent = '✓ Saved'; el.style.color = 'var(--success)'; }
+    else if (state === 'error') { el.textContent = '⚠ Save failed'; el.style.color = 'var(--error)'; }
+    else { el.textContent = 'Auto-save on'; el.style.color = 'var(--text-tertiary)'; }
+}
+
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    setAutoSaveStatus('saving');
+    autoSaveTimer = setTimeout(() => saveConfig(true), 800);
+}
+
+// ── Render config grids ───────────────────────────────────────────────────────
+function renderFieldGroup(containerId, fields, cfg) {
+    const grid = document.getElementById(containerId);
+    grid.innerHTML = '';
+    fields.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'config-field';
+        const lbl = document.createElement('label');
+        lbl.className = 'config-label';
+        lbl.textContent = f.label;
+        const inp = document.createElement('input');
+        inp.className = 'config-input';
+        inp.type = 'number';
+        inp.id = 'cfg_' + f.key;
+        if (f.type === 'percent') {
+            inp.step = '0.1';
+            inp.value = parseFloat((cfg[f.key] * 100).toFixed(1));
+        } else {
+            inp.step = f.step || '1';
+            inp.value = cfg[f.key];
+        }
+        inp.oninput = () => scheduleAutoSave();
+        div.appendChild(lbl);
+        div.appendChild(inp);
+        grid.appendChild(div);
+    });
+}
+
+function renderConfigGrids(cfg) {
+    // Update member name labels in savings rate header
+    const n1 = getMemberName(0), n2 = getMemberName(1);
+    const hdrRow = document.getElementById('savingsRateHeader');
+    if (hdrRow) {
+        hdrRow.children[3].textContent = n1;
+        hdrRow.children[4].textContent = n2;
+    }
+
+    renderFieldGroup('configGridIncome', getIncomeFields(), cfg);
+    renderFieldGroup('configGridGrowth', getGrowthFields(), cfg);
+    renderFieldGroup('configGridInflation', getInflationFields(), cfg);
+    renderEmiSchedule(cfg.emiSchedule || []);
+}
+
+// ── EMI Schedule ──────────────────────────────────────────────────────────────
+function renderEmiSchedule(schedule) {
+    const tbody = document.getElementById('emiScheduleBody');
+    tbody.innerHTML = '';
+    schedule.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input class="emi-input" type="number" id="emi_from_${i}" value="${row.fromFY}" step="1" oninput="scheduleAutoSave()"></td>
+            <td><input class="emi-input" type="number" id="emi_to_${i}" value="${row.toFY}" step="1" oninput="scheduleAutoSave()"></td>
+            <td><input class="emi-input" type="number" id="emi_lakhs_${i}" value="${row.yearlyLakhs}" step="0.1" oninput="scheduleAutoSave()"></td>
+            <td><button class="btn-danger-sm" onclick="removeEmiRow(${i})">Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function addEmiRow() {
+    const cfg = getConfigFromForm();
+    const schedule = cfg.emiSchedule || [];
+    const lastFY = schedule.length > 0 ? schedule[schedule.length - 1].toFY + 1 : new Date().getFullYear() + 1;
+    schedule.push({ fromFY: lastFY, toFY: lastFY + 4, yearlyLakhs: 0 });
+    renderEmiSchedule(schedule);
+    scheduleAutoSave();
+}
+
+function removeEmiRow(index) {
+    const cfg = getConfigFromForm();
+    const schedule = cfg.emiSchedule || [];
+    schedule.splice(index, 1);
+    renderEmiSchedule(schedule);
+    scheduleAutoSave();
+}
+
+function getEmiScheduleFromForm() {
+    const rows = [];
+    const tbody = document.getElementById('emiScheduleBody');
+    const count = tbody.children.length;
+    for (let i = 0; i < count; i++) {
+        const from = parseInt(document.getElementById('emi_from_' + i)?.value) || 0;
+        const to = parseInt(document.getElementById('emi_to_' + i)?.value) || 0;
+        const lakhs = parseFloat(document.getElementById('emi_lakhs_' + i)?.value) || 0;
+        if (from && to) rows.push({ fromFY: from, toFY: to, yearlyLakhs: lakhs });
+    }
+    return rows;
+}
+
+// ── Read config from form ─────────────────────────────────────────────────────
+function getConfigFromForm() {
+    const cfg = { ...(currentConfig || {}) };
+    const allFields = [...getIncomeFields(), ...getGrowthFields(), ...getInflationFields()];
+    allFields.forEach(f => {
+        const inp = document.getElementById('cfg_' + f.key);
+        if (!inp) return;
+        cfg[f.key] = f.type === 'percent' ? parseFloat(inp.value) / 100 : parseFloat(inp.value);
+    });
+    // Monthly expenses
+    const me = { ...(cfg.monthlyExpenses || {}) };
+    MONTHLY_EXPENSE_ROWS.forEach(row => {
+        const inp = document.getElementById('me_' + row.key);
+        if (inp) me[row.key] = parseFloat(inp.value) || 0;
+    });
+    cfg.monthlyExpenses = me;
+    cfg.emiSchedule = getEmiScheduleFromForm();
+    return cfg;
+}
+
+// ── Monthly Plan Table ────────────────────────────────────────────────────────
+function renderMonthlyPlanTable(cfg) {
+    const me = cfg.monthlyExpenses || {};
+    document.getElementById('baseYearLabel').textContent = cfg.baseFY || 2024;
+    const tbody = document.getElementById('monthlyPlanBody');
+    tbody.innerHTML = '';
+
+    const categories = {};
+    MONTHLY_EXPENSE_ROWS.forEach(row => {
+        if (!categories[row.category]) categories[row.category] = [];
+        categories[row.category].push(row);
+    });
+
+    let grandTotal = 0;
+    Object.entries(categories).forEach(([cat, rows]) => {
+        const hdr = document.createElement('tr');
+        hdr.className = 'category-header';
+        hdr.innerHTML = `<td>${cat}</td><td colspan="4"></td>`;
+        tbody.appendChild(hdr);
+
+        let catTotal = 0;
+        rows.forEach(row => {
+            const monthly = me[row.key] || 0;
+            const yearly = monthly * 12;
+            catTotal += monthly;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td></td>
+                <td>${row.sub}</td>
+                <td><input class="plan-input" type="number" id="me_${row.key}" value="${monthly}" min="0" step="1000" oninput="updateMonthlyRow(this, '${row.key}'); scheduleAutoSave()"></td>
+                <td id="yr_${row.key}">${fmt(yearly)}</td>
+                <td id="yl_${row.key}">${fmtL(yearly)}</td>
+            `;
+            tbody.appendChild(tr);
+            grandTotal += monthly;
+        });
+
+        const sub = document.createElement('tr');
+        sub.className = 'total-row';
+        sub.id = 'cat_total_' + cat;
+        sub.innerHTML = `<td></td><td><strong>${cat} Total</strong></td><td style="text-align:right;"><strong>${fmt(catTotal)}</strong></td><td style="text-align:right;"><strong>${fmt(catTotal*12)}</strong></td><td style="text-align:right;"><strong>${fmtL(catTotal*12)}</strong></td>`;
+        tbody.appendChild(sub);
+    });
+
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'total-row';
+    totalRow.id = 'grand_total_row';
+    totalRow.innerHTML = `<td colspan="2"><strong>TOTAL (excl. EMIs)</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal)}</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal*12)}</strong></td><td style="text-align:right;"><strong>${fmtL(grandTotal*12)}</strong></td>`;
+    tbody.appendChild(totalRow);
+
+    const emiNote = document.createElement('tr');
+    const emiBase = (cfg.emiSchedule || []).find(s => s.fromFY <= (cfg.baseFY||2024) && s.toFY >= (cfg.baseFY||2024));
+    const emiMonthly = emiBase ? Math.round(emiBase.yearlyLakhs * 100000 / 12) : 0;
+    emiNote.innerHTML = `<td colspan="2" style="color:var(--text-tertiary); font-size:0.75rem; padding-top:4px;">* EMIs (from schedule): ~${fmt(emiMonthly)}/month = ${emiBase ? emiBase.yearlyLakhs : 0}L/year</td><td colspan="3"></td>`;
+    tbody.appendChild(emiNote);
+}
+
+function updateMonthlyRow(inp, key) {
+    const monthly = parseFloat(inp.value) || 0;
+    const yearly = monthly * 12;
+    document.getElementById('yr_' + key).textContent = fmt(yearly);
+    document.getElementById('yl_' + key).textContent = fmtL(yearly);
+    recalcTotals();
+}
+
+function recalcTotals() {
+    let grandTotal = 0;
+    const categories = {};
+    MONTHLY_EXPENSE_ROWS.forEach(row => {
+        if (!categories[row.category]) categories[row.category] = 0;
+        const v = parseFloat(document.getElementById('me_' + row.key)?.value) || 0;
+        categories[row.category] += v;
+        grandTotal += v;
+    });
+    Object.entries(categories).forEach(([cat, total]) => {
+        const el = document.getElementById('cat_total_' + cat);
+        if (el) el.innerHTML = `<td></td><td><strong>${cat} Total</strong></td><td style="text-align:right;"><strong>${fmt(total)}</strong></td><td style="text-align:right;"><strong>${fmt(total*12)}</strong></td><td style="text-align:right;"><strong>${fmtL(total*12)}</strong></td>`;
+    });
+    const el = document.getElementById('grand_total_row');
+    if (el) el.innerHTML = `<td colspan="2"><strong>TOTAL (excl. EMIs)</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal)}</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal*12)}</strong></td><td style="text-align:right;"><strong>${fmtL(grandTotal*12)}</strong></td>`;
+}
+
+// ── Yearly Expense Table ──────────────────────────────────────────────────────
+function renderYearlyExpenseTable(rows) {
+    const tbody = document.getElementById('yearlyExpenseBody');
+    tbody.innerHTML = '';
+    rows.forEach(row => {
+        const nonEmi = row.rentYearly + row.householdYearly + row.leisureYearly + row.kidsYearly + row.otherExp;
+        const tr = document.createElement('tr');
+        if (row.isRetirementYear) tr.className = 'highlight-row';
+        tr.innerHTML = `
+            <td>FY${row.fy}</td>
+            <td>${row.years}</td>
+            <td>${row.totalExpenses.toFixed(1)}</td>
+            <td>${row.emiYearly > 0 ? row.emiYearly.toFixed(1) : '—'}</td>
+            <td>${row.rentYearly.toFixed(1)}</td>
+            <td>${row.householdYearly.toFixed(1)}</td>
+            <td>${row.leisureYearly.toFixed(1)}</td>
+            <td>${row.kidsYearly > 0 ? row.kidsYearly.toFixed(1) : '—'}</td>
+            <td>${row.otherExp.toFixed(1)}</td>
+            <td>${(nonEmi / 12).toFixed(1)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ── Savings Rate Table ────────────────────────────────────────────────────────
+function renderSavingsRateTable(rows) {
+    const tbody = document.getElementById('savingsRateBody');
+    tbody.innerHTML = '';
+    rows.forEach(row => {
+        const rateClass = row.savingsRate >= 50 ? 'rate-high' : row.savingsRate >= 30 ? 'rate-mid' : 'rate-low';
+        const tr = document.createElement('tr');
+        if (row.isRetirementYear) tr.className = 'highlight-row';
+        const netClass = row.netSavings < 0 ? 'negative' : 'positive';
+        tr.innerHTML = `
+            <td>FY${row.fy}</td>
+            <td>${row.years}</td>
+            <td>${row.totalIncome.toFixed(0)}</td>
+            <td>${row.manish > 0 ? row.manish.toFixed(0) : '—'}</td>
+            <td>${row.raghavi > 0 ? row.raghavi.toFixed(0) : '—'}</td>
+            <td>${row.other > 0 ? row.other.toFixed(0) : '—'}</td>
+            <td>${row.totalExpenses.toFixed(0)}</td>
+            <td class="${netClass}">${row.netSavings.toFixed(0)}</td>
+            <td><span class="rate-badge ${rateClass}">${row.savingsRate}%</span></td>
+            <td>${row.monthlyIncome.toFixed(1)}</td>
+            <td>${row.monthlyExpense.toFixed(1)}</td>
+            <td class="${row.monthlySavings < 0 ? 'negative' : 'positive'}">${row.monthlySavings.toFixed(1)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+function fmt(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+function fmtL(n) { return (n/100000).toFixed(1); }
+
+// ── Load all data ─────────────────────────────────────────────────────────────
+async function loadAll() {
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        if (!token) { window.location.href = 'login.html'; return; }
+
+        // Load family members for dynamic labels
+        try {
+            familyMembers = await WealthAPI.family.getMembers();
+        } catch (e) {
+            familyMembers = [];
+        }
+
+        const cfg = await fetch('/api/projections/config', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        currentConfig = cfg;
+        renderConfigGrids(cfg);
+        renderMonthlyPlanTable(cfg);
+
+        const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        renderYearlyExpenseTable(rows);
+        renderSavingsRateTable(rows);
+    } catch (e) {
+        showToast('Failed to load data: ' + e.message, true);
+    }
+}
+
+async function saveConfig(silent) {
+    try {
+        const cfg = getConfigFromForm();
+        const token = localStorage.getItem('wealthos_jwt');
+        const res = await fetch('/api/projections/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify(cfg)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        currentConfig = await res.json();
+        const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        renderYearlyExpenseTable(rows);
+        renderSavingsRateTable(rows);
+        setAutoSaveStatus('saved');
+        setTimeout(() => setAutoSaveStatus('idle'), 2000);
+        if (!silent) showToast('Configuration saved!');
+    } catch (e) {
+        setAutoSaveStatus('error');
+        showToast((silent ? 'Auto-save failed: ' : 'Save failed: ') + e.message, true);
+    }
+}
+
+async function resetConfig() {
+    if (!confirm('Reset to default configuration?')) return;
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        await fetch('/api/projections/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({})
+        });
+        location.reload();
+    } catch (e) {
+        showToast('Reset failed: ' + e.message, true);
+    }
+}
+
+// ── AI Import ─────────────────────────────────────────────────────────────────
+function openAiImport() {
+    parsedAiConfig = null;
+    document.getElementById('aiImportText').value = '';
+    document.getElementById('aiPreviewBox').style.display = 'none';
+    document.getElementById('aiParseBtn').style.display = '';
+    document.getElementById('aiApplyBtn').style.display = 'none';
+    document.getElementById('aiImportModal').style.display = 'flex';
+}
+
+function closeAiImport() {
+    document.getElementById('aiImportModal').style.display = 'none';
+}
+
+async function runAiParse() {
+    const text = document.getElementById('aiImportText').value.trim();
+    if (!text) { showToast('Please paste some data first', true); return; }
+
+    const btn = document.getElementById('aiParseBtn');
+    btn.innerHTML = '<span class="spinner"></span> Parsing…';
+    btn.disabled = true;
+
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        const res = await fetch('/api/projections/ai-parse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Parse failed');
+
+        parsedAiConfig = data;
+        showAiPreview(data);
+        document.getElementById('aiParseBtn').style.display = 'none';
+        document.getElementById('aiApplyBtn').style.display = '';
+    } catch (e) {
+        showToast('AI parse failed: ' + e.message, true);
+    } finally {
+        btn.innerHTML = 'Parse with AI';
+        btn.disabled = false;
+    }
+}
+
+function showAiPreview(cfg) {
+    const n1 = getMemberName(0), n2 = getMemberName(1);
+    const labels = {
+        manishIncomeFY2025: `${n1} Income FY2025 (L)`,
+        raghaviIncomeFY2025: `${n2} Income FY2025 (L)`,
+        otherIncomeFY2025: 'Other Income (L)',
+        manishGrowthRate: `${n1} Growth Rate`,
+        raghaviGrowthRate: `${n2} Growth Rate`,
+        manishRetireFY: `${n1} Retire FY`,
+        raghaviRetireFY: `${n2} Retire FY`,
+        expenseInflationRate: 'Expense Inflation',
+        rentInflationRate: 'Rent Inflation',
+        leisureInflationRate: 'Leisure Inflation',
+        projectionEndFY: 'Projection End FY',
+    };
+
+    const grid = document.getElementById('aiPreviewGrid');
+    grid.innerHTML = '';
+
+    const showKeys = Object.keys(labels);
+    showKeys.forEach(key => {
+        if (cfg[key] === undefined) return;
+        const div = document.createElement('div');
+        div.className = 'ai-preview-item';
+        let val = cfg[key];
+        if (key.includes('Rate') && typeof val === 'number' && val < 1) val = (val * 100).toFixed(1) + '%';
+        else if (key.includes('FY')) val = 'FY' + val;
+        else if (typeof val === 'number') val = val.toFixed ? val.toFixed(1) : val;
+        div.innerHTML = `<span class="ai-preview-key">${labels[key]}</span><span class="ai-preview-val">${val}</span>`;
+        grid.appendChild(div);
+    });
+
+    // Show expense highlights from monthlyExpenses
+    if (cfg.monthlyExpenses) {
+        const expKeys = ['rent', 'food', 'utilities', 'travelInternational'];
+        expKeys.forEach(k => {
+            if (!cfg.monthlyExpenses[k]) return;
+            const div = document.createElement('div');
+            div.className = 'ai-preview-item';
+            div.innerHTML = `<span class="ai-preview-key">Monthly ${k}</span><span class="ai-preview-val">${fmt(cfg.monthlyExpenses[k])}</span>`;
+            grid.appendChild(div);
+        });
+    }
+
+    document.getElementById('aiPreviewBox').style.display = 'block';
+}
+
+async function applyAiConfig() {
+    if (!parsedAiConfig) return;
+
+    // Merge AI config into current config
+    const merged = { ...(currentConfig || {}), ...parsedAiConfig };
+    if (parsedAiConfig.monthlyExpenses) {
+        merged.monthlyExpenses = { ...(currentConfig?.monthlyExpenses || {}), ...parsedAiConfig.monthlyExpenses };
+    }
+
+    currentConfig = merged;
+    renderConfigGrids(merged);
+    renderMonthlyPlanTable(merged);
+    closeAiImport();
+
+    // Auto-save immediately
+    await saveConfig(false);
+    showToast('AI config applied and saved!');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+    try {
+        const token = localStorage.getItem('wealthos_jwt');
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const name = payload.familyName || 'U';
+            const avatarEl = document.getElementById('userAvatar');
+            if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+        }
+    } catch {}
+})();
+
+loadAll();
+</script>
+</body>
+</html>

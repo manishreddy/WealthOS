@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Logout Functionality - WealthOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --error: #FF3B30;
+            --warning: #ff9500;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .test-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .test-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .test-item {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .test-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .test-item p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .user-avatar-demo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .user-avatar-demo:hover {
+            transform: scale(1.05);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status.success {
+            background: rgba(0, 200, 5, 0.1);
+            color: var(--success);
+        }
+
+        .status.error {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--error);
+        }
+
+        .code {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .demo-area {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Logout Functionality Test</h1>
+
+        <div class="test-section">
+            <h2>User Menu Component</h2>
+            <div class="test-item">
+                <h3>1. User Avatar Display</h3>
+                <p>Click on the user avatar in the top right corner to open the dropdown menu.</p>
+                <div class="status success">✓ Implemented</div>
+            </div>
+
+            <div class="test-item">
+                <h3>2. Dropdown Menu</h3>
+                <p>The menu should show:</p>
+                <ul style="margin: 12px 0 12px 20px; color: var(--text-secondary);">
+                    <li>User name and email</li>
+                    <li>Settings link</li>
+                    <li>View Demo Account link</li>
+                    <li>Logout button</li>
+                </ul>
+                <div class="status success">✓ Implemented</div>
+            </div>
+
+            <div class="test-item">
+                <h3>3. Logout Confirmation</h3>
+                <p>When clicking logout, a confirmation dialog appears asking "Are you sure you want to logout?"</p>
+                <div class="status success">✓ Implemented</div>
+            </div>
+
+            <div class="test-item">
+                <h3>4. Session Clearing</h3>
+                <p>Upon confirmation, the logout() function clears the session from localStorage and redirects to login.html</p>
+                <div class="status success">✓ Implemented</div>
+            </div>
+
+            <div class="demo-area">
+                <div class="user-avatar-demo">M
+                    <div class="user-menu-dropdown" id="userMenuDropdown">
+                        <div class="user-menu-header">
+                            <div class="user-menu-name" id="userMenuName">Loading...</div>
+                            <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+                        </div>
+                        <div class="user-menu-items">
+                            <a href="settings.html" class="user-menu-item">
+                                <span class="user-menu-item-icon">⚙️</span>
+                                <span>Settings</span>
+                            </a>
+                            <a href="demo-account.html" target="_blank" class="user-menu-item">
+                                <span class="user-menu-item-icon">👁️</span>
+                                <span>View Demo Account</span>
+                            </a>
+                            <div class="user-menu-item logout" onclick="handleLogout()">
+                                <span class="user-menu-item-icon">🚪</span>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Pages Updated</h2>
+            <div class="test-item">
+                <h3>All Main Pages Include User Menu</h3>
+                <ul style="margin: 12px 0 12px 20px; color: var(--text-secondary);">
+                    <li>✓ dashboard.html</li>
+                    <li>✓ portfolio.html</li>
+                    <li>✓ monthly-tracker.html</li>
+                    <li>✓ savings-plan.html</li>
+                    <li>✓ goals.html</li>
+                    <li>✓ financial-planning.html</li>
+                    <li>✓ settings.html</li>
+                    <li>✓ demo-account.html</li>
+                </ul>
+                <div class="status success">✓ All Pages Updated</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Implementation Details</h2>
+            <div class="test-item">
+                <h3>Files Created</h3>
+                <div class="code">
+user-menu.js - Handles menu toggle and logout<br>
+user-menu.css - Styles for dropdown menu<br>
+user-menu-snippet.html - Reference snippet
+                </div>
+            </div>
+
+            <div class="test-item">
+                <h3>Key Functions</h3>
+                <div class="code">
+initializeUserMenu() - Sets up event listeners<br>
+toggleUserMenu() - Opens/closes dropdown<br>
+handleLogout() - Confirms and logs out user<br>
+logout() - (from auth.js) Clears session
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="user-menu.js"></script>
+    <script>
+        // Initialize with demo data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (user) {
+                const nameEl = document.getElementById('userMenuName');
+                const emailEl = document.getElementById('userMenuEmail');
+                if (nameEl) nameEl.textContent = user.userName || user.familyName || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+
+                // Update avatar initial
+                const avatarEl = document.querySelector('.user-avatar-demo');
+                if (avatarEl) {
+                    const initial = user.userName ? user.userName.charAt(0).toUpperCase() :
+                                   user.email ? user.email.charAt(0).toUpperCase() : 'U';
+                    const firstChild = avatarEl.childNodes[0];
+                    if (firstChild && firstChild.nodeType === 3) {
+                        firstChild.textContent = initial;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

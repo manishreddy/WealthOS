@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Wallet & Monthly Tracking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --warning: #fb923c;
+            --error: #FF3B30;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+            --input-bg: #f8f9fa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #0f1624;
+            --bg-tertiary: #0f1624;
+            --bg-elevated: #0f1624;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.03);
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #00d4ff;
+            --gradient-end: #0066ff;
+            --success: #22c55e;
+            --warning: #fb923c;
+            --error: #ef4444;
+            --card-shadow: none;
+            --hover-bg: rgba(255, 255, 255, 0.04);
+            --input-bg: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { margin-bottom: 40px; }
+
+        .nav-section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 1.25rem; width: 24px; text-align: center; }
+
+        .theme-toggle {
+            margin-top: auto;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover { background: var(--hover-bg); }
+
+        .theme-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+
+        .toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider { transform: translateX(22px); }
+
+        .portfolio-summary {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 212, 255, 0.08) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+
+        .portfolio-summary-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portfolio-summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .back-link:hover { color: var(--text-primary); }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            letter-spacing: -0.01em;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: #ffffff;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover { background: var(--hover-bg); }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+            margin: 48px 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Cash & Liquid Assets Section */
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .account-cards {
+            grid-column: span 8;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .account-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+
+        .account-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .account-number {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .account-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.375rem;
+        }
+
+        .account-icon.bank {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+        }
+
+        .account-icon.liquid {
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%);
+        }
+
+        .account-balance {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .emergency-card {
+            grid-column: span 4;
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.08) 0%, rgba(34, 197, 94, 0.08) 100%);
+            border: 1px solid rgba(0, 200, 5, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .emergency-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 200, 5, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .emergency-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--success);
+        }
+
+        .emergency-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+        }
+
+        .emergency-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(0, 200, 5, 0.1);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .emergency-status-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .emergency-detail {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .emi-calendar-card {
+            grid-column: span 8;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .emi-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .emi-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .emi-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .emi-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .emi-day {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .emi-month {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .emi-info {
+            flex: 1;
+        }
+
+        .emi-name {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .emi-detail {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .emi-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .bill-reminders-card {
+            grid-column: span 4;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .bill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bill-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .bill-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+        }
+
+        .bill-info {
+            flex: 1;
+        }
+
+        .bill-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .bill-due {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .bill-amount {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .transfer-card {
+            grid-column: span 12;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .transfer-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr 1fr;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .form-select,
+        .form-input {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus,
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .transfer-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        /* Monthly Tracking Section */
+        .tracking-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .month-selector {
+            grid-column: span 12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 24px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .month-nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-nav-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .current-month {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .income-card,
+        .expense-card {
+            grid-column: span 6;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .income-entries,
+        .expense-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .entry-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .entry-emoji {
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input-bg);
+            border-radius: 10px;
+        }
+
+        .entry-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .entry-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .entry-input.amount {
+            width: 140px;
+            text-align: right;
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .add-entry-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .add-entry-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 102, 255, 0.05);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            margin-top: 8px;
+        }
+
+        .total-label {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .total-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .expense-mode-toggle {
+            display: flex;
+            gap: 8px;
+            padding: 4px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--bg-elevated);
+            color: var(--accent-primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .expense-quick-mode {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .quick-input-wrapper {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .quick-input-large {
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', monospace;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .quick-input-large:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        .quick-hint {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+        }
+
+        .category-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+
+        .category-emoji {
+            font-size: 1.25rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .category-input {
+            width: 120px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', monospace;
+            text-align: right;
+            transition: all 0.2s ease;
+        }
+
+        .category-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .savings-card {
+            grid-column: span 12;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 212, 255, 0.08) 100%);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .savings-metric {
+            text-align: center;
+        }
+
+        .savings-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .savings-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .savings-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .savings-badge.excellent {
+            background: rgba(0, 200, 5, 0.15);
+            color: var(--success);
+        }
+
+        .savings-badge.good {
+            background: rgba(0, 102, 255, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .savings-badge.average {
+            background: rgba(251, 146, 60, 0.15);
+            color: var(--warning);
+        }
+
+        .savings-badge.poor {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--error);
+        }
+
+        .timeline-card {
+            grid-column: span 12;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .timeline {
+            display: flex;
+            gap: 16px;
+            min-width: max-content;
+            padding: 8px 0;
+        }
+
+        .timeline-month {
+            flex: 0 0 140px;
+            padding: 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-month:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .timeline-month.current {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border-color: var(--accent-primary);
+        }
+
+        .timeline-month-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .timeline-month.current .timeline-month-name {
+            color: var(--accent-primary);
+        }
+
+        .timeline-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .timeline-savings {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .timeline-savings-rate {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .timeline-savings-rate.positive {
+            color: var(--success);
+        }
+
+        .timeline-savings-rate.negative {
+            color: var(--error);
+        }
+
+        @media (max-width: 1280px) {
+            .account-cards {
+                grid-column: span 12;
+            }
+
+            .emergency-card {
+                grid-column: span 12;
+            }
+
+            .emi-calendar-card {
+                grid-column: span 12;
+            }
+
+            .bill-reminders-card {
+                grid-column: span 12;
+            }
+
+            .income-card,
+            .expense-card {
+                grid-column: span 12;
+            }
+
+            .savings-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 24px 20px;
+            }
+
+            .account-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .transfer-form {
+                grid-template-columns: 1fr;
+            }
+
+            .savings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">Wealth<span>OS</span></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="option2.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="option2-portfolio.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="option2-transactions.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span>
+                    <span>Transactions</span>
+                </a>
+                <a href="option2-analytics.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Manage</div>
+                <a href="wallet.html" class="nav-item active" style="text-decoration: none;">
+                    <span class="nav-icon">💰</span>
+                    <span>Wallet</span>
+                </a>
+                <a href="option2-goals.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="#" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-label">Dark Mode</span>
+                <div class="toggle-switch" id="themeToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="portfolio-summary">
+                <div class="portfolio-summary-label">Total Value</div>
+                <div class="portfolio-summary-value">₹14.8L</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <a href="option2.html" class="back-link">
+                <span>←</span>
+                <span>Back to dashboard</span>
+            </a>
+
+            <div class="top-bar">
+                <div class="page-header">
+                    <div class="page-title">Wallet & Monthly Tracking</div>
+                    <div class="page-subtitle">Manage your cash, track income & expenses</div>
+                </div>
+                <div class="top-actions">
+                    <button class="action-btn secondary">₹ INR</button>
+                    <button class="action-btn primary">+ Add Transaction</button>
+                    <div class="user-avatar">M</div>
+                </div>
+            </div>
+
+            <!-- Cash & Liquid Assets Section -->
+            <div class="section-header">
+                <div>
+                    <div class="section-title">💳 Cash & Liquid Assets</div>
+                    <div class="section-subtitle">Your immediately available funds</div>
+                </div>
+            </div>
+
+            <div class="wallet-grid">
+                <!-- Bank Account Cards -->
+                <div class="account-cards">
+                    <div class="account-card">
+                        <div class="account-header">
+                            <div class="account-info">
+                                <div class="account-name">HDFC Savings</div>
+                                <div class="account-number">****4532</div>
+                            </div>
+                            <div class="account-icon bank">🏦</div>
+                        </div>
+                        <div class="account-balance">₹1,24,500</div>
+                        <div class="account-actions">
+                            <button class="quick-action-btn">Add Money</button>
+                            <button class="quick-action-btn">Transfer</button>
+                        </div>
+                    </div>
+
+                    <div class="account-card">
+                        <div class="account-header">
+                            <div class="account-info">
+                                <div class="account-name">ICICI Salary</div>
+                                <div class="account-number">****7821</div>
+                            </div>
+                            <div class="account-icon bank">🏦</div>
+                        </div>
+                        <div class="account-balance">₹85,300</div>
+                        <div class="account-actions">
+                            <button class="quick-action-btn">Add Money</button>
+                            <button class="quick-action-btn">Transfer</button>
+                        </div>
+                    </div>
+
+                    <div class="account-card">
+                        <div class="account-header">
+                            <div class="account-info">
+                                <div class="account-name">Liquid Fund</div>
+                                <div class="account-number">HDFC Liquid</div>
+                            </div>
+                            <div class="account-icon liquid">💧</div>
+                        </div>
+                        <div class="account-balance">₹2,45,000</div>
+                        <div class="account-actions">
+                            <button class="quick-action-btn">Invest</button>
+                            <button class="quick-action-btn">Redeem</button>
+                        </div>
+                    </div>
+
+                    <div class="account-card">
+                        <div class="account-header">
+                            <div class="account-info">
+                                <div class="account-name">Wallet & Cash</div>
+                                <div class="account-number">Multiple sources</div>
+                            </div>
+                            <div class="account-icon liquid">💵</div>
+                        </div>
+                        <div class="account-balance">₹18,200</div>
+                        <div class="account-actions">
+                            <button class="quick-action-btn">Track</button>
+                            <button class="quick-action-btn">Update</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Fund Card -->
+                <div class="emergency-card">
+                    <div class="emergency-header">
+                        <div class="emergency-icon">🛡️</div>
+                        <div>
+                            <div class="emergency-title">Emergency Fund</div>
+                        </div>
+                    </div>
+                    <div class="emergency-amount">₹4,73,000</div>
+                    <div class="emergency-status">
+                        <span>✓</span>
+                        <span class="emergency-status-text">6.5 months covered</span>
+                    </div>
+                    <div class="emergency-detail">
+                        Based on monthly expenses of ₹72,800. Target: 6 months
+                    </div>
+                </div>
+
+                <!-- Quick Transfer -->
+                <div class="transfer-card">
+                    <div class="card-title">⚡ Quick Transfer</div>
+                    <div class="transfer-form">
+                        <div class="form-group">
+                            <label class="form-label">From Account</label>
+                            <select class="form-select">
+                                <option>HDFC Savings (₹1,24,500)</option>
+                                <option>ICICI Salary (₹85,300)</option>
+                                <option>Liquid Fund (₹2,45,000)</option>
+                            </select>
+                        </div>
+                        <div class="transfer-icon">→</div>
+                        <div class="form-group">
+                            <label class="form-label">To Account</label>
+                            <select class="form-select">
+                                <option>ICICI Salary</option>
+                                <option>HDFC Savings</option>
+                                <option>Liquid Fund</option>
+                                <option>Investment Account</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input type="text" class="form-input" placeholder="₹ 0" value="₹ 25,000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming EMI Calendar -->
+                <div class="emi-calendar-card">
+                    <div class="card-title">📅 Upcoming EMIs</div>
+                    <div class="emi-list">
+                        <div class="emi-item">
+                            <div class="emi-date">
+                                <div class="emi-day">05</div>
+                                <div class="emi-month">FEB</div>
+                            </div>
+                            <div class="emi-info">
+                                <div class="emi-name">Home Loan - HDFC</div>
+                                <div class="emi-detail">In 3 days • 18 years remaining</div>
+                            </div>
+                            <div class="emi-amount">₹32,500</div>
+                        </div>
+
+                        <div class="emi-item">
+                            <div class="emi-date">
+                                <div class="emi-day">10</div>
+                                <div class="emi-month">FEB</div>
+                            </div>
+                            <div class="emi-info">
+                                <div class="emi-name">Car Loan - ICICI</div>
+                                <div class="emi-detail">In 8 days • 3 years remaining</div>
+                            </div>
+                            <div class="emi-amount">₹15,200</div>
+                        </div>
+
+                        <div class="emi-item">
+                            <div class="emi-date">
+                                <div class="emi-day">15</div>
+                                <div class="emi-month">FEB</div>
+                            </div>
+                            <div class="emi-info">
+                                <div class="emi-name">Credit Card - HDFC</div>
+                                <div class="emi-detail">In 13 days • Minimum due</div>
+                            </div>
+                            <div class="emi-amount">₹8,450</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bill Payment Reminders -->
+                <div class="bill-reminders-card">
+                    <div class="card-title">🔔 Bill Reminders</div>
+                    <div class="bill-list">
+                        <div class="bill-item">
+                            <div class="bill-icon">💡</div>
+                            <div class="bill-info">
+                                <div class="bill-name">Electricity</div>
+                                <div class="bill-due">Due: Feb 8</div>
+                            </div>
+                            <div class="bill-amount">₹2,340</div>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-icon">📱</div>
+                            <div class="bill-info">
+                                <div class="bill-name">Mobile</div>
+                                <div class="bill-due">Due: Feb 12</div>
+                            </div>
+                            <div class="bill-amount">₹599</div>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-icon">🌐</div>
+                            <div class="bill-info">
+                                <div class="bill-name">Internet</div>
+                                <div class="bill-due">Due: Feb 15</div>
+                            </div>
+                            <div class="bill-amount">₹999</div>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-icon">📺</div>
+                            <div class="bill-info">
+                                <div class="bill-name">Streaming</div>
+                                <div class="bill-due">Due: Feb 18</div>
+                            </div>
+                            <div class="bill-amount">₹649</div>
+                        </div>
+
+                        <div class="bill-item">
+                            <div class="bill-icon">🏠</div>
+                            <div class="bill-info">
+                                <div class="bill-name">Maintenance</div>
+                                <div class="bill-due">Due: Feb 28</div>
+                            </div>
+                            <div class="bill-amount">₹4,500</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Divider -->
+            <div class="section-divider"></div>
+
+            <!-- Monthly Tracking Section -->
+            <div class="section-header">
+                <div>
+                    <div class="section-title">📊 Monthly Tracking</div>
+                    <div class="section-subtitle">Track your income, expenses and savings</div>
+                </div>
+            </div>
+
+            <div class="tracking-grid">
+                <!-- Month Selector -->
+                <div class="month-selector">
+                    <button class="month-nav-btn" onclick="previousMonth()">←</button>
+                    <div class="current-month" id="currentMonth">February 2026</div>
+                    <button class="month-nav-btn" onclick="nextMonth()">→</button>
+                </div>
+
+                <!-- Income Entry Card -->
+                <div class="income-card">
+                    <div class="card-header">
+                        <div class="card-title">💰 Income</div>
+                        <button class="copy-btn" onclick="copyFromLastMonth('income')">📋 Copy from last month</button>
+                    </div>
+                    <div class="income-entries" id="incomeEntries">
+                        <div class="entry-row">
+                            <div class="entry-emoji">👨‍💼</div>
+                            <input type="text" class="entry-input" placeholder="Family member name" value="Manish">
+                            <input type="text" class="entry-input amount" placeholder="₹ 0" value="₹ 1,25,000" oninput="calculateTotals()">
+                        </div>
+                        <div class="entry-row">
+                            <div class="entry-emoji">👩‍💼</div>
+                            <input type="text" class="entry-input" placeholder="Family member name" value="Spouse">
+                            <input type="text" class="entry-input amount" placeholder="₹ 0" value="₹ 85,000" oninput="calculateTotals()">
+                        </div>
+                        <div class="entry-row">
+                            <div class="entry-emoji">💼</div>
+                            <input type="text" class="entry-input" placeholder="Other income source" value="Freelance">
+                            <input type="text" class="entry-input amount" placeholder="₹ 0" value="₹ 15,000" oninput="calculateTotals()">
+                        </div>
+                    </div>
+                    <button class="add-entry-btn" onclick="addIncomeEntry()">
+                        <span>+</span>
+                        <span>Add income source</span>
+                    </button>
+                    <div class="total-row">
+                        <div class="total-label">Total Income</div>
+                        <div class="total-amount" id="totalIncome">₹ 2,25,000</div>
+                    </div>
+                </div>
+
+                <!-- Expense Entry Card -->
+                <div class="expense-card">
+                    <div class="card-header">
+                        <div class="card-title">💸 Expenses</div>
+                        <div class="expense-mode-toggle">
+                            <button class="mode-btn active" onclick="switchExpenseMode('quick')">Quick</button>
+                            <button class="mode-btn" onclick="switchExpenseMode('detailed')">Detailed</button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Mode -->
+                    <div class="expense-quick-mode" id="quickMode">
+                        <div class="quick-input-wrapper">
+                            <input type="text" class="quick-input-large" placeholder="₹ 0" value="₹ 1,52,200" id="quickExpenseInput" oninput="calculateTotals()">
+                            <div class="quick-hint">Enter total monthly expenses</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Mode (Initially Hidden) -->
+                    <div class="category-breakdown" id="detailedMode" style="display: none;">
+                        <div class="category-item">
+                            <div class="category-emoji">🏠</div>
+                            <div class="category-info">
+                                <div class="category-name">Housing & Rent</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 35,000" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🍔</div>
+                            <div class="category-info">
+                                <div class="category-name">Food & Dining</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 18,500" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🚗</div>
+                            <div class="category-info">
+                                <div class="category-name">Transportation</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 12,200" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🛒</div>
+                            <div class="category-info">
+                                <div class="category-name">Shopping</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 15,800" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">💊</div>
+                            <div class="category-info">
+                                <div class="category-name">Healthcare</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 8,400" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🎬</div>
+                            <div class="category-info">
+                                <div class="category-name">Entertainment</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 6,500" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">💡</div>
+                            <div class="category-info">
+                                <div class="category-name">Utilities & Bills</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 9,300" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🎓</div>
+                            <div class="category-info">
+                                <div class="category-name">Education</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 25,000" oninput="calculateDetailedTotal()">
+                        </div>
+                        <div class="category-item">
+                            <div class="category-emoji">🎁</div>
+                            <div class="category-info">
+                                <div class="category-name">Others</div>
+                            </div>
+                            <input type="text" class="category-input" placeholder="₹ 0" value="₹ 21,500" oninput="calculateDetailedTotal()">
+                        </div>
+                    </div>
+
+                    <div class="total-row">
+                        <div class="total-label">Total Expenses</div>
+                        <div class="total-amount" id="totalExpenses">₹ 1,52,200</div>
+                    </div>
+                </div>
+
+                <!-- Savings Calculation Display -->
+                <div class="savings-card">
+                    <div class="card-title">💎 Savings Summary</div>
+                    <div class="savings-grid">
+                        <div class="savings-metric">
+                            <div class="savings-label">Monthly Savings</div>
+                            <div class="savings-value" id="monthlySavings">₹ 72,800</div>
+                        </div>
+                        <div class="savings-metric">
+                            <div class="savings-label">Savings Rate</div>
+                            <div class="savings-value" id="savingsRate">32.4%</div>
+                            <div class="savings-badge excellent" id="savingsBadge">
+                                <span>🎉</span>
+                                <span>Excellent</span>
+                            </div>
+                        </div>
+                        <div class="savings-metric">
+                            <div class="savings-label">vs Last Month</div>
+                            <div class="savings-value" id="vsLastMonth">+8.2%</div>
+                            <div class="savings-badge good">
+                                <span>↑</span>
+                                <span>Improved</span>
+                            </div>
+                        </div>
+                        <div class="savings-metric">
+                            <div class="savings-label">vs 6-Month Avg</div>
+                            <div class="savings-value" id="vsAverage">+12.5%</div>
+                            <div class="savings-badge excellent">
+                                <span>✓</span>
+                                <span>Above Average</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Timeline -->
+                <div class="timeline-card">
+                    <div class="card-title">📈 Last 12 Months</div>
+                    <div class="timeline-scroll">
+                        <div class="timeline">
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Mar '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.15L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+28% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Apr '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.18L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+30% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">May '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.42L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+35% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Jun '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.20L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+26% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Jul '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.25L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+29% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Aug '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.38L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+33% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Sep '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.22L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+27% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Oct '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.28L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+31% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Nov '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.12L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+24% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Dec '25</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.45L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate negative">+18% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month">
+                                <div class="timeline-month-name">Jan '26</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.20L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+29% saved</div>
+                                </div>
+                            </div>
+                            <div class="timeline-month current">
+                                <div class="timeline-month-name">Feb '26</div>
+                                <div class="timeline-value">Income</div>
+                                <div class="timeline-amount">₹2.25L</div>
+                                <div class="timeline-savings">
+                                    <div class="timeline-savings-rate positive">+32% saved</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="data/localStorage.js"></script>
+    <script src="data/sampleData.js"></script>
+    <script>
+        // ===================================
+        // STORAGE KEYS
+        // ===================================
+        const STORAGE_KEYS = {
+            MONTHLY_TRACKING: 'wealthos_monthly_tracking',
+            BANK_ACCOUNTS: 'wealthos_bank_accounts',
+            BILL_REMINDERS: 'wealthos_bill_reminders',
+            EXPENSE_CATEGORIES: 'wealthos_expense_categories',
+            SAVINGS_GOALS: 'wealthos_savings_goals'
+        };
+
+        // ===================================
+        // DATA MODELS
+        // ===================================
+        let monthlyTrackingData = {};
+        let bankAccounts = [];
+        let billReminders = [];
+        let expenseCategories = [];
+        let savingsGoals = {};
+
+        // ===================================
+        // THEME MANAGEMENT
+        // ===================================
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        if (currentTheme === 'dark') {
+            document.getElementById('themeToggle').classList.add('active');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'dark') {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        // ===================================
+        // INITIALIZATION
+        // ===================================
+        function initializeData() {
+            // Load or initialize monthly tracking data
+            const savedTracking = localStorage.getItem(STORAGE_KEYS.MONTHLY_TRACKING);
+            monthlyTrackingData = savedTracking ? JSON.parse(savedTracking) : {};
+
+            // Load or initialize bank accounts
+            const savedAccounts = localStorage.getItem(STORAGE_KEYS.BANK_ACCOUNTS);
+            bankAccounts = savedAccounts ? JSON.parse(savedAccounts) : [
+                { id: 'BA001', name: 'HDFC Savings', number: '****4532', balance: 124500, icon: '🏦', type: 'bank' },
+                { id: 'BA002', name: 'ICICI Salary', number: '****7821', balance: 85300, icon: '🏦', type: 'bank' },
+                { id: 'BA003', name: 'Liquid Fund', number: 'HDFC Liquid', balance: 245000, icon: '💧', type: 'liquid' },
+                { id: 'BA004', name: 'Wallet & Cash', number: 'Multiple sources', balance: 18200, icon: '💵', type: 'liquid' }
+            ];
+
+            // Load or initialize bill reminders
+            const savedBills = localStorage.getItem(STORAGE_KEYS.BILL_REMINDERS);
+            billReminders = savedBills ? JSON.parse(savedBills) : [
+                { id: 'BR001', name: 'Electricity', icon: '💡', amount: 2340, dueDate: '2026-02-08', paid: false },
+                { id: 'BR002', name: 'Mobile', icon: '📱', amount: 599, dueDate: '2026-02-12', paid: false },
+                { id: 'BR003', name: 'Internet', icon: '🌐', amount: 999, dueDate: '2026-02-15', paid: false },
+                { id: 'BR004', name: 'Streaming', icon: '📺', amount: 649, dueDate: '2026-02-18', paid: false },
+                { id: 'BR005', name: 'Maintenance', icon: '🏠', amount: 4500, dueDate: '2026-02-28', paid: false }
+            ];
+
+            // Load or initialize expense categories
+            const savedCategories = localStorage.getItem(STORAGE_KEYS.EXPENSE_CATEGORIES);
+            expenseCategories = savedCategories ? JSON.parse(savedCategories) : [
+                { id: 'EC001', name: 'Housing & Rent', icon: '🏠', amount: 35000 },
+                { id: 'EC002', name: 'Food & Dining', icon: '🍔', amount: 18500 },
+                { id: 'EC003', name: 'Transportation', icon: '🚗', amount: 12200 },
+                { id: 'EC004', name: 'Shopping', icon: '🛒', amount: 15800 },
+                { id: 'EC005', name: 'Healthcare', icon: '💊', amount: 8400 },
+                { id: 'EC006', name: 'Entertainment', icon: '🎬', amount: 6500 },
+                { id: 'EC007', name: 'Utilities & Bills', icon: '💡', amount: 9300 },
+                { id: 'EC008', name: 'Education', icon: '🎓', amount: 25000 },
+                { id: 'EC009', name: 'Others', icon: '🎁', amount: 21500 }
+            ];
+
+            // Load or initialize savings goals
+            const savedGoals = localStorage.getItem(STORAGE_KEYS.SAVINGS_GOALS);
+            savingsGoals = savedGoals ? JSON.parse(savedGoals) : {
+                monthlyTarget: 72800,
+                emergencyFundTarget: 6
+            };
+
+            // Initialize current month if not exists
+            const monthKey = getCurrentMonthKey();
+            if (!monthlyTrackingData[monthKey]) {
+                monthlyTrackingData[monthKey] = {
+                    income: [
+                        { id: generateId(), emoji: '👨‍💼', name: 'Manish', amount: 125000 },
+                        { id: generateId(), emoji: '👩‍💼', name: 'Spouse', amount: 85000 },
+                        { id: generateId(), emoji: '💼', name: 'Freelance', amount: 15000 }
+                    ],
+                    expenses: {
+                        mode: 'quick',
+                        quickTotal: 152200,
+                        categories: [...expenseCategories]
+                    }
+                };
+            }
+
+            saveAllData();
+        }
+
+        // Month Navigation
+        let currentMonthIndex = 1; // February (0-based)
+        let currentYear = 2026;
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function updateMonthDisplay() {
+            document.getElementById('currentMonth').textContent = `${months[currentMonthIndex]} ${currentYear}`;
+        }
+
+        function previousMonth() {
+            currentMonthIndex--;
+            if (currentMonthIndex < 0) {
+                currentMonthIndex = 11;
+                currentYear--;
+            }
+            updateMonthDisplay();
+        }
+
+        function nextMonth() {
+            currentMonthIndex++;
+            if (currentMonthIndex > 11) {
+                currentMonthIndex = 0;
+                currentYear++;
+            }
+            updateMonthDisplay();
+        }
+
+        // Income Entry Management
+        function addIncomeEntry() {
+            const container = document.getElementById('incomeEntries');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'entry-row';
+            newEntry.innerHTML = `
+                <div class="entry-emoji">💼</div>
+                <input type="text" class="entry-input" placeholder="Income source">
+                <input type="text" class="entry-input amount" placeholder="₹ 0" oninput="calculateTotals()">
+            `;
+            container.appendChild(newEntry);
+        }
+
+        // Expense Mode Toggle
+        function switchExpenseMode(mode) {
+            const quickMode = document.getElementById('quickMode');
+            const detailedMode = document.getElementById('detailedMode');
+            const buttons = document.querySelectorAll('.mode-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (mode === 'quick') {
+                quickMode.style.display = 'block';
+                detailedMode.style.display = 'none';
+                buttons[0].classList.add('active');
+            } else {
+                quickMode.style.display = 'none';
+                detailedMode.style.display = 'flex';
+                buttons[1].classList.add('active');
+                // Sync the detailed total with quick input
+                calculateDetailedTotal();
+            }
+        }
+
+        // Calculate Detailed Expenses Total
+        function calculateDetailedTotal() {
+            const inputs = document.querySelectorAll('.category-input');
+            let total = 0;
+
+            inputs.forEach(input => {
+                const value = input.value.replace(/[₹,\s]/g, '');
+                const amount = parseFloat(value) || 0;
+                total += amount;
+            });
+
+            document.getElementById('totalExpenses').textContent = `₹ ${total.toLocaleString('en-IN')}`;
+            document.getElementById('quickExpenseInput').value = `₹ ${total.toLocaleString('en-IN')}`;
+            calculateTotals();
+        }
+
+        // Calculate All Totals and Savings
+        function calculateTotals() {
+            // Calculate Income
+            const incomeInputs = document.querySelectorAll('#incomeEntries .amount');
+            let totalIncome = 0;
+
+            incomeInputs.forEach(input => {
+                const value = input.value.replace(/[₹,\s]/g, '');
+                const amount = parseFloat(value) || 0;
+                totalIncome += amount;
+            });
+
+            document.getElementById('totalIncome').textContent = `₹ ${totalIncome.toLocaleString('en-IN')}`;
+
+            // Get Expenses
+            let totalExpenses = 0;
+            const quickMode = document.getElementById('quickMode');
+
+            if (quickMode.style.display !== 'none') {
+                const expenseValue = document.getElementById('quickExpenseInput').value.replace(/[₹,\s]/g, '');
+                totalExpenses = parseFloat(expenseValue) || 0;
+            } else {
+                const expenseValue = document.getElementById('totalExpenses').textContent.replace(/[₹,\s]/g, '');
+                totalExpenses = parseFloat(expenseValue) || 0;
+            }
+
+            document.getElementById('totalExpenses').textContent = `₹ ${totalExpenses.toLocaleString('en-IN')}`;
+
+            // Calculate Savings
+            const savings = totalIncome - totalExpenses;
+            const savingsRate = totalIncome > 0 ? ((savings / totalIncome) * 100) : 0;
+
+            document.getElementById('monthlySavings').textContent = `₹ ${savings.toLocaleString('en-IN')}`;
+            document.getElementById('savingsRate').textContent = `${savingsRate.toFixed(1)}%`;
+
+            // Update Savings Badge
+            const badge = document.getElementById('savingsBadge');
+            badge.className = 'savings-badge';
+
+            if (savingsRate >= 30) {
+                badge.classList.add('excellent');
+                badge.innerHTML = '<span>🎉</span><span>Excellent</span>';
+            } else if (savingsRate >= 20) {
+                badge.classList.add('good');
+                badge.innerHTML = '<span>✓</span><span>Good</span>';
+            } else if (savingsRate >= 10) {
+                badge.classList.add('average');
+                badge.innerHTML = '<span>~</span><span>Average</span>';
+            } else {
+                badge.classList.add('poor');
+                badge.innerHTML = '<span>!</span><span>Low</span>';
+            }
+        }
+
+        // Copy from Last Month
+        function copyFromLastMonth(type) {
+            if (type === 'income') {
+                alert('Copied income data from January 2026!');
+                // In a real app, this would fetch and populate data from the previous month
+            }
+        }
+
+        // Format currency inputs as user types
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('amount') ||
+                e.target.classList.contains('category-input') ||
+                e.target.classList.contains('quick-input-large') ||
+                e.target.classList.contains('form-input')) {
+
+                let value = e.target.value.replace(/[₹,\s]/g, '');
+
+                if (value && !isNaN(value)) {
+                    const formatted = parseFloat(value).toLocaleString('en-IN');
+                    const cursorPos = e.target.selectionStart;
+                    e.target.value = `₹ ${formatted}`;
+                }
+            }
+        });
+
+        // Initialize calculations on page load
+        calculateTotals();
+    </script>
+</body>
+</html>

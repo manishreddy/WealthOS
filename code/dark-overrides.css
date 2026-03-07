@@ -1,0 +1,226 @@
+/* ─── WealthOS Dark Mode Overrides ────────────────────────────────────────────
+   Shared stylesheet included in every page.
+   Patches hardcoded colours that bypass the CSS-variable system.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Scrollbars ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #0f1624; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Chat / Message Bubbles (WealthBot) ────────────────────────────────────── */
+[data-theme="dark"] .message-bubble {
+    background: rgba(255,255,255,0.07);
+    color: var(--text-primary, #e8eaed);
+}
+[data-theme="dark"] .message.user .message-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+[data-theme="dark"] .message.user .message-avatar {
+    background: rgba(255,255,255,0.12);
+    color: var(--text-secondary, #9ca3af);
+}
+[data-theme="dark"] .message-time { color: var(--text-tertiary, #6b7280); }
+
+/* ── Form inputs / selects / textareas ─────────────────────────────────────── */
+[data-theme="dark"] input:not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #e8eaed);
+    border-color: rgba(255,255,255,0.1);
+    color-scheme: dark;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: rgba(255,255,255,0.3); }
+[data-theme="dark"] select option {
+    background: #0f1624;
+    color: #e8eaed;
+}
+
+/* ── Cards / Panels ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] .analytics-card,
+[data-theme="dark"] .card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .breakdown-card,
+[data-theme="dark"] .insight-card,
+[data-theme="dark"] .goal-card,
+[data-theme="dark"] .allocation-card,
+[data-theme="dark"] .asset-card,
+[data-theme="dark"] .data-card {
+    background: var(--bg-elevated, #0f1624);
+    border-color: rgba(255,255,255,0.06);
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] table { color: var(--text-primary, #e8eaed); }
+[data-theme="dark"] th {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary, #9ca3af);
+    border-color: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] td { border-color: rgba(255,255,255,0.04); }
+[data-theme="dark"] tr:hover td { background: rgba(255,255,255,0.03); }
+
+/* ── Modals ──────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .modal,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .ai-import-modal {
+    background: #0f1624;
+    border-color: rgba(255,255,255,0.08);
+    color: var(--text-primary, #e8eaed);
+}
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .modal-close {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-secondary, #9ca3af);
+}
+[data-theme="dark"] .modal-close:hover { background: rgba(255,255,255,0.1); }
+
+/* ── AI Import Modal ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] .ai-import-overlay { background: rgba(0,0,0,0.7); }
+[data-theme="dark"] .ai-import-tab { color: var(--text-secondary, #9ca3af); }
+[data-theme="dark"] .ai-import-tab.active {
+    color: var(--accent-primary, #0066ff);
+    border-color: var(--accent-primary, #0066ff);
+}
+[data-theme="dark"] .ai-import-tab-content {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+}
+[data-theme="dark"] .ai-preview-area {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Badges / Tags ───────────────────────────────────────────────────────────── */
+[data-theme="dark"] .badge,
+[data-theme="dark"] .tag,
+[data-theme="dark"] .chip,
+[data-theme="dark"] .status-badge {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary, #e8eaed);
+}
+
+/* ── Portfolio / Asset type badges ──────────────────────────────────────────── */
+[data-theme="dark"] .inv-badge.equity { color: #60a5fa; }
+[data-theme="dark"] .inv-badge.debt   { color: #fbbf24; }
+[data-theme="dark"] .inv-badge.gold   { color: #f59e0b; }
+[data-theme="dark"] .inv-badge.others { color: #a78bfa; }
+
+/* ── Monthly Investments breakup card labels ─────────────────────────────────── */
+[data-theme="dark"] .breakup-asset-card.equity .breakup-card-label  { color: #60a5fa; }
+[data-theme="dark"] .breakup-asset-card.debt .breakup-card-label    { color: #fbbf24; }
+[data-theme="dark"] .breakup-asset-card.gold .breakup-card-label    { color: #f59e0b; }
+[data-theme="dark"] .breakup-asset-card.others .breakup-card-label  { color: #a78bfa; }
+
+/* ── Investment type badges (mutual fund, etf, stock, etc.) ──────────────────── */
+[data-theme="dark"] .inv-type-badge.mutual-fund { color: #60a5fa; }
+[data-theme="dark"] .inv-type-badge.etf         { color: #4ade80; }
+[data-theme="dark"] .inv-type-badge.stock        { color: #fbbf24; }
+[data-theme="dark"] .inv-type-badge.bond-fd      { color: #fb923c; }
+[data-theme="dark"] .inv-type-badge.other        { color: #a78bfa; }
+
+/* ── Sidebar portfolio summary ───────────────────────────────────────────────── */
+[data-theme="dark"] .portfolio-summary {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(0,102,255,0.08) 100%);
+    border-color: rgba(0,212,255,0.15);
+}
+
+/* ── Empty states ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .empty-state { color: var(--text-secondary, #9ca3af); }
+
+/* ── Notification / Toast ────────────────────────────────────────────────────── */
+[data-theme="dark"] .toast,
+[data-theme="dark"] .notification {
+    background: #1a2235;
+    color: var(--text-primary, #e8eaed);
+    border-color: rgba(255,255,255,0.1);
+}
+
+/* ── Settings / data management cards ───────────────────────────────────────── */
+[data-theme="dark"] .data-card,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .settings-section {
+    background: var(--bg-elevated, #0f1624);
+    border-color: rgba(255,255,255,0.06);
+}
+
+/* ── Spreadsheet import modal ────────────────────────────────────────────────── */
+[data-theme="dark"] #spreadsheetImportModal .si-table th {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary, #9ca3af);
+}
+[data-theme="dark"] #spreadsheetImportModal .si-table td {
+    border-color: rgba(255,255,255,0.04);
+}
+
+/* ── Settings spreadsheet import data badges ─────────────────────────────────── */
+.si-data-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.si-badge-blue   { background: rgba(0,102,255,0.1);   color: #0066ff; }
+.si-badge-green  { background: rgba(0,200,5,0.1);     color: #00a803; }
+.si-badge-amber  { background: rgba(234,179,8,0.1);   color: #b45309; }
+.si-badge-purple { background: rgba(139,92,246,0.1);  color: #7c3aed; }
+.si-badge-orange { background: rgba(251,146,60,0.1);  color: #c2410c; }
+
+[data-theme="dark"] .si-badge-blue   { background: rgba(96,165,250,0.12);  color: #60a5fa; }
+[data-theme="dark"] .si-badge-green  { background: rgba(74,222,128,0.12);  color: #4ade80; }
+[data-theme="dark"] .si-badge-amber  { background: rgba(251,191,36,0.12);  color: #fbbf24; }
+[data-theme="dark"] .si-badge-purple { background: rgba(167,139,250,0.12); color: #a78bfa; }
+[data-theme="dark"] .si-badge-orange { background: rgba(251,146,60,0.12);  color: #fb923c; }
+
+/* ── Planned / Proj vs Actuals tables ────────────────────────────────────────── */
+[data-theme="dark"] .plan-row,
+[data-theme="dark"] .actual-row { border-color: rgba(255,255,255,0.04); }
+[data-theme="dark"] .plan-row:hover,
+[data-theme="dark"] .actual-row:hover { background: rgba(255,255,255,0.03); }
+
+/* ── Dropdown menus ──────────────────────────────────────────────────────────── */
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .suggestions-dropdown {
+    background: #0f1624;
+    border-color: rgba(255,255,255,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+[data-theme="dark"] .dropdown-item:hover { background: rgba(255,255,255,0.05); }
+
+/* ── Sidebar logout button ───────────────────────────────────────────────────── */
+[data-theme="dark"] .sidebar-logout-btn {
+    color: var(--text-secondary, #9ca3af);
+    border-color: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] .sidebar-logout-btn:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #e8eaed);
+}
+
+/* ── Financial Planning tax form inputs ──────────────────────────────────────── */
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .tax-form .form-input {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #e8eaed);
+    border-color: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] .form-input:focus {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--accent-primary, #0066ff);
+}
+
+/* ── Month / date pickers ────────────────────────────────────────────────────── */
+[data-theme="dark"] input[type="month"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="number"] {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #e8eaed);
+}

@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Portfolio Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <link rel="stylesheet" href="dark-overrides.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --error: #FF3B30;
+            --warning: #ff9500;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-tertiary: #141d2e;
+            --bg-elevated: #141d2e;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255,255,255,0.09);
+            --border-subtle: rgba(255,255,255,0.05);
+            --accent-primary: #0066ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #fb923c;
+            --card-shadow: none;
+            --hover-bg: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+        /* Sidebar */
+
+        
+        /* Main Content */
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            max-width: 1800px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: var(--text-primary); }
+
+        .page-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn, .sort-btn {
+            padding: 10px 18px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover, .sort-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .filter-btn.active, .sort-btn.active {
+            background: rgba(0, 102, 255, 0.12);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* User Avatar */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-left: 12px;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Net Worth Dashboard */
+        .networth-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .networth-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .networth-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .networth-card-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .networth-card-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .networth-breakdown {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.875rem;
+        }
+
+        .breakdown-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .breakdown-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Asset Allocation Intelligence */
+        .allocation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .allocation-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .allocation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .risk-badge {
+            padding: 6px 14px;
+            background: rgba(250, 204, 21, 0.1);
+            color: #facc15;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .risk-badge.low {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .risk-badge.high {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-bottom: 20px;
+        }
+
+        .allocation-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .allocation-column h4 {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .allocation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .allocation-item:last-child {
+            border-bottom: none;
+        }
+
+        .allocation-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .allocation-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .allocation-value {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .deviation-alerts {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+        }
+
+        .alert-title {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 12px;
+        }
+
+        .alert-item {
+            padding: 12px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-header {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .alert-action {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        /* Rebalancing Section */
+        .rebalancing-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .rebalancing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .rebalancing-timeline {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .rebalancing-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .rebalancing-action {
+            padding: 20px;
+            background: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .action-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .action-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .action-type.buy { color: #22c55e; }
+        .action-type.sell { color: #ef4444; }
+
+        .action-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .action-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+        }
+
+        .action-detail-label {
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .action-detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .tax-efficient-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+
+        /* Liability Dashboard */
+        .liability-dashboard {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .liability-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .liability-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .liability-stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .liability-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .loan-cards {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .loan-card {
+            background: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .loan-card:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .loan-card.expanded {
+            border-color: var(--accent-primary);
+        }
+
+        .loan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .loan-info h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .loan-type {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .loan-amount {
+            text-align: right;
+        }
+
+        .loan-outstanding {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .loan-emi {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .loan-progress {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff 0%, #0066ff 100%);
+            transition: width 0.3s ease;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .loan-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .loan-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .loan-stat-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .loan-stat-value {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .loan-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .loan-card.expanded .loan-details {
+            max-height: 1000px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .emi-schedule {
+            margin-bottom: 20px;
+        }
+
+        .schedule-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .schedule-table {
+            width: 100%;
+            font-size: 0.8125rem;
+        }
+
+        .schedule-table th {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.6875rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .schedule-table td {
+            padding: 8px 8px 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .prepayment-calculator {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .calculator-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+        }
+
+        .calculator-input {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .calculator-input label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .calculator-input input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--hover-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .calculator-result {
+            padding: 12px;
+            background: var(--hover-bg);
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .calculator-result strong {
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        /* Holdings Section */
+        .holdings-section {
+            margin-bottom: 32px;
+        }
+
+        .holdings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .holding-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .holding-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .holding-card.expanded {
+            border-color: var(--accent-primary);
+        }
+
+        .holding-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .holding-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .holding-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .holding-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .holding-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .holding-type {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            letter-spacing: -0.01em;
+        }
+
+        .ownership-tag {
+            padding: 3px 8px;
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-primary);
+            border-radius: 4px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ownership-tag.raghavi {
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+        }
+
+        .ownership-tag.joint {
+            background: rgba(250, 204, 21, 0.1);
+            color: #facc15;
+        }
+
+        .holding-value {
+            text-align: right;
+        }
+
+        .holding-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .holding-units {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            letter-spacing: -0.01em;
+        }
+
+        .holding-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .stat-value.positive { color: #22c55e; }
+        .stat-value.negative { color: #ef4444; }
+
+        .holding-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .holding-card.expanded .holding-details {
+            max-height: 2000px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+            font-size: 0.8125rem;
+        }
+
+        .transaction-date {
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        .transaction-type.buy { color: #22c55e; }
+        .transaction-type.sell { color: #ef4444; }
+
+        .transaction-amount {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .additional-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .additional-stat {
+            padding: 12px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+        }
+
+        .additional-stat-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .additional-stat-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Interactive Calculators */
+        .calculators-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .calculator-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .calculator-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calculator-tab:hover {
+            color: var(--text-secondary);
+        }
+
+        .calculator-tab.active {
+            background: rgba(0, 102, 255, 0.12);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+        }
+
+        .calculator-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 16px;
+            background: var(--hover-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .calculate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 16px;
+            height: 34px;
+            background: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: filter 0.15s;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        .calculate-btn:hover {
+            filter: brightness(1.1);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .calculator-results {
+            display: none;
+            padding: 24px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            margin-top: 24px;
+        }
+
+        .calculator-results.show {
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .expand-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--hover-bg);
+            border-radius: 50%;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+            transition: all 0.3s ease;
+        }
+
+        .holding-card.expanded .expand-indicator,
+        .loan-card.expanded .expand-indicator {
+            transform: rotate(180deg);
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .allocation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Month Navigation */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .month-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .month-nav-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .current-month-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .copy-month-banner {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 20px;
+            background: rgba(0, 102, 255, 0.06);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .copy-month-banner .banner-text {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+        }
+
+        .copy-month-banner .banner-text strong {
+            color: var(--text-primary);
+        }
+
+        .copy-month-btn {
+            padding: 8px 16px;
+            background: var(--accent-primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .copy-month-btn:hover { opacity: 0.85; }
+
+        .delete-month-btn {
+            width: 36px; height: 36px; padding: 0;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .delete-month-btn:hover {
+            background: rgba(239,68,68,0.08);
+            border-color: rgba(239,68,68,0.25);
+            color: var(--error, #ef4444);
+        }
+
+        /* Sort / Filter bar */
+        .table-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .tbl-ctrl-label { font-size: 0.8125rem; color: var(--text-tertiary); font-weight: 600; }
+        .tbl-ctrl-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tbl-ctrl-btn.active {
+            background: rgba(0, 102, 255, 0.12);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .tbl-ctrl-sep { width: 1px; height: 18px; background: var(--border-color); margin: 0 4px; }
+
+        /* MF Breakdown */
+        .mf-breakdown-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        .mf-breakdown-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+        .mf-cat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.875rem;
+        }
+        .mf-cat-row:last-child { border-bottom: none; }
+        .mf-cat-name { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-weight: 500; }
+        .mf-cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .mf-cat-vals { text-align: right; }
+        .mf-cat-pct { font-weight: 700; color: var(--text-primary); }
+        .mf-cat-val { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 1px; }
+
+        @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
+
+            .main-content { padding: 24px 20px; }
+            .networth-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .allocation-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="controls.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside id="sidebar-root"></aside>
+
+        <main class="main-content">
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                <span>Back to options</span>
+            </a>
+
+            <div class="page-header">
+                <h1 class="page-title">Portfolio</h1>
+                <div class="filter-controls">
+                    <button class="action-btn secondary" onclick="openPortfolioImport()">Import via AI</button>
+                    <button class="action-btn secondary" onclick="openZerodhaUpload()">Upload Holdings</button>
+                    <input type="file" id="zerodhaFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="onZerodhaFileSelected(event)">
+                    <button class="action-btn primary" onclick="openAddModal()">+ Add Asset</button>
+                    <div class="user-avatar" id="userAvatarBtn">U
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <div class="user-menu-header">
+                                <div class="user-menu-name" id="userMenuName">Loading...</div>
+                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+                            </div>
+                            <div class="user-menu-items">
+                                <a href="settings.html" class="user-menu-item">
+                                    <span class="user-menu-item-icon">⚙️</span>
+                                    <span>Settings</span>
+                                </a>
+                                <div class="user-menu-item logout" onclick="WealthAPI.auth.logout()">
+                                    <span class="user-menu-item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Bar: month nav + actions -->
+            <div class="page-control-bar">
+                <div class="month-nav-controls">
+                    <button class="month-nav-btn" onclick="changePortfolioMonth(-1)" title="Previous month">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div class="current-month-label" id="portfolioCurrentMonth">March 2026</div>
+                    <button class="month-nav-btn" onclick="changePortfolioMonth(1)" title="Next month">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+                <div class="page-btns">
+                    <button class="delete-month-btn" id="deleteMonthBtn" style="display:none" onclick="deleteMonthData()" title="Delete month data">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Copy from previous month banner -->
+            <div class="copy-month-banner" id="copyMonthBanner">
+                <span class="banner-text">No assets for <strong id="copyMonthTarget"></strong>. Copy from <strong id="copyMonthSource"></strong>?</span>
+                <button class="copy-month-btn" id="copyMonthBtn" onclick="doCopyMonth()">Copy Previous Month</button>
+            </div>
+
+            <!-- Person Tabs -->
+            <div class="person-tabs-container">
+                <div class="person-tabs" id="memberFilterBtns">
+                    <!-- Injected by renderMemberFilterBtns() -->
+                </div>
+                <div class="person-tabs-actions">
+                    <a href="settings.html" class="settings-link-btn">Manage Members</a>
+                </div>
+            </div>
+
+            <!-- Net Worth Dashboard -->
+            <div class="networth-dashboard">
+                <div class="networth-card">
+                    <div class="networth-card-title">Total Portfolio Value</div>
+                    <div class="networth-card-value" id="totalNetWorth">Loading...</div>
+                    <div class="networth-breakdown" id="memberBreakdown">
+                        <div class="breakdown-item" style="color: var(--text-tertiary); font-size: 0.875rem;">Loading member data...</div>
+                    </div>
+                </div>
+
+                <div class="networth-card">
+                    <div class="networth-card-title">Total Invested</div>
+                    <div class="networth-card-value" id="totalInvested">Loading...</div>
+                    <div class="networth-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Total Gain/Loss</span>
+                            <span class="breakdown-value" id="totalGainLoss">--</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Total Assets</span>
+                            <span class="breakdown-value" id="totalAssetsCount">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="networth-card">
+                    <div class="networth-card-title">Asset Classes</div>
+                    <div class="networth-card-value" id="topAssetClass">--</div>
+                    <div class="networth-breakdown" id="assetClassBreakdown">
+                        <div class="breakdown-item" style="color: var(--text-tertiary); font-size: 0.875rem;">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="networth-card">
+                    <div class="networth-card-title">Portfolio Members</div>
+                    <div class="networth-card-value" id="memberCount">--</div>
+                    <div class="networth-breakdown" id="memberValueBreakdown">
+                        <div class="breakdown-item" style="color: var(--text-tertiary); font-size: 0.875rem;">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Allocation Intelligence -->
+            <div class="allocation-grid">
+                <div class="allocation-card">
+                    <div class="allocation-header">
+                        <h2 class="section-title">Asset Allocation</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                    <div class="allocation-comparison">
+                        <div class="allocation-column" style="grid-column: 1 / -1;">
+                            <h4>Current Allocation</h4>
+                            <div id="allocationList">
+                                <div style="color: var(--text-tertiary); font-size: 0.875rem; padding: 8px 0;">Loading allocation data...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="allocation-card">
+                    <div class="allocation-header">
+                        <h2 class="section-title">Member Breakdown</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="memberChart"></canvas>
+                    </div>
+                    <div class="networth-breakdown" id="memberChartBreakdown">
+                        <div class="breakdown-item" style="color: var(--text-tertiary); font-size: 0.875rem;">Loading member data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MF Category Breakdown (shown when MFs exist) -->
+            <div class="mf-breakdown-section" id="mfBreakdownSection" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h2 class="section-title">Mutual Fund Breakdown</h2>
+                    <span id="mfTotalLabel" style="font-size:0.875rem;color:var(--text-secondary);font-weight:500;"></span>
+                </div>
+                <div class="mf-breakdown-grid">
+                    <div style="position:relative;height:220px;">
+                        <canvas id="mfBreakdownChart"></canvas>
+                    </div>
+                    <div id="mfBreakdownList"></div>
+                </div>
+            </div>
+
+            <!-- Assets Table Section -->
+            <div class="rebalancing-section" id="assetsSection">
+                <div class="rebalancing-header">
+                    <h2 class="section-title">Investment Assets</h2>
+                    <span id="assetCountLabel" style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;"></span>
+                </div>
+
+                <!-- Sort / Filter bar -->
+                <div class="table-controls" id="tableControls" style="display:none;">
+                    <span class="tbl-ctrl-label">Sort:</span>
+                    <button class="tbl-ctrl-btn active" data-sort="currentValue" onclick="setSort('currentValue')">Value ↓</button>
+                    <button class="tbl-ctrl-btn" data-sort="name" onclick="setSort('name')">Name</button>
+                    <button class="tbl-ctrl-btn" data-sort="gainPct" onclick="setSort('gainPct')">Gain%</button>
+                    <div class="tbl-ctrl-sep"></div>
+                    <span class="tbl-ctrl-label">Type:</span>
+                    <button class="tbl-ctrl-btn active" data-filter-type="all" onclick="setFilterType('all')">All</button>
+                    <button class="tbl-ctrl-btn" data-filter-type="stocks" onclick="setFilterType('stocks')">Stocks</button>
+                    <button class="tbl-ctrl-btn" data-filter-type="mutual-funds" onclick="setFilterType('mutual-funds')">MF/ETF</button>
+                    <button class="tbl-ctrl-btn" data-filter-type="fd" onclick="setFilterType('fd')">FD/Debt</button>
+                    <button class="tbl-ctrl-btn" data-filter-type="gold" onclick="setFilterType('gold')">Gold</button>
+                </div>
+
+                <!-- Empty States -->
+                <div id="emptyNoMembers" style="display: none; padding: 48px; text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 16px;">👥</div>
+                    <div style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">No family members found</div>
+                    <div style="color: var(--text-secondary);">Add family members in <a href="settings.html" style="color: var(--accent-primary);">Settings</a> first.</div>
+                </div>
+
+                <div id="emptyNoAssets" style="display: none; padding: 48px; text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 16px;">💼</div>
+                    <div style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">No investments yet</div>
+                    <div style="color: var(--text-secondary); max-width: 420px; margin: 0 auto 20px;">Add your first investment to start tracking your net worth. Include stocks, mutual funds, FDs, gold, and real estate.</div>
+                    <button class="action-btn primary" onclick="openAddModal()">+ Add First Asset</button>
+                </div>
+
+                <!-- Assets Table -->
+                <div id="assetsTableWrapper" style="overflow-x: auto;">
+                    <table id="assetsTable" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Member</th>
+                                <th style="text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Name</th>
+                                <th style="text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Type</th>
+                                <th style="text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Class</th>
+                                <th style="text-align: right; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Weight</th>
+                                <th style="text-align: right; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Purchase</th>
+                                <th style="text-align: right; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Current Value</th>
+                                <th style="text-align: right; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Gain/Loss</th>
+                                <th style="text-align: center; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Asset Modal -->
+    <div id="assetModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:16px; padding:32px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; margin:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 style="font-family:'Space Grotesk',sans-serif; font-size:1.375rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.02em;" id="modalTitle">Add Asset</h2>
+                <button onclick="closeModal()" style="background:none; border:none; font-size:1.5rem; color:var(--text-tertiary); cursor:pointer; line-height:1;">×</button>
+            </div>
+            <form id="assetForm" onsubmit="saveAsset(event)">
+                <input type="hidden" id="editAssetId" value="">
+                <input type="hidden" id="editMemberId" value="">
+
+                <div class="calculator-form" style="grid-template-columns:1fr 1fr;">
+                    <div class="form-group">
+                        <label>Member *</label>
+                        <select id="assetMember" required onchange=""></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asset Type *</label>
+                        <select id="assetType" required onchange="onAssetTypeChange()">
+                            <option value="">Select type</option>
+                            <option value="stocks">Stocks</option>
+                            <option value="mutual-funds">Mutual Funds</option>
+                            <option value="fd">Fixed Deposit (FD)</option>
+                            <option value="gold">Gold</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="crypto">Crypto</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Name *</label>
+                        <input type="text" id="assetName" placeholder="e.g. Reliance Industries, HDFC Mid Cap Fund" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Asset Class *</label>
+                        <select id="assetClass" required>
+                            <option value="">Select class</option>
+                            <option value="Equity">Equity</option>
+                            <option value="Debt">Debt</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Real Estate">Real Estate</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Commodity">Commodity</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Units (optional)</label>
+                        <input type="number" id="assetUnits" placeholder="e.g. 100" step="any" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Purchase Value (₹)</label>
+                        <input type="number" id="assetPurchaseValue" placeholder="e.g. 50000" step="any" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Current Value (₹) *</label>
+                        <input type="number" id="assetCurrentValue" placeholder="e.g. 65000" required step="any" min="0">
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Notes (optional)</label>
+                        <input type="text" id="assetNotes" placeholder="Any notes about this investment">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
+                    <button type="button" onclick="closeModal()" class="filter-btn">Cancel</button>
+                    <button type="submit" class="action-btn primary" id="saveBtn">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Zerodha Holdings Upload Modal -->
+    <div id="zerodhaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:16px; padding:32px; width:100%; max-width:800px; max-height:88vh; overflow-y:auto; margin:20px; display:flex; flex-direction:column; gap:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h2 style="font-family:'Space Grotesk',sans-serif; font-size:1.375rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.02em;">Upload Holdings Excel</h2>
+                    <div style="font-size:0.875rem; color:var(--text-secondary); margin-top:4px;">Supports Zerodha Holdings export (Equity + Mutual Funds)</div>
+                </div>
+                <button onclick="closeZerodhaModal()" style="background:none; border:none; font-size:1.5rem; color:var(--text-tertiary); cursor:pointer; line-height:1;">×</button>
+            </div>
+
+            <!-- Member selector -->
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <label style="font-size:0.875rem; font-weight:600; color:var(--text-secondary);">Import for member:</label>
+                <select id="zerodhaImportMember" style="padding:8px 12px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; color:var(--text-primary); font-size:0.875rem;"></select>
+            </div>
+
+            <!-- Status/loading -->
+            <div id="zerodhaStatus" style="display:none; padding:16px; border-radius:10px; background:rgba(0,102,255,0.06); border:1px solid rgba(0,102,255,0.2); font-size:0.9rem; color:var(--text-secondary);">Parsing file...</div>
+
+            <!-- Preview table -->
+            <div id="zerodhaPreview" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <div style="font-size:0.9375rem; font-weight:700; color:var(--text-primary);">
+                        Preview: <span id="zerodhaCount">0</span> holdings found
+                        <span style="font-size:0.8125rem; font-weight:500; color:var(--text-secondary); margin-left:8px;">Total: <span id="zerodhaTotalValue" style="color:var(--text-primary); font-weight:700;"></span></span>
+                    </div>
+                    <div style="font-size:0.8125rem; color:var(--text-tertiary);">Zero-value holdings excluded</div>
+                </div>
+                <div style="overflow-x:auto; border:1px solid var(--border-color); border-radius:10px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
+                        <thead>
+                            <tr style="background:var(--bg-secondary); border-bottom:1px solid var(--border-color);">
+                                <th style="text-align:left; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Name</th>
+                                <th style="text-align:left; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Type</th>
+                                <th style="text-align:left; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Class</th>
+                                <th style="text-align:right; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Units</th>
+                                <th style="text-align:right; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Purchase</th>
+                                <th style="text-align:right; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Current</th>
+                                <th style="text-align:right; padding:10px 12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.04em; font-size:0.7rem;">Gain/Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zerodhaPreviewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div id="zerodhaActions" style="display:none; justify-content:flex-end; gap:12px;">
+                <button onclick="closeZerodhaModal()" style="padding:10px 20px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:10px; font-size:0.875rem; font-weight:600; color:var(--text-secondary); cursor:pointer;">Cancel</button>
+                <button id="zerodhaImportBtn" class="action-btn primary" onclick="importZerodhaHoldings()">Import Holdings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/api.js"></script>
+    <script>
+        // ── State ──────────────────────────────────────────────────────────────
+        let allMembers = [];
+        let allPortfolioData = []; // array of { memberId, memberName, assets: [...] }
+        let summaryData = null;
+        let currentMemberFilter = 'all';
+        let allocationChartInstance = null;
+        let memberChartInstance = null;
+        let mfChartInstance = null;
+        let sortCol = 'currentValue';
+        let sortDir = 'desc';
+        let filterAssetType = 'all';
+
+        // ── MF Category inference ──────────────────────────────────────────────
+        function inferMFCategory(name) {
+            const n = (name || '').toUpperCase();
+            if (n.includes('ELSS') || n.includes('TAX SAVER') || n.includes('TAX SAVING')) return 'ELSS';
+            if (n.includes('LARGE & MID') || n.includes('LARGE AND MID') || n.includes('LARGEMIDCAP') || n.includes('LARGE MID')) return 'Large & Mid Cap';
+            if (n.includes('LARGE CAP') || n.includes('LARGECAP') || n.includes('BLUECHIP') || n.includes('BLUE CHIP')) return 'Large Cap';
+            if (n.includes('MID CAP') || n.includes('MIDCAP') || n.includes('MID-CAP') || n.includes('GROWTH MID')) return 'Mid Cap';
+            if (n.includes('SMALL CAP') || n.includes('SMALLCAP') || n.includes('SMALL-CAP')) return 'Small Cap';
+            if (n.includes('FLEXI CAP') || n.includes('FLEXICAP') || n.includes('MULTI CAP') || n.includes('MULTICAP') || n.includes('FLEXI')) return 'Flexi Cap';
+            if (n.includes('BALANCED ADVANTAGE') || n.includes('DYNAMIC ASSET')) return 'Balanced Advantage';
+            if (n.includes('BALANCED') || n.includes('HYBRID') || n.includes('AGGRESSIVE HYBRID')) return 'Hybrid';
+            if (n.includes('GOLD') || n.includes('SGB')) return 'Gold';
+            if (n.includes('NASDAQ') || n.includes('INTERNATIONAL') || n.includes('GLOBAL') || n.includes('FUND OF FUND') || n.includes('FOF') || n.includes('MAFANG') || n.includes('FAANG')) return 'International/FoF';
+            if (n.includes('INDEX') || n.includes('NIFTY') || n.includes('SENSEX') || n.includes('BSE')) return 'Index';
+            if (n.includes('LIQUID') || n.includes('OVERNIGHT') || n.includes('MONEY MARKET') || n.includes('ARBITRAGE')) return 'Liquid/Arb';
+            if (n.includes('DEBT') || n.includes('BOND') || n.includes('GILT') || n.includes('INCOME') || n.includes('LOW DURATION')) return 'Debt';
+            return 'Other';
+        }
+
+        const MF_CAT_COLORS = {
+            'Large Cap': '#0066ff', 'Mid Cap': '#00d4ff', 'Small Cap': '#22c55e',
+            'Large & Mid Cap': '#6366f1', 'Flexi Cap': '#f97316', 'ELSS': '#facc15',
+            'Index': '#a855f7', 'Balanced Advantage': '#ec4899', 'International/FoF': '#14b8a6',
+            'Gold': '#f59e0b', 'Hybrid': '#8b5cf6', 'Liquid/Arb': '#64748b',
+            'Debt': '#475569', 'Other': '#94a3b8'
+        };
+
+        // ── Client-side summary compute ────────────────────────────────────────
+        function computeSummary(portfolioData, memberFilter) {
+            const filtered = memberFilter === 'all'
+                ? portfolioData
+                : portfolioData.filter(mp => mp.memberId == memberFilter);
+
+            let totalCurrentValue = 0, totalPurchaseValue = 0, totalAssetCount = 0;
+            const classMap = {}, memberMap = {};
+
+            filtered.forEach(mp => {
+                (mp.assets || []).forEach(a => {
+                    const cv = a.currentValue || 0;
+                    const pv = a.purchaseValue || 0;
+                    totalCurrentValue += cv;
+                    totalPurchaseValue += pv;
+                    totalAssetCount++;
+                    const cls = a.assetClass || 'Others';
+                    classMap[cls] = (classMap[cls] || 0) + cv;
+                    if (!memberMap[mp.memberId]) memberMap[mp.memberId] = { memberId: mp.memberId, memberName: mp.memberName, total: 0 };
+                    memberMap[mp.memberId].total += cv;
+                });
+            });
+
+            const byAssetClass = Object.entries(classMap).map(([cls, value]) => ({
+                class: cls, value,
+                pct: totalCurrentValue > 0 ? parseFloat(((value / totalCurrentValue) * 100).toFixed(2)) : 0
+            })).sort((a, b) => b.value - a.value);
+
+            const byMember = Object.values(memberMap).sort((a, b) => b.total - a.total);
+            return { totalNetWorth: totalCurrentValue, totalPurchaseValue, totalAssetCount, byAssetClass, byMember };
+        }
+
+        // ── Sort / Filter controls ─────────────────────────────────────────────
+        function setSort(col) {
+            if (sortCol === col) {
+                sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+            } else {
+                sortCol = col;
+                sortDir = 'desc';
+            }
+            document.querySelectorAll('[data-sort]').forEach(b => {
+                const active = b.dataset.sort === col;
+                b.classList.toggle('active', active);
+                if (active) b.textContent = col === 'currentValue' ? 'Value' : col === 'name' ? 'Name' : 'Gain%';
+                b.textContent += sortDir === 'desc' ? ' ↓' : ' ↑';
+            });
+            renderAssetsTable();
+            renderMFBreakdown();
+        }
+
+        function setFilterType(type) {
+            filterAssetType = type;
+            document.querySelectorAll('[data-filter-type]').forEach(b => b.classList.toggle('active', b.dataset.filterType === type));
+            renderAssetsTable();
+            renderMFBreakdown();
+        }
+
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const _now = new Date();
+        let currentYear = _now.getFullYear();
+        let currentMonth = _now.getMonth() + 1; // 1-indexed
+
+        function updateMonthLabel() {
+            document.getElementById('portfolioCurrentMonth').textContent = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
+        }
+
+        function changePortfolioMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            if (currentMonth < 1)  { currentMonth = 12; currentYear--; }
+            updateMonthLabel();
+            loadPageData();
+        }
+
+        const ASSET_TYPE_CLASS_MAP = {
+            'stocks': 'Equity',
+            'mutual-funds': 'Equity',
+            'fd': 'Debt',
+            'gold': 'Gold',
+            'real-estate': 'Real Estate',
+            'crypto': 'Commodity',
+            'cash': 'Cash'
+        };
+
+        const ASSET_CLASS_COLORS = {
+            'Equity': '#00d4ff',
+            'Debt': '#0066ff',
+            'Gold': '#facc15',
+            'Real Estate': '#22c55e',
+            'Cash': '#a855f7',
+            'Commodity': '#f97316'
+        };
+
+        // ── Theme ──────────────────────────────────────────────────────────────
+        function toggleTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            toggle.classList.toggle('active', newTheme === 'dark');
+        }
+
+        (function initTheme() {
+            const t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            const tog = document.getElementById('themeToggle'); if (t === 'dark' && tog) tog.classList.add('active');
+        })();
+
+        // ── Init ───────────────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', async () => {
+            WealthAPI.auth.requireAuth();
+
+            // Setup user menu
+            const user = WealthAPI.auth.getCachedUser();
+            if (user) {
+                const nameEl = document.getElementById('userMenuName');
+                const emailEl = document.getElementById('userMenuEmail');
+                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+                const avatarEl = document.getElementById('userAvatarBtn');
+                if (avatarEl) {
+                    const initial = (user.familyName || user.email || 'U').charAt(0).toUpperCase();
+                    avatarEl.childNodes[0].textContent = initial;
+                }
+            }
+
+            // Wire user avatar click
+            const avatarEl = document.getElementById('userAvatarBtn');
+            if (avatarEl) {
+                avatarEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dd = document.getElementById('userMenuDropdown');
+                    dd.classList.toggle('active');
+                });
+                document.addEventListener('click', () => {
+                    document.getElementById('userMenuDropdown').classList.remove('active');
+                });
+            }
+
+            updateMonthLabel();
+            await loadPageData();
+        });
+
+        async function loadPageData() {
+            try {
+                const [members, portfolioAll] = await Promise.all([
+                    WealthAPI.family.getMembers(),
+                    WealthAPI.portfolio.getAll(currentYear, currentMonth)
+                ]);
+
+                allMembers = members || [];
+                allPortfolioData = portfolioAll || [];
+
+                // Compute summary client-side
+                summaryData = computeSummary(allPortfolioData, currentMemberFilter);
+
+                // Show copy-month banner / delete button
+                const totalAssets = allPortfolioData.reduce((s, mp) => s + (mp.assets || []).length, 0);
+                const banner = document.getElementById('copyMonthBanner');
+                const deleteBtn = document.getElementById('deleteMonthBtn');
+
+                if (allMembers.length > 0 && totalAssets === 0) {
+                    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+                    const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+                    document.getElementById('copyMonthTarget').textContent = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
+                    document.getElementById('copyMonthSource').textContent = MONTH_NAMES[prevMonth - 1] + ' ' + prevYear;
+                    banner.style.display = 'flex';
+                    deleteBtn.style.display = 'none';
+                } else {
+                    banner.style.display = 'none';
+                    deleteBtn.style.display = totalAssets > 0 ? '' : 'none';
+                }
+
+                renderMemberFilterBtns();
+                renderSummaryCards();
+                renderAllocationChart();
+                renderMemberChart();
+                renderAssetsTable();
+                renderMFBreakdown();
+                populateMemberDropdown();
+
+            } catch (err) {
+                console.error('Failed to load portfolio data:', err);
+                showError('Failed to load portfolio data. Please refresh the page.');
+            }
+        }
+
+        async function deleteMonthData() {
+            const memberId = currentMemberFilter !== 'all' ? currentMemberFilter : null;
+            const scope = memberId
+                ? (allMembers.find(m => m.id == memberId)?.name || 'selected member')
+                : 'ALL members';
+            const monthLabel = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
+            if (!confirm(`Delete ALL portfolio data for ${scope} in ${monthLabel}? This cannot be undone.`)) return;
+            try {
+                await WealthAPI.portfolio.deleteMonth(currentYear, currentMonth, memberId);
+                await loadPageData();
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            }
+        }
+
+        async function doCopyMonth() {
+            const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+            const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+            const btn = document.getElementById('copyMonthBtn');
+            btn.disabled = true;
+            btn.textContent = 'Copying...';
+            try {
+                await WealthAPI.portfolio.copyMonth(prevYear, prevMonth, currentYear, currentMonth);
+                await loadPageData();
+            } catch (err) {
+                alert('Failed to copy: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Copy Previous Month';
+            }
+        }
+
+        // ── Member filter buttons ──────────────────────────────────────────────
+        function renderMemberFilterBtns() {
+            const container = document.getElementById('memberFilterBtns');
+            container.innerHTML = '';
+            // Overall tab first
+            const overall = document.createElement('button');
+            overall.className = 'person-tab overall-tab active';
+            overall.textContent = 'Overall';
+            overall.dataset.memberId = 'all';
+            overall.onclick = () => switchMember('all', overall);
+            container.appendChild(overall);
+            allMembers.forEach(member => {
+                const btn = document.createElement('button');
+                btn.className = 'person-tab';
+                btn.textContent = member.name;
+                btn.dataset.memberId = member.id;
+                btn.onclick = () => switchMember(member.id, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function switchMember(memberId, clickedBtn) {
+            currentMemberFilter = memberId;
+            document.querySelectorAll('#memberFilterBtns .person-tab').forEach(b => b.classList.remove('active'));
+            clickedBtn.classList.add('active');
+            summaryData = computeSummary(allPortfolioData, currentMemberFilter);
+            renderSummaryCards();
+            renderAllocationChart();
+            renderAssetsTable();
+            renderMFBreakdown();
+            // Member breakdown chart always shows all members regardless of tab
+            if (currentMemberFilter !== 'all') {
+                const saved = summaryData;
+                summaryData = computeSummary(allPortfolioData, 'all');
+                renderMemberChart();
+                summaryData = saved;
+            } else {
+                renderMemberChart();
+            }
+        }
+
+        // ── Summary Cards ──────────────────────────────────────────────────────
+        function renderSummaryCards() {
+            const totalNetWorth = summaryData.totalNetWorth || 0;
+            const totalPurchaseValue = summaryData.totalPurchaseValue || 0;
+            const totalAssetCount = summaryData.totalAssetCount || 0;
+
+            document.getElementById('totalNetWorth').textContent = WealthAPI.formatCurrency(totalNetWorth);
+            const snEl = document.getElementById('wosSidebarTotal'); if (snEl) snEl.textContent = WealthAPI.formatCurrency(totalNetWorth);
+
+            document.getElementById('totalInvested').textContent = totalPurchaseValue > 0
+                ? WealthAPI.formatCurrency(totalPurchaseValue)
+                : WealthAPI.formatCurrency(totalNetWorth);
+
+            const gainLoss = totalNetWorth - totalPurchaseValue;
+            const gainLossEl = document.getElementById('totalGainLoss');
+            if (totalPurchaseValue > 0) {
+                const pct = ((gainLoss / totalPurchaseValue) * 100).toFixed(1);
+                gainLossEl.textContent = (gainLoss >= 0 ? '+' : '') + WealthAPI.formatCurrency(gainLoss) + ' (' + pct + '%)';
+                gainLossEl.style.color = gainLoss >= 0 ? 'var(--success)' : 'var(--error)';
+            } else {
+                gainLossEl.textContent = '--';
+            }
+
+            document.getElementById('totalAssetsCount').textContent = totalAssetCount + ' asset' + (totalAssetCount !== 1 ? 's' : '');
+
+            // Asset class top
+            const byClass = summaryData.byAssetClass || [];
+            if (byClass.length > 0) {
+                const top = byClass.reduce((a, b) => (b.value > a.value ? b : a), byClass[0]);
+                document.getElementById('topAssetClass').textContent = top.class;
+            } else {
+                document.getElementById('topAssetClass').textContent = '--';
+            }
+
+            // Asset class breakdown
+            const acBreakdown = document.getElementById('assetClassBreakdown');
+            if (byClass.length > 0) {
+                acBreakdown.innerHTML = byClass.slice(0, 4).map(ac => `
+                    <div class="breakdown-item">
+                        <span class="breakdown-label" style="display:flex;align-items:center;gap:6px;">
+                            <span style="width:8px;height:8px;border-radius:50%;background:${ASSET_CLASS_COLORS[ac.class] || '#888'};display:inline-block;"></span>
+                            ${ac.class}
+                        </span>
+                        <span class="breakdown-value">${parseFloat(ac.pct || 0).toFixed(1)}%</span>
+                    </div>
+                `).join('');
+            } else {
+                acBreakdown.innerHTML = '<div class="breakdown-item" style="color:var(--text-tertiary);font-size:0.875rem;">No data</div>';
+            }
+
+            // Member count
+            document.getElementById('memberCount').textContent = allMembers.length + ' member' + (allMembers.length !== 1 ? 's' : '');
+
+            // Member value breakdown
+            const byMember = summaryData.byMember || [];
+            const memberValEl = document.getElementById('memberValueBreakdown');
+            if (byMember.length > 0) {
+                memberValEl.innerHTML = byMember.map(m => {
+                    const pct = totalNetWorth > 0 ? ((m.total / totalNetWorth) * 100).toFixed(1) : 0;
+                    return `<div class="breakdown-item">
+                        <span class="breakdown-label">${m.memberName}</span>
+                        <span class="breakdown-value">${WealthAPI.formatCurrency(m.total)} (${pct}%)</span>
+                    </div>`;
+                }).join('');
+            } else {
+                memberValEl.innerHTML = '<div class="breakdown-item" style="color:var(--text-tertiary);font-size:0.875rem;">No data</div>';
+            }
+
+            // Sidebar member breakdown
+            const memberBreakdownEl = document.getElementById('memberBreakdown');
+            if (byMember.length > 0) {
+                memberBreakdownEl.innerHTML = byMember.map(m => {
+                    const pct = totalNetWorth > 0 ? ((m.total / totalNetWorth) * 100).toFixed(1) : 0;
+                    return `<div class="breakdown-item">
+                        <span class="breakdown-label">${m.memberName}</span>
+                        <span class="breakdown-value">${WealthAPI.formatCurrency(m.total)} (${pct}%)</span>
+                    </div>`;
+                }).join('');
+            } else {
+                memberBreakdownEl.innerHTML = '<div class="breakdown-item" style="color:var(--text-tertiary);font-size:0.875rem;">No assets yet</div>';
+            }
+        }
+
+        // ── Allocation Chart ───────────────────────────────────────────────────
+        function renderAllocationChart() {
+            const byClass = summaryData.byAssetClass || [];
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+
+            if (allocationChartInstance) allocationChartInstance.destroy();
+
+            if (byClass.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                document.getElementById('allocationList').innerHTML =
+                    '<div style="color:var(--text-tertiary);font-size:0.875rem;padding:8px 0;">No asset data available. Add some assets to see allocation.</div>';
+                return;
+            }
+
+            const labels = byClass.map(ac => ac.class);
+            const data = byClass.map(ac => parseFloat(ac.pct || 0));
+            const colors = byClass.map(ac => ASSET_CLASS_COLORS[ac.class] || '#888888');
+
+            allocationChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data, backgroundColor: colors, borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+
+            // Render legend
+            document.getElementById('allocationList').innerHTML = byClass.map(ac => `
+                <div class="allocation-item">
+                    <span class="allocation-label">
+                        <span class="allocation-dot" style="background:${ASSET_CLASS_COLORS[ac.class] || '#888'};"></span>
+                        ${ac.class}
+                    </span>
+                    <span class="allocation-value">${parseFloat(ac.pct || 0).toFixed(1)}% &nbsp; <span style="font-size:0.8125rem;color:var(--text-tertiary);font-weight:500;">${WealthAPI.formatCurrency(ac.value)}</span></span>
+                </div>
+            `).join('');
+        }
+
+        // ── Member Chart ───────────────────────────────────────────────────────
+        function renderMemberChart() {
+            const byMember = summaryData.byMember || [];
+            const ctx = document.getElementById('memberChart').getContext('2d');
+
+            if (memberChartInstance) memberChartInstance.destroy();
+
+            if (byMember.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                document.getElementById('memberChartBreakdown').innerHTML =
+                    '<div style="color:var(--text-tertiary);font-size:0.875rem;">No member data available.</div>';
+                return;
+            }
+
+            const memberColors = ['#00d4ff', '#0066ff', '#facc15', '#22c55e', '#f97316', '#a855f7', '#ef4444'];
+            const labels = byMember.map(m => m.memberName);
+            const data = byMember.map(m => m.total);
+            const colors = byMember.map((_, i) => memberColors[i % memberColors.length]);
+
+            memberChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data, backgroundColor: colors, borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+
+            const totalNetWorth = summaryData.totalNetWorth || 0;
+            document.getElementById('memberChartBreakdown').innerHTML = byMember.map((m, i) => {
+                const pct = totalNetWorth > 0 ? ((m.total / totalNetWorth) * 100).toFixed(1) : 0;
+                return `<div class="breakdown-item">
+                    <span class="breakdown-label" style="display:flex;align-items:center;gap:6px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:${colors[i]};display:inline-block;"></span>
+                        ${m.memberName}
+                    </span>
+                    <span class="breakdown-value">${WealthAPI.formatCurrency(m.total)} (${pct}%)</span>
+                </div>`;
+            }).join('');
+        }
+
+        // ── Assets Table ───────────────────────────────────────────────────────
+        function getFilteredAssets() {
+            let rows = [];
+            allPortfolioData.forEach(mp => {
+                if (currentMemberFilter !== 'all' && mp.memberId != currentMemberFilter) return;
+                (mp.assets || []).forEach(asset => {
+                    rows.push({ memberId: mp.memberId, memberName: mp.memberName, ...asset });
+                });
+            });
+
+            // Apply type filter
+            if (filterAssetType !== 'all') {
+                if (filterAssetType === 'fd') {
+                    rows = rows.filter(r => r.assetType === 'fd' || r.assetClass === 'Debt');
+                } else {
+                    rows = rows.filter(r => r.assetType === filterAssetType);
+                }
+            }
+
+            // Sort
+            rows.sort((a, b) => {
+                let av, bv;
+                if (sortCol === 'currentValue') { av = a.currentValue || 0; bv = b.currentValue || 0; }
+                else if (sortCol === 'gainPct') {
+                    av = a.purchaseValue > 0 ? ((a.currentValue - a.purchaseValue) / a.purchaseValue) : -999;
+                    bv = b.purchaseValue > 0 ? ((b.currentValue - b.purchaseValue) / b.purchaseValue) : -999;
+                }
+                else { av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); }
+                if (av < bv) return sortDir === 'desc' ? 1 : -1;
+                if (av > bv) return sortDir === 'desc' ? -1 : 1;
+                return 0;
+            });
+
+            return rows;
+        }
+
+        function renderAssetsTable() {
+            const noMembers = document.getElementById('emptyNoMembers');
+            const noAssets = document.getElementById('emptyNoAssets');
+            const tableWrapper = document.getElementById('assetsTableWrapper');
+            const tbody = document.getElementById('assetsTableBody');
+            const countLabel = document.getElementById('assetCountLabel');
+            const tableControls = document.getElementById('tableControls');
+
+            if (allMembers.length === 0) {
+                noMembers.style.display = 'block';
+                noAssets.style.display = 'none';
+                tableWrapper.style.display = 'none';
+                tableControls.style.display = 'none';
+                countLabel.textContent = '';
+                return;
+            }
+
+            const rows = getFilteredAssets();
+
+            if (rows.length === 0) {
+                noMembers.style.display = 'none';
+                noAssets.style.display = 'block';
+                tableWrapper.style.display = 'none';
+                tableControls.style.display = 'none';
+                countLabel.textContent = '';
+                return;
+            }
+
+            noMembers.style.display = 'none';
+            noAssets.style.display = 'none';
+            tableWrapper.style.display = 'block';
+            tableControls.style.display = 'flex';
+            countLabel.textContent = rows.length + ' asset' + (rows.length !== 1 ? 's' : '');
+
+            const totalPortfolioValue = rows.reduce((s, r) => s + (r.currentValue || 0), 0);
+
+            tbody.innerHTML = rows.map(row => {
+                const gain = (row.currentValue || 0) - (row.purchaseValue || 0);
+                const gainPct = row.purchaseValue > 0 ? ((gain / row.purchaseValue) * 100).toFixed(1) : null;
+                const gainColor = gain >= 0 ? 'var(--success)' : 'var(--error)';
+                const gainText = row.purchaseValue > 0
+                    ? `<span style="color:${gainColor};font-weight:700;">${gain >= 0 ? '+' : ''}${WealthAPI.formatCurrency(gain)}</span><br>
+                       <span style="color:${gainColor};font-size:0.8125rem;">(${gain >= 0 ? '+' : ''}${gainPct}%)</span>`
+                    : '<span style="color:var(--text-tertiary);">--</span>';
+
+                const typeLabel = (row.assetType || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                const isMF = row.assetType === 'mutual-funds';
+                const mfCat = isMF ? inferMFCategory(row.name) : '';
+                const weightPct = totalPortfolioValue > 0 ? ((row.currentValue || 0) / totalPortfolioValue * 100).toFixed(1) : '0.0';
+
+                return `<tr style="border-bottom:1px solid var(--border-subtle); transition:background 0.2s;" onmouseover="this.style.background='var(--hover-bg)'" onmouseout="this.style.background=''">
+                    <td style="padding:14px 16px; color:var(--text-secondary); font-weight:500;">${escHtml(row.memberName)}</td>
+                    <td style="padding:14px 16px; color:var(--text-primary); font-weight:700; max-width:200px;">
+                        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(row.name)}">${escHtml(row.name || '--')}</div>
+                        ${mfCat ? `<div style="font-size:0.7rem;color:var(--text-tertiary);margin-top:2px;">${mfCat}</div>` : ''}
+                    </td>
+                    <td style="padding:14px 16px;">
+                        <span style="padding:3px 8px;background:rgba(0,212,255,0.1);color:var(--accent-primary);border-radius:4px;font-size:0.75rem;font-weight:600;">${escHtml(typeLabel)}</span>
+                    </td>
+                    <td style="padding:14px 16px; color:var(--text-secondary); font-size:0.875rem;">${escHtml(row.assetClass || '--')}</td>
+                    <td style="padding:14px 16px; text-align:right; font-weight:700; color:var(--text-primary); white-space:nowrap;">
+                        ${weightPct}%
+                        <div style="margin-top:3px;height:3px;background:var(--border-subtle);border-radius:2px;width:50px;margin-left:auto;">
+                            <div style="height:3px;border-radius:2px;background:var(--accent-primary);width:${Math.min(parseFloat(weightPct), 100)}%;"></div>
+                        </div>
+                    </td>
+                    <td style="padding:14px 16px; text-align:right; color:var(--text-secondary);">${row.purchaseValue > 0 ? WealthAPI.formatCurrency(row.purchaseValue) : '--'}</td>
+                    <td style="padding:14px 16px; text-align:right; color:var(--text-primary); font-weight:700;">${WealthAPI.formatCurrency(row.currentValue || 0)}</td>
+                    <td style="padding:14px 16px; text-align:right;">${gainText}</td>
+                    <td style="padding:14px 16px; text-align:center; white-space:nowrap;">
+                        <button onclick="openEditModal('${row.memberId}', ${JSON.stringify(JSON.stringify(row))})" style="background:rgba(0,102,255,0.1);border:none;color:var(--accent-primary);border-radius:6px;padding:6px 12px;font-size:0.8125rem;font-weight:600;cursor:pointer;margin-right:6px;">Edit</button>
+                        <button onclick="deleteAsset('${row.memberId}', '${row.id}')" title="Delete asset" style="width:30px;height:30px;padding:0;background:transparent;border:1px solid transparent;color:var(--text-tertiary);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.borderColor='rgba(239,68,68,0.25)';this.style.color='#ef4444';" onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='var(--text-tertiary)';"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── MF Breakdown Chart ─────────────────────────────────────────────────
+        function renderMFBreakdown() {
+            const section = document.getElementById('mfBreakdownSection');
+            const allRows = [];
+            allPortfolioData.forEach(mp => {
+                if (currentMemberFilter !== 'all' && mp.memberId != currentMemberFilter) return;
+                (mp.assets || []).forEach(a => { if (a.assetType === 'mutual-funds') allRows.push(a); });
+            });
+
+            if (allRows.length === 0) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+
+            // Group by category
+            const catMap = {};
+            allRows.forEach(a => {
+                const cat = inferMFCategory(a.name);
+                catMap[cat] = (catMap[cat] || 0) + (a.currentValue || 0);
+            });
+            const total = Object.values(catMap).reduce((s, v) => s + v, 0);
+            const cats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+
+            document.getElementById('mfTotalLabel').textContent = cats.length + ' categories · ' + WealthAPI.formatCurrency(total);
+
+            // Chart
+            const ctx = document.getElementById('mfBreakdownChart').getContext('2d');
+            if (mfChartInstance) mfChartInstance.destroy();
+            const labels = cats.map(c => c[0]);
+            const data = cats.map(c => c[1]);
+            const colors = cats.map(c => MF_CAT_COLORS[c[0]] || '#94a3b8');
+            mfChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '68%' }
+            });
+
+            // List
+            document.getElementById('mfBreakdownList').innerHTML = cats.map(([cat, val]) => {
+                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                const color = MF_CAT_COLORS[cat] || '#94a3b8';
+                return `<div class="mf-cat-row">
+                    <span class="mf-cat-name"><span class="mf-cat-dot" style="background:${color};"></span>${cat}</span>
+                    <div class="mf-cat-vals">
+                        <div class="mf-cat-pct">${pct}%</div>
+                        <div class="mf-cat-val">${WealthAPI.formatCurrency(val)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function escHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // ── Modal Logic ────────────────────────────────────────────────────────
+        function populateMemberDropdown() {
+            const sel = document.getElementById('assetMember');
+            sel.innerHTML = '<option value="">Select member</option>' +
+                allMembers.map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
+        }
+
+        function onAssetTypeChange() {
+            const type = document.getElementById('assetType').value;
+            const classMap = ASSET_TYPE_CLASS_MAP[type];
+            if (classMap) {
+                document.getElementById('assetClass').value = classMap;
+            }
+        }
+
+        function openAddModal() {
+            if (allMembers.length === 0) {
+                alert('Please add family members in Settings first.');
+                return;
+            }
+            document.getElementById('modalTitle').textContent = 'Add Asset';
+            document.getElementById('assetForm').reset();
+            document.getElementById('editAssetId').value = '';
+            document.getElementById('editMemberId').value = '';
+            document.getElementById('saveBtn').textContent = 'Save Asset';
+            showModal();
+        }
+
+        function openEditModal(memberId, assetJsonStr) {
+            const asset = JSON.parse(assetJsonStr);
+            document.getElementById('modalTitle').textContent = 'Edit Asset';
+            document.getElementById('editAssetId').value = asset.id || '';
+            document.getElementById('editMemberId').value = memberId;
+            document.getElementById('assetMember').value = memberId;
+            document.getElementById('assetType').value = asset.assetType || '';
+            document.getElementById('assetName').value = asset.name || '';
+            document.getElementById('assetClass').value = asset.assetClass || '';
+            document.getElementById('assetUnits').value = asset.units || '';
+            document.getElementById('assetPurchaseValue').value = asset.purchaseValue || '';
+            document.getElementById('assetCurrentValue').value = asset.currentValue || '';
+            document.getElementById('assetNotes').value = asset.notes || '';
+            document.getElementById('saveBtn').textContent = 'Update Asset';
+            showModal();
+        }
+
+        function showModal() {
+            const modal = document.getElementById('assetModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('assetModal').style.display = 'none';
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('assetModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        async function saveAsset(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const memberId = document.getElementById('assetMember').value;
+                const editId = document.getElementById('editAssetId').value;
+                const asset = {
+                    assetType: document.getElementById('assetType').value,
+                    name: document.getElementById('assetName').value.trim(),
+                    assetClass: document.getElementById('assetClass').value,
+                    purchaseValue: parseFloat(document.getElementById('assetPurchaseValue').value) || 0,
+                    currentValue: parseFloat(document.getElementById('assetCurrentValue').value),
+                    units: parseFloat(document.getElementById('assetUnits').value) || undefined,
+                    notes: document.getElementById('assetNotes').value.trim() || undefined,
+                    year: currentYear,
+                    month: currentMonth
+                };
+
+                if (!memberId) { alert('Please select a member.'); return; }
+                if (!asset.assetType) { alert('Please select an asset type.'); return; }
+                if (!asset.assetClass) { alert('Please select an asset class.'); return; }
+
+                if (editId) {
+                    await WealthAPI.portfolio.update(memberId, editId, asset);
+                } else {
+                    await WealthAPI.portfolio.add(memberId, asset);
+                }
+
+                closeModal();
+                await loadPageData();
+            } catch (err) {
+                alert('Failed to save asset: ' + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = document.getElementById('editAssetId').value ? 'Update Asset' : 'Save Asset';
+            }
+        }
+
+        async function deleteAsset(memberId, assetId) {
+            if (!confirm('Delete this asset? This cannot be undone.')) return;
+            try {
+                await WealthAPI.portfolio.remove(memberId, assetId);
+                await loadPageData();
+            } catch (err) {
+                alert('Failed to delete asset: ' + err.message);
+            }
+        }
+
+        function showError(msg) {
+            const tbody = document.getElementById('assetsTableBody');
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="9" style="padding:32px;text-align:center;color:var(--error);">${msg}</td></tr>`;
+            }
+        }
+
+        // ── Zerodha Upload ─────────────────────────────────────────────────
+        let _zerodhaAssets = [];
+
+        function openZerodhaUpload() {
+            document.getElementById('zerodhaFileInput').value = '';
+            document.getElementById('zerodhaFileInput').click();
+        }
+
+        async function onZerodhaFileSelected(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            openZerodhaModal();
+            showZerodhaStatus('Parsing file…');
+            try {
+                const result = await WealthAPI.portfolio.parseZerodha(file);
+                _zerodhaAssets = result.assets || [];
+                showZerodhaPreview(_zerodhaAssets);
+            } catch (err) {
+                showZerodhaStatus('Error: ' + err.message, true);
+            }
+        }
+
+        function openZerodhaModal() {
+            // Populate member dropdown
+            const sel = document.getElementById('zerodhaImportMember');
+            sel.innerHTML = allMembers.map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
+            document.getElementById('zerodhaStatus').style.display = 'none';
+            document.getElementById('zerodhaPreview').style.display = 'none';
+            document.getElementById('zerodhaActions').style.display = 'none';
+            document.getElementById('zerodhaModal').style.display = 'flex';
+        }
+
+        function closeZerodhaModal() {
+            document.getElementById('zerodhaModal').style.display = 'none';
+            _zerodhaAssets = [];
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('zerodhaModal').addEventListener('click', function(e) {
+                if (e.target === this) closeZerodhaModal();
+            });
+        });
+
+        function showZerodhaStatus(msg, isError) {
+            const el = document.getElementById('zerodhaStatus');
+            el.style.display = 'block';
+            el.style.background = isError ? 'rgba(239,68,68,0.06)' : 'rgba(0,102,255,0.06)';
+            el.style.borderColor = isError ? 'rgba(239,68,68,0.2)' : 'rgba(0,102,255,0.2)';
+            el.style.color = isError ? 'var(--error)' : 'var(--text-secondary)';
+            el.textContent = msg;
+            document.getElementById('zerodhaPreview').style.display = 'none';
+            document.getElementById('zerodhaActions').style.display = 'none';
+        }
+
+        function showZerodhaPreview(assets) {
+            document.getElementById('zerodhaStatus').style.display = 'none';
+            document.getElementById('zerodhaCount').textContent = assets.length;
+            const total = assets.reduce((s, a) => s + (a.currentValue || 0), 0);
+            document.getElementById('zerodhaTotalValue').textContent = WealthAPI.formatCurrency(total);
+
+            const rows = assets.map(a => {
+                const gain = (a.currentValue || 0) - (a.purchaseValue || 0);
+                const gainColor = gain >= 0 ? 'var(--success)' : 'var(--error)';
+                const gainPct = a.purchaseValue > 0 ? ((gain / a.purchaseValue) * 100).toFixed(1) : null;
+                const typeLabel = (a.assetType || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                return `<tr style="border-bottom:1px solid var(--border-subtle);">
+                    <td style="padding:10px 12px; color:var(--text-primary); font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escHtml(a.name)}">${escHtml(a.name)}</td>
+                    <td style="padding:10px 12px; color:var(--text-secondary);">${escHtml(typeLabel)}</td>
+                    <td style="padding:10px 12px;">
+                        <span style="padding:2px 7px; background:rgba(0,212,255,0.1); color:var(--accent-primary); border-radius:4px; font-size:0.7rem; font-weight:600;">${escHtml(a.assetClass)}</span>
+                    </td>
+                    <td style="padding:10px 12px; text-align:right; color:var(--text-secondary);">${parseFloat((a.units||0).toFixed(3))}</td>
+                    <td style="padding:10px 12px; text-align:right; color:var(--text-secondary);">${a.purchaseValue > 0 ? WealthAPI.formatCurrency(a.purchaseValue) : '--'}</td>
+                    <td style="padding:10px 12px; text-align:right; color:var(--text-primary); font-weight:700;">${WealthAPI.formatCurrency(a.currentValue || 0)}</td>
+                    <td style="padding:10px 12px; text-align:right; color:${gainColor}; font-weight:600;">${gain >= 0 ? '+' : ''}${WealthAPI.formatCurrency(gain)}${gainPct ? ` (${gain >= 0 ? '+' : ''}${gainPct}%)` : ''}</td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('zerodhaPreviewBody').innerHTML = rows;
+            document.getElementById('zerodhaPreview').style.display = 'block';
+            document.getElementById('zerodhaActions').style.display = 'flex';
+        }
+
+        async function importZerodhaHoldings() {
+            const memberId = document.getElementById('zerodhaImportMember').value;
+            if (!memberId) { alert('Please select a member.'); return; }
+            if (_zerodhaAssets.length === 0) return;
+
+            const btn = document.getElementById('zerodhaImportBtn');
+            btn.disabled = true;
+            btn.textContent = 'Importing…';
+
+            try {
+                let saved = 0;
+                for (const asset of _zerodhaAssets) {
+                    await WealthAPI.portfolio.add(memberId, {
+                        name: asset.name,
+                        assetType: asset.assetType,
+                        assetClass: asset.assetClass,
+                        currentValue: asset.currentValue,
+                        purchaseValue: asset.purchaseValue,
+                        units: asset.units,
+                        notes: asset.isin || '',
+                        year: currentYear,
+                        month: currentMonth
+                    });
+                    saved++;
+                }
+                closeZerodhaModal();
+                await loadPageData();
+                alert(`✓ ${saved} holding${saved !== 1 ? 's' : ''} imported for ${currentYear}-${String(currentMonth).padStart(2,'0')}`);
+            } catch (err) {
+                alert('Import failed: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Import Holdings';
+            }
+        }
+
+        // ── AI Import ──────────────────────────────────────────────────────
+        let _portfolioImporter = null;
+
+        function openPortfolioImport() {
+            if (!_portfolioImporter) {
+                _portfolioImporter = new AIImport({
+                    title: 'Import Portfolio Holdings',
+                    description: 'Paste a portfolio statement, broker export, or screenshot — Claude maps each holding to asset type, class and value.',
+                    placeholder: `Examples:
+
+HDFC Midcap Opportunities Fund   ₹1,20,000   MF
+Infosys                           ₹80,000     Stock
+Sovereign Gold Bond               ₹50,000     Gold
+PPF                               ₹2,50,000   Debt
+SBI FD                            ₹1,00,000   FD
+
+— or paste directly from Zerodha/Groww export —`,
+
+                    buildPrompt: () => {
+                        const memberNames = (allMembers || []).map(m => m.name).join(', ') || 'family members';
+                        return `You are a portfolio data extractor.
+
+Family members: ${memberNames}
+
+Extract all portfolio holdings from the provided data (table, screenshot, broker statement, or text).
+
+Return ONLY a JSON array (no explanation):
+[{
+  "memberName": "string (exact name from member list, or first member if unclear)",
+  "name": "string (asset/fund/stock name)",
+  "assetType": "Stocks|Mutual Funds|Fixed Deposit|Gold|Real Estate|Crypto|Cash|NPS|EPF|PPF|Other",
+  "assetClass": "Equity|Debt|Gold|Real Estate|Cash|Commodity",
+  "currentValue": number (in rupees),
+  "purchaseValue": number or null,
+  "units": number or null,
+  "notes": "string or null"
+}]
+
+Rules:
+- All amounts in INR (₹). Convert lakhs/Cr: 1L = 100000, 1Cr = 10000000
+- Mutual Funds = assetClass Equity (unless it's a debt/liquid fund)
+- Debt funds, FDs, PPF, EPF, NPS = assetClass Debt
+- Gold ETF, SGB, physical gold = assetClass Gold
+- Stocks, ETFs = assetClass Equity`;
+                    },
+
+                    renderPreview: (data) => {
+                        const esc = AIImport._esc, rs = AIImport._rs;
+                        const arr = Array.isArray(data) ? data : (data.assets || []);
+                        const total = arr.reduce((s, a) => s + (Number(a.currentValue) || 0), 0);
+                        return `<div class="ai-imp-sec">
+                            <div class="ai-imp-sec-title">📊 Portfolio Holdings <span class="ai-imp-badge">${arr.length}</span> <span style="margin-left:auto;font-family:'Space Grotesk',sans-serif;">${rs(total)}</span></div>
+                            <table class="ai-imp-tbl"><thead><tr><th>Member</th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right;">Value</th></tr></thead><tbody>
+                            ${arr.map(a => `<tr>
+                                <td style="color:var(--text-secondary);font-size:0.75rem;">${esc(a.memberName || '–')}</td>
+                                <td style="font-weight:600;">${esc(a.name)}</td>
+                                <td style="color:var(--text-secondary);">${esc(a.assetType)}</td>
+                                <td style="color:var(--text-secondary);">${esc(a.assetClass)}</td>
+                                <td class="ai-imp-amount" style="text-align:right;">${rs(a.currentValue)}</td>
+                            </tr>`).join('')}
+                            </tbody></table></div>`;
+                    },
+
+                    onImport: async (data) => {
+                        const arr = Array.isArray(data) ? data : (data.assets || []);
+                        const memberMap = {};
+                        (allMembers || []).forEach(m => { memberMap[m.name.toLowerCase()] = m.id; });
+
+                        let saved = 0;
+                        for (const asset of arr) {
+                            const memberId = memberMap[(asset.memberName || '').toLowerCase()] || (allMembers[0] && allMembers[0].id);
+                            if (!memberId) continue;
+                            await WealthAPI.portfolio.add(memberId, {
+                                name: asset.name || 'Unnamed',
+                                assetType: asset.assetType || 'Other',
+                                assetClass: asset.assetClass || 'Equity',
+                                currentValue: Number(asset.currentValue) || 0,
+                                purchaseValue: Number(asset.purchaseValue) || 0,
+                                units: Number(asset.units) || 0,
+                                notes: asset.notes || '',
+                                year: currentYear,
+                                month: currentMonth
+                            });
+                            saved++;
+                        }
+                        await loadPageData();
+                        alert(`✓ ${saved} asset${saved !== 1 ? 's' : ''} imported successfully!`);
+                    }
+                });
+            }
+            _portfolioImporter.open();
+        }
+    </script>
+    <script src="/js/ai-import.js"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

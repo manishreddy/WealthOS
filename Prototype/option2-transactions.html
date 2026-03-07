@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Transactions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #0a0f1e;
+            color: #e8eaed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        .sidebar {
+            background: #0f1624;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { margin-bottom: 40px; }
+
+        .nav-section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #6b7280;
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e8eaed;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 1.25rem; width: 24px; text-align: center; }
+
+        .portfolio-summary {
+            margin-top: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06) 0%, rgba(0, 102, 255, 0.06) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .portfolio-summary-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portfolio-summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: #e8eaed; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: #6b7280;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8eaed;
+            letter-spacing: -0.01em;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            border-color: transparent;
+        }
+
+        .transactions-container {
+            background: #0f1624;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .transactions-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 8px;
+        }
+
+        .category-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.06);
+            color: #9ca3af;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .category-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8eaed;
+        }
+
+        .category-chip.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+            border-color: rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+        }
+
+        .transactions-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .transaction-group {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .date-header {
+            padding: 16px 32px;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon.expense {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+        }
+
+        .transaction-icon.income {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(21, 128, 61, 0.15) 100%);
+        }
+
+        .transaction-icon.investment {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+        }
+
+        .transaction-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-merchant {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #e8eaed;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .transaction-category {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-amount {
+            text-align: right;
+            margin-right: 20px;
+        }
+
+        .amount-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .amount-value.expense { color: #e8eaed; }
+        .amount-value.income { color: #22c55e; }
+
+        .transaction-status {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .transaction-status.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .transaction-status.pending {
+            background: rgba(251, 146, 60, 0.1);
+            color: #fb923c;
+        }
+
+        @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 24px 20px; }
+            .page-header { flex-direction: column; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">Wealth<span>OS</span></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="option2.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="option2-portfolio.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="option2-transactions.html" class="nav-item active" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span>
+                    <span>Transactions</span>
+                </a>
+                <a href="option2-analytics.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Manage</div>
+                <a href="option2-wallet.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💰</span>
+                    <span>Wallet</span>
+                </a>
+                <a href="option2-goals.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="#" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="portfolio-summary">
+                <div class="portfolio-summary-label">Total Value</div>
+                <div class="portfolio-summary-value">₹14.8L</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                <span>Back to options</span>
+            </a>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="page-subtitle">Complete history of your financial activity</p>
+                </div>
+                <div class="filter-section">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">This Month</button>
+                    <button class="filter-btn">Last 3 Months</button>
+                </div>
+            </div>
+
+            <div class="transactions-container">
+                <div class="transactions-header">
+                    <h3 class="header-title">Recent Transactions</h3>
+                    <div class="category-filters">
+                        <button class="category-chip active">All</button>
+                        <button class="category-chip">Income</button>
+                        <button class="category-chip">Expenses</button>
+                        <button class="category-chip">Investments</button>
+                    </div>
+                </div>
+
+                <div class="transactions-list">
+                    <div class="transaction-group">
+                        <div class="date-header">Today, Feb 17</div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon income">💰</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Salary Credited</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Income • Salary</span>
+                                    <span class="transaction-time">9:30 AM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value income">+₹5,75,000</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">🏪</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">BigBasket</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Groceries</span>
+                                    <span class="transaction-time">2:30 PM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹2,840</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">☕</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Starbucks</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Food & Dining</span>
+                                    <span class="transaction-time">11:45 AM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹650</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transaction-group">
+                        <div class="date-header">Yesterday, Feb 16</div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">🚗</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Uber</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Transportation</span>
+                                    <span class="transaction-time">9:20 PM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹485</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">🍕</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Zomato</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Food & Dining</span>
+                                    <span class="transaction-time">7:15 PM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹890</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transaction-group">
+                        <div class="date-header">Feb 15, 2026</div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">📱</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Amazon India</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Shopping</span>
+                                    <span class="transaction-time">3:45 PM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹12,499</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">⛽</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Indian Oil Petrol Pump</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Transportation</span>
+                                    <span class="transaction-time">10:30 AM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹4,250</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transaction-group">
+                        <div class="date-header">Feb 1, 2026</div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon expense">🏠</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Rent Payment</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Expense • Housing</span>
+                                    <span class="transaction-time">10:00 AM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹45,000</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon investment">📈</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">Nifty 50 Index Fund - SIP</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Investment • Mutual Fund</span>
+                                    <span class="transaction-time">9:00 AM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹25,000</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transaction-group">
+                        <div class="date-header">Jan 28, 2026</div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-icon investment">💎</div>
+                            <div class="transaction-info">
+                                <div class="transaction-merchant">HDFC Bank - Stock Purchase</div>
+                                <div class="transaction-meta">
+                                    <span class="transaction-category">Investment • Equity</span>
+                                    <span class="transaction-time">2:15 PM</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value expense">-₹81,250</div>
+                                <div class="transaction-status completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

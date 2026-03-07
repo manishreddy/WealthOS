@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Prototype Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 1.2rem;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .option-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .option-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .option-theme {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .option-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .option-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .option-features li {
+            padding: 8px 0;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .option-features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            font-size: 3rem;
+        }
+
+        .option1-preview {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #667eea;
+        }
+
+        .option2-preview {
+            background: linear-gradient(135deg, #e3e7f5 0%, #f0f4ff 100%);
+            color: #667eea;
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            transition: opacity 0.3s ease;
+            text-decoration: none;
+        }
+
+        .view-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .option-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+        <h1>WealthOS</h1>
+        <p class="subtitle">Choose your preferred design prototype</p>
+
+        <!-- New Main Landing Page -->
+        <a href="index-prototypes-main.html" style="display: block; text-align: center; margin-bottom: 40px;">
+            <div style="background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%); color: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 102, 255, 0.3); transition: transform 0.3s ease; cursor: pointer;"
+                 onmouseover="this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 10px;">💎</div>
+                <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 10px;">NEW: Main Landing Page</div>
+                <div style="font-size: 1.1rem; opacity: 0.95;">View the beautiful WealthOS home page with all features</div>
+            </div>
+        </a>
+
+        <div class="options">
+            <a href="option1.html" class="option-card">
+                <div class="option-header">
+                    <div class="option-number">1</div>
+                </div>
+                <h2 class="option-title">Minimalist Pro</h2>
+                <span class="option-theme">Robinhood-Inspired • Light Theme</span>
+
+                <div class="preview-image option1-preview" style="background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%); color: #000000;">
+                    📊
+                </div>
+
+                <p class="option-description">
+                    Ultra-clean, Robinhood-inspired design with massive typography and generous whitespace. Focus on what matters most with sophisticated simplicity.
+                </p>
+
+                <ul class="option-features">
+                    <li>Inter font family for supreme readability</li>
+                    <li>Huge portfolio value display</li>
+                    <li>Minimalist line charts with subtle gradients</li>
+                    <li>Clean holdings list with crisp typography</li>
+                    <li>Top navigation, no sidebar clutter</li>
+                </ul>
+
+                <div class="view-btn">View Prototype →</div>
+            </a>
+
+            <a href="option2.html" class="option-card">
+                <div class="option-header">
+                    <div class="option-number">2</div>
+                </div>
+                <h2 class="option-title">Professional Dashboard</h2>
+                <span class="option-theme">Data-Rich • Dark Theme</span>
+
+                <div class="preview-image option2-preview" style="background: linear-gradient(135deg, #0a0f1e 0%, #0f1624 100%); color: #00d4ff;">
+                    💎
+                </div>
+
+                <p class="option-description">
+                    Sophisticated dark theme with comprehensive data visualization. Perfect for serious investors who want multiple data points at a glance.
+                </p>
+
+                <ul class="option-features">
+                    <li>Space Grotesk & DM Sans typography</li>
+                    <li>Multiple metric cards with gradients</li>
+                    <li>Advanced charts with grid lines</li>
+                    <li>Asset allocation & watchlist views</li>
+                    <li>Sidebar navigation with organized sections</li>
+                </ul>
+
+                <div class="view-btn">View Prototype →</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

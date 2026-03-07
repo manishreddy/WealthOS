@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Transactions (CRUD Enhanced)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Load Data Modules -->
+    <script src="../data/dataModels.js"></script>
+    <script src="../data/sampleData.js"></script>
+    <script src="../data/localStorage.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #0a0f1e;
+            color: #e8eaed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        .sidebar {
+            background: #0f1624;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { margin-bottom: 40px; }
+
+        .nav-section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #6b7280;
+            margin-bottom: 16px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e8eaed;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 1.25rem; width: 24px; text-align: center; }
+
+        .portfolio-summary {
+            margin-top: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06) 0%, rgba(0, 102, 255, 0.06) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .portfolio-summary-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portfolio-summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: #e8eaed; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: #6b7280;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Add Transaction Button */
+        .add-transaction-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .add-transaction-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 212, 255, 0.4);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8eaed;
+            letter-spacing: -0.01em;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            border-color: transparent;
+        }
+
+        /* Bulk Operations Bar */
+        .bulk-operations {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .bulk-operations.active {
+            display: flex;
+        }
+
+        .bulk-selection-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #00d4ff;
+            flex: 1;
+        }
+
+        .bulk-action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8eaed;
+        }
+
+        .bulk-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .bulk-action-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .bulk-action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .transactions-container {
+            background: #0f1624;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .transactions-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 8px;
+        }
+
+        .category-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.06);
+            color: #9ca3af;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .category-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8eaed;
+        }
+
+        .category-chip.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+            border-color: rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+        }
+
+        .transactions-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .transaction-group {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .transaction-group:last-child {
+            border-bottom: none;
+        }
+
+        .date-header {
+            padding: 16px 32px;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-total {
+            font-family: 'Space Grotesk', sans-serif;
+            color: #e8eaed;
+        }
+
+        .transaction-item {
+            display: grid;
+            grid-template-columns: 40px 1fr auto auto;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .transaction-checkbox.checked {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            border-color: #00d4ff;
+        }
+
+        .transaction-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .transaction-main {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .transaction-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon.expense {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+        }
+
+        .transaction-icon.income {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(21, 128, 61, 0.15) 100%);
+        }
+
+        .transaction-icon.investment {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+        }
+
+        .transaction-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-merchant {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #e8eaed;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .transaction-category {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-member {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+
+        .transaction-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            letter-spacing: -0.01em;
+        }
+
+        .transaction-amount {
+            text-align: right;
+        }
+
+        .amount-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .amount-value.expense { color: #e8eaed; }
+        .amount-value.income { color: #22c55e; }
+
+        .transaction-status {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .transaction-status.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .transaction-status.pending {
+            background: rgba(251, 146, 60, 0.1);
+            color: #fb923c;
+        }
+
+        .transaction-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            gap: 8px;
+        }
+
+        .transaction-item:hover .transaction-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            color: #9ca3af;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8eaed;
+        }
+
+        .action-btn.danger {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0f1624;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 28px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #9ca3af;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8eaed;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: #e8eaed;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .category-select-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .category-option {
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .category-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .category-option.selected {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+            border-color: #00d4ff;
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .category-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+
+        .category-option.selected .category-label {
+            color: #00d4ff;
+        }
+
+        .merchant-suggestions-wrapper {
+            position: relative;
+        }
+
+        .merchant-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #0f1624;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .merchant-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .suggestion-merchant {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #e8eaed;
+            margin-bottom: 2px;
+        }
+
+        .suggestion-category {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 24px 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            color: #ffffff;
+        }
+
+        .modal-btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e8eaed;
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+        }
+
+        .modal-btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f1624;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #e8eaed;
+        }
+
+        .toast.success {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Confirmation Dialog */
+        .confirmation-dialog {
+            background: #0f1624;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            max-width: 400px;
+            padding: 0;
+        }
+
+        .confirmation-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .confirmation-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ef4444;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .confirmation-body {
+            padding: 24px;
+        }
+
+        .confirmation-text {
+            font-size: 0.9375rem;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 12px;
+            padding: 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            font-size: 0.9375rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 24px 20px; }
+            .page-header { flex-direction: column; gap: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .category-select-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">Wealth<span>OS</span></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="option2.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="option2-portfolio.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💼</span>
+                    <span>Portfolio</span>
+                </a>
+                <a href="option2-transactions-enhanced.html" class="nav-item active" style="text-decoration: none;">
+                    <span class="nav-icon">📜</span>
+                    <span>Transactions</span>
+                </a>
+                <a href="option2-analytics.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Manage</div>
+                <a href="option2-wallet.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">💰</span>
+                    <span>Wallet</span>
+                </a>
+                <a href="option2-goals.html" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">🎯</span>
+                    <span>Goals</span>
+                </a>
+                <a href="#" class="nav-item" style="text-decoration: none;">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="portfolio-summary">
+                <div class="portfolio-summary-label">Total Value</div>
+                <div class="portfolio-summary-value" id="totalValue">₹14.8L</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                <span>Back to options</span>
+            </a>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="page-subtitle">Complete history of your financial activity</p>
+                </div>
+                <div class="header-actions">
+                    <button class="add-transaction-btn" onclick="openAddTransactionModal()">
+                        <span>➕</span>
+                        <span>Add Transaction</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <button class="filter-btn active" onclick="filterByTimeRange('all')">All</button>
+                <button class="filter-btn" onclick="filterByTimeRange('thisMonth')">This Month</button>
+                <button class="filter-btn" onclick="filterByTimeRange('last3Months')">Last 3 Months</button>
+            </div>
+
+            <!-- Bulk Operations Bar -->
+            <div class="bulk-operations" id="bulkOperations">
+                <span class="bulk-selection-text" id="bulkSelectionText">0 transactions selected</span>
+                <button class="bulk-action-btn" onclick="bulkEdit()">Edit Category</button>
+                <button class="bulk-action-btn danger" onclick="bulkDelete()">Delete Selected</button>
+                <button class="bulk-action-btn" onclick="clearSelection()">Clear</button>
+            </div>
+
+            <div class="transactions-container">
+                <div class="transactions-header">
+                    <h3 class="header-title">Recent Transactions</h3>
+                    <div class="category-filters">
+                        <button class="category-chip active" onclick="filterByType('all')">All</button>
+                        <button class="category-chip" onclick="filterByType('Income')">Income</button>
+                        <button class="category-chip" onclick="filterByType('Expense')">Expenses</button>
+                        <button class="category-chip" onclick="filterByType('Investment')">Investments</button>
+                    </div>
+                </div>
+
+                <div class="transactions-list" id="transactionsList">
+                    <!-- Transactions will be rendered here dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Transaction Modal -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Add Transaction</h2>
+                <button class="modal-close" onclick="closeTransactionModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="transactionForm" onsubmit="saveTransaction(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Amount (₹)</label>
+                            <input type="number" class="form-input" id="amount" placeholder="Enter amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="type" onchange="updateCategoryOptions()" required>
+                                <option value="Expense">Expense</option>
+                                <option value="Income">Income</option>
+                                <option value="Investment">Investment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Category</label>
+                        <div class="category-select-grid" id="categoryGrid">
+                            <!-- Categories will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width merchant-suggestions-wrapper">
+                        <label class="form-label">Merchant / Description</label>
+                        <input type="text" class="form-input" id="merchant" placeholder="E.g., BigBasket, Starbucks"
+                               oninput="showMerchantSuggestions(this.value)" required>
+                        <div class="merchant-suggestions" id="merchantSuggestions">
+                            <!-- Suggestions will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="datetime-local" class="form-input" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" id="paymentMethod" required>
+                                <option value="UPI">UPI</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Auto-debit">Auto-debit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Member</label>
+                            <select class="form-select" id="member" required>
+                                <option value="FM001">Manish</option>
+                                <option value="FM002">Raghavi</option>
+                                <option value="Joint">Joint</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="status" required>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-textarea" id="notes" placeholder="Add any additional notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeTransactionModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="document.getElementById('transactionForm').requestSubmit()">
+                    <span id="saveButtonText">Save Transaction</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="confirmation-dialog">
+            <div class="confirmation-header">
+                <h3 class="confirmation-title">
+                    <span>⚠️</span>
+                    <span>Delete Transaction?</span>
+                </h3>
+            </div>
+            <div class="confirmation-body">
+                <p class="confirmation-text" id="confirmMessage">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            </div>
+            <div class="confirmation-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="modal-btn modal-btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message" id="toastMessage">Transaction saved successfully!</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // DATA & STATE MANAGEMENT
+        // ==========================================
+
+        let transactions = [];
+        let filteredTransactions = [];
+        let selectedTransactionIds = new Set();
+        let currentEditingId = null;
+        let deleteCallback = null;
+
+        // Merchant suggestions database with category mappings
+        const merchantDatabase = [
+            { name: 'BigBasket', category: 'Groceries', icon: '🏪' },
+            { name: 'Swiggy Instamart', category: 'Groceries', icon: '🏪' },
+            { name: 'Zepto', category: 'Groceries', icon: '🏪' },
+            { name: 'Blinkit', category: 'Groceries', icon: '🏪' },
+            { name: 'Starbucks', category: 'Food & Dining', icon: '☕' },
+            { name: 'Zomato', category: 'Food & Dining', icon: '🍕' },
+            { name: 'Swiggy', category: 'Food & Dining', icon: '🍔' },
+            { name: 'McDonald\'s', category: 'Food & Dining', icon: '🍔' },
+            { name: 'KFC', category: 'Food & Dining', icon: '🍗' },
+            { name: 'Uber', category: 'Transportation', icon: '🚗' },
+            { name: 'Ola', category: 'Transportation', icon: '🚗' },
+            { name: 'Rapido', category: 'Transportation', icon: '🏍️' },
+            { name: 'Indian Oil', category: 'Transportation', icon: '⛽' },
+            { name: 'HP Petrol', category: 'Transportation', icon: '⛽' },
+            { name: 'Amazon India', category: 'Shopping', icon: '📱' },
+            { name: 'Flipkart', category: 'Shopping', icon: '🛍️' },
+            { name: 'Myntra', category: 'Shopping', icon: '👕' },
+            { name: 'Rent Payment', category: 'Housing', icon: '🏠' },
+            { name: 'Netflix', category: 'Entertainment', icon: '📺' },
+            { name: 'Amazon Prime', category: 'Entertainment', icon: '📺' },
+            { name: 'Disney+ Hotstar', category: 'Entertainment', icon: '📺' },
+            { name: 'Spotify', category: 'Entertainment', icon: '🎵' },
+            { name: 'Cult.fit', category: 'Health & Fitness', icon: '🏋️' },
+            { name: 'Salary', category: 'Salary', icon: '💰' },
+            { name: 'Freelance Payment', category: 'Freelance', icon: '💼' },
+            { name: 'Nifty 50 SIP', category: 'Mutual Fund', icon: '📈' },
+            { name: 'HDFC Stock', category: 'Equity', icon: '💎' },
+        ];
+
+        // Category configurations
+        const categories = {
+            'Expense': [
+                { id: 'Groceries', label: 'Groceries', icon: '🛒' },
+                { id: 'Food & Dining', label: 'Dining', icon: '🍽️' },
+                { id: 'Transportation', label: 'Transport', icon: '🚗' },
+                { id: 'Shopping', label: 'Shopping', icon: '🛍️' },
+                { id: 'Housing', label: 'Housing', icon: '🏠' },
+                { id: 'Entertainment', label: 'Entertainment', icon: '🎬' },
+                { id: 'Health & Fitness', label: 'Health', icon: '🏥' },
+                { id: 'Utilities', label: 'Utilities', icon: '💡' },
+            ],
+            'Income': [
+                { id: 'Salary', label: 'Salary', icon: '💰' },
+                { id: 'Freelance', label: 'Freelance', icon: '💼' },
+                { id: 'Business', label: 'Business', icon: '🏢' },
+                { id: 'Investment Returns', label: 'Returns', icon: '📊' },
+                { id: 'Other Income', label: 'Other', icon: '💵' },
+            ],
+            'Investment': [
+                { id: 'Mutual Fund', label: 'MF', icon: '📈' },
+                { id: 'Equity', label: 'Stocks', icon: '💎' },
+                { id: 'Fixed Deposit', label: 'FD', icon: '🏦' },
+                { id: 'PPF', label: 'PPF', icon: '📊' },
+                { id: 'NPS', label: 'NPS', icon: '📋' },
+                { id: 'Gold', label: 'Gold', icon: '🪙' },
+            ]
+        };
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        window.onload = function() {
+            console.log('Initializing WealthOS Transactions...');
+
+            // Check if localStorage utility is available
+            if (typeof window.WealthOSStorage !== 'undefined') {
+                // Try to initialize data if not already done
+                if (!window.WealthOSStorage.isInitialized()) {
+                    window.WealthOSStorage.initializeData();
+                }
+
+                // Load transactions from localStorage
+                transactions = window.WealthOSStorage.getTransactions() || [];
+                console.log(`Loaded ${transactions.length} transactions from localStorage`);
+            }
+
+            // If no transactions loaded, use sample data
+            if (transactions.length === 0) {
+                transactions = getampleTransactions();
+                console.log('Using sample transactions');
+            }
+
+            // Set default date to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('date').value = now.toISOString().slice(0, 16);
+
+            // Initial render
+            filteredTransactions = [...transactions];
+            updateCategoryOptions();
+            renderTransactions();
+        };
+
+        // ==========================================
+        // TRANSACTION MANAGEMENT
+        // ==========================================
+
+        function saveTransaction(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('transactionForm');
+            const formData = {
+                id: currentEditingId || `TXN${Date.now()}`,
+                date: new Date(form.date.value),
+                type: form.type.value,
+                category: getSelectedCategory(),
+                subcategory: getSelectedCategory(),
+                amount: parseFloat(form.amount.value),
+                description: form.merchant.value,
+                paymentMethod: form.paymentMethod.value,
+                memberId: form.member.value,
+                isRecurring: false,
+                status: form.status.value,
+                notes: form.notes.value
+            };
+
+            if (currentEditingId) {
+                // Update existing transaction
+                const index = transactions.findIndex(t => t.id === currentEditingId);
+                if (index !== -1) {
+                    transactions[index] = formData;
+                    showToast('Transaction updated successfully!', 'success');
+                }
+            } else {
+                // Add new transaction
+                transactions.unshift(formData);
+                showToast('Transaction added successfully!', 'success');
+            }
+
+            // Save to localStorage
+            saveToLocalStorage();
+
+            // Update display
+            filteredTransactions = [...transactions];
+            renderTransactions();
+            closeTransactionModal();
+        }
+
+        function deleteTransaction(id) {
+            deleteCallback = () => {
+                const index = transactions.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    transactions.splice(index, 1);
+                    saveToLocalStorage();
+                    filteredTransactions = [...transactions];
+                    renderTransactions();
+                    showToast('Transaction deleted successfully!', 'success');
+                }
+            };
+
+            document.getElementById('confirmMessage').textContent =
+                'Are you sure you want to delete this transaction? This action cannot be undone.';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function confirmDelete() {
+            if (deleteCallback) {
+                deleteCallback();
+                deleteCallback = null;
+            }
+            closeConfirmModal();
+        }
+
+        function editTransaction(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) return;
+
+            currentEditingId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Transaction';
+            document.getElementById('saveButtonText').textContent = 'Update Transaction';
+
+            // Populate form
+            const form = document.getElementById('transactionForm');
+            form.amount.value = transaction.amount;
+            form.type.value = transaction.type;
+            updateCategoryOptions();
+
+            // Set category after options are loaded
+            setTimeout(() => {
+                selectCategory(transaction.category);
+            }, 10);
+
+            form.merchant.value = transaction.description;
+
+            const date = new Date(transaction.date);
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+            form.date.value = date.toISOString().slice(0, 16);
+
+            form.paymentMethod.value = transaction.paymentMethod;
+            form.member.value = transaction.memberId;
+            form.status.value = transaction.status || 'completed';
+            form.notes.value = transaction.notes || '';
+
+            document.getElementById('transactionModal').classList.add('active');
+        }
+
+        // ==========================================
+        // BULK OPERATIONS
+        // ==========================================
+
+        function toggleCheckbox(checkbox, id) {
+            checkbox.classList.toggle('checked');
+
+            if (checkbox.classList.contains('checked')) {
+                selectedTransactionIds.add(id);
+            } else {
+                selectedTransactionIds.delete(id);
+            }
+
+            updateBulkOperationsBar();
+        }
+
+        function updateBulkOperationsBar() {
+            const bulkOps = document.getElementById('bulkOperations');
+            const bulkText = document.getElementById('bulkSelectionText');
+            const count = selectedTransactionIds.size;
+
+            if (count > 0) {
+                bulkOps.classList.add('active');
+                bulkText.textContent = `${count} transaction${count > 1 ? 's' : ''} selected`;
+            } else {
+                bulkOps.classList.remove('active');
+            }
+        }
+
+        function clearSelection() {
+            selectedTransactionIds.clear();
+            document.querySelectorAll('.transaction-checkbox.checked').forEach(cb => {
+                cb.classList.remove('checked');
+            });
+            updateBulkOperationsBar();
+        }
+
+        function bulkDelete() {
+            if (selectedTransactionIds.size === 0) return;
+
+            deleteCallback = () => {
+                transactions = transactions.filter(t => !selectedTransactionIds.has(t.id));
+                saveToLocalStorage();
+                clearSelection();
+                filteredTransactions = [...transactions];
+                renderTransactions();
+                showToast(`${selectedTransactionIds.size} transactions deleted!`, 'success');
+            };
+
+            document.getElementById('confirmMessage').textContent =
+                `Are you sure you want to delete ${selectedTransactionIds.size} transaction${selectedTransactionIds.size > 1 ? 's' : ''}? This action cannot be undone.`;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function bulkEdit() {
+            if (selectedTransactionIds.size === 0) return;
+
+            const newCategory = prompt('Enter new category for selected transactions:');
+            if (newCategory) {
+                transactions = transactions.map(t => {
+                    if (selectedTransactionIds.has(t.id)) {
+                        return { ...t, category: newCategory, subcategory: newCategory };
+                    }
+                    return t;
+                });
+
+                saveToLocalStorage();
+                clearSelection();
+                filteredTransactions = [...transactions];
+                renderTransactions();
+                showToast(`Updated ${selectedTransactionIds.size} transactions!`, 'success');
+            }
+        }
+
+        // ==========================================
+        // FILTERING
+        // ==========================================
+
+        function filterByType(type) {
+            // Update active button
+            document.querySelectorAll('.category-chip').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter transactions
+            if (type === 'all') {
+                filteredTransactions = [...transactions];
+            } else {
+                filteredTransactions = transactions.filter(t => t.type === type);
+            }
+
+            renderTransactions();
+        }
+
+        function filterByTimeRange(range) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const now = new Date();
+            let startDate;
+
+            switch (range) {
+                case 'thisMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'last3Months':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                    break;
+                default:
+                    startDate = null;
+            }
+
+            if (startDate) {
+                filteredTransactions = transactions.filter(t => new Date(t.date) >= startDate);
+            } else {
+                filteredTransactions = [...transactions];
+            }
+
+            renderTransactions();
+        }
+
+        // ==========================================
+        // RENDERING
+        // ==========================================
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionsList');
+
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-title">No Transactions Found</div>
+                        <div class="empty-text">Start by adding your first transaction</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by date
+            const grouped = groupTransactionsByDate(filteredTransactions);
+
+            let html = '';
+            for (const [date, txns] of Object.entries(grouped)) {
+                const total = txns.reduce((sum, t) => {
+                    return sum + (t.type === 'Income' ? t.amount : -t.amount);
+                }, 0);
+
+                html += `
+                    <div class="transaction-group">
+                        <div class="date-header">
+                            <span>${formatDateHeader(date)}</span>
+                            <span class="date-total">${formatCurrency(total, total >= 0)}</span>
+                        </div>
+                        ${txns.map(t => renderTransactionItem(t)).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderTransactionItem(transaction) {
+            const iconClass = transaction.type.toLowerCase();
+            const icon = getCategoryIcon(transaction.category, transaction.type);
+            const memberName = getMemberName(transaction.memberId);
+            const isSelected = selectedTransactionIds.has(transaction.id);
+
+            return `
+                <div class="transaction-item">
+                    <div class="transaction-checkbox ${isSelected ? 'checked' : ''}"
+                         onclick="event.stopPropagation(); toggleCheckbox(this, '${transaction.id}')"></div>
+                    <div class="transaction-main">
+                        <div class="transaction-icon ${iconClass}">${icon}</div>
+                        <div class="transaction-info">
+                            <div class="transaction-merchant">${transaction.description}</div>
+                            <div class="transaction-meta">
+                                <span class="transaction-category">${transaction.type} • ${transaction.category}</span>
+                                <span class="transaction-member">${memberName}</span>
+                                <span class="transaction-time">${formatTime(transaction.date)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-value ${transaction.type === 'Income' ? 'income' : 'expense'}">
+                            ${transaction.type === 'Income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                        </div>
+                        <div class="transaction-status ${transaction.status || 'completed'}">
+                            ${(transaction.status || 'completed').toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); editTransaction('${transaction.id}')">Edit</button>
+                        <button class="action-btn danger" onclick="event.stopPropagation(); deleteTransaction('${transaction.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // MODAL OPERATIONS
+        // ==========================================
+
+        function openAddTransactionModal() {
+            currentEditingId = null;
+            document.getElementById('modalTitle').textContent = 'Add Transaction';
+            document.getElementById('saveButtonText').textContent = 'Save Transaction';
+            document.getElementById('transactionForm').reset();
+
+            // Set default date
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('date').value = now.toISOString().slice(0, 16);
+
+            updateCategoryOptions();
+            document.getElementById('transactionModal').classList.add('active');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.remove('active');
+            document.getElementById('merchantSuggestions').classList.remove('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            deleteCallback = null;
+        }
+
+        // ==========================================
+        // SMART FEATURES
+        // ==========================================
+
+        function showMerchantSuggestions(value) {
+            const suggestionsDiv = document.getElementById('merchantSuggestions');
+
+            if (value.length < 2) {
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+
+            const matches = merchantDatabase.filter(m =>
+                m.name.toLowerCase().includes(value.toLowerCase())
+            ).slice(0, 5);
+
+            if (matches.length === 0) {
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+
+            suggestionsDiv.innerHTML = matches.map(m => `
+                <div class="suggestion-item" onclick="selectMerchant('${m.name}', '${m.category}')">
+                    <div class="suggestion-merchant">${m.icon} ${m.name}</div>
+                    <div class="suggestion-category">${m.category}</div>
+                </div>
+            `).join('');
+
+            suggestionsDiv.classList.add('active');
+        }
+
+        function selectMerchant(name, category) {
+            document.getElementById('merchant').value = name;
+            document.getElementById('merchantSuggestions').classList.remove('active');
+
+            // Auto-select matching category if exists
+            setTimeout(() => {
+                selectCategory(category);
+            }, 10);
+        }
+
+        function updateCategoryOptions() {
+            const type = document.getElementById('type').value;
+            const grid = document.getElementById('categoryGrid');
+            const categoryList = categories[type] || [];
+
+            grid.innerHTML = categoryList.map(cat => `
+                <div class="category-option" data-category="${cat.id}" onclick="selectCategory('${cat.id}')">
+                    <div class="category-icon">${cat.icon}</div>
+                    <div class="category-label">${cat.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectCategory(categoryId) {
+            document.querySelectorAll('.category-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.category === categoryId) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function getSelectedCategory() {
+            const selected = document.querySelector('.category-option.selected');
+            return selected ? selected.dataset.category : '';
+        }
+
+        // ==========================================
+        // HELPER FUNCTIONS
+        // ==========================================
+
+        function groupTransactionsByDate(transactions) {
+            const grouped = {};
+
+            transactions.forEach(t => {
+                const dateKey = new Date(t.date).toDateString();
+                if (!grouped[dateKey]) {
+                    grouped[dateKey] = [];
+                }
+                grouped[dateKey].push(t);
+            });
+
+            return grouped;
+        }
+
+        function formatDateHeader(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today, ' + date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday, ' + date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+            } else {
+                return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+        }
+
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString('en-IN', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        function formatCurrency(amount, isPositive = false) {
+            const formatted = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(Math.abs(amount));
+
+            return isPositive ? '+' + formatted : formatted;
+        }
+
+        function getCategoryIcon(category, type) {
+            const allCategories = [...categories.Expense, ...categories.Income, ...categories.Investment];
+            const match = allCategories.find(c => c.id === category);
+            return match ? match.icon : (type === 'Income' ? '💰' : '💳');
+        }
+
+        function getMemberName(memberId) {
+            const members = {
+                'FM001': 'Manish',
+                'FM002': 'Raghavi',
+                'Joint': 'Joint'
+            };
+            return members[memberId] || 'Unknown';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon');
+
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+
+            if (type === 'success') {
+                toastIcon.textContent = '✓';
+            } else if (type === 'error') {
+                toastIcon.textContent = '✗';
+            }
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function saveToLocalStorage() {
+            if (typeof window.WealthOSStorage !== 'undefined') {
+                // Save using WealthOS storage utility
+                window.WealthOSStorage.saveData(
+                    window.WealthOSStorage.STORAGE_KEYS.TRANSACTIONS,
+                    transactions
+                );
+            } else {
+                // Fallback to regular localStorage
+                localStorage.setItem('wealthos_transactions', JSON.stringify(transactions));
+            }
+        }
+
+        function getSampleTransactions() {
+            return [
+                {
+                    id: 'TXN001',
+                    date: new Date('2026-02-17T09:30:00'),
+                    type: 'Income',
+                    category: 'Salary',
+                    subcategory: 'Salary',
+                    amount: 575000,
+                    description: 'Salary Credited',
+                    paymentMethod: 'Bank Transfer',
+                    memberId: 'Joint',
+                    status: 'completed'
+                },
+                {
+                    id: 'TXN002',
+                    date: new Date('2026-02-17T14:30:00'),
+                    type: 'Expense',
+                    category: 'Groceries',
+                    subcategory: 'Groceries',
+                    amount: 2840,
+                    description: 'BigBasket',
+                    paymentMethod: 'Credit Card',
+                    memberId: 'FM002',
+                    status: 'completed'
+                },
+                {
+                    id: 'TXN003',
+                    date: new Date('2026-02-17T11:45:00'),
+                    type: 'Expense',
+                    category: 'Food & Dining',
+                    subcategory: 'Food & Dining',
+                    amount: 650,
+                    description: 'Starbucks',
+                    paymentMethod: 'UPI',
+                    memberId: 'FM001',
+                    status: 'completed'
+                },
+                {
+                    id: 'TXN004',
+                    date: new Date('2026-02-16T21:20:00'),
+                    type: 'Expense',
+                    category: 'Transportation',
+                    subcategory: 'Transportation',
+                    amount: 485,
+                    description: 'Uber',
+                    paymentMethod: 'UPI',
+                    memberId: 'FM001',
+                    status: 'completed'
+                },
+                {
+                    id: 'TXN005',
+                    date: new Date('2026-02-16T19:15:00'),
+                    type: 'Expense',
+                    category: 'Food & Dining',
+                    subcategory: 'Food & Dining',
+                    amount: 890,
+                    description: 'Zomato',
+                    paymentMethod: 'Credit Card',
+                    memberId: 'Joint',
+                    status: 'completed'
+                },
+            ];
+        }
+
+        // Close modals on outside click
+        document.getElementById('transactionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTransactionModal();
+            }
+        });
+
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
+        // Close merchant suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.merchant-suggestions-wrapper')) {
+                document.getElementById('merchantSuggestions').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

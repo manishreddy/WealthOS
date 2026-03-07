@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS Data Module Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .status.error {
+            background: #ef4444;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card .label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.secondary {
+            background: #64748b;
+        }
+
+        .btn.secondary:hover {
+            background: #475569;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+        }
+
+        .btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .console {
+            background: #1e293b;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WealthOS Data Module Test</h1>
+        <p class="subtitle">Testing sample data and localStorage utilities</p>
+
+        <div id="status" class="status">Checking...</div>
+
+        <!-- Summary Cards -->
+        <div class="grid" id="summary-cards">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="section">
+            <h2>Controls</h2>
+            <button class="btn" onclick="initData()">Initialize Data</button>
+            <button class="btn secondary" onclick="refreshData()">Refresh Display</button>
+            <button class="btn secondary" onclick="showStorageInfo()">Storage Info</button>
+            <button class="btn secondary" onclick="exportData()">Export Data</button>
+            <button class="btn danger" onclick="clearAllData()">Clear All Data</button>
+        </div>
+
+        <!-- Family Members -->
+        <div class="section">
+            <h2>Family Members</h2>
+            <div class="table-container">
+                <table id="family-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Relationship</th>
+                            <th>Age</th>
+                            <th>Occupation</th>
+                            <th>Annual Income</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Assets Summary -->
+        <div class="section">
+            <h2>Assets by Type</h2>
+            <div class="table-container">
+                <table id="assets-table">
+                    <thead>
+                        <tr>
+                            <th>Asset Type</th>
+                            <th>Count</th>
+                            <th>Invested Amount</th>
+                            <th>Current Value</th>
+                            <th>Returns</th>
+                            <th>Returns %</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="section">
+            <h2>Recent Transactions (Last 10)</h2>
+            <div class="table-container">
+                <table id="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Goals -->
+        <div class="section">
+            <h2>Financial Goals</h2>
+            <div class="table-container">
+                <table id="goals-table">
+                    <thead>
+                        <tr>
+                            <th>Goal</th>
+                            <th>Type</th>
+                            <th>Target Amount</th>
+                            <th>Current Amount</th>
+                            <th>Progress</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="section">
+            <h2>Console Output</h2>
+            <div id="console" class="console">Ready. Click buttons above to test functionality.</div>
+        </div>
+    </div>
+
+    <!-- Load Data Module -->
+    <script src="sampleData.js"></script>
+    <script src="localStorage.js"></script>
+
+    <script>
+        // Format currency
+        function formatCurrency(amount) {
+            if (amount >= 10000000) {
+                return `₹${(amount / 10000000).toFixed(2)} Cr`;
+            } else if (amount >= 100000) {
+                return `₹${(amount / 100000).toFixed(2)} L`;
+            } else {
+                return `₹${amount.toLocaleString('en-IN')}`;
+            }
+        }
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Log to custom console
+        function log(message, type = 'info') {
+            const consoleEl = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '✗' : type === 'success' ? '✓' : '→';
+            consoleEl.innerHTML += `\n[${timestamp}] ${prefix} ${message}`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        // Check initialization status
+        function checkStatus() {
+            const statusEl = document.getElementById('status');
+            if (WealthOSStorage.isInitialized()) {
+                statusEl.textContent = '✓ Data Initialized';
+                statusEl.classList.remove('error');
+                log('Data module is initialized', 'success');
+                loadAllData();
+            } else {
+                statusEl.textContent = '✗ Not Initialized';
+                statusEl.classList.add('error');
+                log('Data module not initialized. Click "Initialize Data" to load sample data.', 'error');
+            }
+        }
+
+        // Initialize data
+        function initData() {
+            log('Initializing data...');
+            if (WealthOSStorage.initializeData(true)) {
+                log('Data initialized successfully!', 'success');
+                checkStatus();
+            } else {
+                log('Failed to initialize data', 'error');
+            }
+        }
+
+        // Refresh display
+        function refreshData() {
+            log('Refreshing display...');
+            loadAllData();
+            log('Display refreshed', 'success');
+        }
+
+        // Show storage info
+        function showStorageInfo() {
+            const info = WealthOSStorage.getStorageInfo();
+            log('=== Storage Information ===');
+            log(`Total Size: ${info.totalSizeKB} KB (${info.totalSizeMB} MB)`);
+            log(`Last Updated: ${info.lastUpdated}`);
+            log(`Initialized: ${info.initialized}`);
+            log('\n--- Breakdown ---');
+            for (const [key, data] of Object.entries(info.breakdown)) {
+                log(`${key}: ${data.sizeKB} KB (${data.records} records)`);
+            }
+        }
+
+        // Export data
+        function exportData() {
+            log('Exporting data...');
+            const data = WealthOSStorage.exportAllData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wealthos-backup-${new Date().toISOString()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            log('Data exported successfully!', 'success');
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                log('Clearing all data...');
+                WealthOSStorage.clearData(true);
+                log('All data cleared', 'success');
+                checkStatus();
+            }
+        }
+
+        // Load all data and populate tables
+        function loadAllData() {
+            if (!WealthOSStorage.isInitialized()) return;
+
+            // Load summary
+            loadSummary();
+
+            // Load family members
+            loadFamilyMembers();
+
+            // Load assets
+            loadAssets();
+
+            // Load transactions
+            loadTransactions();
+
+            // Load goals
+            loadGoals();
+        }
+
+        function loadSummary() {
+            const summary = window.WealthOSSummary;
+            const cardsHTML = `
+                <div class="card">
+                    <h3>Net Worth</h3>
+                    <div class="value">${formatCurrency(summary.netWorth)}</div>
+                    <div class="label">Assets - Liabilities</div>
+                </div>
+                <div class="card">
+                    <h3>Total Assets</h3>
+                    <div class="value">${formatCurrency(summary.totalAssets)}</div>
+                    <div class="label">Current Market Value</div>
+                </div>
+                <div class="card">
+                    <h3>Monthly Income</h3>
+                    <div class="value">${formatCurrency(summary.monthlyIncome)}</div>
+                    <div class="label">Combined salary</div>
+                </div>
+                <div class="card">
+                    <h3>Monthly Savings</h3>
+                    <div class="value">${formatCurrency(summary.monthlySavings)}</div>
+                    <div class="label">Savings Rate: ${summary.savingsRate}</div>
+                </div>
+            `;
+            document.getElementById('summary-cards').innerHTML = cardsHTML;
+        }
+
+        function loadFamilyMembers() {
+            const members = WealthOSStorage.getFamilyMembers();
+            const tbody = document.querySelector('#family-table tbody');
+            tbody.innerHTML = members.map(m => `
+                <tr>
+                    <td><strong>${m.name}</strong></td>
+                    <td>${m.relationship}</td>
+                    <td>${m.age}</td>
+                    <td>${m.occupation}</td>
+                    <td>${formatCurrency(m.annualIncome)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadAssets() {
+            const assets = WealthOSStorage.getAssets();
+            const grouped = {};
+
+            assets.forEach(asset => {
+                if (!grouped[asset.type]) {
+                    grouped[asset.type] = {
+                        count: 0,
+                        invested: 0,
+                        current: 0,
+                        returns: 0
+                    };
+                }
+                grouped[asset.type].count++;
+                grouped[asset.type].invested += asset.investedAmount;
+                grouped[asset.type].current += asset.currentValue;
+                grouped[asset.type].returns += asset.returns;
+            });
+
+            const tbody = document.querySelector('#assets-table tbody');
+            tbody.innerHTML = Object.entries(grouped).map(([type, data]) => {
+                const returnsPercent = ((data.returns / data.invested) * 100).toFixed(2);
+                return `
+                    <tr>
+                        <td><strong>${type}</strong></td>
+                        <td>${data.count}</td>
+                        <td>${formatCurrency(data.invested)}</td>
+                        <td>${formatCurrency(data.current)}</td>
+                        <td style="color: ${data.returns >= 0 ? '#10b981' : '#ef4444'}">${formatCurrency(data.returns)}</td>
+                        <td style="color: ${data.returns >= 0 ? '#10b981' : '#ef4444'}">${returnsPercent}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadTransactions() {
+            const transactions = WealthOSStorage.getTransactions({ limit: 10 });
+            const tbody = document.querySelector('#transactions-table tbody');
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${formatDate(t.date)}</td>
+                    <td><span class="pill">${t.type}</span></td>
+                    <td>${t.category}</td>
+                    <td>${t.description}</td>
+                    <td style="color: ${t.type === 'Income' ? '#10b981' : '#ef4444'}">${formatCurrency(t.amount)}</td>
+                    <td>${t.paymentMethod}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadGoals() {
+            const goals = WealthOSStorage.getGoals();
+            const tbody = document.querySelector('#goals-table tbody');
+            tbody.innerHTML = goals.map(g => `
+                <tr>
+                    <td><strong>${g.name}</strong></td>
+                    <td>${g.type}</td>
+                    <td>${formatCurrency(g.targetAmount)}</td>
+                    <td>${formatCurrency(g.currentAmount)}</td>
+                    <td>
+                        <div style="background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                            <div style="background: #10b981; height: 8px; width: ${g.progressPercentage}%;"></div>
+                        </div>
+                        ${g.progressPercentage.toFixed(2)}%
+                    </td>
+                    <td><span class="pill">${g.priority}</span></td>
+                    <td><span class="pill">${g.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('WealthOS Data Module Test loaded', 'success');
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

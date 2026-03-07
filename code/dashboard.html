@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-menu.css">
+    <link rel="stylesheet" href="dark-overrides.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e5e7eb;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #0066ff;
+            --accent-secondary: #00d4ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #00C805;
+            --error: #FF3B30;
+            --warning: #ff9500;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --hover-bg: #f8f9fa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-tertiary: #141d2e;
+            --bg-elevated: #141d2e;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255,255,255,0.09);
+            --border-subtle: rgba(255,255,255,0.05);
+            --accent-primary: #0066ff;
+            --accent-secondary: #0066ff;
+            --gradient-start: #0066ff;
+            --gradient-end: #00d4ff;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #fb923c;
+            --card-shadow: none;
+            --hover-bg: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+        
+        .main-content {
+            padding: 32px 40px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            letter-spacing: -0.01em;
+        }
+
+        .action-btn.primary {
+            background: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .action-btn.primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--hover-bg);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Person Tabs — shared styles in user-menu.css */
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Metric Cards */
+        .metric-cards {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .metric-subvalue {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .metric-change.positive {
+            background: rgba(0, 200, 5, 0.1);
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--error);
+        }
+
+        /* Charts */
+        .chart-card {
+            grid-column: span 8;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-card.full-width {
+            grid-column: span 12;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .chart-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .chart-tab:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .chart-tab.active {
+            background: rgba(0, 102, 255, 0.12);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .chart-area {
+            height: 220px;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-grid {
+            stroke: var(--border-subtle);
+            stroke-width: 1;
+        }
+
+        /* Gauge Chart */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 220px;
+            position: relative;
+        }
+
+        .gauge-svg {
+            width: 180px;
+            height: 180px;
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 12;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke: url(#gaugeGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease;
+        }
+
+        .gauge-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .gauge-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* Goals */
+        .goals-grid {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .goal-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goal-card:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .goal-card.expanded {
+            grid-column: span 2;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .goal-icon {
+            font-size: 2rem;
+        }
+
+        .goal-progress-ring {
+            width: 48px;
+            height: 48px;
+        }
+
+        .goal-ring-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 4;
+        }
+
+        .goal-ring-progress {
+            fill: none;
+            stroke: var(--accent-primary);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .goal-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .goal-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+
+        .goal-current {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .goal-target {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .goal-progress-bar {
+            height: 6px;
+            background: var(--border-subtle);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-percentage {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .goal-details {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .goal-card.expanded .goal-details {
+            display: block;
+        }
+
+        .goal-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8125rem;
+        }
+
+        .goal-detail-label {
+            color: var(--text-secondary);
+        }
+
+        .goal-detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Activity & Allocation */
+        .activity-card {
+            grid-column: span 4;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .activity-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            padding: 10px;
+            margin: -10px;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.buy {
+            background: rgba(0, 200, 5, 0.12);
+        }
+
+        .activity-icon.sell {
+            background: rgba(255, 59, 48, 0.12);
+        }
+
+        .activity-icon.transfer {
+            background: rgba(0, 102, 255, 0.12);
+        }
+
+        .activity-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .activity-details {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .activity-amount {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .activity-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .activity-time {
+            font-size: 0.6875rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Allocation */
+        .allocation-card {
+            grid-column: span 6;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .allocation-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .allocation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .allocation-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .allocation-color {
+            width: 4px;
+            height: 36px;
+            border-radius: 2px;
+        }
+
+        .allocation-info {
+            flex: 1;
+        }
+
+        .allocation-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .allocation-bar {
+            height: 6px;
+            background: var(--border-subtle);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .allocation-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .allocation-stats {
+            text-align: right;
+        }
+
+        .allocation-percentage {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .allocation-value {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Expandable Sections */
+        .section-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-toggle-icon {
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        .section-toggle.expanded .section-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section-content.expanded {
+            max-height: 2000px;
+        }
+
+        /* Income vs Expense */
+        .income-expense-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .ie-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ie-label {
+            width: 80px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .ie-bar {
+            flex: 1;
+            height: 32px;
+            background: var(--border-subtle);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ie-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
+            transition: width 0.5s ease;
+        }
+
+        .ie-bar-fill.income {
+            background: var(--success, #00C805);
+        }
+
+        .ie-bar-fill.expense {
+            background: #ff9500;
+        }
+
+        .ie-value {
+            width: 100px;
+            text-align: right;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Onboarding Cards */
+        .onboarding-section {
+            grid-column: span 12;
+            margin-bottom: 20px;
+            opacity: 1;
+            transition: opacity 0.5s ease, max-height 0.5s ease;
+        }
+
+        .onboarding-section.hidden {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .onboarding-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .onboarding-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .onboarding-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-primary);
+        }
+
+        .onboarding-card:hover {
+            border-color: var(--accent-primary);
+            filter: brightness(0.98);
+        }
+
+        .onboarding-card-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .onboarding-card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .onboarding-card-description {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .onboarding-card-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .onboarding-card:hover .onboarding-card-cta {
+            transform: translateX(4px);
+        }
+
+        /* Demo Button */
+        .demo-btn {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .demo-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--hover-bg);
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 0.9375rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 1536px) {
+            .metric-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .goals-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1280px) {
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .goals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-card {
+                grid-column: span 12;
+            }
+
+            .activity-card,
+            .allocation-card {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 24px 20px;
+            }
+
+            .metric-cards,
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-card,
+            .allocation-card {
+                grid-column: span 12;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .onboarding-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="controls.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside id="sidebar-root"></aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-header">
+                    <div class="page-title" id="pageTitle">Family Dashboard</div>
+                    <div class="page-subtitle" id="pageSubtitle">Complete overview of family wealth and goals</div>
+                </div>
+                <div class="top-actions">
+                    <a href="demo-account.html" target="_blank" class="demo-btn" style="text-decoration: none;">
+                        <span>👁️</span>
+                        <span>View Demo Account</span>
+                    </a>
+                    <button class="action-btn secondary">₹ INR</button>
+                    <button class="action-btn primary">+ Add Transaction</button>
+                    <div class="user-avatar">M
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <div class="user-menu-header">
+                                <div class="user-menu-name" id="userMenuName">Loading...</div>
+                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
+                            </div>
+                            <div class="user-menu-items">
+                                <a href="settings.html" class="user-menu-item">
+                                    <span class="user-menu-item-icon">⚙️</span>
+                                    <span>Settings</span>
+                                </a>
+                                <a href="demo-account.html" target="_blank" class="user-menu-item">
+                                    <span class="user-menu-item-icon">👁️</span>
+                                    <span>View Demo Account</span>
+                                </a>
+                                <div class="user-menu-item logout" onclick="handleLogout()">
+                                    <span class="user-menu-item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Person Tabs -->
+            <div class="person-tabs-container" id="personTabsContainer" style="display:none;">
+                <div class="person-tabs" id="personTabsList">
+                    <!-- Dynamically populated -->
+                </div>
+                <div class="person-tabs-actions">
+                    <a href="settings.html" class="settings-link-btn">⚙️ Manage Members</a>
+                </div>
+            </div>
+
+            <!-- Setup Progress Banner -->
+            <div id="setupBanner" style="background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; color: var(--text-primary);">Account Setup <span id="setupPct">0</span>% Complete</div>
+                    <div style="color: var(--text-secondary); font-size: 0.85rem;">Next: <span id="setupNextLabel"></span></div>
+                    <div style="height: 6px; background: var(--border-subtle); border-radius: 3px; width: 300px; margin-top: 10px;">
+                        <div id="setupProgressBar" style="height: 100%; background: var(--accent-primary); border-radius: 3px; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <a id="setupContinueBtn" href="#" style="background: var(--accent-primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap;">Continue Setup →</a>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Onboarding Cards -->
+                <div class="onboarding-section" id="onboardingSection">
+                    <div class="onboarding-cards">
+                        <div class="onboarding-card" onclick="openAssetModal()">
+                            <div class="onboarding-card-icon">💼</div>
+                            <div class="onboarding-card-title">Add Your First Asset</div>
+                            <div class="onboarding-card-description">Start tracking your investments and watch your wealth grow</div>
+                            <div class="onboarding-card-cta">
+                                <span>Track your investments</span>
+                                <span>→</span>
+                            </div>
+                        </div>
+
+                        <div class="onboarding-card" onclick="openBudgetModal()">
+                            <div class="onboarding-card-icon">📊</div>
+                            <div class="onboarding-card-title">Set Monthly Budget</div>
+                            <div class="onboarding-card-description">Take control of your finances by setting income and expense targets</div>
+                            <div class="onboarding-card-cta">
+                                <span>Set income & expenses</span>
+                                <span>→</span>
+                            </div>
+                        </div>
+
+                        <div class="onboarding-card" onclick="openGoalModal()">
+                            <div class="onboarding-card-icon">🎯</div>
+                            <div class="onboarding-card-title">Create Your First Goal</div>
+                            <div class="onboarding-card-description">Plan for your future with smart financial goal planning</div>
+                            <div class="onboarding-card-cta">
+                                <span>Plan your financial goals</span>
+                                <span>→</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Cards -->
+                <div class="metric-cards" id="metricCards">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Main Chart -->
+                <div class="chart-card" id="mainChart">
+                    <div class="chart-header">
+                        <div class="chart-title" id="chartTitle">Net Worth Growth</div>
+                        <div class="chart-tabs">
+                            <button class="chart-tab" data-months="1">1M</button>
+                            <button class="chart-tab active" data-months="3">3M</button>
+                            <button class="chart-tab" data-months="6">6M</button>
+                            <button class="chart-tab" data-months="12">1Y</button>
+                            <button class="chart-tab" data-months="24">ALL</button>
+                        </div>
+                    </div>
+                    <div class="chart-area">
+                        <svg class="chart-svg" viewBox="0 0 800 220" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.2" />
+                                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <line x1="0" y1="44" x2="800" y2="44" class="chart-grid"/>
+                            <line x1="0" y1="88" x2="800" y2="88" class="chart-grid"/>
+                            <line x1="0" y1="132" x2="800" y2="132" class="chart-grid"/>
+                            <line x1="0" y1="176" x2="800" y2="176" class="chart-grid"/>
+                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60 L 800 220 L 0 220 Z"
+                                  fill="url(#chartGradient)"/>
+                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60"
+                                  stroke="var(--accent-primary)"
+                                  stroke-width="3"
+                                  fill="none"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Savings Rate Gauge -->
+                <div class="chart-card" id="savingsGauge">
+                    <div class="chart-header">
+                        <div class="chart-title">Savings Rate</div>
+                    </div>
+                    <div class="gauge-container">
+                        <svg class="gauge-svg" viewBox="0 0 180 180">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:var(--accent-primary)" />
+                                    <stop offset="100%" style="stop-color:var(--accent-primary)" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-bg" cx="90" cy="90" r="70"/>
+                            <circle class="gauge-progress" cx="90" cy="90" r="70"
+                                    style="stroke-dasharray: 329.87 439.82; stroke-dashoffset: 0; transform: rotate(-90deg); transform-origin: center;"/>
+                        </svg>
+                        <div style="position: absolute; text-align: center;">
+                            <div class="gauge-value" id="gaugeValue">0%</div>
+                            <div class="gauge-label">of income saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goals Section -->
+                <div class="goals-grid" id="goalsGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Income vs Expense Chart -->
+                <div class="chart-card full-width" id="incomeExpenseChart">
+                    <div class="section-toggle" onclick="toggleSection(this)">
+                        <div class="chart-title">Income vs Expenses (Last 6 Months)</div>
+                        <span class="section-toggle-icon">▼</span>
+                    </div>
+                    <div class="section-content expanded">
+                        <div class="income-expense-bars" id="incomeExpenseBars">
+                            <div class="ie-row">
+                                <div class="ie-label">Income</div>
+                                <div class="ie-bar">
+                                    <div class="ie-bar-fill income" id="incomeBar" style="width: 100%;"></div>
+                                </div>
+                                <div class="ie-value" id="incomeBarValue">—</div>
+                            </div>
+                            <div class="ie-row">
+                                <div class="ie-label">Expenses</div>
+                                <div class="ie-bar">
+                                    <div class="ie-bar-fill expense" id="expenseBar" style="width: 0%;"></div>
+                                </div>
+                                <div class="ie-value" id="expenseBarValue">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation -->
+                <div class="allocation-card" id="allocationCard">
+                    <div class="allocation-title" id="allocationTitle">Family Asset Allocation</div>
+                    <div class="allocation-list" id="allocationList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-card" id="activityCard">
+                    <div class="activity-title">Recent Activity</div>
+                    <div class="activity-list" id="activityList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Asset Modal -->
+    <div class="modal-overlay" id="assetModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Your First Asset</h2>
+                <button class="modal-close" onclick="closeModal('assetModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="assetForm">
+                    <div class="form-group">
+                        <label class="form-label">Asset Type</label>
+                        <select class="form-select" id="assetType" required>
+                            <option value="">Select type</option>
+                            <option value="stocks">Stocks</option>
+                            <option value="mutual-funds">Mutual Funds</option>
+                            <option value="fixed-deposit">Fixed Deposit</option>
+                            <option value="gold">Gold</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="crypto">Cryptocurrency</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Asset Name</label>
+                        <input type="text" class="form-input" id="assetName" placeholder="e.g., HDFC Bank, Nifty 50 Index Fund" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount Invested (₹)</label>
+                        <input type="number" class="form-input" id="assetAmount" placeholder="e.g., 50000" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('assetModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitAsset()">Add Asset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Budget Modal -->
+    <div class="modal-overlay" id="budgetModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Set Monthly Budget</h2>
+                <button class="modal-close" onclick="closeModal('budgetModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="budgetForm">
+                    <div class="form-group">
+                        <label class="form-label">Monthly Income (₹)</label>
+                        <input type="number" class="form-input" id="monthlyIncome" placeholder="e.g., 150000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monthly Expenses (₹)</label>
+                        <input type="number" class="form-input" id="monthlyExpenses" placeholder="e.g., 80000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Budget Period</label>
+                        <select class="form-select" id="budgetPeriod" required>
+                            <option value="current">Current Month</option>
+                            <option value="next">Starting Next Month</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitBudget()">Set Budget</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Goal Modal -->
+    <div class="modal-overlay" id="goalModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Your First Goal</h2>
+                <button class="modal-close" onclick="closeModal('goalModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="goalForm">
+                    <div class="form-group">
+                        <label class="form-label">Goal Name</label>
+                        <input type="text" class="form-input" id="goalName" placeholder="e.g., Home Down Payment, Vacation" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Amount (₹)</label>
+                        <input type="number" class="form-input" id="goalTarget" placeholder="e.g., 500000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Date</label>
+                        <input type="date" class="form-input" id="goalDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monthly Contribution (₹)</label>
+                        <input type="number" class="form-input" id="goalMonthly" placeholder="e.g., 15000" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitGoal()">Create Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/api.js"></script>
+    <script src="auth.js"></script>
+    <script src="user-menu.js"></script>
+    <script>
+        // ── Theme ────────────────────────────────────────────────────────────
+        (function () {
+            const t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            if (t === 'dark') {
+                const tog = document.getElementById('themeToggle');
+                if (tog) tog.classList.add('active');
+            }
+        })();
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            toggle.classList.toggle('active', newTheme === 'dark');
+        }
+
+        // ── Step → label / page mappings ─────────────────────────────────────
+        const STEP_LABELS = {
+            family:   'Add family members',
+            monthly:  'Track first month',
+            savings:  'Set up savings plan',
+            portfolio: 'Add your assets',
+            goals:    'Define your goals',
+            planning: 'Set up financial planning'
+        };
+
+        const STEP_PAGES = {
+            family:   '/settings.html',
+            monthly:  '/monthly-tracker.html',
+            savings:  '/savings-plan.html',
+            portfolio: '/portfolio.html',
+            goals:    '/goals.html',
+            planning: '/financial-planning.html'
+        };
+
+        // ── Color palette for asset classes ──────────────────────────────────
+        const ASSET_COLOR_MAP = {
+            'Equity':      '#0066ff',
+            'Debt':        '#6c757d',
+            'Hybrid':      '#8b5cf6',
+            'Cash':        '#00C805',
+            'Real Estate': '#f59e0b',
+            'Commodity':   '#ef4444',
+            'Gold':        '#d97706',
+            'Other':       '#6b7280',
+        };
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+        function fmt(v) {
+            return WealthAPI.formatCurrency(v || 0);
+        }
+
+        function updateGauge(pct) {
+            const circumference = 2 * Math.PI * 70;
+            const filled = (pct / 100) * circumference * 0.75;
+            const gauge = document.querySelector('.gauge-progress');
+            if (gauge) {
+                gauge.style.strokeDasharray = `${filled} ${circumference}`;
+                gauge.style.strokeDashoffset = '0';
+                gauge.style.transform = 'rotate(-90deg)';
+                gauge.style.transformOrigin = 'center';
+            }
+            document.getElementById('gaugeValue').textContent = Math.round(pct) + '%';
+        }
+
+        function toggleGoalExpand(element) {
+            element.classList.toggle('expanded');
+        }
+
+        function toggleSection(element) {
+            element.classList.toggle('expanded');
+            const content = element.nextElementSibling;
+            content.classList.toggle('expanded');
+        }
+
+        // ── Render: Setup Banner ──────────────────────────────────────────────
+        function renderSetupBanner(progress) {
+            const banner = document.getElementById('setupBanner');
+            if (!progress || progress.percentComplete >= 100) {
+                banner.style.display = 'none';
+                return;
+            }
+            banner.style.display = 'flex';
+            document.getElementById('setupPct').textContent = Math.round(progress.percentComplete);
+            document.getElementById('setupProgressBar').style.width = Math.round(progress.percentComplete) + '%';
+
+            const step = progress.nextStep;
+            document.getElementById('setupNextLabel').textContent = STEP_LABELS[step] || step;
+            document.getElementById('setupContinueBtn').href = STEP_PAGES[step] || '#';
+        }
+
+        // ── Render: Metric Cards ──────────────────────────────────────────────
+        function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth) {
+            const noData = (totalIncome === 0 && totalExpenses === 0 && totalInvestments === 0 && netWorth === 0);
+            const savingsRate = totalIncome > 0
+                ? Math.max(0, (1 - totalExpenses / totalIncome) * 100)
+                : 0;
+            const monthlySavings = totalIncome - totalExpenses - totalInvestments;
+
+            const noDataHint = noData
+                ? `<div style="font-size:0.75rem;color:var(--accent-primary);margin-top:8px;"><a href="monthly-tracker.html" style="color:var(--accent-primary);text-decoration:none;">Start tracking in Monthly Tracker →</a></div>`
+                : '';
+
+            const cards = [
+                { label: 'Monthly Income',    icon: '💰', value: fmt(totalIncome) },
+                { label: 'Monthly Expenses',  icon: '📊', value: fmt(totalExpenses) },
+                { label: 'Savings Rate',      icon: '🎯', value: Math.round(savingsRate) + '%' },
+                { label: 'Net Worth',         icon: '💎', value: fmt(netWorth) },
+                { label: 'Monthly Savings',   icon: '💵', value: fmt(Math.max(0, monthlySavings)) },
+                { label: 'Total Investments', icon: '📈', value: fmt(totalInvestments) }
+            ];
+
+            const container = document.getElementById('metricCards');
+            container.innerHTML = cards.map(c => `
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-label">${c.label}</div>
+                        <div class="metric-icon">${c.icon}</div>
+                    </div>
+                    <div class="metric-value">${c.value}</div>
+                    ${noDataHint}
+                </div>
+            `).join('');
+        }
+
+        // ── Render: Goals ─────────────────────────────────────────────────────
+        function renderGoals(goals) {
+            const container = document.getElementById('goalsGrid');
+            const circumference = 2 * Math.PI * 22;
+
+            if (!goals || goals.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border-color);">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">🎯</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">No goals yet</div>
+                        <div style="font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 24px;">
+                            <a href="goals.html" style="color: var(--accent-primary); text-decoration: none;">Define your goals →</a>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = goals.map(goal => {
+                const pct   = Math.min(100, Math.round(goal.progressPct || 0));
+                const offset = circumference - (pct / 100 * circumference);
+                const statusColor = goal.isOnTrack ? 'var(--success)' : 'var(--warning)';
+                const statusLabel = goal.isOnTrack ? 'On Track' : 'Behind';
+                const monthsLeft  = goal.monthsRemaining != null ? goal.monthsRemaining + ' mo left' : '';
+
+                const iconMap = { House: '🏠', Education: '🎓', Vacation: '🏖️', Vehicle: '🚗', Retirement: '🌴', Emergency: '🛡️' };
+                const icon = iconMap[goal.type] || '🎯';
+
+                return `
+                    <div class="goal-card" onclick="toggleGoalExpand(this)">
+                        <div class="goal-header">
+                            <div class="goal-icon">${icon}</div>
+                            <svg class="goal-progress-ring" viewBox="0 0 48 48">
+                                <circle class="goal-ring-bg" cx="24" cy="24" r="22"/>
+                                <circle class="goal-ring-progress" cx="24" cy="24" r="22"
+                                        style="stroke-dasharray: ${circumference};
+                                               stroke-dashoffset: ${offset};
+                                               transform: rotate(-90deg);
+                                               transform-origin: center;"/>
+                            </svg>
+                        </div>
+                        <div class="goal-title">${goal.name || 'Goal'}</div>
+                        <div class="goal-stats">
+                            <div class="goal-current">${fmt(goal.currentAmount || 0)}</div>
+                            <div class="goal-target">of ${fmt(goal.targetAmount || 0)}</div>
+                        </div>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="goal-percentage" style="display:flex;justify-content:space-between;align-items:center;">
+                            <span>${pct}% complete</span>
+                            <span style="color:${statusColor};font-size:0.7rem;font-weight:700;">${statusLabel}</span>
+                        </div>
+                        <div class="goal-details">
+                            <div class="goal-detail-row">
+                                <span class="goal-detail-label">Remaining</span>
+                                <span class="goal-detail-value">${fmt((goal.targetAmount || 0) - (goal.currentAmount || 0))}</span>
+                            </div>
+                            <div class="goal-detail-row">
+                                <span class="goal-detail-label">Time Left</span>
+                                <span class="goal-detail-value">${monthsLeft || '—'}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // ── Render: Asset Allocation ──────────────────────────────────────────
+        function renderAllocation(byAssetClass) {
+            const container = document.getElementById('allocationList');
+
+            if (!byAssetClass || byAssetClass.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 12px;">📊</div>
+                        <div style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">No assets added yet</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                            <a href="portfolio.html" style="color: var(--accent-primary); text-decoration: none;">Add assets in Portfolio to see allocation →</a>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = byAssetClass.map(item => {
+                const color = ASSET_COLOR_MAP[item.class] || ASSET_COLOR_MAP['Other'];
+                const pct   = Math.round(item.pct || 0);
+                return `
+                    <div class="allocation-item">
+                        <div class="allocation-color" style="background: ${color};"></div>
+                        <div class="allocation-info">
+                            <div class="allocation-name">${item.class}</div>
+                            <div class="allocation-bar">
+                                <div class="allocation-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+                            </div>
+                        </div>
+                        <div class="allocation-stats">
+                            <div class="allocation-percentage">${pct}%</div>
+                            <div class="allocation-value">${fmt(item.value)}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // ── Render: Income vs Expense bars ────────────────────────────────────
+        function renderIncomeExpenseBars(totalIncome, totalExpenses) {
+            const maxVal = Math.max(totalIncome, totalExpenses, 1);
+            const incomeBar   = document.getElementById('incomeBar');
+            const expenseBar  = document.getElementById('expenseBar');
+            const incomeVal   = document.getElementById('incomeBarValue');
+            const expenseVal  = document.getElementById('expenseBarValue');
+
+            if (incomeBar)  incomeBar.style.width  = Math.round((totalIncome / maxVal) * 100) + '%';
+            if (expenseBar) expenseBar.style.width = Math.round((totalExpenses / maxVal) * 100) + '%';
+            if (incomeVal)  incomeVal.textContent  = fmt(totalIncome);
+            if (expenseVal) expenseVal.textContent = fmt(totalExpenses);
+        }
+
+        // ── Render: Recent Activity ───────────────────────────────────────────
+        function renderActivity(allMembersMonthData) {
+            const container = document.getElementById('activityList');
+            if (!container) return;
+
+            const members = Array.isArray(allMembersMonthData) ? allMembersMonthData : [];
+            const showMemberName = members.length > 1;
+            const items = [];
+
+            members.forEach(m => {
+                (m.investmentBreakup || []).forEach(b => {
+                    if (b.amount > 0) items.push({
+                        type: 'buy', name: b.name,
+                        detail: 'Investment' + (showMemberName ? ' · ' + m.memberName : ''),
+                        amount: b.amount
+                    });
+                });
+                (m.incomeBreakup || []).forEach(b => {
+                    if (b.amount > 0) items.push({
+                        type: 'transfer', name: b.name,
+                        detail: 'Income' + (showMemberName ? ' · ' + m.memberName : ''),
+                        amount: b.amount
+                    });
+                });
+                (m.expenseBreakup || []).forEach(b => {
+                    if (b.amount > 0) items.push({
+                        type: 'sell', name: b.name,
+                        detail: 'Expense' + (showMemberName ? ' · ' + m.memberName : ''),
+                        amount: b.amount
+                    });
+                });
+            });
+
+            items.sort((a, b) => b.amount - a.amount);
+            const top = items.slice(0, 6);
+
+            if (top.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:32px 0;color:var(--text-secondary);font-size:0.875rem;">
+                        No transactions this month.<br>
+                        <a href="monthly-tracker.html" style="color:var(--accent-primary);text-decoration:none;margin-top:6px;display:inline-block;">
+                            Add entries in Monthly Tracker →
+                        </a>
+                    </div>`;
+                return;
+            }
+
+            const iconMap = { buy: '📈', sell: '📉', transfer: '💰' };
+            container.innerHTML = top.map(item => `
+                <div class="activity-item">
+                    <div class="activity-icon ${item.type}">${iconMap[item.type]}</div>
+                    <div class="activity-info">
+                        <div class="activity-name">${item.name}</div>
+                        <div class="activity-details">${item.detail}</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="activity-value">${fmt(item.amount)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ── Helper: compute allocation from raw asset list ────────────────────
+        function computeAllocationFromAssets(assets) {
+            if (!assets || assets.length === 0) return [];
+            const classMap = {};
+            assets.forEach(a => {
+                const cls = a.assetClass || 'Other';
+                classMap[cls] = (classMap[cls] || 0) + (a.currentValue || 0);
+            });
+            const total = Object.values(classMap).reduce((s, v) => s + v, 0);
+            return Object.entries(classMap)
+                .map(([cls, value]) => ({
+                    class: cls, value,
+                    pct: total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0
+                }))
+                .sort((a, b) => b.value - a.value);
+        }
+
+        // ── Render: Income & Savings Trend Chart ──────────────────────────────
+        async function renderNetWorthChart(numMonths) {
+            numMonths = numMonths || 3;
+            const now = new Date();
+            const monthPairs = [];
+            for (let i = numMonths - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                monthPairs.push({
+                    year: d.getFullYear(),
+                    month: d.getMonth() + 1,
+                    label: d.toLocaleString('en-US', {
+                        month: 'short',
+                        ...(numMonths > 12 ? { year: '2-digit' } : {})
+                    })
+                });
+            }
+
+            const results = await Promise.all(
+                monthPairs.map(({ year, month }) =>
+                    WealthAPI.monthly.getMonth(year, month).catch(() => [])
+                )
+            );
+
+            const data = results.map((rows, i) => {
+                const ms  = Array.isArray(rows) ? rows : [];
+                const inc = ms.reduce((s, m) => s + (m.income      || 0), 0);
+                const exp = ms.reduce((s, m) => s + (m.expenditure || 0), 0);
+                const inv = ms.reduce((s, m) => s + (m.investments || 0), 0);
+                return { label: monthPairs[i].label, income: inc, savings: Math.max(0, inc - exp - inv) };
+            });
+
+            const maxVal  = Math.max(...data.map(d => d.income), 1);
+            const W = 800, TOP = 20, BOT = 195, n = data.length;
+            function toY(val) { return (BOT - ((val / maxVal) * (BOT - TOP))).toFixed(1); }
+            function toX(i)   { return ((i / Math.max(n - 1, 1)) * W).toFixed(1); }
+
+            const hasData  = data.some(d => d.income > 0);
+            const incPts   = data.map((d, i) => `${toX(i)} ${toY(d.income)}`).join(' L ');
+            const savPts   = data.map((d, i) => `${toX(i)} ${toY(d.savings)}`).join(' L ');
+            const lastX    = toX(n - 1);
+
+            const svg = document.querySelector('#mainChart .chart-svg');
+            if (!svg) return;
+
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.25"/>
+                        <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0"/>
+                    </linearGradient>
+                </defs>
+                <line x1="0" y1="44"  x2="${W}" y2="44"  class="chart-grid"/>
+                <line x1="0" y1="88"  x2="${W}" y2="88"  class="chart-grid"/>
+                <line x1="0" y1="132" x2="${W}" y2="132" class="chart-grid"/>
+                <line x1="0" y1="176" x2="${W}" y2="176" class="chart-grid"/>
+                ${hasData ? `
+                <path d="M ${incPts} L ${lastX} ${BOT} L 0 ${BOT} Z" fill="url(#chartGradient)"/>
+                <path d="M ${incPts}" stroke="var(--accent-primary)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M ${savPts}" stroke="var(--success,#00C805)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
+                ${data.map((d, i) => `<circle cx="${toX(i)}" cy="${toY(d.income)}" r="4" fill="var(--accent-primary)"/>`).join('')}
+                ` : `<text x="400" y="110" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="DM Sans,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
+                ${data.map((d, i) => `<text x="${toX(i)}" y="215" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="DM Sans,sans-serif">${d.label}</text>`).join('')}
+            `;
+
+            // Update title and add legend once
+            document.getElementById('chartTitle').textContent = 'Income & Savings Trend';
+            const header = document.querySelector('#mainChart .chart-header');
+            if (header && !header.querySelector('.chart-legend')) {
+                const legend = document.createElement('div');
+                legend.className = 'chart-legend';
+                legend.style.cssText = 'display:flex;gap:16px;align-items:center;font-size:0.75rem;color:var(--text-secondary);';
+                legend.innerHTML = `
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <span style="width:14px;height:2.5px;background:var(--accent-primary);display:inline-block;border-radius:2px;"></span>Income
+                    </span>
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <span style="width:14px;height:0;border-top:2px dashed var(--success,#00C805);display:inline-block;"></span>Savings
+                    </span>`;
+                // Insert before chart-tabs
+                const tabs = header.querySelector('.chart-tabs');
+                header.insertBefore(legend, tabs);
+            }
+        }
+
+        // ── Modal helpers (kept for onboarding card buttons) ──────────────────
+        function openAssetModal()  { document.getElementById('assetModal').classList.add('active'); }
+        function openBudgetModal() { document.getElementById('budgetModal').classList.add('active'); }
+        function openGoalModal()   { document.getElementById('goalModal').classList.add('active'); }
+        function closeModal(id)    { document.getElementById(id).classList.remove('active'); }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+
+        function submitAsset() {
+            const form = document.getElementById('assetForm');
+            if (form.checkValidity()) { closeModal('assetModal'); form.reset(); }
+            else form.reportValidity();
+        }
+        function submitBudget() {
+            const form = document.getElementById('budgetForm');
+            if (form.checkValidity()) { closeModal('budgetModal'); form.reset(); }
+            else form.reportValidity();
+        }
+        function submitGoal() {
+            const form = document.getElementById('goalForm');
+            if (form.checkValidity()) { closeModal('goalModal'); form.reset(); }
+            else form.reportValidity();
+        }
+
+        // ── handleLogout ──────────────────────────────────────────────────────
+        function handleLogout() {
+            WealthAPI.auth.logout();
+        }
+
+        // ── Person Tabs ───────────────────────────────────────────────────────
+        let allFamilyMembers = [];
+        let currentDashboardMemberId = null; // null = Overall
+
+        function buildDashboardPersonTabs(members) {
+            if (!members || members.length === 0) return;
+            const container = document.getElementById('personTabsContainer');
+            const tabsList  = document.getElementById('personTabsList');
+            if (!container || !tabsList) return;
+
+            tabsList.innerHTML = '';
+
+            // Overall tab FIRST and active by default
+            const overall = document.createElement('button');
+            overall.className = 'person-tab overall-tab active';
+            overall.dataset.memberId = 'overall';
+            overall.textContent = 'Overall';
+            overall.addEventListener('click', () => switchDashboardMember('overall'));
+            tabsList.appendChild(overall);
+
+            members.forEach(m => {
+                const btn = document.createElement('button');
+                btn.className = 'person-tab';
+                btn.dataset.memberId = m.id;
+                btn.textContent = m.name;
+                btn.addEventListener('click', () => switchDashboardMember(m.id));
+                tabsList.appendChild(btn);
+            });
+
+            container.style.display = '';
+        }
+
+        async function switchDashboardMember(memberId) {
+            currentDashboardMemberId = memberId === 'overall' ? null : memberId;
+            document.querySelectorAll('#personTabsList .person-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.memberId === String(memberId));
+            });
+            const { year, month } = WealthAPI.getCurrentYearMonth();
+            let income = 0, expenses = 0, investments = 0;
+            let memberMonthData = [];
+
+            if (currentDashboardMemberId === null) {
+                // ── Overall: aggregate all members ────────────────────────────
+                const data = await WealthAPI.monthly.getMonth(year, month).catch(() => []);
+                memberMonthData = Array.isArray(data) ? data : [];
+                income      = memberMonthData.reduce((s, m) => s + (m.income      || 0), 0);
+                expenses    = memberMonthData.reduce((s, m) => s + (m.expenditure || 0), 0);
+                investments = memberMonthData.reduce((s, m) => s + (m.investments || 0), 0);
+
+                const portfolio = await WealthAPI.portfolio.summary(year, month).catch(() => null);
+                const netWorth  = portfolio ? (portfolio.totalNetWorth || 0) : 0;
+                renderMetrics(income, expenses, investments, netWorth);
+                renderAllocation(portfolio ? (portfolio.byAssetClass || []) : []);
+            } else {
+                // ── Per-member: only that member's data ───────────────────────
+                const data = await WealthAPI.monthly.getMemberMonth(year, month, currentDashboardMemberId).catch(() => null);
+                memberMonthData = data ? [data] : [];
+                income      = data ? (data.income      || 0) : 0;
+                expenses    = data ? (data.expenditure || 0) : 0;
+                investments = data ? (data.investments || 0) : 0;
+
+                const memberAssets = await WealthAPI.portfolio.getMember(currentDashboardMemberId, year, month).catch(() => []);
+                const assetList    = Array.isArray(memberAssets) ? memberAssets : [];
+                const memberTotal  = assetList.reduce((s, a) => s + (a.currentValue || 0), 0);
+                renderMetrics(income, expenses, investments, memberTotal);
+                renderAllocation(computeAllocationFromAssets(assetList));
+            }
+
+            const savingsRate = income > 0 ? Math.max(0, (1 - expenses / income) * 100) : 0;
+            updateGauge(savingsRate);
+            renderIncomeExpenseBars(income, expenses);
+            renderActivity(memberMonthData);
+        }
+
+        // ── Main initialisation ───────────────────────────────────────────────
+        async function initDashboard() {
+            // Redirect to login if not authenticated
+            WealthAPI.auth.requireAuth();
+
+            // Get cached user
+            const user = WealthAPI.auth.getCachedUser();
+            if (user) {
+                const familyName = user.familyName || '';
+                document.getElementById('pageTitle').textContent = familyName
+                    ? `Welcome, ${familyName}`
+                    : 'Family Dashboard';
+                document.getElementById('pageSubtitle').textContent = 'Complete overview of family wealth and goals';
+
+                // User menu
+                const nameEl  = document.getElementById('userMenuName');
+                const emailEl = document.getElementById('userMenuEmail');
+                if (nameEl)  nameEl.textContent  = familyName || user.email || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+
+                // Avatar initial
+                const avatarEl = document.querySelector('.user-avatar');
+                if (avatarEl && familyName) {
+                    avatarEl.childNodes[0].textContent = familyName.charAt(0).toUpperCase();
+                }
+            }
+
+            // Load everything in parallel
+            const { year, month } = WealthAPI.getCurrentYearMonth();
+            const [progress, monthData, portfolio, goals, familyMembers] = await Promise.all([
+                WealthAPI.setup.getProgress().catch(() => null),
+                WealthAPI.monthly.getMonth(year, month).catch(() => []),
+                WealthAPI.portfolio.summary(year, month).catch(() => null),
+                WealthAPI.goals.getAll().catch(() => []),
+                WealthAPI.family.getMembers().catch(() => [])
+            ]);
+
+            // ── Person Tabs ───────────────────────────────────────────────────
+            allFamilyMembers = familyMembers || [];
+            buildDashboardPersonTabs(allFamilyMembers);
+
+            // ── Setup banner ──────────────────────────────────────────────────
+            renderSetupBanner(progress);
+
+            // ── Monthly aggregates ────────────────────────────────────────────
+            const members       = Array.isArray(monthData) ? monthData : [];
+            const totalIncome      = members.reduce((s, m) => s + (m.income      || 0), 0);
+            const totalExpenses    = members.reduce((s, m) => s + (m.expenditure || 0), 0);
+            const totalInvestments = members.reduce((s, m) => s + (m.investments || 0), 0);
+
+            // ── Net worth from portfolio ──────────────────────────────────────
+            const netWorth     = portfolio ? (portfolio.totalNetWorth || 0) : 0;
+            const byAssetClass = portfolio ? (portfolio.byAssetClass  || []) : [];
+
+            // ── Sidebar ───────────────────────────────────────────────────────
+            const sidebarLabel = document.getElementById('sidebarLabel');
+            const sidebarValue = document.getElementById('sidebarValue');
+            if (sidebarLabel) sidebarLabel.textContent = 'Family Net Worth';
+            if (sidebarValue) sidebarValue.textContent = fmt(netWorth);
+
+            // ── Metric cards ──────────────────────────────────────────────────
+            renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth);
+
+            // ── Gauge ─────────────────────────────────────────────────────────
+            const savingsRate = totalIncome > 0
+                ? Math.max(0, (1 - totalExpenses / totalIncome) * 100)
+                : 0;
+            updateGauge(savingsRate);
+
+            // ── Income vs Expense bars ────────────────────────────────────────
+            renderIncomeExpenseBars(totalIncome, totalExpenses);
+
+            // ── Goals ─────────────────────────────────────────────────────────
+            renderGoals(goals);
+
+            // ── Asset allocation ──────────────────────────────────────────────
+            renderAllocation(byAssetClass);
+
+            // ── Recent Activity ───────────────────────────────────────────────
+            renderActivity(members);
+
+            // ── Net Worth / Trend Chart ───────────────────────────────────────
+            renderNetWorthChart(3);
+
+            // ── Onboarding section: hide if there's real data ─────────────────
+            const onboardingSection = document.getElementById('onboardingSection');
+            const hasAnyData = totalIncome > 0 || totalExpenses > 0 || netWorth > 0 || (goals && goals.length > 0);
+            if (onboardingSection) {
+                onboardingSection.style.display = hasAnyData ? 'none' : 'block';
+            }
+        }
+
+        // ── Chart tab switching ───────────────────────────────────────────────
+        document.querySelectorAll('.chart-tab[data-months]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                renderNetWorthChart(parseInt(btn.dataset.months, 10));
+            });
+        });
+
+        // Kick off
+        initDashboard().catch(err => console.error('Dashboard init error:', err));
+    </script>
+    <script src="sidebar.js"></script>
+</body>
+</html>
