@@ -1597,8 +1597,9 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Age (Optional)</label>
-                        <input type="number" class="form-input" id="memberAge" placeholder="Enter age" min="0" max="120">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-input" id="memberDob" max="" onchange="updateComputedAge()">
+                        <span class="form-hint" id="memberAgeDisplay"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -1798,8 +1799,9 @@
                 document.getElementById('memberModalTitle').textContent = 'Edit Family Member';
                 document.getElementById('memberName').value = member.name || '';
                 document.getElementById('memberRole').value = member.role || 'primary';
-                document.getElementById('memberAge').value = member.age || '';
+                document.getElementById('memberDob').value = member.dob || '';
                 document.getElementById('memberRiskProfile').value = member.riskProfile || 'moderate';
+                updateComputedAge();
 
                 const form = document.getElementById('memberForm');
                 form.dataset.mode = 'edit';
@@ -1819,7 +1821,7 @@
 
             const name = document.getElementById('memberName').value.trim();
             const role = document.getElementById('memberRole').value;
-            const age = parseInt(document.getElementById('memberAge').value) || null;
+            const dob = document.getElementById('memberDob').value || '';
             const riskProfile = document.getElementById('memberRiskProfile').value;
 
             if (!name) {
@@ -1827,8 +1829,7 @@
                 return;
             }
 
-            const payload = { name, role, riskProfile };
-            if (age !== null) payload.age = age;
+            const payload = { name, role, riskProfile, dob };
 
             try {
                 if (mode === 'add') {
@@ -1862,6 +1863,19 @@
         function closeMemberModal() {
             document.getElementById('memberModal').classList.remove('active');
             document.getElementById('memberForm').reset();
+            document.getElementById('memberAgeDisplay').textContent = '';
+        }
+
+        function updateComputedAge() {
+            const dob = document.getElementById('memberDob').value;
+            const display = document.getElementById('memberAgeDisplay');
+            if (!dob) { display.textContent = ''; return; }
+            const birth = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+            display.textContent = age >= 0 ? `Current age: ${age} years` : '';
         }
 
         // ── Inline name editing ───────────────────────────────────────────────

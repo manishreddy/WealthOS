@@ -1131,9 +1131,9 @@
                             <div class="summary-metric-change" id="summaryInvestRate">invest rate</div>
                         </div>
                         <div class="summary-metric">
-                            <div class="summary-metric-label">Savings</div>
+                            <div class="summary-metric-label">Cash Balance</div>
                             <div class="summary-metric-value success" id="summaryNet">₹0</div>
-                            <div class="summary-metric-change" id="summaryNetChange">savings rate</div>
+                            <div class="summary-metric-change" id="summaryNetChange">of income</div>
                         </div>
                         <div class="summary-metric">
                             <div class="summary-metric-label">Savings Rate</div>
@@ -1263,10 +1263,10 @@
                 <!-- Savings + Net Display Row -->
                 <div class="display-row">
                     <div class="category-card savings display-card" id="savingsCard">
-                        <div class="display-card-label">💎 Savings</div>
+                        <div class="display-card-label">💎 Cash Balance</div>
                         <div class="display-card-value savings-positive" id="savingsDisplay">₹0</div>
                         <div class="prev-month-comparison" id="savingsComparison" style="margin-top:8px;"><span>Loading...</span></div>
-                        <div class="display-card-note">Auto-calculated · Income − Expenses − Investments</div>
+                        <div class="display-card-note">Auto-calculated · Savings − Investments</div>
                         <input type="hidden" id="savingsInput" value="0">
                     </div>
                     <div class="category-card net display-card" id="netCard">
@@ -1802,7 +1802,7 @@
 
             const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
             const investRate  = income > 0 ? Math.round((investments / income) * 100) : 0;
-            document.getElementById('summaryNetChange').textContent = savingsRate + '% savings rate';
+            document.getElementById('summaryNetChange').textContent = savingsRate + '% of income';
             document.getElementById('summaryNet').className =
                 'summary-metric-value ' + (net >= 0 ? 'success' : 'error');
             const summaryInvestRate = document.getElementById('summaryInvestRate');

@@ -190,4 +190,10 @@ if (!goalsCols.includes('loan_roi')) {
   db.exec(`ALTER TABLE goals ADD COLUMN loan_roi REAL DEFAULT 8`);
 }
 
+// Migrate: add dob column to family_members if not present
+const familyCols = db.pragma('table_info(family_members)').map(c => c.name);
+if (!familyCols.includes('dob')) {
+  db.exec(`ALTER TABLE family_members ADD COLUMN dob TEXT DEFAULT ''`);
+}
+
 module.exports = db;

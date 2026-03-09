@@ -5,6 +5,18 @@ const db = require('../db');
 
 const router = express.Router();
 
+// Helper: compute age from DOB string (YYYY-MM-DD)
+function ageFromDob(dob) {
+  if (!dob) return null;
+  const today = new Date();
+  const birth = new Date(dob);
+  if (isNaN(birth)) return null;
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
 // Helper: compute age-based allocation targets
 function computeAgeBasedTargets(age) {
   const safeAge = age && age > 0 ? age : 30;
@@ -45,6 +57,7 @@ router.get('/', (req, res) => {
       members: members.map(m => ({
         id: m.id,
         name: m.name,
+        dob: m.dob || '',
         age: m.age,
         role: m.role,
         riskProfile: m.risk_profile,
@@ -84,6 +97,7 @@ router.get('/members', (req, res) => {
     return res.status(200).json(members.map(m => ({
       id: m.id,
       name: m.name,
+      dob: m.dob || '',
       age: m.age,
       role: m.role,
       riskProfile: m.risk_profile,
@@ -100,13 +114,14 @@ router.get('/members', (req, res) => {
 // POST /api/family/members - add new member
 router.post('/members', (req, res) => {
   try {
-    const { name, age, role, riskProfile } = req.body;
+    const { name, age, dob, role, riskProfile } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Member name is required' });
     }
 
-    const safeAge = age ? parseInt(age, 10) : null;
+    const safeDob = dob || '';
+    const safeAge = dob ? ageFromDob(dob) : (age ? parseInt(age, 10) : null);
     const safeRole = role || 'member';
     const safeRiskProfile = riskProfile || 'moderate';
 
@@ -118,8 +133,8 @@ router.post('/members', (req, res) => {
 
     // Insert member
     const result = db.prepare(
-      'INSERT INTO family_members (user_id, name, age, role, risk_profile, display_order) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(req.userId, name.trim(), safeAge, safeRole, safeRiskProfile, nextOrder);
+      'INSERT INTO family_members (user_id, name, dob, age, role, risk_profile, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(req.userId, name.trim(), safeDob, safeAge, safeRole, safeRiskProfile, nextOrder);
 
     const memberId = result.lastInsertRowid;
 
@@ -143,6 +158,7 @@ router.post('/members', (req, res) => {
     return res.status(201).json({
       id: member.id,
       name: member.name,
+      dob: member.dob || '',
       age: member.age,
       role: member.role,
       riskProfile: member.risk_profile,
@@ -160,7 +176,7 @@ router.post('/members', (req, res) => {
 router.put('/members/:id', (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
-    const { name, age, role, riskProfile } = req.body;
+    const { name, age, dob, role, riskProfile } = req.body;
 
     // Verify member belongs to this user
     const existing = db.prepare(
@@ -172,7 +188,8 @@ router.put('/members/:id', (req, res) => {
     }
 
     const newName = name ? name.trim() : existing.name;
-    const newAge = age !== undefined ? parseInt(age, 10) : existing.age;
+    const newDob = dob !== undefined ? dob : (existing.dob || '');
+    const newAge = newDob ? ageFromDob(newDob) : (age !== undefined ? parseInt(age, 10) : existing.age);
     const newRole = role || existing.role;
     const newRiskProfile = riskProfile || existing.risk_profile;
 
@@ -181,11 +198,11 @@ router.put('/members/:id', (req, res) => {
     }
 
     db.prepare(
-      'UPDATE family_members SET name = ?, age = ?, role = ?, risk_profile = ? WHERE id = ? AND user_id = ?'
-    ).run(newName, newAge, newRole, newRiskProfile, memberId, req.userId);
+      'UPDATE family_members SET name = ?, dob = ?, age = ?, role = ?, risk_profile = ? WHERE id = ? AND user_id = ?'
+    ).run(newName, newDob, newAge, newRole, newRiskProfile, memberId, req.userId);
 
     // Update savings_targets if age changed
-    if (age !== undefined) {
+    if (dob !== undefined || age !== undefined) {
       const targets = computeAgeBasedTargets(newAge);
       const existingTargets = db.prepare(
         'SELECT * FROM savings_targets WHERE user_id = ? AND member_id = ?'
@@ -206,6 +223,7 @@ router.put('/members/:id', (req, res) => {
     return res.status(200).json({
       id: updated.id,
       name: updated.name,
+      dob: updated.dob || '',
       age: updated.age,
       role: updated.role,
       riskProfile: updated.risk_profile,

@@ -188,8 +188,8 @@
         }
 
         .summary-card:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            transform: translateY(-1px);
         }
 
         .summary-label {
@@ -266,11 +266,10 @@
             box-shadow: var(--card-shadow);
         }
         .goal-card:hover {
-            border-color: var(--accent-primary);
-            box-shadow: 0 6px 24px rgba(0,102,255,0.09);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
             transform: translateY(-1px);
         }
-        .goal-card.achieved { opacity: 0.72; border-color: var(--success); }
+        .goal-card.achieved { opacity: 0.65; }
 
         /* Card Header */
         .gc-header {
@@ -280,14 +279,15 @@
             padding: 16px 20px 12px;
         }
         .gc-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 13px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             flex-shrink: 0;
+            border: 1px solid var(--border-color);
         }
         .gc-info { flex: 1; min-width: 0; }
         .gc-title-row {
@@ -295,7 +295,7 @@
             align-items: center;
             gap: 7px;
             flex-wrap: wrap;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .gc-name {
             font-size: 1rem;
@@ -304,17 +304,19 @@
             letter-spacing: -0.02em;
         }
         .gc-meta {
-            font-size: 0.8125rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             letter-spacing: -0.01em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .gc-actions {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 1px;
+        }
+        .gc-meta-dot {
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
             flex-shrink: 0;
         }
 
@@ -323,34 +325,55 @@
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            padding: 3px 9px;
+            padding: 2px 8px;
             border-radius: 20px;
             font-size: 0.7rem;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 0;
             white-space: nowrap;
-            border: 1px solid transparent;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
         }
-        .gc-badge.on-track  { background: rgba(0,200,5,0.11); color: var(--success); border-color: rgba(0,200,5,0.2); }
-        .gc-badge.off-track { background: rgba(255,59,48,0.1); color: var(--error);   border-color: rgba(255,59,48,0.2); }
-        .gc-badge.achieved-badge { background: rgba(0,200,5,0.14); color: var(--success); border-color: rgba(0,200,5,0.25); }
-        .gc-badge.emi       { background: rgba(139,92,246,0.11); color: #7c3aed; border-color: rgba(139,92,246,0.22); }
+        .gc-badge.achieved-badge { background: rgba(0,200,5,0.08); color: var(--success); border-color: rgba(0,200,5,0.18); }
 
         .gc-date-chip {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 20px;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-subtle);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
             white-space: nowrap;
         }
-        .gc-date-chip.urgent { background: rgba(239,68,68,0.09); color: #ef4444; border-color: rgba(239,68,68,0.18); }
-        .gc-date-chip.soon   { background: rgba(251,191,36,0.09); color: #d97706; border-color: rgba(251,191,36,0.18); }
+
+        .gc-year-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 54px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .gc-year-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            line-height: 1;
+        }
+        .gc-year-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.1;
+        }
 
         /* Progress section (Savings) */
         .gc-progress { padding: 0 20px 14px; }
@@ -372,11 +395,10 @@
         .gc-bar-fill {
             height: 7px;
             border-radius: 4px;
-            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            background: var(--accent-primary);
+            opacity: 0.7;
             transition: width 0.6s cubic-bezier(.4,0,.2,1);
         }
-        .gc-bar-fill.good { background: linear-gradient(90deg, #00C805, #22c55e); }
-        .gc-bar-fill.warn { background: linear-gradient(90deg, #fb923c, #f59e0b); }
         .gc-pace-marker {
             position: absolute; top: -4px;
             width: 2px; height: 15px;
@@ -404,11 +426,11 @@
             margin-bottom: 7px;
             background: var(--border-subtle);
         }
-        .gc-split-dp   { background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 5px 0 0 5px; min-width: 4px; transition: width 0.5s ease; }
-        .gc-split-loan { background: linear-gradient(90deg, #8b5cf6, #a78bfa); border-radius: 0 5px 5px 0; flex: 1; }
+        .gc-split-dp   { background: var(--accent-primary); opacity: 0.6; border-radius: 5px 0 0 5px; min-width: 4px; transition: width 0.5s ease; }
+        .gc-split-loan { background: var(--accent-primary); opacity: 0.25; border-radius: 0 5px 5px 0; flex: 1; }
         .gc-split-info { display: flex; justify-content: space-between; font-size: 0.75rem; }
-        .gc-split-info .dp-label   { color: #3b82f6; font-weight: 600; }
-        .gc-split-info .loan-label { color: #8b5cf6; font-weight: 600; }
+        .gc-split-info .dp-label   { color: var(--text-secondary); font-weight: 600; }
+        .gc-split-info .loan-label { color: var(--text-secondary); font-weight: 600; }
 
         /* Metrics grid */
         .gc-metrics {
@@ -426,8 +448,6 @@
             gap: 3px;
         }
         .gc-metric:last-child { border-right: none; }
-        .gc-metric.hl { background: linear-gradient(135deg, rgba(0,102,255,0.05), rgba(0,212,255,0.04)); }
-        .gc-metric.hl-emi { background: linear-gradient(135deg, rgba(139,92,246,0.07), rgba(167,139,250,0.05)); }
         .gc-metric-label {
             font-size: 0.64rem;
             font-weight: 700;
@@ -448,33 +468,66 @@
             text-overflow: ellipsis;
         }
         .gc-metric-value.accent     { color: var(--accent-primary); }
-        .gc-metric-value.emi-accent { color: #7c3aed; }
-        .gc-metric-value.pos        { color: var(--success); }
-        .gc-metric-value.neg        { color: var(--error); }
+        .gc-metric-value.emi-accent { color: var(--accent-primary); }
+        .gc-metric-value.pos        { color: var(--text-primary); }
+        .gc-metric-value.neg        { color: var(--text-secondary); }
         .gc-metric-sub {
             font-size: 0.7rem;
             color: var(--text-tertiary);
             font-weight: 500;
         }
 
-        /* Action buttons */
-        .goal-action-btn {
-            padding: 6px 11px;
+        /* 3-dot menu */
+        .gc-menu-wrap { position: relative; flex-shrink: 0; }
+        .gc-menu-btn {
+            width: 32px; height: 32px;
             border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
             border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            letter-spacing: -0.01em;
-            white-space: nowrap;
+            background: transparent;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--text-tertiary);
+            transition: all 0.15s ease;
+            letter-spacing: 0.05em;
+            line-height: 1;
         }
-        .goal-action-btn:hover { background: var(--hover-bg); border-color: var(--accent-primary); color: var(--text-primary); }
-        .goal-action-btn.delete { background: transparent; border-color: transparent; color: var(--text-tertiary); padding: 6px 9px; }
-        .goal-action-btn.delete:hover { background: rgba(255,59,48,0.08); border-color: rgba(255,59,48,0.2); color: var(--error); }
-        .goal-action-btn.achieve:hover { background: rgba(0,200,5,0.08); border-color: var(--success); color: var(--success); }
+        .gc-menu-btn:hover { background: var(--hover-bg); border-color: var(--accent-primary); color: var(--text-primary); }
+        .gc-dropdown {
+            position: absolute;
+            right: 0; top: calc(100% + 6px);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+            min-width: 168px;
+            z-index: 200;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px) scale(0.97);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .gc-dropdown.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+        .gc-dropdown-item {
+            display: flex; align-items: center; gap: 9px;
+            padding: 10px 14px;
+            font-size: 0.8125rem; font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            border: none; background: transparent; width: 100%; text-align: left;
+            transition: background 0.12s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .gc-dropdown-item:hover { background: var(--hover-bg); }
+        .gc-dropdown-item .dd-icon { font-size: 0.875rem; width: 18px; text-align: center; }
+        .gc-dropdown-item.danger { color: var(--error); }
+        .gc-dropdown-item.danger:hover { background: rgba(255,59,48,0.06); }
+        .gc-dropdown-divider { height: 1px; background: var(--border-subtle); margin: 3px 0; }
 
         /* Add goal card */
         .add-goal-card {
@@ -492,10 +545,11 @@
         }
         .add-goal-card:hover { border-color: var(--accent-primary); background: var(--hover-bg); transform: translateY(-1px); }
         .add-goal-icon {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: linear-gradient(135deg, rgba(0,102,255,0.1), rgba(0,212,255,0.1));
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.375rem; color: var(--accent-primary);
+            font-size: 1.25rem; color: var(--text-secondary);
         }
         .add-goal-text    { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
         .add-goal-subtext { font-size: 0.8125rem; color: var(--text-secondary); }
@@ -608,10 +662,8 @@
         .tl-progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
         .timeline-empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
 
-        /* SIP compare (kept for backwards compat) */
-        .sip-compare { font-size: 0.8125rem; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; }
-        .sip-compare.on-track-sip { color: var(--success); background: rgba(0,200,5,0.08); }
-        .sip-compare.off-track-sip { color: var(--warning); background: rgba(251,146,60,0.08); }
+        /* SIP compare */
+        .sip-compare { font-size: 0.8125rem; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; background: var(--bg-secondary); color: var(--text-secondary); }
 
         /* Modal */
         .modal-overlay {
@@ -727,6 +779,31 @@
             outline: none;
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        /* Normalize type="month" to match other inputs */
+        input[type="month"].form-input {
+            -webkit-appearance: none;
+            appearance: none;
+            line-height: normal;
+        }
+        input[type="month"].form-input::-webkit-calendar-picker-indicator {
+            opacity: 0.45;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 2px;
+        }
+        input[type="month"].form-input::-webkit-datetime-edit {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        input[type="month"].form-input::-webkit-datetime-edit-fields-wrapper {
+            padding: 0;
+        }
+        [data-theme="dark"] input[type="month"].form-input::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
         }
 
         /* Member checkboxes */
@@ -1034,7 +1111,8 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Target Date *</label>
-                            <input type="text" class="form-input" id="formTargetDate" placeholder="MM-YYYY" maxlength="7" pattern="\d{2}-\d{4}">
+                            <input type="month" class="form-input" id="formTargetDate" onchange="refreshMemberAges()">
+                            <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">Pick the month &amp; year you want to achieve this goal</span>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Target Amount — Current Value (₹) *</label>
@@ -1140,13 +1218,13 @@
         };
 
         const GOAL_TYPE_GRADIENTS = {
-            'House':      'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%)',
-            'Education':  'linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(126, 34, 206, 0.15) 100%)',
-            'Vacation':   'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%)',
-            'Vehicle':    'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%)',
-            'Retirement': 'linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%)',
-            'Emergency':  'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(13, 148, 136, 0.15) 100%)',
-            'Other':      'linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%)'
+            'House':      'var(--bg-secondary)',
+            'Education':  'var(--bg-secondary)',
+            'Vacation':   'var(--bg-secondary)',
+            'Vehicle':    'var(--bg-secondary)',
+            'Retirement': 'var(--bg-secondary)',
+            'Emergency':  'var(--bg-secondary)',
+            'Other':      'var(--bg-secondary)'
         };
 
         // ─── Page init ───────────────────────────────────────────────────────────
@@ -1266,21 +1344,23 @@
                 const total   = target - created;
                 if (total > 0) expectedPct = Math.min(Math.max((now - created) / total * 100, 0), 100);
             }
-            const fillCls = progressPct >= expectedPct ? 'good' : 'warn';
-            const pctColor = goal.isAchieved ? 'var(--success)' : (progressPct >= expectedPct ? 'var(--success)' : '#f59e0b');
+            const fillCls = '';
+            const pctColor = 'var(--text-primary)';
 
             // Badge
             let badge;
-            if (goal.isAchieved)        badge = `<span class="gc-badge achieved-badge">✅ Achieved</span>`;
-            else if (isEmi)             badge = `<span class="gc-badge emi">🏦 EMI Plan</span>`;
-            else if (goal.isOnTrack)    badge = `<span class="gc-badge on-track">✅ On Track</span>`;
-            else                        badge = `<span class="gc-badge off-track">⚠️ Needs Attention</span>`;
+            if (goal.isAchieved)        badge = `<span class="gc-badge achieved-badge">Achieved</span>`;
+            else if (isEmi)             badge = `<span class="gc-badge">EMI</span>`;
+            else if (goal.isOnTrack)    badge = `<span class="gc-badge">On Track</span>`;
+            else                        badge = `<span class="gc-badge">Needs Attention</span>`;
 
-            // Date chip
+            // Date chip + year badge
             let dateChip = '';
+            let yearBadge = '';
             if (goal.targetDate) {
-                const dt = new Date(goal.targetDate);
-                const mo = dt.toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+                const [tyear, tmonth] = goal.targetDate.substring(0, 7).split('-');
+                const monthName = new Date(parseInt(tyear), parseInt(tmonth) - 1, 1)
+                    .toLocaleString('en-IN', { month: 'short' });
                 const mr = typeof goal.monthsRemaining === 'number' ? goal.monthsRemaining : null;
                 const cls = mr !== null && mr <= 6 ? 'urgent' : (mr !== null && mr <= 18 ? 'soon' : '');
                 let timeStr = '';
@@ -1288,17 +1368,32 @@
                     const yrs = Math.floor(mr / 12), mos = mr % 12;
                     timeStr = ' · ' + (yrs > 0 && mos > 0 ? `${yrs}yr ${mos}mo` : yrs > 0 ? `${yrs}yr` : `${mos}mo`);
                 }
-                dateChip = `<span class="gc-date-chip ${cls}">📅 ${mo}${timeStr}</span>`;
+                dateChip = `<span class="gc-date-chip ${cls}">📅 ${monthName} ${tyear}${timeStr}</span>`;
+                yearBadge = `<div class="gc-year-badge ${cls}">
+                    <span class="gc-year-label">Target</span>
+                    <span class="gc-year-value">${tyear}</span>
+                </div>`;
             }
 
-            // Members
+            // Members with age at target date
             let memberStr = '';
             if (goal.assignedMembers?.length > 0 && familyMembers.length > 0) {
-                const names = goal.assignedMembers.map(id => {
+                const targetYear = goal.targetDate ? parseInt(goal.targetDate.substring(0,4)) : null;
+                const targetMonth = goal.targetDate ? parseInt(goal.targetDate.substring(5,7)) : null;
+                const parts = goal.assignedMembers.map(id => {
                     const m = familyMembers.find(fm => String(fm.id) === String(id));
-                    return m ? m.name : null;
+                    if (!m) return null;
+                    if (m.dob && targetYear) {
+                        const dobParts = m.dob.split('-');
+                        const dobYear = parseInt(dobParts[0]);
+                        const dobMonth = parseInt(dobParts[1]);
+                        let ageAtTarget = targetYear - dobYear;
+                        if (targetMonth < dobMonth) ageAtTarget--;
+                        return `${m.name} (${ageAtTarget})`;
+                    }
+                    return m.name;
                 }).filter(Boolean);
-                if (names.length) memberStr = names.join(', ');
+                if (parts.length) memberStr = parts.join(', ');
             }
 
             // Time left
@@ -1409,6 +1504,12 @@
                 </div>`;
             }
 
+            // Build meta parts
+            const metaParts = [`<span>${escapeHtml(goal.goalType)}</span>`];
+            if (dateChip) metaParts.push(`<span class="gc-meta-dot"></span>${dateChip}`);
+            if (memberStr) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(memberStr)}</span>`);
+            if (goal.notes) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(goal.notes.substring(0,40))}${goal.notes.length>40?'…':''}</span>`);
+
             card.innerHTML = `
                 <div class="gc-header">
                     <div class="gc-icon" style="background:${gradient};">${icon}</div>
@@ -1416,15 +1517,20 @@
                         <div class="gc-title-row">
                             <span class="gc-name">${escapeHtml(goal.name)}</span>
                             ${badge}
-                            ${dateChip}
                         </div>
-                        <div class="gc-meta">${escapeHtml(goal.goalType)}${memberStr ? ' · ' + escapeHtml(memberStr) : ''}${goal.notes ? ' · ' + escapeHtml(goal.notes.substring(0,45)) + (goal.notes.length>45?'…':'') : ''}</div>
+                        <div class="gc-meta">${metaParts.join('')}</div>
                     </div>
-                    <div class="gc-actions">
-                        <button class="goal-action-btn" onclick="editGoal(${goal.id})">✏️ Edit</button>
-                        ${!goal.isAchieved ? `<button class="goal-action-btn" onclick="openSimulateModal(${goal.id})">📅 Simulate</button>` : ''}
-                        ${!goal.isAchieved ? `<button class="goal-action-btn achieve" title="Mark achieved" onclick="markAchieved(${goal.id})">🏆</button>` : ''}
-                        <button class="goal-action-btn delete" onclick="deleteGoal(${goal.id})">🗑️</button>
+                    ${yearBadge}
+                    <div class="gc-menu-wrap">
+                        <button class="gc-menu-btn" onclick="toggleGoalMenu(${goal.id}, event)" title="Actions">•••</button>
+                        <div class="gc-dropdown" id="gc-dd-${goal.id}">
+                            <button class="gc-dropdown-item" onclick="closeGoalMenus(); editGoal(${goal.id})"><span class="dd-icon">✏️</span>Edit</button>
+                            <button class="gc-dropdown-item" onclick="closeGoalMenus(); cloneGoal(${goal.id})"><span class="dd-icon">⧉</span>Clone</button>
+                            ${!goal.isAchieved ? `<button class="gc-dropdown-item" onclick="closeGoalMenus(); openSimulateModal(${goal.id})"><span class="dd-icon">📅</span>Simulate</button>` : ''}
+                            ${!goal.isAchieved ? `<button class="gc-dropdown-item" onclick="closeGoalMenus(); markAchieved(${goal.id})"><span class="dd-icon">🏆</span>Mark Achieved</button>` : ''}
+                            <div class="gc-dropdown-divider"></div>
+                            <button class="gc-dropdown-item danger" onclick="closeGoalMenus(); deleteGoal(${goal.id})"><span class="dd-icon">🗑️</span>Delete</button>
+                        </div>
                     </div>
                 </div>
                 ${middleHtml}
@@ -1518,15 +1624,46 @@
                 container.innerHTML = '<div style="color: var(--text-tertiary); font-size: 0.875rem;">No family members added yet</div>';
                 return;
             }
+            const targetDateVal = document.getElementById('formTargetDate').value; // YYYY-MM
+            const targetYear = targetDateVal ? parseInt(targetDateVal.substring(0,4)) : null;
+            const targetMonth = targetDateVal ? parseInt(targetDateVal.substring(5,7)) : null;
+
             container.innerHTML = familyMembers.map(member => {
                 const checked = selectedIds && selectedIds.map(String).includes(String(member.id)) ? 'checked' : '';
+                let ageLabel = '';
+                if (member.dob && targetYear) {
+                    const dobParts = member.dob.split('-');
+                    const dobYear = parseInt(dobParts[0]);
+                    const dobMonth = parseInt(dobParts[1]);
+                    let ageAtTarget = targetYear - dobYear;
+                    if (targetMonth && targetMonth < dobMonth) ageAtTarget--;
+                    ageLabel = `<span style="color: var(--text-tertiary); font-size: 0.75rem;">Age ${ageAtTarget} at target</span>`;
+                }
                 return `
                     <label class="member-checkbox-label">
                         <input type="checkbox" name="assignedMembers" value="${member.id}" ${checked}>
-                        ${escapeHtml(member.name)} <span style="color: var(--text-tertiary); font-size: 0.75rem;">(Family Member ${familyMembers.indexOf(member) + 1})</span>
+                        ${escapeHtml(member.name)} ${ageLabel}
                     </label>
                 `;
             }).join('');
+        }
+
+        // ─── Goal card 3-dot menu ─────────────────────────────────────────────────
+        function toggleGoalMenu(id, event) {
+            event.stopPropagation();
+            const target = document.getElementById('gc-dd-' + id);
+            const isOpen = target.classList.contains('open');
+            closeGoalMenus();
+            if (!isOpen) target.classList.add('open');
+        }
+        function closeGoalMenus() {
+            document.querySelectorAll('.gc-dropdown.open').forEach(d => d.classList.remove('open'));
+        }
+        document.addEventListener('click', closeGoalMenus);
+
+        function refreshMemberAges() {
+            const checked = Array.from(document.querySelectorAll('input[name="assignedMembers"]:checked')).map(cb => cb.value);
+            populateMembersCheckboxes(checked);
         }
 
         // ─── Save goal (add or update) ───────────────────────────────────────────
@@ -1546,14 +1683,8 @@
 
             if (!name) { alert('Please enter a goal name.'); return; }
             if (!targetAmount || targetAmount <= 0) { alert('Please enter a valid target amount.'); return; }
-            if (!targetDateRaw) { alert('Please enter a target date (MM-YYYY).'); return; }
-            // Convert MM-YYYY → YYYY-MM for storage
-            const dateParts = targetDateRaw.split('-');
-            if (dateParts.length !== 2 || dateParts[0].length !== 2 || dateParts[1].length !== 4) {
-                alert('Date must be in MM-YYYY format (e.g. 03-2030).');
-                return;
-            }
-            const targetDate = `${dateParts[1]}-${dateParts[0]}`;
+            if (!targetDateRaw) { alert('Please select a target date.'); return; }
+            const targetDate = targetDateRaw; // type="month" already returns YYYY-MM
             if (fundingType === 'EMI' && loanDurationYrs < 1) { alert('Please enter a loan duration of at least 1 year.'); return; }
 
             // Collect assigned members
@@ -1612,14 +1743,9 @@
 
             document.getElementById('formGoalName').value = goal.name || '';
             document.getElementById('formGoalType').value = goal.goalType || 'Other';
-            // Convert YYYY-MM → MM-YYYY for display
-            if (goal.targetDate) {
-                const parts = goal.targetDate.substring(0, 7).split('-');
-                document.getElementById('formTargetDate').value = parts.length === 2 ? `${parts[1]}-${parts[0]}` : '';
-            } else {
-                document.getElementById('formTargetDate').value = '';
-            }
-            document.getElementById('formTargetAmount').value = goal.targetAmount || '';
+            // type="month" uses YYYY-MM format — set directly
+            document.getElementById('formTargetDate').value = goal.targetDate ? goal.targetDate.substring(0, 7) : '';
+            document.getElementById('formTargetAmount').value = goal.targetAmount != null ? goal.targetAmount : '';
             document.getElementById('formCurrentAmount').value = goal.currentAmount || 0;
             document.getElementById('formMonthlyContribution').value = goal.monthlyContribution || 0;
             document.getElementById('formInflationRate').value = goal.inflationRate != null ? goal.inflationRate : 8;
@@ -1635,6 +1761,38 @@
 
             populateMembersCheckboxes(goal.assignedMembers || []);
             document.getElementById('goalModal').classList.add('active');
+        }
+
+        // ─── Clone goal ──────────────────────────────────────────────────────────
+        async function cloneGoal(id) {
+            const goal = allGoals.find(g => g.id === id);
+            if (!goal) return;
+            const clonePayload = {
+                name: goal.name + ' (Copy)',
+                goalType: goal.goalType,
+                targetAmount: goal.targetAmount,
+                currentAmount: goal.currentAmount || 0,
+                monthlyContribution: goal.monthlyContribution || 0,
+                targetDate: goal.targetDate || '',
+                assignedMembers: goal.assignedMembers || [],
+                notes: goal.notes || '',
+                fundingType: goal.fundingType || 'Savings',
+                inflationRate: goal.inflationRate || 8,
+                downPaymentPct: goal.downPaymentPct || 0,
+                loanDurationYrs: goal.loanDurationYrs || 0,
+                loanRoi: goal.loanRoi || 8,
+            };
+            try {
+                const created = await WealthAPI.goals.add(clonePayload);
+                allGoals.push(created);
+                renderGoals();
+                updateSummary();
+                showToast('Goal cloned — edit to customize', 'success');
+                editGoal(created.id);
+            } catch (err) {
+                console.error('Clone goal error:', err);
+                showToast('Failed to clone goal', 'error');
+            }
         }
 
         // ─── Delete goal ─────────────────────────────────────────────────────────
@@ -1832,17 +1990,12 @@
                 <div class="tl-now-line"  style="left:${nowX}px;"></div>`;
 
             // Pins (alternating above/below)
-            const COLORS = {
-                'House': '#3b82f6', 'Education': '#8b5cf6', 'Vacation': '#22c55e',
-                'Vehicle': '#ef4444', 'Retirement': '#f59e0b', 'Emergency': '#14b8a6', 'Other': '#0066ff'
-            };
             const connectorH = 60;
 
             const pinHtmlArr = sorted.map((goal, i) => {
                 const dt = new Date(goal.targetDate);
                 const x  = toLeft(dt.getFullYear(), dt.getMonth());
                 const above = i % 2 === 0;
-                const color = COLORS[goal.goalType] || '#0066ff';
                 const isEmi = goal.fundingType === 'EMI';
                 const progressPct = isEmi
                     ? (goal.downPaymentAmount > 0 ? Math.min(((goal.currentAmount||0)/goal.downPaymentAmount)*100,100) : 0)
@@ -1854,17 +2007,17 @@
                 const dateStr = dt.toLocaleString('en-IN', { month: 'short', year: 'numeric' });
 
                 const cardHtml = `
-                    <div class="tl-card" onclick="editGoal(${goal.id})" style="border-top:3px solid ${color};">
+                    <div class="tl-card" onclick="editGoal(${goal.id})">
                         <span class="tl-card-icon">${GOAL_TYPE_ICONS[goal.goalType]||'🎯'}</span>
                         <div class="tl-card-name">${escapeHtml(goal.name)}</div>
                         <div class="tl-card-type">${escapeHtml(goal.goalType)}${isEmi ? ' · EMI' : ''}</div>
-                        <div class="tl-card-amount" style="color:${color}">${amount}</div>
+                        <div class="tl-card-amount">${amount}</div>
                         <div class="tl-card-metric">${metric}</div>
-                        <div class="tl-progress-bar"><div class="tl-progress-fill" style="width:${progressPct}%;background:${color}"></div></div>
+                        <div class="tl-progress-bar"><div class="tl-progress-fill" style="width:${progressPct}%;background:var(--accent-primary);opacity:0.6;"></div></div>
                     </div>`;
 
-                const dotStyle = `style="background:${color};border-color:${color};box-shadow:0 0 0 3px ${color}22;"`;
-                const connStyle = `style="background:linear-gradient(${above?'to top':'to bottom'},${color},${color}44);height:${connectorH}px;"`;
+                const dotStyle = `style="background:var(--accent-primary);border-color:var(--accent-primary);box-shadow:0 0 0 3px rgba(0,102,255,0.15);"`;
+                const connStyle = `style="background:var(--border-color);height:${connectorH}px;opacity:0.6;"`;
 
                 if (above) {
                     return `<div class="tl-pin above" style="left:${x}px;">

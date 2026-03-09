@@ -1561,6 +1561,7 @@
         .breakup-asset-card.equity { background: rgba(0,102,255,0.06); border-color: rgba(0,102,255,0.15); }
         .breakup-asset-card.debt { background: rgba(251,146,60,0.06); border-color: rgba(251,146,60,0.2); }
         .breakup-asset-card.gold { background: rgba(234,179,8,0.06); border-color: rgba(234,179,8,0.2); }
+        .breakup-asset-card.cash { background: rgba(13,148,136,0.06); border-color: rgba(13,148,136,0.2); }
         .breakup-asset-card.others { background: rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.2); }
 
         .breakup-card-label {
@@ -1573,6 +1574,7 @@
         .breakup-asset-card.equity .breakup-card-label { color: #0066ff; }
         .breakup-asset-card.debt .breakup-card-label { color: #d97706; }
         .breakup-asset-card.gold .breakup-card-label { color: #b45309; }
+        .breakup-asset-card.cash .breakup-card-label { color: #0d9488; }
         .breakup-asset-card.others .breakup-card-label { color: #7c3aed; }
 
         .breakup-card-amount {
@@ -1737,6 +1739,7 @@
         .inv-type-badge.stock { background: rgba(234,179,8,0.15); color: #b45309; }
         .inv-type-badge.bond-fd { background: rgba(251,146,60,0.15); color: #c2410c; }
         .inv-type-badge.other { background: rgba(139,92,246,0.12); color: #7c3aed; }
+        .inv-type-badge.cash { background: rgba(20,184,166,0.12); color: #0d9488; }
 
         /* Add Investment Form */
         .add-investment-card {
@@ -1937,6 +1940,10 @@
 
         .allocation-bar.gold {
             background: linear-gradient(90deg, #eab308, #fde047);
+        }
+
+        .allocation-bar.cash {
+            background: linear-gradient(90deg, #0d9488, #2dd4bf);
         }
 
         .allocation-bar.others {
@@ -2489,6 +2496,13 @@
                             <div class="allocation-value" id="goldValue">0%</div>
                         </div>
                         <div class="allocation-row">
+                            <div class="allocation-label">Cash</div>
+                            <div class="allocation-bar-container">
+                                <div class="allocation-bar cash" id="cashBar" style="width: 0%"></div>
+                            </div>
+                            <div class="allocation-value" id="cashValue">0%</div>
+                        </div>
+                        <div class="allocation-row">
                             <div class="allocation-label">Others</div>
                             <div class="allocation-bar-container">
                                 <div class="allocation-bar others" id="othersBar" style="width: 0%"></div>
@@ -2537,6 +2551,7 @@
                         <button class="inv-tc-btn" data-inv-filter="Stock" onclick="setInvFilter('Stock')">Stocks</button>
                         <button class="inv-tc-btn" data-inv-filter="ETF" onclick="setInvFilter('ETF')">ETF</button>
                         <button class="inv-tc-btn" data-inv-filter="Bond/FD" onclick="setInvFilter('Bond/FD')">FD/Bond</button>
+                        <button class="inv-tc-btn" data-inv-filter="Cash" onclick="setInvFilter('Cash')">Cash</button>
                     </div>
                     <div id="investmentsListContainer"></div>
                 </div>
@@ -2576,7 +2591,8 @@
             'Equity': ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF', 'Nifty 50 ETF', 'Nifty Next 50 ETF', 'Sectoral ETF', 'International ETF', 'Momentum ETF', 'Direct Equity'],
             'Debt': ['PPF', 'Fixed Deposit', 'Debt Mutual Fund', 'Corporate Bonds', 'NPS', 'EPF', 'Liquid Fund', 'G-Sec / T-Bills'],
             'Gold': ['Sovereign Gold Bond', 'Gold ETF', 'Physical Gold', 'Gold Mutual Fund'],
-            'Others': ['Real Estate', 'Crypto', 'REITs', 'InvITs', 'Commodities', 'Others']
+            'Others': ['Real Estate', 'Crypto', 'REITs', 'InvITs', 'Commodities', 'Others'],
+            'Cash': ['Savings Account', 'Emergency Fund', 'Cash in Hand', 'Liquid Cash']
         };
 
         // Sub-categories by instrument type within Equity
@@ -2584,10 +2600,11 @@
             'Mutual Fund': ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF'],
             'ETF': ['Nifty 50 ETF', 'Nifty Next 50 ETF', 'Sectoral ETF', 'International ETF', 'Momentum ETF'],
             'Stock': ['Direct Equity'],
-            'Bond/FD': ['Corporate Bonds', 'G-Sec / T-Bills']
+            'Bond/FD': ['Corporate Bonds', 'G-Sec / T-Bills'],
+            'Cash': ['Savings Account', 'Emergency Fund', 'Cash in Hand', 'Liquid Cash']
         };
 
-        const INSTRUMENT_TYPES = ['Mutual Fund', 'ETF', 'Stock', 'Bond/FD', 'Other'];
+        const INSTRUMENT_TYPES = ['Mutual Fund', 'ETF', 'Stock', 'Bond/FD', 'Cash', 'Other'];
 
         const MF_CAP_CATEGORIES = ['Large Cap MF', 'Mid Cap MF', 'Small Cap MF', 'Flexi Cap MF', 'ELSS', 'Sectoral/Thematic MF', 'International MF'];
 
@@ -2793,7 +2810,7 @@
         // ===========================
         function getTypeBadgeClass(type) {
             if (!type) return 'other';
-            const map = { 'Mutual Fund': 'mutual-fund', 'ETF': 'etf', 'Stock': 'stock', 'Bond/FD': 'bond-fd' };
+            const map = { 'Mutual Fund': 'mutual-fund', 'ETF': 'etf', 'Stock': 'stock', 'Bond/FD': 'bond-fd', 'Cash': 'cash' };
             return map[type] || 'other';
         }
 
@@ -2905,21 +2922,23 @@
         // (called from renderMonthlyBreakup, uses filtered investments)
         // ===========================
         function renderAllocation(filteredInvestments) {
-            const totals = { Equity: 0, Debt: 0, Gold: 0, Others: 0 };
+            const totals = { Equity: 0, Debt: 0, Gold: 0, Cash: 0, Others: 0 };
             (filteredInvestments || []).forEach(inv => {
                 const ac = inv.assetClass;
                 if (totals.hasOwnProperty(ac)) totals[ac] += toMonthlyEquivalent(inv.amount, inv.frequency);
                 else totals.Others += toMonthlyEquivalent(inv.amount, inv.frequency);
             });
-            const grandTotal = totals.Equity + totals.Debt + totals.Gold + totals.Others;
+            const grandTotal = totals.Equity + totals.Debt + totals.Gold + totals.Cash + totals.Others;
             const pct = v => grandTotal > 0 ? Math.round((v / grandTotal) * 100) : 0;
             document.getElementById('equityBar').style.width = pct(totals.Equity) + '%';
             document.getElementById('debtBar').style.width = pct(totals.Debt) + '%';
             document.getElementById('goldBar').style.width = pct(totals.Gold) + '%';
+            document.getElementById('cashBar').style.width = pct(totals.Cash) + '%';
             document.getElementById('othersBar').style.width = pct(totals.Others) + '%';
             document.getElementById('equityValue').textContent = pct(totals.Equity) + '%';
             document.getElementById('debtValue').textContent = pct(totals.Debt) + '%';
             document.getElementById('goldValue').textContent = pct(totals.Gold) + '%';
+            document.getElementById('cashValue').textContent = pct(totals.Cash) + '%';
             document.getElementById('othersValue').textContent = pct(totals.Others) + '%';
             document.getElementById('totalMonthlyValue') && (document.getElementById('totalMonthlyValue').textContent = WealthAPI.formatCurrency(Math.round(grandTotal)));
         }
@@ -2936,7 +2955,9 @@
 
             let options = [];
 
-            if (assetClass === 'Equity' && instrumentType && EQUITY_INSTRUMENT_SUBCATEGORIES[instrumentType]) {
+            if (instrumentType === 'Cash') {
+                options = SUB_CATEGORIES['Cash'];
+            } else if (assetClass === 'Equity' && instrumentType && EQUITY_INSTRUMENT_SUBCATEGORIES[instrumentType]) {
                 options = EQUITY_INSTRUMENT_SUBCATEGORIES[instrumentType];
             } else if (assetClass && SUB_CATEGORIES[assetClass]) {
                 options = SUB_CATEGORIES[assetClass];
@@ -2958,6 +2979,10 @@
         }
 
         function startEditInvestment(invId) {
+            if (!currentMemberId) {
+                showToast('Please select a specific member to edit investments.', true);
+                return;
+            }
             const inv = currentInvestments.find(i => i.id === invId || i.id === Number(invId));
             if (!inv) return;
             editingInvId = inv.id;
@@ -2983,6 +3008,10 @@
         }
 
         function openInvModal() {
+            if (!currentMemberId) {
+                showToast('Please select a specific member before adding an investment.', true);
+                return;
+            }
             editingInvId = null;
             document.getElementById('invModalTitle').textContent = 'Add Investment';
             document.getElementById('saveInvBtn').textContent = 'Add Investment';
@@ -3011,6 +3040,10 @@
         }
 
         async function saveInvestment(addAnother) {
+            if (!currentMemberId) {
+                showToast('Please select a specific member before saving an investment.', true);
+                return;
+            }
             const name = document.getElementById('invName').value.trim();
             const instrumentType = document.getElementById('invInstrumentType').value;
             const assetClass = document.getElementById('invAssetClass').value;
@@ -3054,6 +3087,7 @@
         }
 
         async function deleteInvestment(invId) {
+            if (!currentMemberId) { showToast('Please select a specific member.', true); return; }
             if (!confirm('Delete this investment?')) return;
             try {
                 await WealthAPI.savings.remove(currentMemberId, invId);
@@ -3065,6 +3099,7 @@
         }
 
         async function deleteAllInvestments() {
+            if (!currentMemberId) { showToast('Please select a specific member.', true); return; }
             if (!currentInvestments || currentInvestments.length === 0) return;
             if (!confirm(`Delete all ${currentInvestments.length} investment${currentInvestments.length !== 1 ? 's' : ''} for this member? This cannot be undone.`)) return;
             try {
@@ -3115,14 +3150,14 @@
                 return inv.startMonth <= yearMonth;
             });
 
-            const groups = { Equity: [], Debt: [], Gold: [], Others: [] };
+            const groups = { Equity: [], Debt: [], Gold: [], Cash: [], Others: [] };
             activeInvestments.forEach(inv => {
                 const ac = inv.assetClass;
                 if (groups[ac]) groups[ac].push(inv);
                 else groups['Others'].push(inv);
             });
 
-            const acColors = { Equity: 'equity', Debt: 'debt', Gold: 'gold', Others: 'others' };
+            const acColors = { Equity: 'equity', Debt: 'debt', Gold: 'gold', Cash: 'cash', Others: 'others' };
             let grandTotal = 0;
 
             const cardsHtml = Object.entries(groups).map(([ac, invs]) => {
@@ -3180,6 +3215,7 @@
                 'ETF': '#00a803',
                 'Stock': '#d97706',
                 'Bond/FD': '#c2410c',
+                'Cash': '#0d9488',
                 'Other': '#7c3aed'
             };
 
@@ -3335,9 +3371,9 @@
 
 Extract all individual investments into a JSON array. Each item should have these fields (use null if unknown):
 - name: string (fund/stock/ETF/instrument name)
-- instrumentType: one of ["Mutual Fund", "ETF", "Stock", "Bond/FD", "Other"]
-- assetClass: one of ["Equity", "Debt", "Gold", "Others"]
-- subCategory: string — the cap category for MFs/ETFs (e.g. "Large Cap MF", "Mid Cap MF", "Small Cap MF", "Flexi Cap MF", "ELSS", "Sectoral/Thematic MF", "International MF", "Nifty 50 ETF", "Direct Equity", "PPF", "Fixed Deposit", "Sovereign Gold Bond", "Liquid Fund", "Arbitrage Fund", "NPS", "ULIP", etc.) — do NOT use "Index Fund" as a sub-category
+- instrumentType: one of ["Mutual Fund", "ETF", "Stock", "Bond/FD", "Cash", "Other"]
+- assetClass: one of ["Equity", "Debt", "Gold", "Cash", "Others"]
+- subCategory: string — the cap category for MFs/ETFs (e.g. "Large Cap MF", "Mid Cap MF", "Small Cap MF", "Flexi Cap MF", "ELSS", "Sectoral/Thematic MF", "International MF", "Nifty 50 ETF", "International ETF", "Direct Equity", "PPF", "Fixed Deposit", "Sovereign Gold Bond", "Liquid Fund", "Arbitrage Fund", "NPS", "ULIP", "Savings Account", "Emergency Fund", "Cash in Hand", etc.) — do NOT use "Index Fund" as a sub-category
 - indexType: one of ["Index", "Active", null] — for Mutual Funds and ETFs only; use "Index" if the fund tracks an index (index fund/ETF), "Active" if actively managed, null otherwise
 - fundHouse: string or null (AMC name e.g. "HDFC", "Mirae Asset", "Axis", "SBI")
 - platform: string or null (e.g. "Zerodha", "Groww", "Kuvera", "Coin by Zerodha")
@@ -3453,6 +3489,12 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
             const parsed = window._importParsed;
             if (!parsed || !parsed.length) return;
 
+            if (!currentMemberId) {
+                showToast('Please select a specific member before importing.', true);
+                closeImportModal();
+                return;
+            }
+
             const statusEl = document.getElementById('importStatusMsg');
             const confirmBtn = document.getElementById('importConfirmBtn');
             confirmBtn.disabled = true;
@@ -3513,6 +3555,7 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                         <option value="ETF">ETF</option>
                         <option value="Stock">Stock</option>
                         <option value="Bond/FD">Bond / FD</option>
+                        <option value="Cash">Cash</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
@@ -3523,6 +3566,7 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                         <option value="Equity">Equity</option>
                         <option value="Debt">Debt</option>
                         <option value="Gold">Gold</option>
+                        <option value="Cash">Cash</option>
                         <option value="Others">Others</option>
                     </select>
                 </div>
