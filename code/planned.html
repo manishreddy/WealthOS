@@ -167,6 +167,23 @@
 
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* EMI new-goal annotation */
+        .emi-new-badge {
+            display: inline-block;
+            margin-left: 5px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: rgba(0,102,255,0.1);
+            color: var(--accent-primary);
+            border: 1px solid rgba(0,102,255,0.2);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        /* Rent-stopped indicator */
+        .rent-stopped { color: var(--text-tertiary); font-style: italic; font-size: 0.75rem; }
     </style>
 </head>
 <body>
@@ -183,13 +200,13 @@
         </div>
 
         <div class="sub-tabs">
-            <button class="sub-tab active" onclick="showTab('monthly-plans', this)">Monthly Plans</button>
+            <button class="sub-tab active" onclick="showTab('savings-rate', this)">Net Savings</button>
+            <button class="sub-tab" onclick="showTab('monthly-plans', this)">Monthly Plans</button>
             <button class="sub-tab" onclick="showTab('yearly-expenses', this)">Yearly View of Expenses</button>
-            <button class="sub-tab" onclick="showTab('savings-rate', this)">Net Savings &amp; Rate</button>
         </div>
 
         <!-- Tab 1: Monthly Plans -->
-        <div id="tab-monthly-plans" class="tab-panel active">
+        <div id="tab-monthly-plans" class="tab-panel">
             <div class="config-panel">
                 <div class="config-header">
                     <div class="config-title">Plan Configuration</div>
@@ -276,12 +293,12 @@
             </div>
         </div>
 
-        <!-- Tab 3: Net Savings & Rate -->
-        <div id="tab-savings-rate" class="tab-panel">
+        <!-- Tab 3: Net Savings -->
+        <div id="tab-savings-rate" class="tab-panel active">
             <div class="fy-note">All amounts in Lakhs (L). Net Savings = Total Income − Total Expenses. Savings Rate = Net Savings / Total Income.</div>
             <div class="table-card">
                 <div class="table-card-header">
-                    <div class="table-card-title">Income, Expenses &amp; Savings Rate</div>
+                    <div class="table-card-title">Net Savings</div>
                 </div>
                 <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
                     <table class="sticky-table">
@@ -328,7 +345,7 @@ Monthly food: 20,000
 Utilities: 15,000
 Travel domestic: 20,000
 Inflation: 6% general, 10% rent, 8% leisure
-Projection till FY2065"></textarea>
+Projection till FY2080"></textarea>
             <div class="ai-hint">Tip: Copy-paste from a spreadsheet, type freeform, or describe your financial situation.</div>
             <div id="aiPreviewBox" style="display:none;" class="ai-preview">
                 <div class="ai-preview-title">Extracted Values (preview)</div>
@@ -355,6 +372,7 @@ let familyMembers = [];
 let currentConfig = null;
 let parsedAiConfig = null;
 let autoSaveTimer = null;
+let goalsData = [];
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function showTab(id, btn) {
@@ -395,6 +413,7 @@ function getGrowthFields() {
     return [
         { key: 'manishGrowthRate', label: `${n1} Salary Growth (%)`, type: 'percent' },
         { key: 'raghaviGrowthRate', label: `${n2} Salary Growth (%)`, type: 'percent' },
+        { key: 'otherGrowthRate', label: 'Other Income Growth (%)', type: 'percent' },
         { key: 'manishRetireFY', label: `${n1} Retire FY`, type: 'number', step: '1' },
         { key: 'raghaviRetireFY', label: `${n2} Retire FY`, type: 'number', step: '1' },
     ];
@@ -637,20 +656,79 @@ function recalcTotals() {
     if (el) el.innerHTML = `<td colspan="2"><strong>TOTAL (excl. EMIs)</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal)}</strong></td><td style="text-align:right;"><strong>${fmt(grandTotal*12)}</strong></td><td style="text-align:right;"><strong>${fmtL(grandTotal*12)}</strong></td>`;
 }
 
+// ── Goal-based EMI helpers ─────────────────────────────────────────────────────
+function r2(n) { return Math.round(n * 100) / 100; }
+
+// Returns map of fy → { total: L, newGoals: [name, ...] }
+function buildGoalEmiByFy(goals) {
+    const byFy = {};
+    goals.filter(g => g.fundingType === 'EMI' && g.loanDurationYrs > 0 && g.targetDate).forEach(goal => {
+        const dt = new Date(goal.targetDate);
+        const yr = dt.getFullYear();
+        // FY that contains the purchase date (April start)
+        const startFY = dt.getMonth() >= 3 ? yr + 1 : yr;
+        // Use server-computed loanEndsFy if available, else estimate
+        const endFY = goal.loanEndsFy || (startFY + goal.loanDurationYrs);
+        const yearlyLakhs = r2((goal.yearlyEmi || 0) / 100000);
+        for (let fy = startFY; fy <= endFY; fy++) {
+            if (!byFy[fy]) byFy[fy] = { total: 0, newGoals: [] };
+            byFy[fy].total = r2(byFy[fy].total + yearlyLakhs);
+            if (fy === startFY) byFy[fy].newGoals.push(goal.name);
+        }
+    });
+    return byFy;
+}
+
+// Returns the FY from which rent stops (when the house goal's EMI begins)
+function findRentStopFy(goals) {
+    const houseGoals = goals
+        .filter(g => !g.isAchieved && g.goalType === 'House' && g.targetDate)
+        .sort((a, b) => new Date(a.targetDate) - new Date(b.targetDate));
+    // Prefer goal explicitly named "House 2", else first House goal
+    const house = houseGoals.find(g => /house\s*2/i.test(g.name)) || houseGoals[0];
+    if (!house) return null;
+    const dt = new Date(house.targetDate);
+    return dt.getMonth() >= 3 ? dt.getFullYear() + 1 : dt.getFullYear();
+}
+
 // ── Yearly Expense Table ──────────────────────────────────────────────────────
-function renderYearlyExpenseTable(rows) {
+function renderYearlyExpenseTable(rows, goals) {
+    const goalEmiByFy = buildGoalEmiByFy(goals || []);
+    const hasGoalEmis = Object.keys(goalEmiByFy).length > 0;
+    const rentStopFy = findRentStopFy(goals || []);
+
     const tbody = document.getElementById('yearlyExpenseBody');
     tbody.innerHTML = '';
     rows.forEach(row => {
-        const nonEmi = row.rentYearly + row.householdYearly + row.leisureYearly + row.kidsYearly + row.otherExp;
+        // EMI: use goal-derived if available, else fall back to config schedule
+        const goalEmi = goalEmiByFy[row.fy];
+        const emiYearly = hasGoalEmis ? (goalEmi ? r2(goalEmi.total) : 0) : row.emiYearly;
+        const newEmiGoals = goalEmi ? goalEmi.newGoals : [];
+
+        // Rent: zero out once house goal begins
+        const rentYearly = rentStopFy && row.fy >= rentStopFy ? 0 : row.rentYearly;
+
+        const nonEmi = r2(rentYearly + row.householdYearly + row.leisureYearly + row.kidsYearly + row.otherExp);
+        const totalExpenses = r2(emiYearly + nonEmi);
+
         const tr = document.createElement('tr');
         if (row.isRetirementYear) tr.className = 'highlight-row';
+
+        const emiDisplay = emiYearly > 0 ? emiYearly.toFixed(1) : '—';
+        const emiAnnotation = newEmiGoals.length > 0
+            ? newEmiGoals.map(n => `<span class="emi-new-badge">+${n}</span>`).join(' ')
+            : '';
+
+        const rentDisplay = rentStopFy && row.fy >= rentStopFy
+            ? '<span class="rent-stopped">—</span>'
+            : rentYearly.toFixed(1);
+
         tr.innerHTML = `
             <td>FY${row.fy}</td>
             <td>${row.years}</td>
-            <td>${row.totalExpenses.toFixed(1)}</td>
-            <td>${row.emiYearly > 0 ? row.emiYearly.toFixed(1) : '—'}</td>
-            <td>${row.rentYearly.toFixed(1)}</td>
+            <td>${totalExpenses.toFixed(1)}</td>
+            <td>${emiDisplay}${emiAnnotation}</td>
+            <td>${rentDisplay}</td>
             <td>${row.householdYearly.toFixed(1)}</td>
             <td>${row.leisureYearly.toFixed(1)}</td>
             <td>${row.kidsYearly > 0 ? row.kidsYearly.toFixed(1) : '—'}</td>
@@ -673,10 +751,10 @@ function renderSavingsRateTable(rows) {
         tr.innerHTML = `
             <td>FY${row.fy}</td>
             <td>${row.years}</td>
-            <td>${row.totalIncome.toFixed(0)}</td>
-            <td>${row.manish > 0 ? row.manish.toFixed(0) : '—'}</td>
-            <td>${row.raghavi > 0 ? row.raghavi.toFixed(0) : '—'}</td>
-            <td>${row.other > 0 ? row.other.toFixed(0) : '—'}</td>
+            <td>${row.totalIncome.toFixed(1)}</td>
+            <td>${row.manish > 0 ? row.manish.toFixed(1) : '—'}</td>
+            <td>${row.raghavi > 0 ? row.raghavi.toFixed(1) : '—'}</td>
+            <td>${row.other > 0 ? row.other.toFixed(1) : '—'}</td>
             <td>${row.totalExpenses.toFixed(0)}</td>
             <td class="${netClass}">${row.netSavings.toFixed(0)}</td>
             <td><span class="rate-badge ${rateClass}">${row.savingsRate}%</span></td>
@@ -698,12 +776,8 @@ async function loadAll() {
         const token = localStorage.getItem('wealthos_jwt');
         if (!token) { window.location.href = 'login.html'; return; }
 
-        // Load family members for dynamic labels
-        try {
-            familyMembers = await WealthAPI.family.getMembers();
-        } catch (e) {
-            familyMembers = [];
-        }
+        try { familyMembers = await WealthAPI.family.getMembers(); } catch { familyMembers = []; }
+        try { goalsData = await fetch('/api/goals', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json()); } catch { goalsData = []; }
 
         const cfg = await fetch('/api/projections/config', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
         currentConfig = cfg;
@@ -711,7 +785,7 @@ async function loadAll() {
         renderMonthlyPlanTable(cfg);
 
         const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
-        renderYearlyExpenseTable(rows);
+        renderYearlyExpenseTable(rows, goalsData);
         renderSavingsRateTable(rows);
     } catch (e) {
         showToast('Failed to load data: ' + e.message, true);
@@ -730,7 +804,7 @@ async function saveConfig(silent) {
         if (!res.ok) throw new Error(await res.text());
         currentConfig = await res.json();
         const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
-        renderYearlyExpenseTable(rows);
+        renderYearlyExpenseTable(rows, goalsData);
         renderSavingsRateTable(rows);
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus('idle'), 2000);

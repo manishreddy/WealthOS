@@ -9,6 +9,7 @@ const DEFAULT_CONFIG = {
   otherIncomeFY2025: 4,
   manishGrowthRate: 0.12,
   raghaviGrowthRate: 0.12,
+  otherGrowthRate: 0.05,
   manishRetireFY: 2045,
   raghaviRetireFY: 2065,
   emiSchedule: [
@@ -40,7 +41,7 @@ const DEFAULT_CONFIG = {
   expenseInflationRate: 0.06,
   rentInflationRate: 0.10,
   leisureInflationRate: 0.08,
-  projectionEndFY: 2065
+  projectionEndFY: 2080
 };
 
 function round2(n) {
@@ -67,6 +68,7 @@ function computeYearlyProjections(cfg) {
   const otherBase = cfg.otherIncomeFY2025 || 4;
   const manishGrow = cfg.manishGrowthRate ?? 0.12;
   const raghaviGrow = cfg.raghaviGrowthRate ?? 0.12;
+  const otherGrow = cfg.otherGrowthRate ?? 0.05;
   const manishRetire = cfg.manishRetireFY || 2045;
   const raghaviRetire = cfg.raghaviRetireFY || 2065;
 
@@ -94,7 +96,7 @@ function computeYearlyProjections(cfg) {
       const yrs = fy - 2025;
       manish = fy >= manishRetire ? 0 : round2(manishBase * Math.pow(1 + manishGrow, yrs));
       raghavi = fy >= raghaviRetire ? 0 : round2(raghaviBase * Math.pow(1 + raghaviGrow, yrs));
-      other = fy >= manishRetire && fy >= raghaviRetire ? 0 : round2(otherBase);
+      other = fy >= manishRetire && fy >= raghaviRetire ? 0 : round2(otherBase * Math.pow(1 + otherGrow, yrs));
     }
     const totalIncome = round2(manish + raghavi + other);
 

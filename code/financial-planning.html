@@ -212,26 +212,28 @@
         .risk-badge.aggressive { background: rgba(251,146,60,0.15); color: var(--chart-orange); }
 
         /* Goals Timeline */
-        .timeline-container { position: relative; overflow-x: auto; padding-bottom: 16px; margin-bottom: 28px; }
-        .timeline-track { position: relative; height: 80px; min-width: 100%; }
-        .timeline-axis { position: absolute; top: 40px; left: 0; right: 0; height: 2px; background: var(--border-color); }
-        .timeline-event { position: absolute; transform: translateX(-50%); }
-        .timeline-goal-pill { background: var(--accent-primary); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; cursor: default; top: 8px; position: absolute; transform: translateX(-50%); }
-        .timeline-ret-line { position: absolute; top: 20px; width: 2px; background: var(--chart-orange); height: 44px; transform: translateX(-50%); }
-        .timeline-ret-label { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; font-size: 0.6875rem; font-weight: 700; color: var(--chart-orange); background: var(--bg-elevated); padding: 2px 6px; border-radius: 6px; }
-        .timeline-fy-labels { display: flex; justify-content: space-between; padding: 0 0 8px 0; font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 6px; }
+        .timeline-strip { margin: 0 -40px 24px; background: var(--bg-elevated); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 16px 40px 12px; }
+        .timeline-strip-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 2px; }
+        .timeline-strip-sub { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
+        .timeline-container { position: relative; overflow-x: hidden; }
+        .timeline-track { position: relative; height: 112px; width: 100%; }
+        .timeline-axis { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--border-color); transform: translateY(-50%); }
+        .timeline-goal-pill { color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: default; position: absolute; transform: translateX(-50%); }
+        .timeline-goal-pill.row-top { top: 6px; }
+        .timeline-goal-pill.row-bottom { bottom: 6px; top: auto; }
+        .timeline-fy-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-tertiary); margin-bottom: 4px; }
 
         /* Goal sim cards */
-        .goal-sim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
-        .goal-sim-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; box-shadow: var(--card-shadow); }
-        .gsim-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 4px; }
-        .gsim-meta { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 14px; }
-        .gsim-progress { height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: visible; position: relative; margin-bottom: 14px; }
+        .goal-sim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+        .goal-sim-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; box-shadow: var(--card-shadow); }
+        .gsim-name { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 2px; }
+        .gsim-meta { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
+        .gsim-progress { height: 6px; background: var(--border-subtle); border-radius: 4px; overflow: visible; position: relative; margin-bottom: 10px; }
         .gsim-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end)); }
         .gsim-fill.on-track { background: linear-gradient(90deg, #00C805, #22c55e); }
         .gsim-fill.off-track { background: linear-gradient(90deg, #fb923c, #f59e0b); }
         .gsim-marker { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--text-secondary); border-radius: 1px; transform: translateX(-50%); }
-        .gsim-sip-line { font-size: 0.8125rem; padding: 10px 14px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 12px; color: var(--text-secondary); }
+        .gsim-sip-line { font-size: 0.75rem; padding: 7px 10px; background: var(--bg-elevated); border-radius: 7px; margin-bottom: 8px; color: var(--text-secondary); }
         .gsim-sip-line.on-track-text { color: var(--success); }
         .gsim-sip-line.off-track-text { color: var(--warning); }
         .sim-date-row { display: flex; gap: 8px; align-items: center; }
@@ -265,17 +267,51 @@
         .pj-chart-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.8125rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
         .pj-chart-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; color: var(--text-secondary); }
         .pj-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+        /* Return rate config strip */
+        .pj-config-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.8125rem;
+        }
+        .pj-config-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .pj-config-input {
+            width: 64px;
+            padding: 5px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: 'DM Sans', sans-serif;
+            text-align: right;
+            font-weight: 700;
+        }
+        .pj-config-input:focus { outline: none; border-color: var(--accent-primary); }
+        .pj-config-unit { color: var(--text-secondary); font-weight: 600; }
+        .pj-config-note { color: var(--text-tertiary); font-size: 0.75rem; margin-left: 4px; }
+
         .pj-table-wrap { overflow-x: auto; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; }
         .pj-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
-        .pj-table th { padding: 12px 16px; text-align: right; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .pj-table th { padding: 10px 12px; text-align: right; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         .pj-table th:first-child { text-align: left; }
-        .pj-table td { padding: 11px 16px; text-align: right; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); }
-        .pj-table td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); }
+        .pj-table td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); white-space: nowrap; }
+        .pj-table td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); white-space: normal; max-width: 160px; }
         .pj-table tr:last-child td { border-bottom: none; }
         .pj-table tr.has-goals td { background: rgba(255,59,48,0.04); }
         .pj-table tr.has-goals td:first-child { color: var(--error); }
         .pj-td-positive { color: var(--success); font-weight: 600; }
         .pj-td-negative { color: var(--error); font-weight: 600; }
+        .pj-goal-deduction { color: var(--warning); font-weight: 600; background: rgba(255,159,10,0.1); border-radius: 4px; padding: 1px 6px; }
         .pj-goal-pill { display: inline-block; background: rgba(255,59,48,0.1); color: var(--error); border-radius: 4px; padding: 1px 6px; font-size: 0.7rem; font-weight: 600; margin-left: 4px; }
 
         @media (max-width: 1200px) {
@@ -337,8 +373,7 @@
             <!-- Sub-tabs -->
             <div class="sub-tabs">
                 <button class="sub-tab active" onclick="switchTab('portfolio')">Portfolio Journey</button>
-                <button class="sub-tab" onclick="switchTab('overview')">Overview</button>
-                <button class="sub-tab" onclick="switchTab('goals-timeline')">Goals Timeline</button>
+                <button class="sub-tab" onclick="switchTab('overview')">Goals</button>
                 <button class="sub-tab" onclick="switchTab('retirement')">Retirement</button>
                 <button class="sub-tab" onclick="switchTab('tax')">Tax Planning</button>
             </div>
@@ -403,6 +438,25 @@
                     </div>
                 </div>
 
+                <!-- Financial Timeline -->
+                <div class="timeline-strip">
+                    <div class="timeline-strip-title">Financial Timeline</div>
+                    <div class="timeline-strip-sub">Goal completions and retirement events</div>
+                    <div class="timeline-fy-labels" id="timelineFYLabels"></div>
+                    <div class="timeline-container">
+                        <div class="timeline-track" id="timelineTrack">
+                            <div class="timeline-axis"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal sim cards -->
+                <div class="section-card" style="padding:20px 24px;">
+                    <div class="section-title">Goal Simulator</div>
+                    <div class="section-sub">Move target dates and see corpus impact instantly</div>
+                    <div class="goal-sim-grid" id="goalSimGrid"></div>
+                </div>
+
                 <!-- AI Insights -->
                 <div class="section-card">
                     <div class="ai-header">
@@ -417,28 +471,6 @@
                             Click "Generate Insights" to get AI-powered recommendations for your financial plan.
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- ═══ TAB: GOALS TIMELINE ═══ -->
-            <div class="tab-panel" id="panel-goals-timeline">
-                <!-- Timeline strip -->
-                <div class="section-card">
-                    <div class="section-title">Financial Timeline</div>
-                    <div class="section-sub">Goal completions and retirement events</div>
-                    <div class="timeline-fy-labels" id="timelineFYLabels"></div>
-                    <div class="timeline-container">
-                        <div class="timeline-track" id="timelineTrack">
-                            <div class="timeline-axis"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Goal sim cards -->
-                <div class="section-card">
-                    <div class="section-title">Goal Simulator</div>
-                    <div class="section-sub">Move target dates and see corpus impact instantly</div>
-                    <div class="goal-sim-grid" id="goalSimGrid"></div>
                 </div>
             </div>
 
@@ -494,6 +526,13 @@
             <!-- ═══ TAB: PORTFOLIO JOURNEY ═══ -->
             <div class="tab-panel active" id="panel-portfolio">
                 <div id="pjMemberTabs" class="member-tabs" style="margin-bottom:24px;"></div>
+                <div class="pj-config-strip">
+                    <span class="pj-config-label">Assumed Annual Return</span>
+                    <input class="pj-config-input" type="number" id="pjReturnRateInput" value="10" min="1" max="30" step="0.5"
+                        oninput="onReturnRateChange(this.value)">
+                    <span class="pj-config-unit">% p.a.</span>
+                    <span class="pj-config-note">— applied to portfolio growth each year</span>
+                </div>
                 <div id="pjContent">
                     <div style="color:var(--text-tertiary);text-align:center;padding:60px 0;">Loading portfolio journey…</div>
                 </div>
@@ -511,12 +550,21 @@ let familyMembers = [];
 let activeRetirementMemberId = null;
 let activeTaxMemberId = null;
 let activePJMemberId = null;
+let portfolioReturnRate = 10; // percent, e.g. 10 = 10% p.a.
 const CURRENT_TAX_YEAR = WealthAPI.getCurrentTaxYear();
+
+// ── Return rate change ─────────────────────────────────────────────────────
+function onReturnRateChange(val) {
+    const parsed = parseFloat(val);
+    if (isNaN(parsed) || parsed <= 0 || parsed > 50) return;
+    portfolioReturnRate = parsed;
+    renderPortfolioJourneyForMember(activePJMemberId || 'all');
+}
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 function switchTab(tabId) {
     document.querySelectorAll('.sub-tab').forEach((btn, i) => {
-        const tabs = ['portfolio','overview','goals-timeline','retirement','tax'];
+        const tabs = ['portfolio','overview','retirement','tax'];
         btn.classList.toggle('active', tabs[i] === tabId);
     });
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -752,26 +800,32 @@ function renderGoalsTimeline(data) {
     const track = document.getElementById('timelineTrack');
     track.innerHTML = '<div class="timeline-axis"></div>';
 
-    timeline.forEach((event, idx) => {
+    const colors = ['#0066ff','#a855f7','#14b8a6','#fb923c','#ec4899'];
+    const MIN_GAP = 7; // min % between pills on same row to avoid overlap
+    const rowLastPct = [-Infinity, -Infinity]; // row-top, row-bottom
+    let goalIdx = 0;
+
+    timeline.forEach((event) => {
         if (!event.fy) return;
         const pct = ((event.fy - minFY) / span) * 100;
         if (event.type === 'goal_complete') {
+            // Assign to row-top by default; switch to row-bottom if top would overlap
+            let row = 0;
+            if (pct - rowLastPct[0] < MIN_GAP && pct - rowLastPct[1] >= MIN_GAP) row = 1;
+            rowLastPct[row] = pct;
             const pill = document.createElement('div');
-            pill.className = 'timeline-goal-pill';
+            pill.className = `timeline-goal-pill ${row === 0 ? 'row-top' : 'row-bottom'}`;
             pill.style.left = `${pct}%`;
-            pill.style.top = '4px';
-            pill.style.position = 'absolute';
-            pill.style.transform = 'translateX(-50%)';
             pill.title = `${event.goalName} — completes FY${event.fy}`;
             pill.textContent = `🎯 ${event.goalName}`;
-            const colors = ['#0066ff','#a855f7','#14b8a6','#fb923c','#ec4899'];
-            pill.style.background = colors[idx % colors.length];
+            pill.style.background = colors[goalIdx % colors.length];
             track.appendChild(pill);
+            goalIdx++;
         } else if (event.type === 'retirement') {
             const line = document.createElement('div');
-            line.style.cssText = `position:absolute;left:${pct}%;top:0;width:2px;height:80px;background:var(--chart-orange);transform:translateX(-50%);`;
+            line.style.cssText = `position:absolute;left:${pct}%;top:0;width:2px;height:100%;background:var(--chart-orange);transform:translateX(-50%);opacity:0.5;`;
             const label = document.createElement('div');
-            label.style.cssText = `position:absolute;left:${pct}%;top:54px;transform:translateX(-50%);white-space:nowrap;font-size:0.6875rem;font-weight:700;color:var(--chart-orange);background:var(--bg-elevated);padding:2px 6px;border-radius:6px;border:1px solid var(--chart-orange);`;
+            label.style.cssText = `position:absolute;left:${pct}%;top:50%;margin-top:4px;transform:translateX(-50%);white-space:nowrap;font-size:0.6875rem;font-weight:700;color:var(--chart-orange);background:var(--bg-elevated);padding:2px 6px;border-radius:6px;border:1px solid var(--chart-orange);`;
             label.textContent = `🏖️ ${event.memberName}`;
             track.appendChild(line);
             track.appendChild(label);
@@ -843,7 +897,7 @@ function simulateGoal(goalId, goalJson) {
     const monthsLeft = Math.max((newTarget.getFullYear() - now.getFullYear()) * 12 + (newTarget.getMonth() - now.getMonth()), 1);
 
     const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
-    const rm = 0.12 / 12;
+    const rm = 0.08 / 12;
     const factor = Math.pow(1 + rm, monthsLeft);
     const newSip = factor === 1 ? remaining / monthsLeft : (remaining * rm) / (factor - 1);
     const sipDelta = newSip - goal.requiredMonthlySip;
@@ -1283,21 +1337,27 @@ function computePortfolioJourneyForMember(memberId) {
     if (!members.length) return null;
 
     const currentFY = getCurrentFY();
-    const endFY = Math.max(...members.map(m => m.retireFY || currentFY + 20), currentFY + 5);
+    const endFY = 2080;
     const goals = comprehensiveData.goals || [];
     const totalMembers = comprehensiveData.members.length || 1;
 
-    // Aggregate starting corpus and annual SIP across selected members
+    // Build per-FY net savings lookup from yearlyProjections (values in lakhs → convert to ₹)
+    const projByFY = {};
+    (comprehensiveData.yearlyProjections || []).forEach(p => {
+        projByFY[p.fy] = p;
+    });
+
+    // Aggregate starting corpus across selected members
     let startCorpusTotal = 0;
-    let annualSipTotal = 0;
-    // Weighted average return rate
-    let weightedReturn = 0;
+    let fallbackAnnualSip = 0; // flat SIP fallback if no projection data
     members.forEach(m => {
         startCorpusTotal += m.currentCorpus || 0;
-        annualSipTotal += (m.avgMonthlySip || 0) * 12;
-        weightedReturn += (m.returnRate || 0.12) * (m.currentCorpus || 1);
+        fallbackAnnualSip += (m.avgMonthlySip || 0) * 12;
     });
-    const returnRate = startCorpusTotal > 0 ? weightedReturn / startCorpusTotal : 0.12;
+    const returnRate = portfolioReturnRate / 100;
+
+    // Member fraction for splitting family net savings when viewing a single member
+    const memberFraction = memberId === 'all' ? 1 : (1 / (comprehensiveData.members.length || 1));
 
     // Group goal costs by FY for selected members
     // goalCommittedByFY  = annual SIP/EMI payments happening toward goals (informational, does not reduce corpus)
@@ -1320,24 +1380,25 @@ function computePortfolioJourneyForMember(memberId) {
         }
 
         const monthlyContrib = g.monthlyContribution || 0;
-        if (monthlyContrib > 0) {
-            // SIP/EMI-based goal: show annual payment as "committed" (informational) each year.
-            // The SIPs are already part of annualSipTotal flowing into corpus, so no corpus withdrawal each year.
-            // At completionFY, withdraw only the remaining shortfall (target - currentAmount already saved).
-            const annualCommit = monthlyContrib * 12 * fraction;
-            for (let fy = currentFY; fy <= g.completionFY; fy++) {
-                goalCommittedByFY[fy] = (goalCommittedByFY[fy] || 0) + annualCommit;
+        const isEMI = (g.fundingType || 'Savings') === 'EMI';
+        // Compute future value of goal at completion year using per-goal inflation rate
+        const yearsToGoal = Math.max(0, g.completionFY - currentFY);
+        const goalInflation = (g.inflationRate != null ? g.inflationRate : 8) / 100;
+        const futureValue = g.targetAmount * Math.pow(1 + goalInflation, yearsToGoal);
+
+        if (isEMI) {
+            // EMI goal: corpus only covers down payment on future value; loan handles the rest
+            const downPayment = Math.round(futureValue * fraction * (g.downPaymentPct || 0) / 100);
+            if (downPayment > 0) {
+                goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + downPayment;
             }
-            // Lump-sum shortfall at completion (what the corpus must cover beyond accumulated SIPs)
-            const alreadySaved = (g.currentAmount || 0) * fraction;
-            const shortfall = Math.max(0, g.targetAmount * fraction - alreadySaved);
-            if (shortfall > 0) {
-                goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + shortfall;
-            }
+        } else if (monthlyContrib > 0) {
+            // SIP-based goal: at completionFY, withdraw the full future value (SIPs accumulate toward it)
+            const withdrawal = Math.round(futureValue * fraction);
+            goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + withdrawal;
         } else {
-            // Pure lump-sum goal: full corpus withdrawal at completion
-            const lumpSum = g.targetAmount * fraction;
-            goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + lumpSum;
+            // Pure lump-sum goal: full future value withdrawal at completion
+            goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + Math.round(futureValue * fraction);
         }
         if (!goalNamesByFY[g.completionFY]) goalNamesByFY[g.completionFY] = [];
         goalNamesByFY[g.completionFY].push({ name: g.name, amount: goalWithdrawalsByFY[g.completionFY] || monthlyContrib * 12 * fraction });
@@ -1355,7 +1416,14 @@ function computePortfolioJourneyForMember(memberId) {
         const growthNoGoals = openingNoGoals * returnRate;
         const goalWithdrawal = goalWithdrawalsByFY[fy] || 0;
         const goalCommitted = goalCommittedByFY[fy] || 0;
-        // Corpus is reduced only by lump-sum withdrawals; committed SIPs already flow through annualSipTotal
+
+        // Net savings from planned projections (lakhs → ₹), clamped to 0 after retirement
+        const projRow = projByFY[fy];
+        const annualSipTotal = projRow
+            ? Math.max(0, projRow.netSavings * 100000 * memberFraction)
+            : fallbackAnnualSip;
+
+        // Corpus is reduced only by lump-sum withdrawals; net savings flow in each year
         const closing = corpus + growth + annualSipTotal - goalWithdrawal;
         const closingNoGoals = corpusNoGoals + growthNoGoals + annualSipTotal;
         const returnPct = corpus > 0 ? +(returnRate * 100).toFixed(1) : 0;
@@ -1367,9 +1435,11 @@ function computePortfolioJourneyForMember(memberId) {
             opening: Math.round(corpus),
             growth: Math.round(growth),
             returnPct,
+            incomeL: projRow ? projRow.totalIncome : null,
+            expensesL: projRow ? projRow.totalExpenses : null,
             sipAdded: Math.round(annualSipTotal),
-            goalCommitted: Math.round(goalCommitted),   // annual SIP/EMI toward goals (informational)
-            goalWithdrawal: Math.round(goalWithdrawal), // corpus withdrawal at completion
+            goalCommitted: Math.round(goalCommitted),
+            goalWithdrawal: Math.round(goalWithdrawal),
             goalPct,
             closing: Math.round(closing),
             closingNoGoals: Math.round(closingNoGoals),
@@ -1416,17 +1486,12 @@ function renderPortfolioJourneyForMember(memberId) {
         <div class="pj-stat">
             <div class="pj-stat-label">Starting Portfolio</div>
             <div class="pj-stat-value">${formatCorpusShort(startCorpus)}</div>
-            <div class="pj-stat-sub">Current corpus</div>
+            <div class="pj-stat-sub">FY${getCurrentFY()} corpus</div>
         </div>
         <div class="pj-stat accent">
             <div class="pj-stat-label">Projected at FY${member.retireFY}</div>
             <div class="pj-stat-value">${formatCorpusShort(projectedAtRetirement)}</div>
             <div class="pj-stat-sub">After funding all goals</div>
-        </div>
-        <div class="pj-stat">
-            <div class="pj-stat-label">Without Goals</div>
-            <div class="pj-stat-value">${formatCorpusShort(projectedNoGoals)}</div>
-            <div class="pj-stat-sub">If no goals funded</div>
         </div>
         <div class="pj-stat">
             <div class="pj-stat-label">Total Goals Funded</div>
@@ -1439,9 +1504,8 @@ function renderPortfolioJourneyForMember(memberId) {
     html += `<div class="pj-chart-wrap">
         <div class="pj-chart-title">Portfolio Growth Over Time</div>
         <div class="pj-chart-legend">
-            <span><span class="pj-legend-dot" style="background:#0066ff;"></span>With Goals</span>
-            <span><span class="pj-legend-dot" style="background:#999;"></span>Without Goals</span>
-            <span><span class="pj-legend-dot" style="background:#FF3B30;"></span>Goal Year</span>
+            <span><span class="pj-legend-dot" style="background:#0066ff;"></span>Portfolio Value</span>
+            <span><span class="pj-legend-dot" style="background:#FF3B30;"></span>Goal Funded Year</span>
         </div>
         <div id="pjLineChart"></div>
     </div>`;
@@ -1465,10 +1529,11 @@ function renderPortfolioJourneyForMember(memberId) {
                     <th>FY</th>
                     <th>Opening Balance</th>
                     <th>Return %</th>
-                    <th>Investments</th>
-                    <th>Goals Funded %</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
+                    <th>Net Savings</th>
+                    <th>Goal Funding</th>
                     <th>Closing Balance</th>
-                    <th>vs No-Goals</th>
                 </tr>
             </thead>
             <tbody id="pjTableBody"></tbody>
@@ -1482,23 +1547,21 @@ function renderPortfolioJourneyForMember(memberId) {
     rows.forEach(r => {
         const hasGoals = r.goals.length > 0;
         const goalPills = r.goals.map(g => `<span class="pj-goal-pill">${escHtml(g.name)}</span>`).join('');
-        const diff = r.closing - r.closingNoGoals;
         let goalCell = '—';
-        if (r.goalWithdrawal > 0 && r.goalCommitted > 0) {
-            goalCell = `<span class="pj-td-negative">${formatCorpusShort(r.goalWithdrawal)}</span> <span style="color:var(--text-tertiary);font-size:0.7rem;">corpus + ${formatCorpusShort(r.goalCommitted)}/yr SIP</span>`;
-        } else if (r.goalWithdrawal > 0) {
-            goalCell = `<span class="pj-td-negative">${formatCorpusShort(r.goalWithdrawal)}</span> <span style="color:var(--text-tertiary);font-size:0.7rem;">(corpus)</span>`;
-        } else if (r.goalCommitted > 0) {
-            goalCell = `<span style="color:var(--warning);">${formatCorpusShort(r.goalCommitted)}/yr</span> <span style="color:var(--text-tertiary);font-size:0.7rem;">(SIP)</span>`;
+        if (r.goalWithdrawal > 0) {
+            goalCell = `<span class="pj-goal-deduction">−${formatCorpusShort(r.goalWithdrawal)}</span>`;
         }
+        const incomeCell = r.incomeL != null ? formatCorpusShort(r.incomeL * 100000) : '—';
+        const expCell    = r.expensesL != null ? formatCorpusShort(r.expensesL * 100000) : '—';
         tableHtml += `<tr class="${hasGoals ? 'has-goals' : ''}">
             <td>FY${r.fy}${goalPills}</td>
             <td>${formatCorpusShort(r.opening)}</td>
             <td class="pj-td-positive">${r.returnPct}% <span style="color:var(--text-tertiary);font-size:0.7rem;">(${formatCorpusShort(r.growth)})</span></td>
+            <td>${incomeCell}</td>
+            <td>${expCell}</td>
             <td class="pj-td-positive">+${formatCorpusShort(r.sipAdded)}</td>
             <td>${goalCell}</td>
             <td style="font-weight:700;">${formatCorpusShort(r.closing)}</td>
-            <td class="${diff < 0 ? 'pj-td-negative' : 'pj-td-positive'}">${diff >= 0 ? '+' : ''}${formatCorpusShort(diff)}</td>
         </tr>`;
     });
     document.getElementById('pjTableBody').innerHTML = tableHtml;
@@ -1516,7 +1579,7 @@ function renderPJLineChart(rows, member, containerId) {
     const cw = W - PAD.left - PAD.right;
     const ch = H - PAD.top - PAD.bottom;
 
-    const allVals = rows.flatMap(r => [r.closing, r.closingNoGoals]);
+    const allVals = rows.map(r => r.closing);
     const maxY = Math.max(...allVals) * 1.05;
     const minY = 0;
 
@@ -1524,7 +1587,6 @@ function renderPJLineChart(rows, member, containerId) {
     function yPos(v) { return PAD.top + ch - ((v - minY) / (maxY - minY)) * ch; }
 
     const withGoalsPts = rows.map((r, i) => `${xPos(i)},${yPos(r.closing)}`).join(' ');
-    const noGoalsPts = rows.map((r, i) => `${xPos(i)},${yPos(r.closingNoGoals)}`).join(' ');
 
     // Filled area for with-goals
     const areaPath = `M ${xPos(0)} ${yPos(rows[0].closing)} ` +
@@ -1590,7 +1652,6 @@ function renderPJLineChart(rows, member, containerId) {
         ${yTicks}
         ${xLabels}
         <path d="${areaPath}" fill="url(#pjGrad)"/>
-        <polyline points="${noGoalsPts}" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>
         <polyline points="${withGoalsPts}" fill="none" stroke="#0066ff" stroke-width="2.5"/>
         ${goalMarkers}
         ${retireMarker}

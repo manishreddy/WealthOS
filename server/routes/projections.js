@@ -113,7 +113,7 @@ router.post('/ai-parse', async (req, res) => {
       expenseInflationRate: 'general expense inflation as decimal',
       rentInflationRate: 'rent inflation as decimal',
       leisureInflationRate: 'leisure inflation as decimal',
-      projectionEndFY: 'end FY year for projection e.g. 2065',
+      projectionEndFY: 'end FY year for projection e.g. 2080',
       monthlyExpenses: {
         rent: 'monthly rent in rupees',
         food: 'monthly food in rupees',
