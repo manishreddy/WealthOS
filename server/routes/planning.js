@@ -491,7 +491,10 @@ router.get('/comprehensive', (req, res) => {
         progressPct,
         sipFreedAtCompletion: goal.monthly_contribution || 0,
         assignedMembers: JSON.parse(goal.assigned_members || '[]'),
-        notes: goal.notes
+        notes: goal.notes,
+        fundingType: goal.funding_type || 'Savings',
+        downPaymentPct: goal.down_payment_pct || 0,
+        inflationRate: goal.inflation_rate != null ? goal.inflation_rate : 8
       };
     });
 

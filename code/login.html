@@ -483,6 +483,43 @@
             width: 100%;
         }
 
+        /* Reset password modal */
+        .reset-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .reset-overlay.show { display: flex; }
+        .reset-modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 420px;
+            margin: 16px;
+        }
+        .reset-modal h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 6px; color: #fff; }
+        .reset-modal p { font-size: 0.875rem; color: rgba(255,255,255,0.5); margin: 0 0 24px; }
+        .reset-field { margin-bottom: 16px; }
+        .reset-field label { display: block; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+        .reset-field input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; font-size: 0.95rem; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .reset-field input:focus { border-color: rgba(99,102,241,0.6); }
+        .reset-field input.error { border-color: #ef4444; }
+        .reset-msg { font-size: 0.82rem; margin: 0 0 16px; padding: 10px 14px; border-radius: 8px; display: none; }
+        .reset-msg.show { display: block; }
+        .reset-msg.success { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+        .reset-msg.error { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+        .reset-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .reset-submit { flex: 1; padding: 13px; background: var(--primary-gradient); border: none; border-radius: 10px; color: #fff; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .reset-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .reset-cancel { padding: 13px 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 0.95rem; cursor: pointer; }
+
         .btn-login {
             width: 100%;
             padding: 18px;
@@ -807,6 +844,31 @@
     </div>
 
 
+    <!-- Forgot password modal -->
+    <div class="reset-overlay" id="resetOverlay">
+        <div class="reset-modal">
+            <h3>Reset Password</h3>
+            <p>Enter your registered email and choose a new password.</p>
+            <div class="reset-msg" id="resetMsg"></div>
+            <div class="reset-field">
+                <label>Email</label>
+                <input type="email" id="resetEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+            <div class="reset-field">
+                <label>New Password</label>
+                <input type="password" id="resetNewPwd" placeholder="Min 8 characters">
+            </div>
+            <div class="reset-field">
+                <label>Confirm Password</label>
+                <input type="password" id="resetConfirmPwd" placeholder="Repeat new password">
+            </div>
+            <div class="reset-actions">
+                <button class="reset-cancel" id="resetCancel">Cancel</button>
+                <button class="reset-submit" id="resetSubmit">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/api.js"></script>
     <script src="auth.js"></script>
     <script>
@@ -897,6 +959,64 @@
               if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); submitBtn.textContent = 'Sign In'; }
             }
           });
+        });
+
+        // Forgot password
+        const resetOverlay = document.getElementById('resetOverlay');
+        const resetMsg = document.getElementById('resetMsg');
+        document.querySelector('.forgot-link').addEventListener('click', e => {
+            e.preventDefault();
+            resetOverlay.classList.add('show');
+            document.getElementById('resetEmail').focus();
+        });
+        document.getElementById('resetCancel').addEventListener('click', () => {
+            resetOverlay.classList.remove('show');
+            resetMsg.className = 'reset-msg';
+            resetMsg.textContent = '';
+            ['resetEmail','resetNewPwd','resetConfirmPwd'].forEach(id => {
+                document.getElementById(id).value = '';
+                document.getElementById(id).classList.remove('error');
+            });
+        });
+        document.getElementById('resetSubmit').addEventListener('click', async () => {
+            const email = document.getElementById('resetEmail').value.trim();
+            const newPwd = document.getElementById('resetNewPwd').value;
+            const confirmPwd = document.getElementById('resetConfirmPwd').value;
+
+            resetMsg.className = 'reset-msg';
+            ['resetEmail','resetNewPwd','resetConfirmPwd'].forEach(id => document.getElementById(id).classList.remove('error'));
+
+            if (!email) { document.getElementById('resetEmail').classList.add('error'); return; }
+            if (newPwd.length < 8) {
+                document.getElementById('resetNewPwd').classList.add('error');
+                resetMsg.textContent = 'Password must be at least 8 characters.';
+                resetMsg.className = 'reset-msg error show'; return;
+            }
+            if (newPwd !== confirmPwd) {
+                document.getElementById('resetConfirmPwd').classList.add('error');
+                resetMsg.textContent = 'Passwords do not match.';
+                resetMsg.className = 'reset-msg error show'; return;
+            }
+
+            const btn = document.getElementById('resetSubmit');
+            btn.disabled = true; btn.textContent = 'Resetting...';
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, newPassword: newPwd })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Reset failed');
+                resetMsg.textContent = 'Password reset! You can now sign in.';
+                resetMsg.className = 'reset-msg success show';
+                setTimeout(() => resetOverlay.classList.remove('show'), 2000);
+            } catch (err) {
+                resetMsg.textContent = err.message;
+                resetMsg.className = 'reset-msg error show';
+            } finally {
+                btn.disabled = false; btn.textContent = 'Reset Password';
+            }
         });
 
         console.log('%c WealthOS Login', 'color: #0066ff; font-size: 16px; font-weight: bold;');
