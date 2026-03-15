@@ -1,7 +1,9 @@
 'use strict';
 
+const crypto = require('crypto');
 const express = require('express');
 const db = require('../db');
+const { sendInviteEmail } = require('../email');
 
 const router = express.Router();
 
@@ -25,11 +27,10 @@ function computeAgeBasedTargets(age) {
   let gold = 5;
   let others = 5;
 
-  // Normalize so sum = 100
   const total = equity + debt + gold + others;
   if (total !== 100) {
     const diff = 100 - total;
-    equity = equity + diff; // absorb difference in equity
+    equity = equity + diff;
   }
 
   return { equity, debt, gold, others };
@@ -40,6 +41,71 @@ function markFamilyDone(userId) {
   db.prepare(
     'UPDATE setup_progress SET family_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
   ).run(userId);
+}
+
+// Helper: get invite status for a member
+function getMemberInviteStatus(memberId) {
+  const inv = db.prepare(
+    'SELECT status, expires_at FROM family_invitations WHERE family_member_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).get(memberId);
+  if (!inv) return null;
+  if (inv.status === 'accepted') return 'accepted';
+  if (new Date(inv.expires_at) < new Date()) return 'expired';
+  return 'pending';
+}
+
+// Helper: format member for API response
+function formatMember(m) {
+  return {
+    id: m.id,
+    name: m.name,
+    dob: m.dob || '',
+    age: m.age,
+    role: m.role,
+    riskProfile: m.risk_profile,
+    email: m.email || '',
+    linkedUserId: m.linked_user_id || null,
+    inviteStatus: m.email ? getMemberInviteStatus(m.id) : null,
+    isActive: m.is_active === 1,
+    displayOrder: m.display_order,
+    createdAt: m.created_at
+  };
+}
+
+// Helper: create and send invite for a member
+async function createAndSendInvite(member, inviterUserId, appUrl) {
+  if (!member.email) return;
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Invalidate previous invites for this member
+  db.prepare(
+    "UPDATE family_invitations SET status = 'superseded' WHERE family_member_id = ? AND status = 'pending'"
+  ).run(member.id);
+
+  db.prepare(
+    'INSERT INTO family_invitations (family_member_id, inviter_user_id, email, token, status, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(member.id, inviterUserId, member.email, token, 'pending', expiresAt);
+
+  const inviter = db.prepare('SELECT family_name FROM users WHERE id = ?').get(inviterUserId);
+  const inviteUrl = `${appUrl}/invite.html?token=${token}`;
+
+  try {
+    await sendInviteEmail({
+      toEmail: member.email,
+      inviterName: inviter ? inviter.family_name : 'Your family',
+      familyName: inviter ? inviter.family_name : 'WealthOS Family',
+      memberName: member.name,
+      inviteUrl
+    });
+  } catch (err) {
+    console.error('Failed to send invite email:', err.message);
+  }
+}
+
+function getAppUrl(req) {
+  return process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 }
 
 // GET /api/family - returns familyName + members
@@ -54,17 +120,7 @@ router.get('/', (req, res) => {
 
     return res.status(200).json({
       familyName: user.family_name,
-      members: members.map(m => ({
-        id: m.id,
-        name: m.name,
-        dob: m.dob || '',
-        age: m.age,
-        role: m.role,
-        riskProfile: m.risk_profile,
-        isActive: m.is_active === 1,
-        displayOrder: m.display_order,
-        createdAt: m.created_at
-      }))
+      members: members.map(formatMember)
     });
   } catch (err) {
     console.error('GET /family error:', err);
@@ -94,17 +150,7 @@ router.get('/members', (req, res) => {
       'SELECT * FROM family_members WHERE user_id = ? AND is_active = 1 ORDER BY display_order ASC, id ASC'
     ).all(req.userId);
 
-    return res.status(200).json(members.map(m => ({
-      id: m.id,
-      name: m.name,
-      dob: m.dob || '',
-      age: m.age,
-      role: m.role,
-      riskProfile: m.risk_profile,
-      isActive: m.is_active === 1,
-      displayOrder: m.display_order,
-      createdAt: m.created_at
-    })));
+    return res.status(200).json(members.map(formatMember));
   } catch (err) {
     console.error('GET /family/members error:', err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -112,9 +158,9 @@ router.get('/members', (req, res) => {
 });
 
 // POST /api/family/members - add new member
-router.post('/members', (req, res) => {
+router.post('/members', async (req, res) => {
   try {
-    const { name, age, dob, role, riskProfile } = req.body;
+    const { name, age, dob, role, riskProfile, email } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Member name is required' });
@@ -124,6 +170,7 @@ router.post('/members', (req, res) => {
     const safeAge = dob ? ageFromDob(dob) : (age ? parseInt(age, 10) : null);
     const safeRole = role || 'member';
     const safeRiskProfile = riskProfile || 'moderate';
+    const safeEmail = (email || '').trim().toLowerCase();
 
     // Get current max display_order for this user
     const maxOrder = db.prepare(
@@ -133,8 +180,8 @@ router.post('/members', (req, res) => {
 
     // Insert member
     const result = db.prepare(
-      'INSERT INTO family_members (user_id, name, dob, age, role, risk_profile, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(req.userId, name.trim(), safeDob, safeAge, safeRole, safeRiskProfile, nextOrder);
+      'INSERT INTO family_members (user_id, name, dob, age, role, risk_profile, email, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(req.userId, name.trim(), safeDob, safeAge, safeRole, safeRiskProfile, safeEmail, nextOrder);
 
     const memberId = result.lastInsertRowid;
 
@@ -150,22 +197,16 @@ router.post('/members', (req, res) => {
         others_pct = excluded.others_pct
     `).run(req.userId, memberId, targets.equity, targets.debt, targets.gold, targets.others);
 
-    // Mark setup progress
     markFamilyDone(req.userId);
 
-    // Fetch and return the created member
     const member = db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId);
-    return res.status(201).json({
-      id: member.id,
-      name: member.name,
-      dob: member.dob || '',
-      age: member.age,
-      role: member.role,
-      riskProfile: member.risk_profile,
-      isActive: member.is_active === 1,
-      displayOrder: member.display_order,
-      createdAt: member.created_at
-    });
+
+    // Send invite if email provided
+    if (safeEmail) {
+      await createAndSendInvite(member, req.userId, getAppUrl(req));
+    }
+
+    return res.status(201).json(formatMember(db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId)));
   } catch (err) {
     console.error('POST /family/members error:', err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -173,12 +214,11 @@ router.post('/members', (req, res) => {
 });
 
 // PUT /api/family/members/:id - update member
-router.put('/members/:id', (req, res) => {
+router.put('/members/:id', async (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
-    const { name, age, dob, role, riskProfile } = req.body;
+    const { name, age, dob, role, riskProfile, email } = req.body;
 
-    // Verify member belongs to this user
     const existing = db.prepare(
       'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
     ).get(memberId, req.userId);
@@ -192,16 +232,16 @@ router.put('/members/:id', (req, res) => {
     const newAge = newDob ? ageFromDob(newDob) : (age !== undefined ? parseInt(age, 10) : existing.age);
     const newRole = role || existing.role;
     const newRiskProfile = riskProfile || existing.risk_profile;
+    const newEmail = email !== undefined ? (email || '').trim().toLowerCase() : (existing.email || '');
 
     if (!newName) {
       return res.status(400).json({ error: 'Member name cannot be empty' });
     }
 
     db.prepare(
-      'UPDATE family_members SET name = ?, dob = ?, age = ?, role = ?, risk_profile = ? WHERE id = ? AND user_id = ?'
-    ).run(newName, newDob, newAge, newRole, newRiskProfile, memberId, req.userId);
+      'UPDATE family_members SET name = ?, dob = ?, age = ?, role = ?, risk_profile = ?, email = ? WHERE id = ? AND user_id = ?'
+    ).run(newName, newDob, newAge, newRole, newRiskProfile, newEmail, memberId, req.userId);
 
-    // Update savings_targets if age changed
     if (dob !== undefined || age !== undefined) {
       const targets = computeAgeBasedTargets(newAge);
       const existingTargets = db.prepare(
@@ -215,24 +255,39 @@ router.put('/members/:id', (req, res) => {
       }
     }
 
-    // Mark setup progress
     markFamilyDone(req.userId);
 
-    // Return updated member
     const updated = db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId);
-    return res.status(200).json({
-      id: updated.id,
-      name: updated.name,
-      dob: updated.dob || '',
-      age: updated.age,
-      role: updated.role,
-      riskProfile: updated.risk_profile,
-      isActive: updated.is_active === 1,
-      displayOrder: updated.display_order,
-      createdAt: updated.created_at
-    });
+
+    // Send invite if a new email was set (and member not already linked)
+    const emailChanged = newEmail && newEmail !== (existing.email || '');
+    if (emailChanged && !updated.linked_user_id) {
+      await createAndSendInvite(updated, req.userId, getAppUrl(req));
+    }
+
+    return res.status(200).json(formatMember(db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId)));
   } catch (err) {
     console.error('PUT /family/members/:id error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/family/members/:id/resend-invite - resend invite email
+router.post('/members/:id/resend-invite', async (req, res) => {
+  try {
+    const memberId = parseInt(req.params.id, 10);
+    const member = db.prepare(
+      'SELECT * FROM family_members WHERE id = ? AND user_id = ? AND is_active = 1'
+    ).get(memberId, req.userId);
+
+    if (!member) return res.status(404).json({ error: 'Member not found' });
+    if (!member.email) return res.status(400).json({ error: 'Member has no email address' });
+    if (member.linked_user_id) return res.status(400).json({ error: 'Member has already accepted the invite' });
+
+    await createAndSendInvite(member, req.userId, getAppUrl(req));
+    return res.status(200).json({ success: true, message: 'Invite sent' });
+  } catch (err) {
+    console.error('POST /family/members/:id/resend-invite error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -242,7 +297,6 @@ router.delete('/members/:id', (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
 
-    // Verify member belongs to this user
     const existing = db.prepare(
       'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
     ).get(memberId, req.userId);

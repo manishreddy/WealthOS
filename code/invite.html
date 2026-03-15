@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Family - WealthOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-blue: #0066ff;
+            --accent-cyan: #00d4ff;
+            --success: #00C805;
+            --error: #ff3b30;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @keyframes meshGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: meshGradient 15s ease infinite;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .invite-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .brand-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .invite-banner {
+            background: linear-gradient(135deg, rgba(0,102,255,0.08), rgba(0,212,255,0.08));
+            border: 1px solid rgba(0,102,255,0.15);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+        .invite-banner .family-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .invite-banner .invite-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .invite-banner .member-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8ecf0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-primary);
+            background: white;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-input:focus { border-color: var(--accent-blue); }
+        .form-input:disabled { background: #f5f7fa; color: #999; }
+        .form-hint { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover { opacity: 0.92; }
+        .btn-primary:active { transform: scale(0.99); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .divider {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin: 16px 0;
+        }
+        .link { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+        .link:hover { text-decoration: underline; }
+
+        .state-loading, .state-error, .state-success { text-align: center; padding: 20px 0; }
+        .state-icon { font-size: 48px; margin-bottom: 16px; }
+        .state-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .state-msg { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(0,102,255,0.15);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .alert-error { background: rgba(255,59,48,0.08); color: var(--error); border: 1px solid rgba(255,59,48,0.2); display: block; }
+        .alert-success { background: rgba(0,200,5,0.08); color: var(--success); border: 1px solid rgba(0,200,5,0.2); display: block; }
+
+        #validating { display: block; }
+        #invalid-state { display: none; }
+        #signup-form { display: none; }
+        #success-state { display: none; }
+    </style>
+</head>
+<body>
+<div class="invite-card">
+    <div class="brand">
+        <div class="brand-name">WealthOS</div>
+    </div>
+
+    <!-- Validating token -->
+    <div id="validating">
+        <div class="state-loading">
+            <div class="spinner"></div>
+            <div class="state-msg">Validating your invite...</div>
+        </div>
+    </div>
+
+    <!-- Invalid / expired invite -->
+    <div id="invalid-state">
+        <div class="state-error">
+            <div class="state-icon">🔗</div>
+            <div class="state-title">Invite not valid</div>
+            <div class="state-msg" id="invalid-msg">This invite link is invalid or has expired.</div>
+            <br>
+            <a href="/login.html" class="link">Go to login</a>
+        </div>
+    </div>
+
+    <!-- Signup form -->
+    <div id="signup-form">
+        <div class="invite-banner" id="invite-banner">
+            <div class="family-name" id="banner-family"></div>
+            <div class="invite-sub">invited you to manage family finances together</div>
+            <div class="member-tag" id="banner-member"></div>
+        </div>
+
+        <div class="section-title">Create your account</div>
+
+        <div id="form-alert" class="alert"></div>
+
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="inviteEmail" disabled>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="invitePassword" placeholder="Create a password" minlength="8" autocomplete="new-password">
+            <div class="form-hint">Minimum 8 characters</div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-input" id="invitePasswordConfirm" placeholder="Confirm your password" autocomplete="new-password">
+        </div>
+
+        <button class="btn-primary" id="acceptBtn" onclick="acceptInvite()">Join Family</button>
+
+        <div class="divider">Already have an account? <a href="/login.html" class="link">Sign in</a></div>
+    </div>
+
+    <!-- Success -->
+    <div id="success-state">
+        <div class="state-success">
+            <div class="state-icon">🎉</div>
+            <div class="state-title">Welcome to the family!</div>
+            <div class="state-msg">Your account is set up. Redirecting to dashboard...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const inviteToken = params.get('token');
+    let inviteData = null;
+
+    async function validateToken() {
+        if (!inviteToken) {
+            showInvalid('No invite token found in the link.');
+            return;
+        }
+        try {
+            const res = await fetch(`/api/auth/invite/${inviteToken}`);
+            const data = await res.json();
+            if (!res.ok) {
+                showInvalid(data.error || 'This invite is not valid.');
+                return;
+            }
+            inviteData = data;
+            showSignupForm(data);
+        } catch (err) {
+            showInvalid('Could not validate invite. Please try again.');
+        }
+    }
+
+    function showInvalid(msg) {
+        document.getElementById('validating').style.display = 'none';
+        document.getElementById('invalid-state').style.display = 'block';
+        document.getElementById('invalid-msg').textContent = msg;
+    }
+
+    function showSignupForm(data) {
+        document.getElementById('validating').style.display = 'none';
+        document.getElementById('signup-form').style.display = 'block';
+        document.getElementById('banner-family').textContent = data.familyName;
+        document.getElementById('banner-member').textContent = 'Joining as ' + data.memberName;
+        document.getElementById('inviteEmail').value = data.email;
+    }
+
+    async function acceptInvite() {
+        const password = document.getElementById('invitePassword').value;
+        const confirm = document.getElementById('invitePasswordConfirm').value;
+        const btn = document.getElementById('acceptBtn');
+        const alert = document.getElementById('form-alert');
+
+        alert.className = 'alert';
+        alert.textContent = '';
+
+        if (!password) { showAlert('Please enter a password.'); return; }
+        if (password.length < 8) { showAlert('Password must be at least 8 characters.'); return; }
+        if (password !== confirm) { showAlert('Passwords do not match.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+
+        try {
+            const res = await fetch('/api/auth/invite/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: inviteToken, password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                showAlert(data.error || 'Could not create account.');
+                btn.disabled = false;
+                btn.textContent = 'Join Family';
+                return;
+            }
+
+            // Store token and redirect
+            localStorage.setItem('wealthos_jwt', data.token);
+            localStorage.setItem('wealthos_user', JSON.stringify(data.user));
+
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('success-state').style.display = 'block';
+
+            setTimeout(() => { window.location.href = '/dashboard.html'; }, 1800);
+        } catch (err) {
+            showAlert('Something went wrong. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Join Family';
+        }
+    }
+
+    function showAlert(msg) {
+        const alert = document.getElementById('form-alert');
+        alert.textContent = msg;
+        alert.className = 'alert alert-error';
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('signup-form').style.display === 'block') {
+            acceptInvite();
+        }
+    });
+
+    validateToken();
+</script>
+</body>
+</html>

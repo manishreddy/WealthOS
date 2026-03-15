@@ -195,5 +195,25 @@ const familyCols = db.pragma('table_info(family_members)').map(c => c.name);
 if (!familyCols.includes('dob')) {
   db.exec(`ALTER TABLE family_members ADD COLUMN dob TEXT DEFAULT ''`);
 }
+if (!familyCols.includes('email')) {
+  db.exec(`ALTER TABLE family_members ADD COLUMN email TEXT DEFAULT ''`);
+}
+if (!familyCols.includes('linked_user_id')) {
+  db.exec(`ALTER TABLE family_members ADD COLUMN linked_user_id INTEGER`);
+}
+
+// Family invitations table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS family_invitations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    family_member_id INTEGER NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+    inviter_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'pending',
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
 module.exports = db;

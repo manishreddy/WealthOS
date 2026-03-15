@@ -98,10 +98,21 @@
         .plan-input { width: 90px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: 'DM Sans', sans-serif; text-align: right; }
         .plan-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-elevated); }
 
-        /* Config panel */
-        .config-panel { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-        .config-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .config-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+        /* Collapsible sections */
+        .collapsible-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+        .collapsible-header { padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.15s; }
+        .collapsible-header:hover { background: var(--hover-bg); }
+        .collapsible-header-left { display: flex; align-items: center; gap: 12px; }
+        .collapsible-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+        .collapsible-subtitle { font-size: 0.8125rem; color: var(--text-tertiary); }
+        .collapsible-actions { display: flex; gap: 8px; align-items: center; }
+        .collapsible-chevron { color: var(--text-tertiary); font-size: 1rem; transition: transform 0.2s; line-height: 1; }
+        .collapsible-header.collapsed .collapsible-chevron { transform: rotate(-90deg); }
+        .collapsible-body { padding: 0 24px 24px; }
+        .collapsible-body.collapsed { display: none; }
+        .collapsible-divider { height: 1px; background: var(--border-color); margin: 0 0 20px; }
+
+        /* Config panel fields */
         .config-section-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 10px; }
         .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
         .config-field { display: flex; flex-direction: column; gap: 4px; }
@@ -116,6 +127,16 @@
         .emi-schedule-table tr:last-child td { border-bottom: none; }
         .emi-input { width: 80px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: 'DM Sans', sans-serif; text-align: right; }
         .emi-input:focus { outline: none; border-color: var(--accent-primary); }
+
+        /* Goal EMI sub-section */
+        .emi-subsection-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; }
+        .goal-emi-table { width: 100%; border-collapse: collapse; }
+        .goal-emi-table th { background: var(--bg-secondary); padding: 7px 10px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .goal-emi-table td { padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-primary); }
+        .goal-emi-table tr:last-child td { border-bottom: none; }
+        .goal-emi-empty { font-size: 0.8125rem; color: var(--text-tertiary); padding: 8px 0; font-style: italic; }
+        .badge-emi { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(251,146,60,0.15); color: var(--warning); }
+        .badge-sip { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(0,102,255,0.12); color: var(--accent-primary); }
 
         .btn { padding: 10px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; border: none; }
         .btn-primary { background: var(--accent-primary); color: white; }
@@ -184,6 +205,9 @@
         }
         /* Rent-stopped indicator */
         .rent-stopped { color: var(--text-tertiary); font-style: italic; font-size: 0.75rem; }
+
+        /* Auto-save status */
+        .autosave-status { font-size: 0.8125rem; color: var(--text-tertiary); }
     </style>
 </head>
 <body>
@@ -200,49 +224,78 @@
         </div>
 
         <div class="sub-tabs">
-            <button class="sub-tab active" onclick="showTab('savings-rate', this)">Net Savings</button>
+            <button class="sub-tab active" onclick="showTab('savings-rate', this)">Savings</button>
+            <button class="sub-tab" onclick="showTab('yearly-expenses', this)">Yearly View</button>
             <button class="sub-tab" onclick="showTab('monthly-plans', this)">Monthly Plans</button>
-            <button class="sub-tab" onclick="showTab('yearly-expenses', this)">Yearly View of Expenses</button>
+            <button class="sub-tab" onclick="showTab('configuration', this)">Configuration</button>
         </div>
 
-        <!-- Tab 1: Monthly Plans -->
-        <div id="tab-monthly-plans" class="tab-panel">
-            <div class="config-panel">
-                <div class="config-header">
-                    <div class="config-title">Plan Configuration</div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span id="autoSaveStatus" style="font-size:0.8125rem; color:var(--text-tertiary);">Auto-save on</span>
-                        <button class="btn btn-sm btn-secondary" onclick="openAiImport()">AI Import</button>
-                        <button class="btn btn-sm btn-secondary" onclick="resetConfig()">Reset</button>
-                    </div>
+        <!-- Tab 1: Savings -->
+        <div id="tab-savings-rate" class="tab-panel active">
+            <div class="fy-note">All amounts in Lakhs (L). Savings = Total Income − Total Expenses. Savings Rate = Savings / Total Income. Goal SIP uses 10% step-up from today's required SIP.</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Savings</div>
                 </div>
-
-                <div class="config-section-label" id="incomeLabel">Income</div>
-                <div class="config-grid" id="configGridIncome"></div>
-
-                <div class="config-section-label">Growth & Retirement</div>
-                <div class="config-grid" id="configGridGrowth"></div>
-
-                <div class="config-section-label">Inflation & Projection</div>
-                <div class="config-grid" id="configGridInflation"></div>
-
-                <div class="config-section-label">EMI Schedule</div>
-                <table class="emi-schedule-table">
-                    <thead>
-                        <tr>
-                            <th>From FY</th>
-                            <th>To FY</th>
-                            <th>Yearly (Lakhs)</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="emiScheduleBody"></tbody>
-                </table>
-                <div style="margin-top:10px;">
-                    <button class="btn btn-sm btn-secondary" onclick="addEmiRow()">+ Add Row</button>
+                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr id="savingsRateHeader">
+                                <th style="text-align:left;">FY</th>
+                                <th style="text-align:left;">Year</th>
+                                <th>Total Income (L)</th>
+                                <th>Person 1</th>
+                                <th>Person 2</th>
+                                <th>Other</th>
+                                <th>Total Expenses</th>
+                                <th>Savings</th>
+                                <th>Savings Rate</th>
+                                <th>Goal SIP/mo</th>
+                                <th>Loan EMI/mo</th>
+                                <th>Monthly Income</th>
+                                <th>Monthly Expense</th>
+                                <th>Monthly Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody id="savingsRateBody"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
+        <!-- Tab 2: Yearly View of Expenses -->
+        <div id="tab-yearly-expenses" class="tab-panel">
+            <div class="fy-note">All amounts in Lakhs (L). Projections based on configured inflation rates. FY = Indian Financial Year (April–March). Down Pmt = one-time down payment lump sum (included in Total). Goal SIP = monthly step-up SIP commitments (informational, not in Total).</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Yearly Expense Projection</div>
+                </div>
+                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">FY</th>
+                                <th style="text-align:left;">Year</th>
+                                <th>Total (L)</th>
+                                <th>Loan EMIs</th>
+                                <th>Down Pmt</th>
+                                <th>Goal SIP/mo</th>
+                                <th>Rent</th>
+                                <th>Household</th>
+                                <th>Leisure</th>
+                                <th>Kids</th>
+                                <th>Other</th>
+                                <th>Monthly (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yearlyExpenseBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Monthly Plans -->
+        <div id="tab-monthly-plans" class="tab-panel">
             <div class="table-card">
                 <div class="table-card-header">
                     <div class="table-card-title">Monthly Expense Breakdown — Base Year (FY<span id="baseYearLabel">2024</span>)</div>
@@ -264,65 +317,78 @@
             </div>
         </div>
 
-        <!-- Tab 2: Yearly View of Expenses -->
-        <div id="tab-yearly-expenses" class="tab-panel">
-            <div class="fy-note">All amounts in Lakhs (L). Projections based on configured inflation rates. FY = Indian Financial Year (April–March).</div>
-            <div class="table-card">
-                <div class="table-card-header">
-                    <div class="table-card-title">Yearly Expense Projection</div>
+        <!-- Tab 4: Configuration -->
+        <div id="tab-configuration" class="tab-panel">
+
+            <!-- Section 1: Plan Configuration (collapsible) -->
+            <div class="collapsible-card">
+                <div class="collapsible-header" id="configSectionHeader" onclick="toggleSection('configSectionBody', 'configSectionHeader')">
+                    <div class="collapsible-header-left">
+                        <div>
+                            <div class="collapsible-title">Plan Configuration</div>
+                            <div class="collapsible-subtitle">Income, growth rates, inflation, and projection settings</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-actions">
+                        <span id="autoSaveStatus" class="autosave-status">Auto-save on</span>
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); openAiImport()">AI Import</button>
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); resetConfig()">Reset</button>
+                        <span class="collapsible-chevron">▼</span>
+                    </div>
                 </div>
-                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
-                    <table class="sticky-table">
+                <div class="collapsible-body" id="configSectionBody">
+                    <div class="collapsible-divider"></div>
+                    <div class="config-section-label" id="incomeLabel">Income</div>
+                    <div class="config-grid" id="configGridIncome"></div>
+
+                    <div class="config-section-label">Growth &amp; Retirement</div>
+                    <div class="config-grid" id="configGridGrowth"></div>
+
+                    <div class="config-section-label">Inflation &amp; Projection</div>
+                    <div class="config-grid" id="configGridInflation"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: EMI Schedule (collapsible) -->
+            <div class="collapsible-card">
+                <div class="collapsible-header" id="emiSectionHeader" onclick="toggleSection('emiSectionBody', 'emiSectionHeader')">
+                    <div class="collapsible-header-left">
+                        <div>
+                            <div class="collapsible-title">EMI Schedule</div>
+                            <div class="collapsible-subtitle">Loan EMIs from goals + manual entries</div>
+                        </div>
+                    </div>
+                    <div class="collapsible-actions">
+                        <span class="collapsible-chevron">▼</span>
+                    </div>
+                </div>
+                <div class="collapsible-body" id="emiSectionBody">
+                    <div class="collapsible-divider"></div>
+
+                    <div class="emi-subsection-label">From Goals</div>
+                    <div id="goalEmiSection">
+                        <div class="goal-emi-empty">No EMI-funded goals found. Add a goal with funding type "EMI/Loan" to see it here.</div>
+                    </div>
+
+                    <div class="emi-subsection-label" style="margin-top:20px;">Manual Entries</div>
+                    <table class="emi-schedule-table">
                         <thead>
                             <tr>
-                                <th style="text-align:left;">FY</th>
-                                <th style="text-align:left;">Year</th>
-                                <th>Total (L)</th>
-                                <th>EMIs</th>
-                                <th>Rent</th>
-                                <th>Household</th>
-                                <th>Leisure</th>
-                                <th>Kids</th>
-                                <th>Other</th>
-                                <th>Monthly (L)</th>
+                                <th>From FY</th>
+                                <th>To FY</th>
+                                <th>Yearly (Lakhs)</th>
+                                <th></th>
                             </tr>
                         </thead>
-                        <tbody id="yearlyExpenseBody"></tbody>
+                        <tbody id="emiScheduleBody"></tbody>
                     </table>
+                    <div style="margin-top:10px;">
+                        <button class="btn btn-sm btn-secondary" onclick="addEmiRow()">+ Add Row</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 3: Net Savings -->
-        <div id="tab-savings-rate" class="tab-panel active">
-            <div class="fy-note">All amounts in Lakhs (L). Net Savings = Total Income − Total Expenses. Savings Rate = Net Savings / Total Income.</div>
-            <div class="table-card">
-                <div class="table-card-header">
-                    <div class="table-card-title">Net Savings</div>
-                </div>
-                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
-                    <table class="sticky-table">
-                        <thead>
-                            <tr id="savingsRateHeader">
-                                <th style="text-align:left;">FY</th>
-                                <th style="text-align:left;">Year</th>
-                                <th>Total Income (L)</th>
-                                <th>Person 1</th>
-                                <th>Person 2</th>
-                                <th>Other</th>
-                                <th>Total Expenses</th>
-                                <th>Net Savings</th>
-                                <th>Savings Rate</th>
-                                <th>Monthly Income</th>
-                                <th>Monthly Expense</th>
-                                <th>Monthly Savings</th>
-                            </tr>
-                        </thead>
-                        <tbody id="savingsRateBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        </div><!-- end tab-configuration -->
     </main>
 </div>
 
@@ -388,6 +454,15 @@ function showToast(msg, isError) {
     t.className = 'toast ' + (isError ? 'error' : 'success');
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Collapsible sections ──────────────────────────────────────────────────────
+function toggleSection(bodyId, headerId) {
+    const body = document.getElementById(bodyId);
+    const header = document.getElementById(headerId);
+    if (!body || !header) return;
+    body.classList.toggle('collapsed');
+    header.classList.toggle('collapsed');
 }
 
 // ── Member name helpers ───────────────────────────────────────────────────────
@@ -554,6 +629,88 @@ function getEmiScheduleFromForm() {
     return rows;
 }
 
+// ── Goal EMI section in Config tab ────────────────────────────────────────────
+function renderGoalEmiSection(goals) {
+    const container = document.getElementById('goalEmiSection');
+    const emiGoals = (goals || []).filter(g => g.fundingType === 'EMI' && g.loanDurationYrs > 0 && g.targetDate);
+    const sipGoals = (goals || []).filter(g => !g.isAchieved && g.fundingType !== 'EMI' && g.monthlyContribution > 0);
+
+    if (emiGoals.length === 0 && sipGoals.length === 0) {
+        container.innerHTML = '<div class="goal-emi-empty">No goals with EMI or SIP commitments found. Add goals in the Goals tab.</div>';
+        return;
+    }
+
+    let html = '';
+
+    if (emiGoals.length > 0) {
+        html += `<table class="goal-emi-table">
+            <thead><tr>
+                <th>Goal</th>
+                <th>Type</th>
+                <th>Purchase Date</th>
+                <th>Down Payment</th>
+                <th>EMI Start FY</th>
+                <th>EMI End FY</th>
+                <th>Yearly EMI (L)</th>
+                <th>Monthly EMI</th>
+            </tr></thead>
+            <tbody>`;
+        emiGoals.forEach(g => {
+            const dt = g.targetDate ? new Date(g.targetDate) : null;
+            const yr = dt ? dt.getFullYear() : '—';
+            const startFY = dt ? (dt.getMonth() >= 3 ? yr + 1 : yr) : '—';
+            const endFY = g.loanEndsFy || (startFY !== '—' ? startFY + (g.loanDurationYrs || 0) : '—');
+            const yearlyL = g.yearlyEmi ? (g.yearlyEmi / 100000).toFixed(1) : '—';
+            const monthly = g.monthlyEmi ? g.monthlyEmi.toLocaleString('en-IN') : '—';
+            const downPmt = g.downPaymentAmount ? fmt(g.downPaymentAmount) : '—';
+            html += `<tr>
+                <td><strong>${g.name}</strong></td>
+                <td><span class="badge-emi">EMI</span></td>
+                <td>${dt ? dt.toLocaleDateString('en-IN', {month:'short', year:'numeric'}) : '—'}</td>
+                <td style="color:var(--warning);font-weight:600;">${downPmt}</td>
+                <td>FY${startFY}</td>
+                <td>FY${endFY}</td>
+                <td>${yearlyL}</td>
+                <td>₹${monthly}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+    }
+
+    if (sipGoals.length > 0) {
+        if (emiGoals.length > 0) html += '<div style="height:16px;"></div>';
+        html += `<table class="goal-emi-table">
+            <thead><tr>
+                <th>Goal</th>
+                <th>Type</th>
+                <th>Target Date</th>
+                <th>Step-Up SIP</th>
+                <th>Current SIP</th>
+                <th>Status</th>
+            </tr></thead>
+            <tbody>`;
+        sipGoals.forEach(g => {
+            const dt = g.targetDate ? new Date(g.targetDate) : null;
+            const stepUpSip = g.stepUpSip ? '₹' + Math.round(g.stepUpSip).toLocaleString('en-IN') : '—';
+            const curSip = g.monthlyContribution ? '₹' + Math.round(g.monthlyContribution).toLocaleString('en-IN') : '—';
+            const statusHtml = g.isOnTrack
+                ? '<span style="color:var(--success);font-weight:700;">On Track</span>'
+                : '<span style="color:var(--error);font-weight:700;">Off Track</span>';
+            html += `<tr>
+                <td><strong>${g.name}</strong></td>
+                <td><span class="badge-sip">SIP</span></td>
+                <td>${dt ? dt.toLocaleDateString('en-IN', {month:'short', year:'numeric'}) : '—'}</td>
+                <td style="color:var(--accent-primary);font-weight:600;">${stepUpSip}/mo</td>
+                <td>${curSip}/mo</td>
+                <td>${statusHtml}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+    }
+
+    container.innerHTML = html;
+}
+
 // ── Read config from form ─────────────────────────────────────────────────────
 function getConfigFromForm() {
     const cfg = { ...(currentConfig || {}) };
@@ -659,15 +816,26 @@ function recalcTotals() {
 // ── Goal-based EMI helpers ─────────────────────────────────────────────────────
 function r2(n) { return Math.round(n * 100) / 100; }
 
+// Returns map of fy → down payment in Lakhs (one-time lump sum in purchase year)
+function buildDownPaymentByFy(goals) {
+    const byFy = {};
+    goals.filter(g => g.fundingType === 'EMI' && g.downPaymentAmount > 0 && g.targetDate).forEach(goal => {
+        const dt = new Date(goal.targetDate);
+        const yr = dt.getFullYear();
+        const purchaseFY = dt.getMonth() >= 3 ? yr + 1 : yr;
+        if (!byFy[purchaseFY]) byFy[purchaseFY] = 0;
+        byFy[purchaseFY] = r2(byFy[purchaseFY] + r2(goal.downPaymentAmount / 100000));
+    });
+    return byFy;
+}
+
 // Returns map of fy → { total: L, newGoals: [name, ...] }
 function buildGoalEmiByFy(goals) {
     const byFy = {};
     goals.filter(g => g.fundingType === 'EMI' && g.loanDurationYrs > 0 && g.targetDate).forEach(goal => {
         const dt = new Date(goal.targetDate);
         const yr = dt.getFullYear();
-        // FY that contains the purchase date (April start)
         const startFY = dt.getMonth() >= 3 ? yr + 1 : yr;
-        // Use server-computed loanEndsFy if available, else estimate
         const endFY = goal.loanEndsFy || (startFY + goal.loanDurationYrs);
         const yearlyLakhs = r2((goal.yearlyEmi || 0) / 100000);
         for (let fy = startFY; fy <= endFY; fy++) {
@@ -679,12 +847,31 @@ function buildGoalEmiByFy(goals) {
     return byFy;
 }
 
+// Returns map of fy → { totalMonthly: number } for savings-type goals (step-up SIP)
+function buildGoalSipByFy(goals) {
+    const now = new Date();
+    const currentFY = now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear();
+    const byFy = {};
+    goals
+        .filter(g => !g.isAchieved && g.fundingType !== 'EMI' && g.targetDate && (g.stepUpSip || 0) > 0)
+        .forEach(goal => {
+            const dt = new Date(goal.targetDate);
+            const targetFY = dt.getMonth() >= 3 ? dt.getFullYear() + 1 : dt.getFullYear();
+            for (let fy = currentFY; fy <= targetFY; fy++) {
+                const yearsElapsed = fy - currentFY;
+                const sip = Math.round((goal.stepUpSip || 0) * Math.pow(1.10, yearsElapsed));
+                if (!byFy[fy]) byFy[fy] = { totalMonthly: 0 };
+                byFy[fy].totalMonthly += sip;
+            }
+        });
+    return byFy;
+}
+
 // Returns the FY from which rent stops (when the house goal's EMI begins)
 function findRentStopFy(goals) {
     const houseGoals = goals
         .filter(g => !g.isAchieved && g.goalType === 'House' && g.targetDate)
         .sort((a, b) => new Date(a.targetDate) - new Date(b.targetDate));
-    // Prefer goal explicitly named "House 2", else first House goal
     const house = houseGoals.find(g => /house\s*2/i.test(g.name)) || houseGoals[0];
     if (!house) return null;
     const dt = new Date(house.targetDate);
@@ -694,22 +881,31 @@ function findRentStopFy(goals) {
 // ── Yearly Expense Table ──────────────────────────────────────────────────────
 function renderYearlyExpenseTable(rows, goals) {
     const goalEmiByFy = buildGoalEmiByFy(goals || []);
+    const goalSipByFy = buildGoalSipByFy(goals || []);
+    const downPmtByFy = buildDownPaymentByFy(goals || []);
     const hasGoalEmis = Object.keys(goalEmiByFy).length > 0;
     const rentStopFy = findRentStopFy(goals || []);
 
     const tbody = document.getElementById('yearlyExpenseBody');
     tbody.innerHTML = '';
     rows.forEach(row => {
-        // EMI: use goal-derived if available, else fall back to config schedule
+        // Loan EMIs: use goal-derived if available, else fall back to config schedule
         const goalEmi = goalEmiByFy[row.fy];
         const emiYearly = hasGoalEmis ? (goalEmi ? r2(goalEmi.total) : 0) : row.emiYearly;
         const newEmiGoals = goalEmi ? goalEmi.newGoals : [];
+
+        // Down payment lump sum for this FY (one-time, included in total)
+        const downPmtYearly = downPmtByFy[row.fy] || 0;
+
+        // Goal SIP for this FY (monthly, from non-EMI goals) — informational only, not in total
+        const sipEntry = goalSipByFy[row.fy];
+        const goalSipMonthly = sipEntry ? sipEntry.totalMonthly : 0;
 
         // Rent: zero out once house goal begins
         const rentYearly = rentStopFy && row.fy >= rentStopFy ? 0 : row.rentYearly;
 
         const nonEmi = r2(rentYearly + row.householdYearly + row.leisureYearly + row.kidsYearly + row.otherExp);
-        const totalExpenses = r2(emiYearly + nonEmi);
+        const totalExpenses = r2(emiYearly + downPmtYearly + nonEmi);
 
         const tr = document.createElement('tr');
         if (row.isRetirementYear) tr.className = 'highlight-row';
@@ -719,15 +915,25 @@ function renderYearlyExpenseTable(rows, goals) {
             ? newEmiGoals.map(n => `<span class="emi-new-badge">+${n}</span>`).join(' ')
             : '';
 
+        const downPmtDisplay = downPmtYearly > 0
+            ? `<span style="color:var(--warning);font-weight:700;">${downPmtYearly.toFixed(1)}</span>`
+            : '<span style="color:var(--text-tertiary)">—</span>';
+
         const rentDisplay = rentStopFy && row.fy >= rentStopFy
             ? '<span class="rent-stopped">—</span>'
             : rentYearly.toFixed(1);
+
+        const sipDisplay = goalSipMonthly > 0
+            ? `<span style="color:var(--accent-primary);font-weight:700;">${fmtCr(goalSipMonthly)}</span>`
+            : '<span style="color:var(--text-tertiary)">—</span>';
 
         tr.innerHTML = `
             <td>FY${row.fy}</td>
             <td>${row.years}</td>
             <td>${totalExpenses.toFixed(1)}</td>
             <td>${emiDisplay}${emiAnnotation}</td>
+            <td>${downPmtDisplay}</td>
+            <td>${sipDisplay}</td>
             <td>${rentDisplay}</td>
             <td>${row.householdYearly.toFixed(1)}</td>
             <td>${row.leisureYearly.toFixed(1)}</td>
@@ -739,8 +945,11 @@ function renderYearlyExpenseTable(rows, goals) {
     });
 }
 
-// ── Savings Rate Table ────────────────────────────────────────────────────────
-function renderSavingsRateTable(rows) {
+// ── Savings Table ─────────────────────────────────────────────────────────────
+function renderSavingsRateTable(rows, goals) {
+    const goalSipByFy  = buildGoalSipByFy(goals || []);
+    const goalEmiByFy  = buildGoalEmiByFy(goals || []);
+
     const tbody = document.getElementById('savingsRateBody');
     tbody.innerHTML = '';
     rows.forEach(row => {
@@ -748,6 +957,21 @@ function renderSavingsRateTable(rows) {
         const tr = document.createElement('tr');
         if (row.isRetirementYear) tr.className = 'highlight-row';
         const netClass = row.netSavings < 0 ? 'negative' : 'positive';
+
+        // Goal SIP for this FY (monthly, ₹)
+        const sipEntry = goalSipByFy[row.fy];
+        const goalSipMonthly = sipEntry ? sipEntry.totalMonthly : 0;
+        const sipDisplay = goalSipMonthly > 0
+            ? `<span style="color:var(--accent-primary);font-weight:700;">${fmtCr(goalSipMonthly)}</span>`
+            : '<span style="color:var(--text-tertiary)">—</span>';
+
+        // Loan EMI for this FY (monthly, ₹) — convert from yearly lakhs
+        const emiEntry = goalEmiByFy[row.fy];
+        const loanEmiMonthly = emiEntry ? Math.round(emiEntry.total * 100000 / 12) : 0;
+        const emiDisplay = loanEmiMonthly > 0
+            ? `<span style="color:var(--warning);font-weight:700;">${fmtCr(loanEmiMonthly)}</span>`
+            : '<span style="color:var(--text-tertiary)">—</span>';
+
         tr.innerHTML = `
             <td>FY${row.fy}</td>
             <td>${row.years}</td>
@@ -758,6 +982,8 @@ function renderSavingsRateTable(rows) {
             <td>${row.totalExpenses.toFixed(0)}</td>
             <td class="${netClass}">${row.netSavings.toFixed(0)}</td>
             <td><span class="rate-badge ${rateClass}">${row.savingsRate}%</span></td>
+            <td>${sipDisplay}</td>
+            <td>${emiDisplay}</td>
             <td>${row.monthlyIncome.toFixed(1)}</td>
             <td>${row.monthlyExpense.toFixed(1)}</td>
             <td class="${row.monthlySavings < 0 ? 'negative' : 'positive'}">${row.monthlySavings.toFixed(1)}</td>
@@ -769,6 +995,11 @@ function renderSavingsRateTable(rows) {
 // ── Formatters ────────────────────────────────────────────────────────────────
 function fmt(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
 function fmtL(n) { return (n/100000).toFixed(1); }
+function fmtCr(n) {
+    if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
+    if (n >= 1000)   return '₹' + Math.round(n / 1000) + 'K';
+    return '₹' + Math.round(n);
+}
 
 // ── Load all data ─────────────────────────────────────────────────────────────
 async function loadAll() {
@@ -783,10 +1014,11 @@ async function loadAll() {
         currentConfig = cfg;
         renderConfigGrids(cfg);
         renderMonthlyPlanTable(cfg);
+        renderGoalEmiSection(goalsData);
 
         const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
         renderYearlyExpenseTable(rows, goalsData);
-        renderSavingsRateTable(rows);
+        renderSavingsRateTable(rows, goalsData);
     } catch (e) {
         showToast('Failed to load data: ' + e.message, true);
     }
@@ -805,7 +1037,7 @@ async function saveConfig(silent) {
         currentConfig = await res.json();
         const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
         renderYearlyExpenseTable(rows, goalsData);
-        renderSavingsRateTable(rows);
+        renderSavingsRateTable(rows, goalsData);
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus('idle'), 2000);
         if (!silent) showToast('Configuration saved!');
@@ -906,7 +1138,6 @@ function showAiPreview(cfg) {
         grid.appendChild(div);
     });
 
-    // Show expense highlights from monthlyExpenses
     if (cfg.monthlyExpenses) {
         const expKeys = ['rent', 'food', 'utilities', 'travelInternational'];
         expKeys.forEach(k => {
@@ -924,7 +1155,6 @@ function showAiPreview(cfg) {
 async function applyAiConfig() {
     if (!parsedAiConfig) return;
 
-    // Merge AI config into current config
     const merged = { ...(currentConfig || {}), ...parsedAiConfig };
     if (parsedAiConfig.monthlyExpenses) {
         merged.monthlyExpenses = { ...(currentConfig?.monthlyExpenses || {}), ...parsedAiConfig.monthlyExpenses };
@@ -935,7 +1165,6 @@ async function applyAiConfig() {
     renderMonthlyPlanTable(merged);
     closeAiImport();
 
-    // Auto-save immediately
     await saveConfig(false);
     showToast('AI config applied and saved!');
 }

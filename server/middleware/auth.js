@@ -8,7 +8,9 @@ function verifyToken(req, res, next) {
   if (!token) return res.status(401).json({ error: 'No token provided' });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
+    // If the invited user has an ownerUserId, route all data queries to the owner's account
+    req.userId = decoded.ownerUserId || decoded.userId;
+    req.actualUserId = decoded.userId;
     req.userEmail = decoded.email;
     next();
   } catch (err) {

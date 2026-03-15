@@ -657,6 +657,198 @@
         /* SIP compare */
         .sip-compare { font-size: 0.8125rem; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; background: var(--bg-secondary); color: var(--text-secondary); }
 
+        /* ── Sub-tabs ────────────────────────────────────────────────── */
+        .goals-subtabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0;
+        }
+        .goals-subtab-btn {
+            padding: 8px 18px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+            margin-bottom: -1px;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .goals-subtab-btn:hover { color: var(--text-primary); }
+        .goals-subtab-btn.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+        .goals-subtab-panel { display: none; }
+        .goals-subtab-panel.active { display: block; }
+
+        /* ── Year-wise EMI Breakdown ──────────────────────────────────── */
+        .emi-breakdown-section {
+            margin-top: 0;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+        .emi-section-header {
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .emi-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .emi-section-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .emi-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .emi-table th {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-tertiary);
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .emi-table th.right { text-align: right; }
+        .emi-table th:nth-child(2) { width: 45%; }
+        .emi-table td:nth-child(1) { width: 70px; }
+        .emi-table td:nth-child(2) { width: 45%; }
+        .emi-table td {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.875rem;
+            vertical-align: top;
+        }
+        .emi-table tr:last-child td { border-bottom: none; }
+        .emi-table tr.emi-current-year td {
+            background: rgba(0, 102, 255, 0.035);
+        }
+        .emi-year-cell {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            font-size: 0.9375rem;
+        }
+        .emi-now-tag {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-left: 7px;
+            background: rgba(0, 102, 255, 0.12);
+            color: var(--accent-primary);
+            vertical-align: middle;
+            letter-spacing: 0.04em;
+        }
+        .emi-amount-cell { text-align: right; }
+        .emi-amount {
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            letter-spacing: -0.02em;
+        }
+        .emi-amount.sip   { color: var(--accent-primary); }
+        .emi-amount.loan  { color: var(--warning); }
+        .emi-amount.total { color: var(--text-primary); }
+        .emi-amount.zero  { color: var(--text-tertiary); font-weight: 500; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; }
+        .emi-goals-cell {
+            vertical-align: top;
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+        }
+        .emi-goals-cell > .emi-goal-tags + .emi-goal-tags {
+            margin-top: 5px;
+        }
+        .emi-goal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .emi-goal-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 3px 7px;
+            white-space: nowrap;
+        }
+        .emi-goal-tag.sip {
+            color: var(--accent-primary);
+            background: rgba(0, 102, 255, 0.07);
+            border-color: rgba(0, 102, 255, 0.2);
+        }
+        .emi-goal-tag.loan {
+            color: var(--warning);
+            background: rgba(251, 146, 60, 0.08);
+            border-color: rgba(251, 146, 60, 0.25);
+        }
+        .emi-goal-tag .tag-amount {
+            font-weight: 700;
+            opacity: 0.9;
+        }
+        .emi-more-tag {
+            position: relative;
+            cursor: pointer;
+            color: var(--accent-primary);
+            border-color: rgba(0, 102, 255, 0.25);
+            background: rgba(0, 102, 255, 0.07);
+            font-weight: 600;
+        }
+        .emi-more-popup {
+            display: none;
+            position: absolute;
+            left: 0;
+            bottom: calc(100% + 5px);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 7px 9px;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.15);
+            z-index: 120;
+            min-width: 160px;
+            flex-direction: column;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .emi-more-tag:hover .emi-more-popup,
+        .emi-more-tag:focus .emi-more-popup {
+            display: flex;
+        }
+        .emi-more-popup .emi-goal-tag {
+            background: none;
+            border: none;
+            padding: 2px 0;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
         /* Modal */
         .modal-overlay {
             position: fixed;
@@ -967,10 +1159,6 @@
         <aside id="sidebar-root"></aside>
 
         <main class="main-content">
-            <a href="index.html" class="back-link">
-                <span>←</span>
-                <span>Back to options</span>
-            </a>
 
             <div class="top-bar">
                 <div class="page-header">
@@ -1042,20 +1230,33 @@
                 </div>
             </div>
 
-            <!-- Empty state + Goals list -->
-            <div id="emptyStateBanner" style="display: none;">
-                <div class="guidance-card" style="background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 12px;">
-                    <h3 style="margin: 0 0 6px; font-size: 1rem; color: var(--text-primary);">🎯 Define Your Financial Goals</h3>
-                    <p style="color: var(--text-secondary); margin: 0 0 12px; font-size: 0.9rem;">Goals give your savings direction. Add goals like buying a house, children's education, retirement, or a vacation.</p>
-                    <button onclick="document.getElementById('addGoalBtn').click()" style="background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">Add Your First Goal</button>
+            <!-- Sub-tabs -->
+            <div class="goals-subtabs">
+                <button class="goals-subtab-btn active" onclick="switchGoalsTab('goals', this)">Goals</button>
+                <button class="goals-subtab-btn" onclick="switchGoalsTab('emi', this)">EMI Breakdown</button>
+            </div>
+
+            <!-- Tab: Goals list -->
+            <div class="goals-subtab-panel active" id="goalsTabPanel">
+                <div id="emptyStateBanner" style="display: none;">
+                    <div class="guidance-card" style="background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 6px; font-size: 1rem; color: var(--text-primary);">🎯 Define Your Financial Goals</h3>
+                        <p style="color: var(--text-secondary); margin: 0 0 12px; font-size: 0.9rem;">Goals give your savings direction. Add goals like buying a house, children's education, retirement, or a vacation.</p>
+                        <button onclick="document.getElementById('addGoalBtn').click()" style="background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">Add Your First Goal</button>
+                    </div>
+                </div>
+
+                <div class="goals-container" id="goalsContainer">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Loading your goals...</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="goals-container" id="goalsContainer">
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
-                    <div>Loading your goals...</div>
-                </div>
+            <!-- Tab: Year-wise EMI breakdown -->
+            <div class="goals-subtab-panel" id="emiTabPanel">
+                <div id="yearwiseEmiSection"></div>
             </div>
         </main>
     </div>
@@ -1275,6 +1476,7 @@
                 const addCard = createAddCard();
                 container.appendChild(addCard);
                 renderTimeline();
+                renderYearwiseEMI();
                 return;
             }
 
@@ -1298,6 +1500,7 @@
             container.appendChild(addCard);
 
             renderTimeline();
+            renderYearwiseEMI();
         }
 
         function createAddCard() {
@@ -2027,6 +2230,142 @@
                         ${pinHtmlArr.join('')}
                     </div>
                 </div>`;
+        }
+
+        // ─── Year-wise EMI Breakdown ──────────────────────────────────────────────
+        function renderYearwiseEMI() {
+            const section = document.getElementById('yearwiseEmiSection');
+            if (!section) return;
+
+            const activeGoals = allGoals.filter(g => !g.isAchieved && g.targetDate);
+            if (activeGoals.length === 0) {
+                section.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-secondary);">No active goals with dates to show a breakdown.</div>`;
+                return;
+            }
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            let maxYear = currentYear;
+
+            activeGoals.forEach(g => {
+                const ty = parseInt(g.targetDate.substring(0, 4));
+                if (g.fundingType === 'EMI') {
+                    maxYear = Math.max(maxYear, ty + (g.loanDurationYrs || 0));
+                } else {
+                    maxYear = Math.max(maxYear, ty);
+                }
+            });
+
+            const rows = [];
+            for (let year = currentYear; year <= maxYear; year++) {
+                // { name, amount } per goal, per column
+                const sipEntries = [], loanEntries = [];
+                let totalSip = 0, totalLoan = 0;
+
+                activeGoals.forEach(g => {
+                    const ty = parseInt(g.targetDate.substring(0, 4));
+                    if (g.fundingType === 'EMI') {
+                        // Loan repayment phase: target year through target year + duration - 1
+                        const loanEnd = ty + (g.loanDurationYrs || 0) - 1;
+                        if (year >= ty && year <= loanEnd) {
+                            const emi = parseFloat(g.monthlyEmi) || 0;
+                            totalLoan += emi;
+                            loanEntries.push({ name: g.name, amount: emi });
+                        }
+                    } else {
+                        // Investment/SIP phase: current year through target year
+                        // Use step-up SIP: starting SIP escalates 10% each year
+                        if (year <= ty) {
+                            const baseSip = parseFloat(g.stepUpSip) || 0;
+                            const yearsElapsed = year - currentYear;
+                            const sipThisYear = Math.round(baseSip * Math.pow(1.10, yearsElapsed));
+                            totalSip += sipThisYear;
+                            sipEntries.push({ name: g.name, amount: sipThisYear });
+                        }
+                    }
+                });
+
+                if (totalSip > 0 || totalLoan > 0) {
+                    rows.push({ year, totalSip, sipEntries, totalLoan, loanEntries });
+                }
+            }
+
+            if (rows.length === 0) {
+                section.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-secondary);">No active goals with dates to show a breakdown.</div>`;
+                return;
+            }
+
+            const fmt = v => v > 0 ? WealthAPI.formatCurrency(Math.round(v)) : '—';
+
+            // Render goal chips with amounts; type = 'sip' | 'loan'
+            const tagsHtml = (entries, type) => {
+                if (!entries.length) return '<span style="color:var(--text-tertiary);font-size:0.75rem;">—</span>';
+                const chipHtml = e =>
+                    `<span class="emi-goal-tag ${type}" title="${escapeHtml(e.name)}">
+                        ${escapeHtml(e.name)}<span class="tag-amount">${WealthAPI.formatCurrency(Math.round(e.amount))}</span>
+                    </span>`;
+                const visible = entries.slice(0, 3);
+                const hidden  = entries.slice(3);
+                const visibleHtml = visible.map(chipHtml).join('');
+                const moreHtml = hidden.length
+                    ? `<span class="emi-goal-tag emi-more-tag" tabindex="0">+${hidden.length} more
+                        <span class="emi-more-popup">${hidden.map(chipHtml).join('')}</span>
+                       </span>`
+                    : '';
+                return `<div class="emi-goal-tags">${visibleHtml}${moreHtml}</div>`;
+            };
+
+            const tableRows = rows.map(r => {
+                const isCurrent = r.year === currentYear;
+                const total = r.totalSip + r.totalLoan;
+                return `
+                    <tr${isCurrent ? ' class="emi-current-year"' : ''}>
+                        <td class="emi-year-cell">
+                            ${r.year}${isCurrent ? '<span class="emi-now-tag">Now</span>' : ''}
+                        </td>
+                        <td class="emi-goals-cell">
+                            ${tagsHtml(r.sipEntries, 'sip')}
+                            ${r.loanEntries.length ? tagsHtml(r.loanEntries, 'loan') : ''}
+                        </td>
+                        <td class="emi-amount-cell">
+                            <div class="emi-amount ${r.totalSip > 0 ? 'sip' : 'zero'}">${fmt(r.totalSip)}</div>
+                        </td>
+                        <td class="emi-amount-cell">
+                            <div class="emi-amount ${r.totalLoan > 0 ? 'loan' : 'zero'}">${fmt(r.totalLoan)}</div>
+                        </td>
+                        <td class="emi-amount-cell">
+                            <div class="emi-amount total">${WealthAPI.formatCurrency(Math.round(total))}</div>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            section.innerHTML = `
+                <div class="emi-breakdown-section">
+                    <div class="emi-section-header">
+                        <div class="emi-section-title">📊 Year-wise Monthly EMI Breakdown</div>
+                        <div class="emi-section-sub">Step-up SIPs (10% annual) &amp; loan repayments by year</div>
+                    </div>
+                    <table class="emi-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Goals</th>
+                                <th class="right">SIP / mo <span style="font-weight:500;opacity:0.65;">(step-up)</span></th>
+                                <th class="right">Loan EMI / mo</th>
+                                <th class="right">Total / mo</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        // ─── Sub-tab switching ────────────────────────────────────────────────────
+        function switchGoalsTab(tab, btn) {
+            document.querySelectorAll('.goals-subtab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.goals-subtab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tab + 'TabPanel').classList.add('active');
         }
 
         // ─── Boot ─────────────────────────────────────────────────────────────────

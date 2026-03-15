@@ -1439,10 +1439,6 @@
         <aside id="sidebar-root"></aside>
 
         <main class="main-content">
-            <a href="index.html" class="back-link">
-                <span>←</span>
-                <span>Back to options</span>
-            </a>
 
             <div class="page-header">
                 <h1 class="page-title">Portfolio</h1>
@@ -2110,6 +2106,7 @@
 
             // Sidebar member breakdown
             const memberBreakdownEl = document.getElementById('memberBreakdown');
+            const byMember = summaryData.byMember || [];
             if (byMember.length > 0) {
                 memberBreakdownEl.innerHTML = byMember.map(m => {
                     const pct = totalNetWorth > 0 ? ((m.total / totalNetWorth) * 100).toFixed(1) : 0;

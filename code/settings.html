@@ -926,10 +926,6 @@
         <aside id="sidebar-root"></aside>
 
         <main class="main-content">
-            <a href="option2.html" class="back-link">
-                <span>←</span>
-                <span>Back to Dashboard</span>
-            </a>
 
             <div class="top-bar">
                 <div class="page-header">
@@ -1610,6 +1606,10 @@
                         <option value="aggressive">Aggressive</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Email <span style="font-weight:400;color:#999;">(optional — sends invite to access family account)</span></label>
+                    <input type="email" class="form-input" id="memberEmail" placeholder="e.g. spouse@email.com">
+                </div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" onclick="saveMember()">Save Member</button>
                     <button type="button" class="btn btn-secondary" onclick="closeMemberModal()">Cancel</button>
@@ -1738,6 +1738,29 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
+        function getInviteBadge(member) {
+            const status = member.inviteStatus;
+            if (status === 'accepted') return '<span style="background:#00C805;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;">Joined</span>';
+            if (status === 'pending')  return '<span style="background:#ff9500;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;">Invite Pending</span>';
+            if (status === 'expired')  return '<span style="background:#ff3b30;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;">Invite Expired</span>';
+            return '<span style="background:#e8ecf0;color:#666;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;">Not Invited</span>';
+        }
+
+        async function resendInvite(memberId) {
+            try {
+                const res = await fetch(`/api/family/members/${memberId}/resend-invite`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('wealthos_jwt') }
+                });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'Could not resend invite', 'error'); return; }
+                showToast('Invite resent!', 'success');
+                await loadFamilyMembers();
+            } catch (err) {
+                showToast('Error resending invite', 'error');
+            }
+        }
+
         async function loadFamilyMembers() {
             const container = document.getElementById('familyMembersContainer');
             if (!container) return;
@@ -1754,7 +1777,12 @@
                     return;
                 }
 
-                container.innerHTML = members.map((member, index) => `
+                container.innerHTML = members.map((member, index) => {
+                    const inviteBadge = member.email ? getInviteBadge(member) : '';
+                    const resendBtn = (member.email && !member.linkedUserId && member.inviteStatus !== 'accepted')
+                        ? `<button class="member-btn" style="font-size:11px;padding:4px 10px;background:rgba(0,102,255,0.08);color:#0066ff;border:1px solid rgba(0,102,255,0.2);" onclick="resendInvite(${member.id})">Resend Invite</button>`
+                        : '';
+                    return `
                     <div class="family-member-card" data-member-id="${member.id}">
                         <div class="member-avatar" style="${getAvatarStyle(index)}">${getInitials(member.name)}</div>
                         <div class="member-name" id="memberNameDisplay_${member.id}"
@@ -1765,12 +1793,14 @@
                         </div>
                         <div class="member-role">${capitalise(member.role)}</div>
                         <div class="member-details">${member.age ? member.age + ' years' : 'Age not specified'} &bull; ${capitalise(member.riskProfile || 'moderate')} risk</div>
-                        <div class="member-actions">
+                        ${member.email ? `<div class="member-details" style="font-size:12px;color:#999;">${member.email} ${inviteBadge}</div>` : ''}
+                        <div class="member-actions" style="flex-wrap:wrap;gap:6px;">
                             <button class="member-btn member-btn-edit" onclick="editMember(${member.id})">Edit</button>
+                            ${resendBtn}
                             <button class="member-btn member-btn-remove" onclick="deleteMember(${member.id}, '${member.name.replace(/'/g, "\\'")}')">Remove</button>
                         </div>
-                    </div>
-                `).join('') + `
+                    </div>`;
+                }).join('') + `
                     <div class="add-member-card" onclick="openAddMemberModal()">
                         <div class="add-member-icon">+</div>
                         <div class="add-member-text">Add Family Member</div>
@@ -1801,6 +1831,7 @@
                 document.getElementById('memberRole').value = member.role || 'primary';
                 document.getElementById('memberDob').value = member.dob || '';
                 document.getElementById('memberRiskProfile').value = member.riskProfile || 'moderate';
+                document.getElementById('memberEmail').value = member.email || '';
                 updateComputedAge();
 
                 const form = document.getElementById('memberForm');
@@ -1823,13 +1854,14 @@
             const role = document.getElementById('memberRole').value;
             const dob = document.getElementById('memberDob').value || '';
             const riskProfile = document.getElementById('memberRiskProfile').value;
+            const email = document.getElementById('memberEmail').value.trim();
 
             if (!name) {
                 showToast('Please enter a name', 'error');
                 return;
             }
 
-            const payload = { name, role, riskProfile, dob };
+            const payload = { name, role, riskProfile, dob, email };
 
             try {
                 if (mode === 'add') {
@@ -1864,6 +1896,7 @@
             document.getElementById('memberModal').classList.remove('active');
             document.getElementById('memberForm').reset();
             document.getElementById('memberAgeDisplay').textContent = '';
+            document.getElementById('memberEmail').value = '';
         }
 
         function updateComputedAge() {
