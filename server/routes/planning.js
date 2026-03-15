@@ -474,6 +474,15 @@ router.get('/comprehensive', (req, res) => {
         completionFY = td.getMonth() >= 3 ? td.getFullYear() + 1 : td.getFullYear();
       }
 
+      // Pre-compute futureValue and downPaymentAmount using monthsRemaining (same as goals.js enrichGoal)
+      const yrsFromNow = monthsLeft ? Math.round(monthsLeft / 12) : 0;
+      const inflationRateGoal = (goal.inflation_rate != null ? goal.inflation_rate : 8) / 100;
+      const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRateGoal, yrsFromNow));
+      const fundingType = goal.funding_type || 'Savings';
+      const downPaymentAmount = fundingType === 'EMI'
+        ? Math.round(futureValue * (goal.down_payment_pct || 0) / 100)
+        : 0;
+
       return {
         id: goal.id,
         name: goal.name,
@@ -492,9 +501,11 @@ router.get('/comprehensive', (req, res) => {
         sipFreedAtCompletion: goal.monthly_contribution || 0,
         assignedMembers: JSON.parse(goal.assigned_members || '[]'),
         notes: goal.notes,
-        fundingType: goal.funding_type || 'Savings',
+        fundingType,
         downPaymentPct: goal.down_payment_pct || 0,
-        inflationRate: goal.inflation_rate != null ? goal.inflation_rate : 8
+        inflationRate: goal.inflation_rate != null ? goal.inflation_rate : 8,
+        futureValue,
+        downPaymentAmount,
       };
     });
 

@@ -1380,14 +1380,12 @@ function computePortfolioJourneyForMember(memberId) {
 
         const monthlyContrib = g.monthlyContribution || 0;
         const isEMI = (g.fundingType || 'Savings') === 'EMI';
-        // Compute future value of goal at completion year using per-goal inflation rate
-        const yearsToGoal = Math.max(0, g.completionFY - currentFY);
-        const goalInflation = (g.inflationRate != null ? g.inflationRate : 8) / 100;
-        const futureValue = g.targetAmount * Math.pow(1 + goalInflation, yearsToGoal);
+        // Use pre-computed futureValue and downPaymentAmount from server (same formula as Goals tab)
+        const futureValue = g.futureValue || g.targetAmount;
 
         if (isEMI) {
-            // EMI goal: corpus only covers down payment on future value; loan handles the rest
-            const downPayment = Math.round(futureValue * fraction * (g.downPaymentPct || 0) / 100);
+            // EMI goal: corpus only covers down payment; loan handles the rest
+            const downPayment = Math.round((g.downPaymentAmount || 0) * fraction);
             if (downPayment > 0) {
                 goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + downPayment;
             }
