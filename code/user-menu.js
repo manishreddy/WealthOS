@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeUserMenu() {
     // Get user data
-    const user = getCurrentUser();
+    const user = (typeof WealthAPI !== 'undefined') ? WealthAPI.auth.getCachedUser() : null;
     if (!user) return;
 
     // Update avatar with user's initial
     const avatar = document.querySelector('.user-avatar');
     if (avatar) {
-        const initial = user.userName ? user.userName.charAt(0).toUpperCase() :
+        const initial = user.familyName ? user.familyName.charAt(0).toUpperCase() :
                        user.email ? user.email.charAt(0).toUpperCase() : 'U';
         avatar.textContent = initial;
 
