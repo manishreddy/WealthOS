@@ -427,15 +427,15 @@ async function loadAll() {
 function toggleTheme() {
     const html = document.documentElement;
     const isDark = html.getAttribute('data-theme') === 'dark';
-    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('themeToggle').classList.toggle('active', !isDark);
-    localStorage.setItem('wealthos_theme', isDark ? 'light' : 'dark');
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('wealthos_theme', next);
+    localStorage.setItem('theme', next);
 }
 
 (function() {
-    const theme = localStorage.getItem('wealthos_theme') || 'light';
+    const theme = localStorage.getItem('wealthos_theme') || localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
-    if (theme === 'dark') document.getElementById('themeToggle').classList.add('active');
     try {
         const token = localStorage.getItem('wealthos_jwt');
         if (token) {

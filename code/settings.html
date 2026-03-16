@@ -1657,19 +1657,15 @@
     <script src="user-menu.js"></script>
     <script>
         // ── Theme Toggle ─────────────────────────────────────────────────────
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem('wealthos_theme') || localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', currentTheme);
-        if (currentTheme === 'dark') {
-            document.getElementById('themeToggle').classList.add('active');
-        }
 
         function toggleTheme() {
             const html = document.documentElement;
-            const toggle = document.getElementById('themeToggle');
             const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('wealthos_theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            toggle.classList.toggle('active');
         }
 
         // ── Auth & Logout ─────────────────────────────────────────────────────
