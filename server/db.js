@@ -189,6 +189,13 @@ if (!goalsCols.includes('loan_duration_yrs')) {
 if (!goalsCols.includes('loan_roi')) {
   db.exec(`ALTER TABLE goals ADD COLUMN loan_roi REAL DEFAULT 8`);
 }
+if (!goalsCols.includes('is_milestone')) {
+  db.exec(`ALTER TABLE goals ADD COLUMN is_milestone INTEGER DEFAULT 0`);
+}
+if (!goalsCols.includes('base_year')) {
+  const currentYear = new Date().getFullYear();
+  db.exec(`ALTER TABLE goals ADD COLUMN base_year INTEGER DEFAULT ${currentYear}`);
+}
 
 // Migrate: add dob column to family_members if not present
 const familyCols = db.pragma('table_info(family_members)').map(c => c.name);

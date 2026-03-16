@@ -178,6 +178,26 @@ router.get('/tax/:memberId', (req, res) => {
   }
 });
 
+// PUT /api/planning/config - merge partial config into saved config
+router.put('/config', (req, res) => {
+  try {
+    const updates = req.body;
+    if (!updates || typeof updates !== 'object') {
+      return res.status(400).json({ error: 'Request body must be a config object' });
+    }
+    const existing = getConfig(req.userId);
+    const merged = { ...existing, ...updates };
+    db.prepare(`
+      INSERT INTO financial_plan (user_id, config, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(user_id) DO UPDATE SET config = excluded.config, updated_at = CURRENT_TIMESTAMP
+    `).run(req.userId, JSON.stringify(merged));
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('PUT /planning/config error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // PUT /api/planning/tax/:memberId - upsert tax planning data
 router.put('/tax/:memberId', (req, res) => {
   try {
@@ -474,10 +494,12 @@ router.get('/comprehensive', (req, res) => {
         completionFY = td.getMonth() >= 3 ? td.getFullYear() + 1 : td.getFullYear();
       }
 
-      // Pre-compute futureValue and downPaymentAmount using monthsRemaining (same as goals.js enrichGoal)
-      const yrsFromNow = monthsLeft ? Math.round(monthsLeft / 12) : 0;
+      // Pre-compute futureValue: fixed from base_year to target year (not from today)
       const inflationRateGoal = (goal.inflation_rate != null ? goal.inflation_rate : 8) / 100;
-      const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRateGoal, yrsFromNow));
+      const goalBaseYear = goal.base_year || new Date().getFullYear();
+      const goalTargetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : goalBaseYear;
+      const yrsFromBase = Math.max(goalTargetYear - goalBaseYear, 0);
+      const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRateGoal, yrsFromBase));
       const fundingType = goal.funding_type || 'Savings';
       const downPaymentAmount = fundingType === 'EMI'
         ? Math.round(futureValue * (goal.down_payment_pct || 0) / 100)
@@ -502,6 +524,7 @@ router.get('/comprehensive', (req, res) => {
         assignedMembers: JSON.parse(goal.assigned_members || '[]'),
         notes: goal.notes,
         fundingType,
+        isMilestone: goal.is_milestone === 1,
         downPaymentPct: goal.down_payment_pct || 0,
         inflationRate: goal.inflation_rate != null ? goal.inflation_rate : 8,
         futureValue,

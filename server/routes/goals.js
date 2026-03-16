@@ -45,15 +45,14 @@ function enrichGoal(goal) {
   const progressPct = goal.target_amount > 0
     ? parseFloat(((goal.current_amount / goal.target_amount) * 100).toFixed(2))
     : 0;
-  const requiredMonthlySip = parseFloat(calcRequiredSip(goal.target_amount, goal.current_amount, months).toFixed(2));
-  // EMI goals use loan financing — SIP on-track check doesn't apply
-  const fundingTypeRaw = goal.funding_type || 'Savings';
-  const isOnTrack = fundingTypeRaw === 'EMI' ? null : goal.monthly_contribution >= requiredMonthlySip;
-
-  // Inflation-adjusted future value
-  const yrsFromNow = months ? Math.round(months / 12) : 0;
+  // Inflation-adjusted future value — fixed from baseYear to targetYear, not from today
   const inflationRate = goal.inflation_rate != null ? goal.inflation_rate : 8;
-  const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRate / 100, yrsFromNow));
+  const baseYear = goal.base_year || new Date().getFullYear();
+  const targetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : baseYear;
+  const yrsFromBase = Math.max(targetYear - baseYear, 0);
+  const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRate / 100, yrsFromBase));
+  // yrsFromNow kept for display (time remaining)
+  const yrsFromNow = months ? Math.round(months / 12) : 0;
 
   // Funding-type-specific fields
   const fundingType = goal.funding_type || 'Savings';
@@ -69,17 +68,25 @@ function enrichGoal(goal) {
     const emi = r === 0
       ? loanAmount / n
       : loanAmount * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-    const targetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : new Date().getFullYear();
+    const emiTargetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : new Date().getFullYear();
     fundingDetails = {
       downPaymentAmount,
       loanAmount: Math.round(loanAmount),
       monthlyEmi: Math.round(emi),
       yearlyEmi: Math.round(emi * 12),
-      loanEndsFy: targetYear + dur,
+      loanEndsFy: emiTargetYear + dur,
     };
   } else {
     fundingDetails = { stepUpSip: calcStepUpSip(futureValue, goal.current_amount || 0, months || 0) };
   }
+
+  // Use stepUpSip as the reference for on-track check and gap/surplus — same basis as what's shown on the card
+  const fundingTypeRaw = goal.funding_type || 'Savings';
+  const stepUpSipRef = fundingDetails.stepUpSip || 0;
+  const requiredMonthlySip = fundingTypeRaw === 'EMI' ? 0 : stepUpSipRef;
+  const isOnTrack = fundingTypeRaw === 'EMI' ? null : (goal.monthly_contribution || 0) >= stepUpSipRef;
+
+  const isMilestone = goal.is_milestone === 1;
 
   return {
     id: goal.id,
@@ -92,12 +99,14 @@ function enrichGoal(goal) {
     assignedMembers: JSON.parse(goal.assigned_members || '[]'),
     notes: goal.notes,
     isAchieved: goal.is_achieved === 1,
+    isMilestone,
     createdAt: goal.created_at,
     monthsRemaining: months,
     progressPct,
     requiredMonthlySip,
-    isOnTrack,
-    fundingType,
+    isOnTrack: isMilestone ? null : isOnTrack,
+    fundingType: isMilestone ? 'Savings' : fundingType,
+    baseYear,
     inflationRate,
     downPaymentPct: goal.down_payment_pct || 0,
     loanDurationYrs: goal.loan_duration_yrs || 0,
@@ -139,6 +148,8 @@ router.post('/', (req, res) => {
       downPaymentPct = 0,
       loanDurationYrs = 0,
       loanRoi = 8,
+      isMilestone = false,
+      baseYear = new Date().getFullYear(),
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -151,8 +162,8 @@ router.post('/', (req, res) => {
     const assignedMembersStr = JSON.stringify(Array.isArray(assignedMembers) ? assignedMembers : []);
 
     const result = db.prepare(`
-      INSERT INTO goals (user_id, name, goal_type, target_amount, current_amount, monthly_contribution, target_date, assigned_members, notes, funding_type, inflation_rate, down_payment_pct, loan_duration_yrs, loan_roi)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO goals (user_id, name, goal_type, target_amount, current_amount, monthly_contribution, target_date, assigned_members, notes, funding_type, inflation_rate, down_payment_pct, loan_duration_yrs, loan_roi, is_milestone, base_year)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       req.userId,
       name.trim(),
@@ -163,11 +174,13 @@ router.post('/', (req, res) => {
       targetDate,
       assignedMembersStr,
       notes,
-      fundingType,
+      isMilestone ? 'Savings' : fundingType,
       parseFloat(inflationRate),
-      parseFloat(downPaymentPct),
-      parseInt(loanDurationYrs, 10),
+      isMilestone ? 0 : parseFloat(downPaymentPct),
+      isMilestone ? 0 : parseInt(loanDurationYrs, 10),
       parseFloat(loanRoi),
+      isMilestone ? 1 : 0,
+      parseInt(baseYear, 10) || new Date().getFullYear(),
     );
 
     // Update setup progress
@@ -208,6 +221,8 @@ router.put('/:id', (req, res) => {
       downPaymentPct = existing.down_payment_pct,
       loanDurationYrs = existing.loan_duration_yrs,
       loanRoi = existing.loan_roi,
+      isMilestone,
+      baseYear = existing.base_year,
     } = req.body;
 
     const assignedMembersStr = assignedMembers !== undefined
@@ -215,6 +230,7 @@ router.put('/:id', (req, res) => {
       : existing.assigned_members;
 
     const isAchievedInt = isAchieved !== undefined ? (isAchieved ? 1 : 0) : existing.is_achieved;
+    const isMilestoneInt = isMilestone !== undefined ? (isMilestone ? 1 : 0) : existing.is_milestone;
 
     if (!name || !name.toString().trim()) {
       return res.status(400).json({ error: 'Goal name cannot be empty' });
@@ -224,7 +240,8 @@ router.put('/:id', (req, res) => {
       UPDATE goals
       SET name = ?, goal_type = ?, target_amount = ?, current_amount = ?, monthly_contribution = ?,
           target_date = ?, assigned_members = ?, notes = ?, is_achieved = ?,
-          funding_type = ?, inflation_rate = ?, down_payment_pct = ?, loan_duration_yrs = ?, loan_roi = ?
+          funding_type = ?, inflation_rate = ?, down_payment_pct = ?, loan_duration_yrs = ?, loan_roi = ?,
+          is_milestone = ?, base_year = ?
       WHERE id = ? AND user_id = ?
     `).run(
       name.toString().trim(),
@@ -236,11 +253,13 @@ router.put('/:id', (req, res) => {
       assignedMembersStr,
       notes,
       isAchievedInt,
-      fundingType || 'Savings',
+      isMilestoneInt ? 'Savings' : (fundingType || 'Savings'),
       inflationRate != null && !isNaN(parseFloat(inflationRate)) ? parseFloat(inflationRate) : 8,
-      downPaymentPct != null && !isNaN(parseFloat(downPaymentPct)) ? parseFloat(downPaymentPct) : 0,
-      loanDurationYrs != null && !isNaN(parseInt(loanDurationYrs, 10)) ? parseInt(loanDurationYrs, 10) : 0,
+      isMilestoneInt ? 0 : (downPaymentPct != null && !isNaN(parseFloat(downPaymentPct)) ? parseFloat(downPaymentPct) : 0),
+      isMilestoneInt ? 0 : (loanDurationYrs != null && !isNaN(parseInt(loanDurationYrs, 10)) ? parseInt(loanDurationYrs, 10) : 0),
       loanRoi != null && !isNaN(parseFloat(loanRoi)) ? parseFloat(loanRoi) : 8,
+      isMilestoneInt,
+      parseInt(baseYear, 10) || new Date().getFullYear(),
       id, req.userId
     );
 

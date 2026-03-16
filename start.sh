@@ -5,4 +5,7 @@ echo ""
 echo "  WealthOS Starting..."
 echo "  Open: http://localhost:3000"
 echo ""
-node server.js
+node server.js &
+sleep 2
+open http://localhost:3000
+wait

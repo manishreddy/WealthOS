@@ -266,6 +266,10 @@ const WealthAPI = (() => {
 
     async aiInsights(comprehensiveData) {
       return request('POST', '/planning/ai-insights', { comprehensiveData });
+    },
+
+    async saveConfig(updates) {
+      return request('PUT', '/planning/config', updates);
     }
   };
 

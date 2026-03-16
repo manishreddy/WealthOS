@@ -112,6 +112,30 @@
         .wf-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--text-secondary); }
         .wf-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
+        /* SIP Affordability */
+        .sip-afford-banner { border-radius: 12px; padding: 16px 20px; margin-bottom: 0; border: 1.5px solid; }
+        .sip-afford-banner.surplus { border-color: rgba(0,200,5,0.25); background: rgba(0,200,5,0.04); }
+        .sip-afford-banner.shortfall { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
+        .sip-afford-summary { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
+        .sip-afford-stat { flex: 1; min-width: 120px; }
+        .sip-afford-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 3px; }
+        .sip-afford-stat-val { font-size: 1.0625rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: var(--text-primary); }
+        .sip-afford-stat-val.green { color: var(--success); }
+        .sip-afford-stat-val.red { color: var(--error); }
+        .sip-afford-divider { width: 1px; height: 36px; background: var(--border-color); flex-shrink: 0; }
+        .sip-afford-verdict { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; margin-bottom: 14px; }
+        .sip-afford-verdict.surplus { color: var(--success); background: rgba(0,200,5,0.07); }
+        .sip-afford-verdict.shortfall { color: var(--error); background: rgba(239,68,68,0.07); }
+        .sip-afford-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        .sip-afford-table th { text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: 5px 8px 8px; border-bottom: 1px solid var(--border-color); }
+        .sip-afford-table th:not(:first-child) { text-align: right; }
+        .sip-afford-table td { padding: 8px 8px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); vertical-align: middle; }
+        .sip-afford-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+        .sip-afford-table tr:last-child td { border-bottom: none; }
+        .sip-afford-gap-pill { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
+        .sip-afford-gap-pill.neg { background: rgba(239,68,68,0.1); color: var(--error); }
+        .sip-afford-gap-pill.pos { background: rgba(0,200,5,0.08); color: var(--success); }
+
         /* Goals health */
         .goals-health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .goals-col-title { font-size: 0.8125rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
@@ -313,6 +337,16 @@
         .pj-td-negative { color: var(--error); font-weight: 600; }
         .pj-goal-deduction { color: var(--warning); font-weight: 600; background: rgba(255,159,10,0.1); border-radius: 4px; padding: 1px 6px; }
         .pj-goal-pill { display: inline-block; background: rgba(255,59,48,0.1); color: var(--error); border-radius: 4px; padding: 1px 6px; font-size: 0.7rem; font-weight: 600; margin-left: 4px; }
+        .pj-milestone-cell { text-align: left !important; min-width: 160px; }
+        .pj-milestone-item { margin-bottom: 6px; }
+        .pj-milestone-item:last-child { margin-bottom: 0; }
+        .pj-milestone-name { font-size: 0.78rem; font-weight: 700; color: #7c3aed; white-space: nowrap; }
+        .pj-milestone-target { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 1px; }
+        .pj-milestone-status { display: inline-flex; align-items: center; gap: 3px; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-top: 2px; }
+        .pj-milestone-status.met   { background: rgba(0,200,5,0.08); color: var(--success); }
+        .pj-milestone-status.unmet { background: rgba(239,68,68,0.1); color: var(--error); }
+        .pj-table tr.has-milestone-unmet td { background: rgba(239,68,68,0.05) !important; }
+        .pj-table tr.has-milestone-unmet td:first-child { color: var(--error); }
 
         @media (max-width: 1200px) {
             .hero-grid { grid-template-columns: repeat(3, 1fr); }
@@ -419,6 +453,13 @@
                         <div class="wf-legend-item"><div class="wf-dot" style="background:#0066ff;"></div>Portfolio SIPs: <strong id="wf-sip">—</strong></div>
                         <div class="wf-legend-item"><div class="wf-dot" style="background:#22c55e;"></div>Free Savings: <strong id="wf-free">—</strong></div>
                     </div>
+                </div>
+
+                <!-- SIP Affordability -->
+                <div class="section-card" id="sipAffordCard" style="display:none;">
+                    <div class="section-title">SIP Affordability</div>
+                    <div class="section-sub">Can your monthly savings cover all goal SIPs?</div>
+                    <div id="sipAffordContent"></div>
                 </div>
 
                 <!-- Goals health -->
@@ -553,11 +594,17 @@ let portfolioReturnRate = 10; // percent, e.g. 10 = 10% p.a.
 const CURRENT_TAX_YEAR = WealthAPI.getCurrentTaxYear();
 
 // ── Return rate change ─────────────────────────────────────────────────────
+let _returnRateSaveTimer = null;
 function onReturnRateChange(val) {
     const parsed = parseFloat(val);
     if (isNaN(parsed) || parsed <= 0 || parsed > 50) return;
     portfolioReturnRate = parsed;
     renderPortfolioJourneyForMember(activePJMemberId || 'all');
+    clearTimeout(_returnRateSaveTimer);
+    _returnRateSaveTimer = setTimeout(() => {
+        WealthAPI.planning.saveConfig({ portfolioReturnRate: parsed })
+            .catch(e => console.error('Failed to save return rate:', e));
+    }, 800);
 }
 
 // ── Tab switching ──────────────────────────────────────────────────────────
@@ -613,6 +660,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (comprehensiveData) {
+        // Restore saved return rate
+        const savedRate = comprehensiveData.config && comprehensiveData.config.portfolioReturnRate;
+        if (savedRate && !isNaN(savedRate)) {
+            portfolioReturnRate = parseFloat(savedRate);
+            document.getElementById('pjReturnRateInput').value = portfolioReturnRate;
+        }
         renderOverview(comprehensiveData);
         renderGoalsTimeline(comprehensiveData);
     }
@@ -694,9 +747,76 @@ function renderOverview(data) {
     document.getElementById('wf-sip').textContent = fmt(summary.totalFamilyMonthlySip);
     document.getElementById('wf-free').textContent = fmt(Math.max(freeSavings, 0));
 
-    // Goals health
-    const onTrack = goals.filter(g => g.isOnTrack);
-    const offTrack = goals.filter(g => !g.isOnTrack);
+    // SIP Affordability
+    const activeGoals = goals.filter(g => !g.isAchieved && g.fundingType !== 'EMI');
+    if (activeGoals.length > 0 && summary.totalMonthlyIncome > 0) {
+        const netSavings = summary.totalMonthlyIncome - summary.totalMonthlyExpense;
+        const totalRequired = activeGoals.reduce((s, g) => s + (g.requiredMonthlySip || 0), 0);
+        const totalCommitted = activeGoals.reduce((s, g) => s + (g.monthlyContribution || 0), 0);
+        const gap = netSavings - totalRequired;
+        const isShortfall = gap < 0;
+
+        document.getElementById('sipAffordCard').style.display = 'block';
+
+        const goalRows = activeGoals.map(g => {
+            const req = g.requiredMonthlySip || 0;
+            const comm = g.monthlyContribution || 0;
+            const diff = comm - req;
+            const pillClass = diff >= 0 ? 'pos' : 'neg';
+            const pillText = diff >= 0 ? `+${fmt(diff)}` : `−${fmt(Math.abs(diff))}`;
+            const isMilestone = g.isMilestone ? ' <span style="font-size:0.65rem;color:#7c3aed;font-weight:700;padding:1px 5px;background:rgba(139,92,246,0.1);border-radius:3px;">Milestone</span>' : '';
+            return `<tr>
+                <td style="font-weight:600;">${escHtml(g.name)}${isMilestone}</td>
+                <td>${fmt(req)}/mo</td>
+                <td>${comm > 0 ? fmt(comm) + '/mo' : '<span style="color:var(--text-tertiary)">—</span>'}</td>
+                <td><span class="sip-afford-gap-pill ${pillClass}">${pillText}</span></td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('sipAffordContent').innerHTML = `
+            <div class="sip-afford-banner ${isShortfall ? 'shortfall' : 'surplus'}">
+                <div class="sip-afford-summary">
+                    <div class="sip-afford-stat">
+                        <div class="sip-afford-stat-label">Net Monthly Savings</div>
+                        <div class="sip-afford-stat-val">${fmt(netSavings)}</div>
+                    </div>
+                    <div class="sip-afford-divider"></div>
+                    <div class="sip-afford-stat">
+                        <div class="sip-afford-stat-label">Total SIPs Required</div>
+                        <div class="sip-afford-stat-val">${fmt(totalRequired)}</div>
+                    </div>
+                    <div class="sip-afford-divider"></div>
+                    <div class="sip-afford-stat">
+                        <div class="sip-afford-stat-label">Currently Committed</div>
+                        <div class="sip-afford-stat-val">${fmt(totalCommitted)}</div>
+                    </div>
+                    <div class="sip-afford-divider"></div>
+                    <div class="sip-afford-stat">
+                        <div class="sip-afford-stat-label">${isShortfall ? 'Shortfall' : 'Surplus'}</div>
+                        <div class="sip-afford-stat-val ${isShortfall ? 'red' : 'green'}">${fmt(Math.abs(gap))}</div>
+                    </div>
+                </div>
+                <div class="sip-afford-verdict ${isShortfall ? 'shortfall' : 'surplus'}">
+                    ${isShortfall
+                        ? `⚠️ Monthly savings fall short by ${fmt(Math.abs(gap))} — not enough to fund all goal SIPs`
+                        : `✅ Monthly savings cover all goal SIPs with ${fmt(gap)} to spare`}
+                </div>
+                <table class="sip-afford-table">
+                    <thead><tr>
+                        <th>Goal</th>
+                        <th>Required SIP</th>
+                        <th>Committed</th>
+                        <th>Gap / Surplus</th>
+                    </tr></thead>
+                    <tbody>${goalRows}</tbody>
+                </table>
+            </div>`;
+    }
+
+    // Goals health — exclude milestone goals from on/off track lists
+    const spendingGoals = goals.filter(g => !g.isMilestone);
+    const onTrack = spendingGoals.filter(g => g.isOnTrack);
+    const offTrack = spendingGoals.filter(g => !g.isOnTrack);
     const onTrackEl = document.getElementById('onTrackGoals');
     const offTrackEl = document.getElementById('offTrackGoals');
 
@@ -1364,8 +1484,16 @@ function computePortfolioJourneyForMember(memberId) {
     const goalWithdrawalsByFY = {};
     const goalCommittedByFY = {};
     const goalNamesByFY = {}; // completion year only, for pill display
+    const milestoneGoals = []; // milestone goals for separate check panel
     goals.forEach(g => {
         if (!g.completionFY) return;
+
+        // Milestone goals: skip corpus deduction, collect for separate display
+        if (g.isMilestone) {
+            milestoneGoals.push(g);
+            return;
+        }
+
         const assigned = g.assignedMembers && g.assignedMembers.length > 0 ? g.assignedMembers : null;
 
         // Determine this member's share fraction
@@ -1417,7 +1545,7 @@ function computePortfolioJourneyForMember(memberId) {
         // Net savings from planned projections (lakhs → ₹), clamped to 0 after retirement
         const projRow = projByFY[fy];
         const annualSipTotal = projRow
-            ? Math.max(0, projRow.netSavings * 100000 * memberFraction)
+            ? projRow.netSavings * 100000 * memberFraction
             : fallbackAnnualSip;
 
         // Corpus is reduced only by lump-sum withdrawals; net savings flow in each year
@@ -1459,7 +1587,8 @@ function computePortfolioJourneyForMember(memberId) {
         totalGoalsFunded: Math.round(totalGoalsFunded),
         projectedAtRetirement: retireRow?.closing || 0,
         projectedNoGoals: retireRow?.closingNoGoals || 0,
-        startCorpus: Math.round(startCorpusTotal)
+        startCorpus: Math.round(startCorpusTotal),
+        milestoneGoals,
     };
 }
 
@@ -1476,7 +1605,7 @@ function renderPortfolioJourneyForMember(memberId) {
         return;
     }
 
-    const { member, rows, totalGoalsFunded, projectedAtRetirement, projectedNoGoals, startCorpus } = journey;
+    const { member, rows, totalGoalsFunded, projectedAtRetirement, projectedNoGoals, startCorpus, milestoneGoals } = journey;
 
     // Summary stats
     let html = `<div class="pj-summary">
@@ -1531,6 +1660,7 @@ function renderPortfolioJourneyForMember(memberId) {
                     <th>Net Savings</th>
                     <th>Goal Funding</th>
                     <th>Closing Balance</th>
+                    ${milestoneGoals.length > 0 ? '<th style="text-align:left;">Milestones</th>' : ''}
                 </tr>
             </thead>
             <tbody id="pjTableBody"></tbody>
@@ -1538,6 +1668,13 @@ function renderPortfolioJourneyForMember(memberId) {
     </div>`;
 
     container.innerHTML = html;
+
+    // Build milestone-by-FY lookup
+    const milestonesByFY = {};
+    milestoneGoals.forEach(g => {
+        if (!milestonesByFY[g.completionFY]) milestonesByFY[g.completionFY] = [];
+        milestonesByFY[g.completionFY].push(g);
+    });
 
     // Build table rows
     let tableHtml = '';
@@ -1550,15 +1687,43 @@ function renderPortfolioJourneyForMember(memberId) {
         }
         const incomeCell = r.incomeL != null ? formatCorpusShort(r.incomeL * 100000) : '—';
         const expCell    = r.expensesL != null ? formatCorpusShort(r.expensesL * 100000) : '—';
-        tableHtml += `<tr class="${hasGoals ? 'has-goals' : ''}">
+
+        // Milestone column for this row
+        let milestoneCell = '';
+        let hasMilestoneUnmet = false;
+        if (milestoneGoals.length > 0) {
+            const mGoals = milestonesByFY[r.fy] || [];
+            if (mGoals.length === 0) {
+                milestoneCell = `<td class="pj-milestone-cell" style="color:var(--text-tertiary);">—</td>`;
+            } else {
+                const items = mGoals.map(g => {
+                    const target = g.futureValue || g.targetAmount;
+                    const isMet = r.closing >= target;
+                    if (!isMet) hasMilestoneUnmet = true;
+                    const gap = target - r.closing;
+                    return `<div class="pj-milestone-item">
+                        <div class="pj-milestone-name">${escHtml(g.name)}</div>
+                        <div class="pj-milestone-target">Target: ${formatCorpusShort(target)}</div>
+                        <span class="pj-milestone-status ${isMet ? 'met' : 'unmet'}">
+                            ${isMet ? '✅ Met' : `❌ Short by ${formatCorpusShort(gap)}`}
+                        </span>
+                    </div>`;
+                }).join('');
+                milestoneCell = `<td class="pj-milestone-cell">${items}</td>`;
+            }
+        }
+
+        const rowClass = [hasGoals ? 'has-goals' : '', hasMilestoneUnmet ? 'has-milestone-unmet' : ''].filter(Boolean).join(' ');
+        tableHtml += `<tr class="${rowClass}">
             <td>FY${r.fy}${goalPills}</td>
             <td>${formatCorpusShort(r.opening)}</td>
             <td class="pj-td-positive">${r.returnPct}% <span style="color:var(--text-tertiary);font-size:0.7rem;">(${formatCorpusShort(r.growth)})</span></td>
             <td>${incomeCell}</td>
             <td>${expCell}</td>
-            <td class="pj-td-positive">+${formatCorpusShort(r.sipAdded)}</td>
+            <td class="${r.sipAdded >= 0 ? 'pj-td-positive' : 'pj-td-negative'}">${r.sipAdded >= 0 ? '+' : ''}${formatCorpusShort(r.sipAdded)}</td>
             <td>${goalCell}</td>
             <td style="font-weight:700;">${formatCorpusShort(r.closing)}</td>
+            ${milestoneCell}
         </tr>`;
     });
     document.getElementById('pjTableBody').innerHTML = tableHtml;
@@ -1663,7 +1828,7 @@ function renderPJBarChart(rows, containerId) {
     const cw = W - PAD.left - PAD.right;
     const ch = H - PAD.top - PAD.bottom;
 
-    const maxVal = Math.max(...rows.map(r => r.growth + r.sipAdded)) * 1.1 || 1;
+    const maxVal = Math.max(...rows.map(r => r.growth + Math.max(r.sipAdded, 0))) * 1.1 || 1;
     const barW = Math.max(4, (cw / rows.length) * 0.7);
     const gap = cw / rows.length;
 
@@ -1673,10 +1838,11 @@ function renderPJBarChart(rows, containerId) {
 
     rows.forEach((r, i) => {
         const cx = PAD.left + i * gap + gap / 2;
-        const totalPositive = r.growth + r.sipAdded;
+        const sipClamped = Math.max(r.sipAdded, 0);
+        const totalPositive = r.growth + sipClamped;
         const totalH = (totalPositive / maxVal) * ch;
         const growthH = (r.growth / maxVal) * ch;
-        const sipH = (r.sipAdded / maxVal) * ch;
+        const sipH = (sipClamped / maxVal) * ch;
         const goalH = Math.min((r.goalWithdrawal / maxVal) * ch, ch);
 
         // SIP bar (bottom)

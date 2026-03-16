@@ -330,7 +330,9 @@
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
         }
-        .gc-badge.achieved-badge { background: rgba(0,200,5,0.08); color: var(--success); border-color: rgba(0,200,5,0.18); }
+        .gc-badge.achieved-badge  { background: rgba(0,200,5,0.08); color: var(--success); border-color: rgba(0,200,5,0.18); }
+        .gc-badge.milestone-badge { background: rgba(139,92,246,0.08); color: #7c3aed; border-color: rgba(139,92,246,0.2); }
+        .goal-card.milestone { border-left: 3px solid #7c3aed; }
 
         .gc-date-chip {
             display: inline-flex;
@@ -808,6 +810,11 @@
             background: rgba(251, 146, 60, 0.08);
             border-color: rgba(251, 146, 60, 0.25);
         }
+        .emi-goal-tag.milestone {
+            color: #7c3aed;
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.25);
+        }
         .emi-goal-tag .tag-amount {
             font-weight: 700;
             opacity: 0.9;
@@ -1279,7 +1286,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Goal Type *</label>
-                            <select class="form-select" id="formGoalType">
+                            <select class="form-select" id="formGoalType" onchange="onGoalTypeChange()">
                                 <option value="House">House</option>
                                 <option value="Education">Education</option>
                                 <option value="Vacation">Vacation</option>
@@ -1290,6 +1297,20 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Goal Mode</label>
+                            <div style="display:flex;gap:8px;margin-top:4px;">
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
+                                    <input type="radio" name="goalMode" value="Spending" id="goalModeSpending" onchange="toggleGoalMode()" checked>
+                                    Spending Goal
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
+                                    <input type="radio" name="goalMode" value="Milestone" id="goalModeMilestone" onchange="toggleGoalMode()">
+                                    Milestone
+                                </label>
+                            </div>
+                            <div id="goalModeHint" style="font-size:0.75rem;color:var(--text-tertiary);margin-top:4px;">Corpus deducted when goal is funded.</div>
+                        </div>
+                        <div class="form-group" id="fieldFundingType">
                             <label class="form-label">Funding Type</label>
                             <div style="display:flex;gap:8px;margin-top:4px;">
                                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
@@ -1308,8 +1329,13 @@
                             <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">Pick the month &amp; year you want to achieve this goal</span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Target Amount — Current Value (₹) *</label>
+                            <label class="form-label">Target Amount (₹) *</label>
                             <input type="number" class="form-input" id="formTargetAmount" placeholder="1000000" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount is in prices of year</label>
+                            <input type="number" class="form-input" id="formBaseYear" placeholder="2026" min="2000" max="2100" step="1">
+                            <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">The year this amount represents — inflation is applied from this year to target date</span>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Current Amount Saved (₹)</label>
@@ -1518,12 +1544,13 @@
         // ─── Build a single goal card ────────────────────────────────────────────
         function createGoalCard(goal) {
             const card = document.createElement('div');
-            card.className = 'goal-card' + (goal.isAchieved ? ' achieved' : '');
+            card.className = 'goal-card' + (goal.isAchieved ? ' achieved' : '') + (goal.isMilestone ? ' milestone' : '');
             card.dataset.goalId = goal.id;
 
             const icon = GOAL_TYPE_ICONS[goal.goalType] || '🎯';
             const gradient = GOAL_TYPE_GRADIENTS[goal.goalType] || GOAL_TYPE_GRADIENTS['Other'];
-            const isEmi = goal.fundingType === 'EMI';
+            const isMilestone = !!goal.isMilestone;
+            const isEmi = !isMilestone && goal.fundingType === 'EMI';
 
             // Progress %
             const progressPct = isEmi
@@ -1545,6 +1572,7 @@
             // Badge
             let badge;
             if (goal.isAchieved)        badge = `<span class="gc-badge achieved-badge">Achieved</span>`;
+            else if (isMilestone)       badge = `<span class="gc-badge milestone-badge">Milestone</span>`;
             else if (isEmi)             badge = `<span class="gc-badge">EMI</span>`;
             else if (goal.isOnTrack)    badge = `<span class="gc-badge">On Track</span>`;
             else                        badge = `<span class="gc-badge">Needs Attention</span>`;
@@ -1603,7 +1631,45 @@
             let middleHtml = '';
             let metricsHtml = '';
 
-            if (isEmi) {
+            if (isMilestone) {
+                middleHtml = `
+                <div class="gc-progress">
+                    <div class="gc-progress-info">
+                        <span class="gc-progress-text">${WealthAPI.formatCurrency(goal.currentAmount||0)} saved · ${WealthAPI.formatCurrency(goal.futureValue||0)} target at date</span>
+                        <span class="gc-progress-pct">${(Math.min((goal.currentAmount||0)/(goal.futureValue||1)*100,100)).toFixed(1)}%</span>
+                    </div>
+                    <div class="gc-bar-track">
+                        <div class="gc-bar-fill" style="width:${Math.min((goal.currentAmount||0)/(goal.futureValue||1)*100,100)}%;background:#7c3aed;"></div>
+                    </div>
+                </div>`;
+                const mSurplus = (goal.monthlyContribution||0) - (goal.requiredMonthlySip||0);
+                const mSipStatus = goal.isAchieved
+                    ? `<span class="gc-metric-value pos">Achieved</span>`
+                    : (goal.monthlyContribution||0) >= (goal.requiredMonthlySip||0)
+                        ? `<span class="gc-metric-value pos">+${WealthAPI.formatCurrency(Math.max(mSurplus,0))}</span><span class="gc-metric-sub">surplus/mo</span>`
+                        : `<span class="gc-metric-value neg">-${WealthAPI.formatCurrency(Math.abs(mSurplus))}</span><span class="gc-metric-sub">gap/mo</span>`;
+                metricsHtml = `
+                <div class="gc-metrics">
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
+                        <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
+                    </div>
+                    <div class="gc-metric hl" style="--hl-bg:rgba(139,92,246,0.08);--hl-border:rgba(139,92,246,0.2);">
+                        <span class="gc-metric-label">Corpus Needed at Target Date</span>
+                        <span class="gc-metric-value" style="color:#7c3aed;font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
+                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
+                    </div>
+                    <div class="gc-metric hl" style="--hl-bg:rgba(139,92,246,0.08);--hl-border:rgba(139,92,246,0.2);">
+                        <span class="gc-metric-label">Step-Up SIP / mo</span>
+                        <span class="gc-metric-value" style="color:#7c3aed;font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.stepUpSip||0)}</span>
+                        <span class="gc-metric-sub">10% annual step-up · 12% return</span>
+                    </div>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">${(goal.monthlyContribution||0) >= (goal.requiredMonthlySip||0) ? 'SIP Surplus' : 'SIP Gap'}</span>
+                        ${mSipStatus}
+                    </div>
+                </div>`;
+            } else if (isEmi) {
                 const dpPct   = goal.downPaymentPct || 0;
                 const loanPct = 100 - dpPct;
                 middleHtml = `
@@ -1622,13 +1688,13 @@
                 metricsHtml = `
                 <div class="gc-metrics six">
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Today's Price</span>
+                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
                     </div>
                     <div class="gc-metric">
                         <span class="gc-metric-label">Total Future Value</span>
                         <span class="gc-metric-value accent">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
-                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.yrsFromNow||0}yr</span>
+                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
                     </div>
                     <div class="gc-metric">
                         <span class="gc-metric-label">Down Payment</span>
@@ -1660,7 +1726,7 @@
                 middleHtml = `
                 <div class="gc-progress">
                     <div class="gc-progress-info">
-                        <span class="gc-progress-text">${savedStr} saved · ${targetStr} today · ${fvStr} at target date</span>
+                        <span class="gc-progress-text">${savedStr} saved · ${targetStr} in ${goal.baseYear || new Date().getFullYear()} · ${fvStr} at target date</span>
                         <span class="gc-progress-pct" style="color:${pctColor}">${progressPct.toFixed(1)}%</span>
                     </div>
                     <div class="gc-bar-track">
@@ -1679,13 +1745,13 @@
                 metricsHtml = `
                 <div class="gc-metrics">
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Today's Value</span>
+                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
                     </div>
                     <div class="gc-metric">
                         <span class="gc-metric-label">Total Future Value</span>
                         <span class="gc-metric-value accent">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
-                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${timeLeft}</span>
+                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
                     </div>
                     <div class="gc-metric hl">
                         <span class="gc-metric-label">Step-Up SIP / mo</span>
@@ -1785,24 +1851,47 @@
             document.getElementById('formCurrentAmount').value = '0';
             document.getElementById('formMonthlyContribution').value = '0';
             document.getElementById('formInflationRate').value = '8';
+            document.getElementById('formBaseYear').value = new Date().getFullYear();
             document.getElementById('formDownPaymentPct').value = '20';
             document.getElementById('formLoanDurationYrs').value = '20';
             document.getElementById('formLoanRoi').value = '8.5';
             document.getElementById('formNotes').value = '';
             document.getElementById('fundTypeSavings').checked = true;
+            document.getElementById('goalModeSpending').checked = true;
+            toggleGoalMode();
+            toggleFundingFields();
+        }
+
+        const MILESTONE_GOAL_TYPES = new Set(['Retirement', 'Emergency']);
+        function onGoalTypeChange() {
+            const type = document.getElementById('formGoalType').value;
+            if (MILESTONE_GOAL_TYPES.has(type)) {
+                document.getElementById('goalModeMilestone').checked = true;
+            } else {
+                document.getElementById('goalModeSpending').checked = true;
+            }
+            toggleGoalMode();
+        }
+
+        function toggleGoalMode() {
+            const isMilestone = document.getElementById('goalModeMilestone').checked;
+            document.getElementById('fieldFundingType').style.display = isMilestone ? 'none' : '';
+            document.getElementById('goalModeHint').textContent = isMilestone
+                ? 'Corpus is NOT deducted. SIP savings count toward this corpus target.'
+                : 'Corpus deducted when goal is funded.';
+            if (isMilestone) {
+                document.getElementById('fundTypeSavings').checked = true;
+            }
             toggleFundingFields();
         }
 
         function toggleFundingFields() {
-            const isEmi = document.getElementById('fundTypeEmi').checked;
+            const isMilestone = document.getElementById('goalModeMilestone').checked;
+            const isEmi = !isMilestone && document.getElementById('fundTypeEmi').checked;
             document.getElementById('fieldMonthlyContribution').style.display = isEmi ? 'none' : '';
             document.getElementById('fieldDownPayment').style.display = isEmi ? '' : 'none';
             document.getElementById('fieldLoanDuration').style.display = isEmi ? '' : 'none';
             document.getElementById('fieldLoanRoi').style.display = isEmi ? '' : 'none';
-            // Update current amount label to match context
-            const caLabel = document.querySelector('label[for-field="formCurrentAmount"]');
-            if (caLabel) caLabel.textContent = isEmi ? 'Down Payment Saved So Far (₹)' : 'Current Amount Saved (₹)';
-            // Also update inline label (no for= attribute used)
             const caGroup = document.getElementById('formCurrentAmount');
             if (caGroup) {
                 const lbl = caGroup.previousElementSibling;
@@ -1870,7 +1959,9 @@
             const currentAmount = parseFloat(document.getElementById('formCurrentAmount').value) || 0;
             const monthlyContribution = parseFloat(document.getElementById('formMonthlyContribution').value) || 0;
             const inflationRate = parseFloat(document.getElementById('formInflationRate').value) || 8;
-            const fundingType = document.querySelector('input[name="fundingType"]:checked').value;
+            const baseYear = parseInt(document.getElementById('formBaseYear').value) || new Date().getFullYear();
+            const isMilestone = document.getElementById('goalModeMilestone').checked;
+            const fundingType = isMilestone ? 'Savings' : document.querySelector('input[name="fundingType"]:checked').value;
             const downPaymentPct = parseFloat(document.getElementById('formDownPaymentPct').value) || 0;
             const loanDurationYrs = parseInt(document.getElementById('formLoanDurationYrs').value) || 0;
             const loanRoi = parseFloat(document.getElementById('formLoanRoi').value) || 8;
@@ -1897,9 +1988,11 @@
                 notes,
                 fundingType,
                 inflationRate,
-                downPaymentPct,
-                loanDurationYrs,
+                downPaymentPct: isMilestone ? 0 : downPaymentPct,
+                loanDurationYrs: isMilestone ? 0 : loanDurationYrs,
                 loanRoi,
+                isMilestone,
+                baseYear,
             };
 
             const saveBtn = document.getElementById('saveGoalBtn');
@@ -1944,12 +2037,18 @@
             document.getElementById('formCurrentAmount').value = goal.currentAmount || 0;
             document.getElementById('formMonthlyContribution').value = goal.monthlyContribution || 0;
             document.getElementById('formInflationRate').value = goal.inflationRate != null ? goal.inflationRate : 8;
+            document.getElementById('formBaseYear').value = goal.baseYear || new Date().getFullYear();
             document.getElementById('formDownPaymentPct').value = goal.downPaymentPct != null ? goal.downPaymentPct : 20;
             document.getElementById('formLoanDurationYrs').value = goal.loanDurationYrs || 20;
             document.getElementById('formLoanRoi').value = goal.loanRoi != null ? goal.loanRoi : 8.5;
             document.getElementById('formNotes').value = goal.notes || '';
 
-            const isEmi = goal.fundingType === 'EMI';
+            const isMilestone = !!goal.isMilestone;
+            document.getElementById('goalModeSpending').checked = !isMilestone;
+            document.getElementById('goalModeMilestone').checked = isMilestone;
+            toggleGoalMode();
+
+            const isEmi = !isMilestone && goal.fundingType === 'EMI';
             document.getElementById('fundTypeSavings').checked = !isEmi;
             document.getElementById('fundTypeEmi').checked = isEmi;
             toggleFundingFields();
@@ -2280,7 +2379,7 @@
                             const yearsElapsed = year - currentYear;
                             const sipThisYear = Math.round(baseSip * Math.pow(1.10, yearsElapsed));
                             totalSip += sipThisYear;
-                            sipEntries.push({ name: g.name, amount: sipThisYear });
+                            sipEntries.push({ name: g.name, amount: sipThisYear, isMilestone: !!g.isMilestone });
                         }
                     }
                 });
@@ -2300,10 +2399,12 @@
             // Render goal chips with amounts; type = 'sip' | 'loan'
             const tagsHtml = (entries, type) => {
                 if (!entries.length) return '<span style="color:var(--text-tertiary);font-size:0.75rem;">—</span>';
-                const chipHtml = e =>
-                    `<span class="emi-goal-tag ${type}" title="${escapeHtml(e.name)}">
+                const chipHtml = e => {
+                    const chipType = (type === 'sip' && e.isMilestone) ? 'milestone' : type;
+                    return `<span class="emi-goal-tag ${chipType}" title="${escapeHtml(e.name)}">
                         ${escapeHtml(e.name)}<span class="tag-amount">${WealthAPI.formatCurrency(Math.round(e.amount))}</span>
                     </span>`;
+                };
                 const visible = entries.slice(0, 3);
                 const hidden  = entries.slice(3);
                 const visibleHtml = visible.map(chipHtml).join('');
