@@ -1134,6 +1134,9 @@ body {
             text-transform: uppercase;
             letter-spacing: 0.07em;
             color: var(--text-tertiary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .mss-value {
             font-family: var(--font);
@@ -1417,27 +1420,27 @@ body {
                 <div class="mss-item">
                     <div class="mss-label">Income</div>
                     <div class="mss-value" id="summaryIncome">₹0</div>
-                    <div class="mss-sub" id="summaryIncomeChange">vs last month</div>
+                    <div class="mss-sub" id="summaryIncomeChange"></div>
                 </div>
                 <div class="mss-item">
-                    <div class="mss-label">Spent</div>
+                    <div class="mss-label">Expenditure</div>
                     <div class="mss-value" id="summaryExpenditure">₹0</div>
-                    <div class="mss-sub">expenses</div>
+                    <div class="mss-sub" id="summaryInvestRate"></div>
                 </div>
                 <div class="mss-item">
-                    <div class="mss-label">Invested</div>
+                    <div class="mss-label">Savings &amp; Investments</div>
                     <div class="mss-value" id="summaryInvestments">₹0</div>
-                    <div class="mss-sub" id="summaryInvestRate">invest rate</div>
+                    <div class="mss-sub" id="summaryNetChange"></div>
                 </div>
                 <div class="mss-item">
-                    <div class="mss-label">Saved</div>
+                    <div class="mss-label">Remaining</div>
                     <div class="mss-value summary-metric-value" id="summaryNet">₹0</div>
-                    <div class="mss-sub" id="summaryNetChange">of income</div>
+                    <div class="mss-sub" id="summaryRemainingNote"></div>
                 </div>
                 <div class="mss-item">
-                    <div class="mss-label">Save Rate</div>
+                    <div class="mss-label">Invested %</div>
                     <div class="mss-value" id="gaugePercentage">0%</div>
-                    <div class="mss-sub" id="gaugeStatus">enter amounts</div>
+                    <div class="mss-sub" id="gaugeStatus"></div>
                 </div>
             </div>
 
@@ -2086,52 +2089,46 @@ body {
                 netDisplay.className = 'display-card-value ' + (net >= 0 ? 'savings-positive' : 'savings-negative');
             }
 
-            // Update summary metrics (Income | Expenditure | Investments | Savings | Rate)
+            // Update summary strip: Income | Expenditure | Savings & Inv. | Remaining | Invested %
             document.getElementById('summaryIncome').textContent = fmtCurrency(income);
             const summaryExpenditure = document.getElementById('summaryExpenditure');
             const summaryInvestments = document.getElementById('summaryInvestments');
             if (summaryExpenditure) summaryExpenditure.textContent = fmtCurrency(expenditure);
             if (summaryInvestments) summaryInvestments.textContent = fmtCurrency(investments);
-            document.getElementById('summaryNet').textContent = savingsStr;
 
-            const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
-            const investRate  = income > 0 ? Math.round((investments / income) * 100) : 0;
-            document.getElementById('summaryNetChange').textContent = savingsRate + '% of income';
+            // Remaining = income − expenditure − investments (can be negative)
+            document.getElementById('summaryNet').textContent = netStr;
             document.getElementById('summaryNet').className =
                 'summary-metric-value ' + (net >= 0 ? 'success' : 'error');
-            const summaryInvestRate = document.getElementById('summaryInvestRate');
-            if (summaryInvestRate) summaryInvestRate.textContent = investRate + '% of income';
+
+            // Invested % = investments / income × 100
+            const investRate = income > 0 ? Math.round((investments / income) * 100) : 0;
 
             const ttEl = document.getElementById('totalTracked'); if (ttEl) ttEl.textContent = fmtCurrency(income);
 
-            updateGauge(savingsRate, income);
+            updateGauge(investRate, income);
         }
 
-        function updateGauge(savingsRate, income) {
-            if (savingsRate === undefined) {
-                income      = parseCurrency(document.getElementById('incomeInput').value);
-                const net   = parseCurrency(document.getElementById('netInput').value);
-                savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
+        function updateGauge(investRate, income) {
+            if (investRate === undefined) {
+                income = parseCurrency(document.getElementById('incomeInput').value);
+                const inv = parseCurrency(document.getElementById('investmentsInput').value);
+                investRate = income > 0 ? Math.round((inv / income) * 100) : 0;
             }
-            const clamped = Math.max(0, Math.min(100, savingsRate));
+            // Update the hidden SVG gauge (kept for compat)
+            const clamped = Math.max(0, Math.min(100, investRate));
             const circumference = 2 * Math.PI * 70;
             const progress = (clamped / 100) * circumference * 0.75;
-            document.getElementById('gaugeProgress').style.strokeDasharray = `${progress} ${circumference}`;
-            document.getElementById('gaugePercentage').textContent = savingsRate + '%';
+            const gaugeEl = document.getElementById('gaugeProgress');
+            if (gaugeEl) gaugeEl.style.strokeDasharray = `${progress} ${circumference}`;
+
+            // Show invest %
+            document.getElementById('gaugePercentage').textContent =
+                (income > 0 ? investRate : 0) + '%';
 
             const statusEl = document.getElementById('gaugeStatus');
             if (statusEl) {
-                if (!income || income === 0) {
-                    statusEl.textContent = 'enter amounts';
-                } else if (savingsRate >= 40) {
-                    statusEl.textContent = 'Excellent!';
-                } else if (savingsRate >= 25) {
-                    statusEl.textContent = 'Good rate';
-                } else if (savingsRate >= 10) {
-                    statusEl.textContent = 'Fair — improve';
-                } else {
-                    statusEl.textContent = 'Save more';
-                }
+                statusEl.textContent = income > 0 ? 'of income' : '';
             }
         }
 
