@@ -586,6 +586,9 @@
     bar.className = 'wos-mobile-bar';
     bar.id = 'wosMobileBar';
     bar.innerHTML = `
+      <button class="wos-hamburger" id="wosHamburger" aria-label="Open menu">
+        ${ICONS.hamburger}
+      </button>
       <a href="dashboard.html" class="wos-mobile-logo">
         <div class="wos-mobile-logo-mark">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -595,9 +598,6 @@
         </div>
         <div class="wos-mobile-logo-text">Wealth<em>OS</em></div>
       </a>
-      <button class="wos-hamburger" id="wosHamburger" aria-label="Open menu">
-        ${ICONS.hamburger}
-      </button>
     `;
     document.body.insertBefore(bar, document.body.firstChild);
 
