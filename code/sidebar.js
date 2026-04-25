@@ -160,29 +160,6 @@
       gap: 2px;
     }
 
-    /* Portfolio value card */
-    .wos-portfolio-card {
-      padding: 14px 12px;
-      background: var(--card-dark-bg, #111);
-      border-radius: 12px;
-      margin-bottom: 6px;
-    }
-    .wos-portfolio-label {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--on-dark-secondary, rgba(255,255,255,0.5));
-      margin-bottom: 4px;
-    }
-    .wos-portfolio-value {
-      font-family: var(--font, 'Inter', sans-serif);
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.03em;
-      font-feature-settings: 'tnum' 1;
-    }
 
     /* Theme toggle */
     .wos-theme-row {
@@ -231,29 +208,6 @@
     }
     .wos-toggle.on .wos-toggle-knob { transform: translateX(16px); }
 
-    /* Logout */
-    .wos-logout {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 10px;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--sidebar-text-muted, #888);
-      cursor: pointer;
-      transition: color 130ms, background 130ms;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      font-family: var(--font, 'Inter', sans-serif);
-      letter-spacing: -0.01em;
-    }
-    .wos-logout:hover {
-      color: var(--negative, #FF3B3B);
-      background: rgba(255,59,59,0.06);
-    }
 
     /* ── Mobile top bar (hamburger header) ───────────────────────────── */
     .wos-mobile-bar {
@@ -326,41 +280,40 @@
       pointer-events: auto;
     }
 
-    /* View Demo link */
-    .wos-demo-link {
+    /* View Demo button */
+    .wos-demo-btn {
       display: flex; align-items: center; gap: 9px;
-      padding: 9px 12px; border-radius: 10px;
+      padding: 8px 12px; border-radius: 10px;
       font-size: 0.8125rem; font-weight: 500;
       color: var(--sidebar-text-muted, #888);
       text-decoration: none;
-      transition: background 130ms, color 130ms;
+      border: 1px solid var(--sidebar-border, rgba(0,0,0,0.08));
+      transition: background 130ms, color 130ms, border-color 130ms;
       font-family: var(--font, 'Inter', sans-serif);
       letter-spacing: -0.01em;
     }
-    .wos-demo-link:hover {
-      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
+    .wos-demo-btn:hover {
+      background: rgba(143,230,44,0.07);
       color: var(--sidebar-text, #111);
+      border-color: rgba(143,230,44,0.45);
     }
-
-    /* Currency row */
-    .wos-currency-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 12px; border-radius: 10px;
-      font-size: 0.8125rem; font-weight: 500;
-      color: var(--sidebar-text-muted, #888);
-      font-family: var(--font, 'Inter', sans-serif);
-      letter-spacing: -0.01em;
+    [data-theme="dark"] .wos-demo-btn {
+      border-color: rgba(255,255,255,0.1);
     }
-    .wos-currency-inner { display: flex; align-items: center; gap: 9px; }
-    .wos-currency-badge {
-      font-size: 0.625rem; font-weight: 700;
+    [data-theme="dark"] .wos-demo-btn:hover {
+      border-color: rgba(143,230,44,0.4);
+    }
+    .wos-demo-badge {
+      margin-left: auto;
+      font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 6px; border-radius: 5px;
+      background: rgba(143,230,44,0.15);
       color: var(--accent-dark, #5FA518);
-      background: rgba(143,230,44,0.14); padding: 2px 7px;
-      border-radius: 6px; letter-spacing: 0.04em; text-transform: uppercase;
     }
-    [data-theme="dark"] .wos-currency-badge {
+    [data-theme="dark"] .wos-demo-badge {
+      background: rgba(143,230,44,0.12);
       color: var(--accent, #8FE62C);
-      background: rgba(143,230,44,0.1);
     }
 
     /* Bottom divider */
@@ -373,8 +326,10 @@
     /* Profile row */
     .wos-profile-row {
       display: flex; align-items: center; gap: 9px;
-      padding: 9px 10px; border-radius: 12px;
+      padding: 9px 10px; border-radius: 10px;
+      text-decoration: none;
       transition: background 130ms;
+      cursor: pointer;
     }
     .wos-profile-row:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.05)); }
     .wos-profile-avatar {
@@ -401,17 +356,28 @@
       font-family: var(--font, 'Inter', sans-serif);
       margin-top: 1px;
     }
-    .wos-profile-logout-btn {
-      width: 28px; height: 28px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      border: none; background: none; cursor: pointer;
+
+    /* Separate logout button */
+    .wos-logout-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 10px;
+      font-size: 0.8125rem; font-weight: 500;
       color: var(--sidebar-text-muted, #888);
-      transition: color 130ms, background 130ms; flex-shrink: 0;
+      cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left;
+      font-family: var(--font, 'Inter', sans-serif);
+      letter-spacing: -0.01em;
+      transition: color 130ms, background 130ms;
     }
-    .wos-profile-logout-btn:hover {
+    .wos-logout-btn:hover {
       color: var(--negative, #FF3B3B);
-      background: rgba(255,59,59,0.08);
+      background: rgba(255,59,59,0.06);
     }
+    .wos-logout-btn-icon {
+      width: 20px; height: 20px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; opacity: 0.75;
+    }
+    .wos-logout-btn:hover .wos-logout-btn-icon { opacity: 1; }
 
     /* ── Shared layout collapse ──────────────────────────────────────── */
     @media (max-width: 768px) {
@@ -511,36 +477,15 @@
     const bottom = document.createElement('div');
     bottom.className = 'wos-sidebar-bottom';
 
-    // Portfolio card
-    const card = document.createElement('div');
-    card.className = 'wos-portfolio-card';
-    card.innerHTML = `
-      <div class="wos-portfolio-label">Total Portfolio</div>
-      <div class="wos-portfolio-value" id="wosSidebarTotal">—</div>
-    `;
-    bottom.appendChild(card);
-
-    // View Demo link
+    // View Demo button (distinct outlined style)
     const demoLink = document.createElement('a');
     demoLink.href = 'demo-account.html';
     demoLink.target = '_blank';
     demoLink.rel = 'noopener';
-    demoLink.className = 'wos-demo-link';
-    demoLink.innerHTML = `<span class="wos-nav-icon">${ICONS.demo}</span><span>View demo account</span>`;
+    demoLink.className = 'wos-demo-btn';
+    demoLink.innerHTML = `<span class="wos-nav-icon">${ICONS.demo}</span><span>View Demo</span><span class="wos-demo-badge">Preview</span>`;
     demoLink.addEventListener('click', closeDrawer);
     bottom.appendChild(demoLink);
-
-    // Currency row (₹ INR static indicator)
-    const currencyRow = document.createElement('div');
-    currencyRow.className = 'wos-currency-row';
-    currencyRow.innerHTML = `
-      <div class="wos-currency-inner">
-        <span class="wos-nav-icon">${ICONS.rupee}</span>
-        <span>Currency</span>
-      </div>
-      <span class="wos-currency-badge">₹ INR</span>
-    `;
-    bottom.appendChild(currencyRow);
 
     // Theme toggle
     const isDark = getSavedTheme() === 'dark';
@@ -563,8 +508,9 @@
     divider.className = 'wos-bottom-divider';
     bottom.appendChild(divider);
 
-    // Profile row (avatar + name + logout icon)
-    const profileRow = document.createElement('div');
+    // Profile row (avatar + name + email → links to settings)
+    const profileRow = document.createElement('a');
+    profileRow.href = 'settings.html';
     profileRow.className = 'wos-profile-row';
     profileRow.innerHTML = `
       <div class="wos-profile-avatar" id="wosProfileAvatar">?</div>
@@ -572,9 +518,16 @@
         <div class="wos-profile-name" id="wosProfileName">My Account</div>
         <div class="wos-profile-email" id="wosProfileEmail"></div>
       </div>
-      <button class="wos-profile-logout-btn" id="wosProfileLogout" title="Log out">${ICONS.logout}</button>
     `;
+    profileRow.addEventListener('click', closeDrawer);
     bottom.appendChild(profileRow);
+
+    // Separate logout button
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'wos-logout-btn';
+    logoutBtn.id = 'wosProfileLogout';
+    logoutBtn.innerHTML = `<span class="wos-logout-btn-icon">${ICONS.logout}</span><span>Log out</span>`;
+    bottom.appendChild(logoutBtn);
 
     root.appendChild(bottom);
   }
