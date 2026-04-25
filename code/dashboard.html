@@ -100,17 +100,19 @@
         /* ── Family Setup Widget ─────────────────────────────────────────── */
         .family-setup-widget {
             grid-column: span 12; background: var(--card-light-bg); border-radius: 20px;
-            border: 1.5px dashed var(--border-strong); padding: 28px;
+            border: 1px solid var(--border); border-left: 4px solid var(--accent, #8FE62C);
+            padding: 24px 28px;
             display: flex; align-items: center; gap: 24px;
+            box-shadow: var(--shadow-sm);
             animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
         }
-        .family-widget-icon { font-size: 2.75rem; flex-shrink: 0; }
+        .family-widget-icon { font-size: 2.25rem; flex-shrink: 0; }
         .family-widget-body { flex: 1; }
         .family-widget-title { font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; letter-spacing: -0.02em; }
         .family-widget-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
         .family-widget-benefit { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 6px; }
-        .family-widget-btn { padding: 10px 20px; background: var(--text-primary); color: var(--bg); border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.16s; text-decoration: none; display: inline-block; font-family: var(--font); }
-        .family-widget-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .family-widget-btn { padding: 10px 20px; background: var(--accent, #8FE62C); color: #111; border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.16s; text-decoration: none; display: inline-block; font-family: var(--font); white-space: nowrap; }
+        .family-widget-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
         /* ── Metric Cards — Rich (watermark + sparkline) ─────────────────── */
         .metric-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
