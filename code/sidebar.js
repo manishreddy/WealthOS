@@ -335,6 +335,8 @@
       .main-content {
         margin-top: 56px !important;
         padding: 16px;
+        overflow-x: hidden;
+        max-width: 100%;
       }
 
       /* Show mobile bar */

@@ -169,6 +169,12 @@ body {
   transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 
+/* ── Page layout safety ────────────────────────────────────────────────────── */
+.main-content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* ── Typography Scale ──────────────────────────────────────────────────────── */
 .ds-display {
   font-family: var(--font);
