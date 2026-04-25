@@ -6,7 +6,8 @@ expertMode = true
 channel = "stable-25_05"
 
 [deployment]
-deploymentTarget = "cloudrun"
+deploymentTarget = "autoscale"
+run = ["node", "server/server.js"]
 
 [userenv]
 
