@@ -2,19 +2,19 @@
 
 const express = require('express');
 const multer = require('multer');
-const XLSX = require('xlsx');
 const Anthropic = require('@anthropic-ai/sdk');
 const { query } = require('../db');
+const { readWorkbookFromBuffer, readCsvFromBuffer, sheetToArrayOfArrays, getSheetNames, getSheet } = require('../utils/excel');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 const anthropic = new Anthropic();
 
-function sheetsToJson(workbook) {
+async function sheetsToJson(workbook) {
   const result = {};
-  for (const name of workbook.SheetNames) {
-    const ws = workbook.Sheets[name];
-    result[name] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+  for (const name of getSheetNames(workbook)) {
+    const ws = getSheet(workbook, name);
+    result[name] = sheetToArrayOfArrays(ws, null);
   }
   return result;
 }
@@ -39,9 +39,14 @@ router.post('/parse', upload.single('file'), async (req, res) => {
     const ext = (req.file.originalname || '').split('.').pop().toLowerCase();
     let sheetsJson = {};
 
-    if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
-      const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
-      sheetsJson = sheetsToJson(wb);
+    if (ext === 'xlsx') {
+      const wb = await readWorkbookFromBuffer(req.file.buffer);
+      sheetsJson = await sheetsToJson(wb);
+    } else if (ext === 'csv') {
+      const wb = await readCsvFromBuffer(req.file.buffer);
+      sheetsJson = await sheetsToJson(wb);
+    } else if (ext === 'xls') {
+      return res.status(400).json({ error: 'Legacy .xls format is not supported. Please save your file as .xlsx and try again.' });
     } else {
       return res.status(400).json({ error: 'Unsupported file type. Upload .xlsx or .csv' });
     }
@@ -154,22 +159,22 @@ ${sheetDesc.substring(0, 8000)}`;
   }
 });
 
-router.post('/excel-to-text', upload.single('file'), (req, res) => {
+router.post('/excel-to-text', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const wb = await readWorkbookFromBuffer(req.file.buffer);
     let text = '';
 
-    wb.SheetNames.forEach(name => {
-      const ws = wb.Sheets[name];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    for (const name of getSheetNames(wb)) {
+      const ws = getSheet(wb, name);
+      const rows = sheetToArrayOfArrays(ws, '');
       const nonEmpty = rows.filter(r => r.some(c => c !== '' && c != null));
-      if (nonEmpty.length === 0) return;
+      if (nonEmpty.length === 0) continue;
       text += `## Sheet: ${name}\n`;
       text += nonEmpty.map(r => r.map(c => String(c == null ? '' : c)).join('\t')).join('\n');
       text += '\n\n';
-    });
+    }
 
     return res.json({ text: text.substring(0, 10000) });
   } catch (err) {

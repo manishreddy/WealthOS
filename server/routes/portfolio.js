@@ -2,8 +2,8 @@
 
 const express = require('express');
 const multer = require('multer');
-const XLSX = require('xlsx');
 const { query, pool } = require('../db');
+const { readWorkbookFromBuffer, sheetToArrayOfArrays, getSheetNames, getSheet } = require('../utils/excel');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -34,13 +34,14 @@ function classifyMF(symbol) {
 
 function parseZerodhaWorkbook(workbook) {
   const assets = [];
-  const hasCombined = workbook.SheetNames.includes('Combined');
-  const hasEquity = workbook.SheetNames.includes('Equity');
-  const hasMF = workbook.SheetNames.includes('Mutual Funds');
+  const sheetNames = getSheetNames(workbook);
+  const hasCombined = sheetNames.includes('Combined');
+  const hasEquity = sheetNames.includes('Equity');
+  const hasMF = sheetNames.includes('Mutual Funds');
 
   function parseSheet(sheetName, isMF) {
-    const ws = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    const ws = getSheet(workbook, sheetName);
+    const rows = sheetToArrayOfArrays(ws, '');
     const headerIdx = rows.findIndex(r => String(r[0]).trim().toLowerCase() === 'symbol');
     if (headerIdx === -1) return;
     const headers = rows[headerIdx].map(h => String(h).trim().toLowerCase());
@@ -84,10 +85,10 @@ function parseZerodhaWorkbook(workbook) {
   return assets;
 }
 
-router.post('/parse-zerodha', upload.single('file'), (req, res) => {
+router.post('/parse-zerodha', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const workbook = await readWorkbookFromBuffer(req.file.buffer);
     const assets = parseZerodhaWorkbook(workbook);
     if (assets.length === 0) {
       return res.status(400).json({ error: 'No holdings found. Make sure this is a Zerodha holdings export.' });
