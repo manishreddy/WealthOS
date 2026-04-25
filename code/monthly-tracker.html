@@ -1208,19 +1208,23 @@ body {
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-primary);
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--border-subtle);
-            padding: 3px 0 7px;
+            background: var(--bg-secondary, rgba(0,0,0,0.03));
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
             letter-spacing: -0.03em;
-            transition: border-color 0.18s;
+            transition: border-color 0.18s, box-shadow 0.18s;
             text-align: left;
             min-width: unset;
-            border-radius: 0;
+        }
+        .tc-card .amount-input:hover {
+            border-color: var(--border-strong, rgba(0,0,0,0.25));
         }
         .tc-card .amount-input:focus {
             outline: none;
-            border-bottom-color: var(--accent, #8FE62C);
+            border-color: var(--accent, #8FE62C);
+            box-shadow: 0 0 0 3px rgba(143,230,44,0.12);
+            background: var(--bg-elevated);
         }
         .tc-card .amount-input::placeholder { color: var(--text-tertiary); }
 
@@ -1510,7 +1514,7 @@ body {
                 <!-- Investments / Savings -->
                 <div class="tc-card investments">
                     <div class="tc-head">
-                        <div class="tc-label"><span class="tc-label-icon">📈</span> Savings / Investments <span class="investments-tag">Counts as Expense</span></div>
+                        <div class="tc-label"><span class="tc-label-icon">📈</span> Savings &amp; Investments</div>
                         <input type="text" class="amount-input" id="investmentsInput" placeholder="₹0">
                     </div>
                     <div class="prev-month-comparison tc-comparison" id="investmentsComparison"><span>Loading...</span></div>
