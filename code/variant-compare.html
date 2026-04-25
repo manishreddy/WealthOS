@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthOS – Dashboard Variants</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #EBEBEB; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px 24px;
+        }
+        .picker {
+            max-width: 860px; width: 100%;
+        }
+        .picker-header {
+            text-align: center; margin-bottom: 48px;
+        }
+        .badge {
+            display: inline-block; background: #111; color: #8FE62C;
+            padding: 5px 14px; border-radius: 100px; font-size: 0.75rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 2rem; font-weight: 800; color: #111;
+            letter-spacing: -0.04em; margin-bottom: 10px;
+        }
+        .subtitle { font-size: 1rem; color: #666; }
+
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        .variant-card {
+            background: #fff; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
+        }
+        .variant-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.08); }
+
+        .card-preview {
+            background: #111; padding: 32px 28px; position: relative; overflow: hidden;
+        }
+        .card-preview::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                90deg, transparent 0px, transparent 39px,
+                rgba(255,255,255,0.025) 39px, rgba(255,255,255,0.025) 40px
+            );
+        }
+
+        /* Variant A preview: large centered net worth */
+        .preview-a .hero-num {
+            font-size: 3rem; font-weight: 800; color: #fff;
+            letter-spacing: -0.05em; line-height: 1; margin-bottom: 6px;
+            position: relative;
+        }
+        .preview-a .hero-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 10px; position: relative; }
+        .preview-a .hero-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: rgba(143,230,44,0.15); border-radius: 6px;
+            padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: #8FE62C;
+            position: relative;
+        }
+        .stats-row {
+            display: flex; background: #fff; border-bottom: 1px solid #E5E5E5;
+        }
+        .stat-item { flex: 1; padding: 14px 16px; border-right: 1px solid #EBEBEB; }
+        .stat-item:last-child { border-right: none; }
+        .stat-label { font-size: 0.5625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 4px; }
+        .stat-value { font-size: 1rem; font-weight: 700; color: #111; letter-spacing: -0.03em; }
+
+        /* Variant B preview: rich with sparkline hint */
+        .preview-b .hero-num { font-size: 2.5rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; position: relative; }
+        .preview-b .hero-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 10px; position: relative; }
+        .secondary-col { display: flex; gap: 20px; position: relative; }
+        .secondary-stat { }
+        .secondary-stat-label { font-size: 0.5625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+        .secondary-stat-value { font-size: 1rem; font-weight: 700; color: #fff; letter-spacing: -0.03em; }
+
+        /* Metric card row preview */
+        .metric-row {
+            display: flex; gap: 8px; padding: 14px 16px; background: #F5F5F5; border-bottom: 1px solid #EBEBEB;
+        }
+        .mini-card {
+            flex: 1; background: #fff; border-radius: 10px; padding: 10px 12px;
+            border: 1px solid #E5E5E5; position: relative; overflow: hidden;
+        }
+        .mini-card-label { font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-bottom: 4px; }
+        .mini-card-label.key { color: #5FA518; }
+        .mini-card-value { font-size: 0.75rem; font-weight: 700; color: #111; }
+        .mini-watermark { position: absolute; top: 4px; right: 6px; font-size: 1rem; opacity: 0.07; }
+        .mini-sparkline { margin-top: 4px; width: 100%; height: 12px; }
+        .mini-sparkline svg { width: 100%; height: 12px; }
+
+        /* FTUX preview */
+        .ftux-preview-a { background: #111; margin: 14px 16px; border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+        .ftux-preview-a .ftux-icon { font-size: 1.25rem; }
+        .ftux-preview-a .ftux-text { flex: 1; }
+        .ftux-preview-a .ftux-heading { font-size: 0.6875rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .ftux-preview-a .ftux-sub { font-size: 0.5625rem; color: rgba(255,255,255,0.45); }
+        .ftux-preview-a .ftux-cta { background: #8FE62C; color: #111; padding: 5px 10px; border-radius: 6px; font-size: 0.5625rem; font-weight: 700; white-space: nowrap; }
+
+        .ftux-preview-b { background: rgba(143,230,44,0.05); border: 1px solid #E5E5E5; border-left: 3px solid #8FE62C; margin: 14px 16px; border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+        .ftux-preview-b .ftux-icon { font-size: 1.25rem; }
+        .ftux-preview-b .ftux-text { flex: 1; }
+        .ftux-preview-b .ftux-step { font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5FA518; margin-bottom: 2px; }
+        .ftux-preview-b .ftux-heading { font-size: 0.6875rem; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .ftux-preview-b .ftux-sub { font-size: 0.5625rem; color: #666; }
+        .ftux-preview-b .ftux-cta { background: #8FE62C; color: #111; padding: 5px 10px; border-radius: 6px; font-size: 0.5625rem; font-weight: 700; white-space: nowrap; }
+
+        /* Card body */
+        .card-body { padding: 24px 28px 28px; }
+        .variant-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #8FE62C; margin-bottom: 6px; }
+        .variant-name { font-size: 1.375rem; font-weight: 800; color: #111; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .variant-desc { font-size: 0.875rem; color: #666; line-height: 1.55; margin-bottom: 20px; }
+        .feature-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+        .feature { display: flex; gap: 8px; align-items: flex-start; font-size: 0.8125rem; color: #444; }
+        .feature-dot { width: 5px; height: 5px; border-radius: 50%; background: #8FE62C; margin-top: 6px; flex-shrink: 0; }
+        .pick-btn {
+            display: block; width: 100%; padding: 14px; border-radius: 12px;
+            background: #111; color: #fff; font-size: 0.9375rem; font-weight: 700;
+            text-align: center; text-decoration: none; cursor: pointer;
+            transition: all 0.16s; letter-spacing: -0.02em;
+            border: none; font-family: 'Inter', sans-serif;
+        }
+        .pick-btn:hover { background: #222; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .pick-btn.secondary { background: #F0F0F0; color: #111; }
+        .pick-btn.secondary:hover { background: #E5E5E5; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+        .note {
+            text-align: center; margin-top: 24px; font-size: 0.8125rem; color: #888;
+        }
+
+        @media (max-width: 700px) {
+            .cards { grid-template-columns: 1fr; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="picker">
+        <div class="picker-header">
+            <div class="badge">Task #13 — Dashboard Polish</div>
+            <h1>Pick your dashboard variant</h1>
+            <div class="subtitle">Both are fully functional. Open each to compare with your real data, then decide.</div>
+        </div>
+
+        <div class="cards">
+            <!-- Variant A -->
+            <div class="variant-card">
+                <div class="card-preview preview-a">
+                    <div class="hero-label">Total Net Worth</div>
+                    <div class="hero-num">₹28,50,000</div>
+                    <div class="hero-pill">↑ 12% this month</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item"><div class="stat-label">Savings Rate</div><div class="stat-value">34%</div></div>
+                    <div class="stat-item"><div class="stat-label">Monthly Savings</div><div class="stat-value">₹16,800</div></div>
+                    <div class="stat-item"><div class="stat-label">Income</div><div class="stat-value">₹49,000</div></div>
+                </div>
+                <div class="ftux-preview-a">
+                    <div class="ftux-icon">📊</div>
+                    <div class="ftux-text">
+                        <div class="ftux-heading">Add your monthly income & expenses</div>
+                        <div class="ftux-sub">Step 1 of 3 — Start here</div>
+                    </div>
+                    <div class="ftux-cta">Go →</div>
+                </div>
+                <div class="card-body">
+                    <div class="variant-label">Variant A</div>
+                    <div class="variant-name">Focused</div>
+                    <div class="variant-desc">Clean and distraction-free. One giant net worth number, a slim 3-stat row below, and an impactful dark nudge card.</div>
+                    <div class="feature-list">
+                        <div class="feature"><div class="feature-dot"></div><span>3.5rem net worth — the most important number, front and center</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>Slim horizontal stat row: savings rate, monthly savings, income</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>FTUX nudge: solid dark card, lime green CTA button</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>Empty states: friendly icon + prompt text (no ₹0 values)</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>28px section gaps — generous whitespace throughout</span></div>
+                    </div>
+                    <a href="dashboard-a.html" class="pick-btn">Open Variant A →</a>
+                </div>
+            </div>
+
+            <!-- Variant B -->
+            <div class="variant-card">
+                <div class="card-preview preview-b" style="display:flex;gap:0;align-items:stretch;">
+                    <div style="flex:1;position:relative;">
+                        <div class="hero-label">Total Net Worth</div>
+                        <div class="hero-num">₹28,50,000</div>
+                    </div>
+                    <div style="width:1px;background:rgba(255,255,255,0.07);margin:0 20px;"></div>
+                    <div class="secondary-col" style="flex-direction:column;justify-content:center;">
+                        <div class="secondary-stat">
+                            <div class="secondary-stat-label">Monthly Savings</div>
+                            <div class="secondary-stat-value">₹16,800</div>
+                        </div>
+                        <div class="secondary-stat" style="margin-top:12px;">
+                            <div class="secondary-stat-label">Monthly Income</div>
+                            <div class="secondary-stat-value">₹49,000</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <div class="mini-card">
+                        <div class="mini-watermark">💰</div>
+                        <div class="mini-card-label">Income</div>
+                        <div class="mini-card-value">₹49K</div>
+                        <div class="mini-sparkline">
+                            <svg viewBox="0 0 60 12" preserveAspectRatio="none">
+                                <polyline points="0,10 15,7 30,8 45,4 60,5" stroke="#8FE62C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-watermark">🎯</div>
+                        <div class="mini-card-label key">Savings Rate</div>
+                        <div class="mini-card-value">34%</div>
+                        <div class="mini-sparkline">
+                            <svg viewBox="0 0 60 12" preserveAspectRatio="none">
+                                <polyline points="0,8 15,9 30,6 45,5 60,4" stroke="#8FE62C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-watermark">💎</div>
+                        <div class="mini-card-label key">Net Worth</div>
+                        <div class="mini-card-value">₹28.5L</div>
+                        <div class="mini-sparkline">
+                            <svg viewBox="0 0 60 12" preserveAspectRatio="none">
+                                <polyline points="0,10 15,9 30,7 45,5 60,3" stroke="#8FE62C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="ftux-preview-b">
+                    <div class="ftux-icon">📊</div>
+                    <div class="ftux-text">
+                        <div class="ftux-step">Step 1 of 3</div>
+                        <div class="ftux-heading">Add your monthly income & expenses</div>
+                        <div class="ftux-sub">See your savings rate and where your money goes.</div>
+                    </div>
+                    <div class="ftux-cta">Go →</div>
+                </div>
+                <div class="card-body">
+                    <div class="variant-label">Variant B</div>
+                    <div class="variant-name">Rich</div>
+                    <div class="variant-desc">Data-dense with visual depth. Mini sparklines in every metric card and a lime-bordered nudge card on a light background.</div>
+                    <div class="feature-list">
+                        <div class="feature"><div class="feature-dot"></div><span>Metric cards with faint icon watermarks (10% opacity, top-right)</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>Mini 28px sparklines showing 6-month trend in every card</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>FTUX nudge: light card, 4px lime left border, subtle lime tint</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>Key metric labels (Savings Rate, Net Worth) in lime green</span></div>
+                        <div class="feature"><div class="feature-dot"></div><span>20px tighter gaps — feels more information-dense</span></div>
+                    </div>
+                    <a href="dashboard-b.html" class="pick-btn secondary">Open Variant B →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            Both variants connect to your live data. Log in once and navigate between them.<br>
+            Tell the agent which one you prefer — it will replace <code>dashboard.html</code>.
+        </div>
+    </div>
+</body>
+</html>
