@@ -937,11 +937,14 @@
 
             const hasGoalData = goals && goals.length > 0;
             const sV = (id, v) => { const el = document.getElementById(id); if (el) el.style.display = v ? '' : 'none'; };
-            sV('metricCards', hasMonthlyData);
-            sV('savingsGauge', hasMonthlyData);
-            sV('incomeExpenseChart', hasMonthlyData);
+            // Always show core metric sections — empty states render within (flat sparklines)
+            sV('metricCards', true);
+            sV('savingsGauge', true);
+            sV('incomeExpenseChart', true);
+            // Portfolio sections shown only when data exists
             sV('allocationCard', hasPortfolioEntries);
             sV('activityCard', hasPortfolioEntries || hasMonthlyData);
+            // Goals shown only when goals exist
             sV('goalsGrid', hasGoalData);
             sV('mainChart', true);
 
