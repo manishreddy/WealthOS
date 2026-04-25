@@ -2305,72 +2305,208 @@ body {
             margin-bottom: 12px;
         }
 
+        /* ── Monthly Overview Nudge ── */
+        .monthly-nudge {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(143,230,44,0.07);
+            border: 1px solid rgba(143,230,44,0.25);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+        .nudge-icon { font-size: 1.1rem; line-height: 1.5; flex-shrink: 0; }
+        .nudge-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
+        .nudge-text strong { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 2px; }
+
         /* ── Investment Add/Edit Modal ── */
         .inv-modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.55);
             z-index: 9998;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            backdrop-filter: blur(2px);
         }
         .inv-modal {
             background: var(--bg-elevated);
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 32px 36px;
-            max-width: 700px;
+            padding: 0;
+            max-width: 640px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+            max-height: 92vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.25);
         }
         .inv-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            padding: 24px 28px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
         }
         .inv-modal-title {
             font-family: var(--font);
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.02em;
         }
+        .inv-modal-subtitle {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
         .inv-modal-close {
-            background: none;
+            background: var(--hover-bg);
             border: none;
-            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             cursor: pointer;
             color: var(--text-secondary);
+            font-size: 1.25rem;
             line-height: 1;
-            padding: 4px;
-            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: color 0.15s, background 0.15s;
+            flex-shrink: 0;
         }
-        .inv-modal-close:hover { color: var(--text-primary); background: var(--hover-bg); }
+        .inv-modal-close:hover { color: var(--text-primary); background: var(--border-color); }
+        .inv-modal-body {
+            padding: 24px 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        /* 2-column field rows */
+        .inv-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .inv-row.inv-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .inv-row + .inv-row,
+        .inv-field + .inv-row,
+        .inv-row + .inv-field { margin-top: 14px; }
+        /* Single full-width field */
+        .inv-field { margin-top: 0; }
+        .inv-field + .inv-field { margin-top: 14px; }
+        /* Field label */
+        .inv-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+        .inv-label .req { color: var(--accent, #8FE62C); margin-left: 2px; }
+        /* Inputs & selects inside modal */
+        .inv-modal .form-input,
+        .inv-modal .form-select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-secondary, var(--input-bg));
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: var(--font);
+            transition: border-color 0.18s, box-shadow 0.18s;
+            box-sizing: border-box;
+        }
+        .inv-modal .form-input:focus,
+        .inv-modal .form-select:focus {
+            outline: none;
+            border-color: var(--accent, #8FE62C);
+            box-shadow: 0 0 0 3px rgba(143,230,44,0.12);
+        }
+        .inv-modal input[type="month"] {
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        .inv-modal input[type="month"]::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            cursor: pointer;
+            filter: var(--icon-filter, none);
+        }
+        /* Amount field — larger */
+        .inv-amount-input {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.02em;
+        }
+        /* Optional section */
+        .inv-optional-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            background: none;
+            border: none;
+            border-top: 1px solid var(--border-subtle);
+            padding: 14px 0 0;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: left;
+            font-family: var(--font);
+        }
+        .inv-optional-toggle:hover { color: var(--text-secondary); }
+        .inv-optional-toggle .toggle-arrow {
+            margin-left: auto;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+        }
+        .inv-optional-toggle.open .toggle-arrow { transform: rotate(180deg); }
+        .inv-optional-body { display: none; margin-top: 14px; }
+        .inv-optional-body.open { display: block; }
+        /* Footer */
         .inv-modal-footer {
             display: flex;
             gap: 10px;
-            margin-top: 24px;
-            padding-top: 20px;
+            padding: 18px 28px;
             border-top: 1px solid var(--border-subtle);
             flex-wrap: wrap;
+            flex-shrink: 0;
+            background: var(--bg-elevated);
         }
-        .opt-label {
-            font-weight: 400;
-            font-size: 0.8125rem;
-            color: var(--text-tertiary);
+        .inv-modal-footer .btn-add-another {
+            background: transparent;
+            border: 1.5px solid var(--accent, #8FE62C);
+            color: var(--text-primary);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: background 0.15s;
         }
+        .inv-modal-footer .btn-add-another:hover { background: rgba(143,230,44,0.1); }
 
         @media (max-width: 600px) {
-            .inv-modal { padding: 20px 16px; border-radius: 16px; }
-            .inv-modal .add-form-grid { grid-template-columns: 1fr !important; }
+            .inv-modal { border-radius: 16px; max-height: 96vh; }
+            .inv-row { grid-template-columns: 1fr; }
+            .inv-row.inv-row-3 { grid-template-columns: 1fr; }
             .inv-modal-footer { flex-direction: column; }
-            .inv-modal-footer button { width: 100%; }
+            .inv-modal-footer button,
+            .inv-modal-footer .btn-add-another { width: 100%; text-align: center; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">
@@ -2424,6 +2560,15 @@ body {
                     <div class="person-tabs" id="personTabsList"></div>
                     <div class="person-tabs-actions">
                         <a href="settings.html" class="settings-link-btn">Manage Members</a>
+                    </div>
+                </div>
+
+                <!-- Nudge: explain purpose of this section -->
+                <div class="monthly-nudge">
+                    <span class="nudge-icon">💡</span>
+                    <div class="nudge-text">
+                        <strong>Understand your asset allocation</strong>
+                        Investments you log here are categorised by asset class (Equity, Debt, Gold, Cash), so you can see exactly where your money is going each month.
                     </div>
                 </div>
 
@@ -2948,7 +3093,17 @@ body {
             document.getElementById('invStartMonth').value = inv.startMonth || '';
             document.getElementById('invNotes').value = inv.notes || '';
 
+            // Auto-open optional section when editing so all fields are visible
+            document.getElementById('invOptBody').classList.add('open');
+            document.getElementById('invOptToggle').classList.add('open');
             document.getElementById('invModal').style.display = 'flex';
+        }
+
+        function toggleInvOptional() {
+            const btn  = document.getElementById('invOptToggle');
+            const body = document.getElementById('invOptBody');
+            const open = body.classList.toggle('open');
+            btn.classList.toggle('open', open);
         }
 
         function openInvModal() {
@@ -2971,7 +3126,12 @@ body {
             document.getElementById('invFrequency').value = 'monthly';
             document.getElementById('invStartMonth').value = '';
             document.getElementById('invNotes').value = '';
+            // Reset optional section to closed
+            document.getElementById('invOptBody').classList.remove('open');
+            document.getElementById('invOptToggle').classList.remove('open');
             document.getElementById('invModal').style.display = 'flex';
+            // Focus name field
+            setTimeout(() => document.getElementById('invName').focus(), 50);
         }
 
         function closeInvModal() {
@@ -3481,107 +3641,137 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
     <!-- Add / Edit Investment Modal -->
     <div id="invModal" class="inv-modal-overlay" style="display:none;" onclick="if(event.target===this)closeInvModal()">
         <div class="inv-modal">
+            <!-- Header -->
             <div class="inv-modal-header">
-                <div class="inv-modal-title" id="invModalTitle">Add Investment</div>
+                <div>
+                    <div class="inv-modal-title" id="invModalTitle">Add Investment</div>
+                    <div class="inv-modal-subtitle">Required fields marked <span style="color:var(--accent,#8FE62C)">✦</span></div>
+                </div>
                 <button class="inv-modal-close" onclick="closeInvModal()">×</button>
             </div>
 
-            <div class="add-form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
-                <div class="form-group">
-                    <label class="form-label">Fund / Stock / Instrument Name *</label>
+            <!-- Scrollable body -->
+            <div class="inv-modal-body">
+
+                <!-- Name — full width -->
+                <div class="inv-field">
+                    <label class="inv-label">Fund / Stock / Instrument Name <span class="req">✦</span></label>
                     <input type="text" class="form-input" id="invName" placeholder="e.g. HDFC Midcap Opportunities Fund">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Instrument Type</label>
-                    <select class="form-select" id="invInstrumentType" onchange="updateInvSubcategories()">
-                        <option value="">Select type</option>
-                        <option value="Mutual Fund">Mutual Fund</option>
-                        <option value="ETF">ETF</option>
-                        <option value="Stock">Stock</option>
-                        <option value="Bond/FD">Bond / FD</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Asset Class *</label>
-                    <select class="form-select" id="invAssetClass" onchange="updateInvSubcategories()">
-                        <option value="">Select</option>
-                        <option value="Equity">Equity</option>
-                        <option value="Debt">Debt</option>
-                        <option value="Gold">Gold</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Others">Others</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Sub-Category</label>
-                    <select class="form-select" id="invSubCategory">
-                        <option value="">Select type &amp; class first</option>
-                    </select>
-                </div>
-                <div class="form-group" id="invIndexTypeGroup" style="display:none;">
-                    <label class="form-label">Index / Active</label>
-                    <select class="form-select" id="invIndexType">
-                        <option value="">Select</option>
-                        <option value="Index">Index</option>
-                        <option value="Active">Active</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="add-form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:12px;">
-                <div class="form-group">
-                    <label class="form-label">Amount (₹) *</label>
-                    <input type="number" class="form-input" id="invAmount" placeholder="5000" min="1">
+                <!-- Instrument Type + Asset Class -->
+                <div class="inv-row" style="margin-top:14px;">
+                    <div>
+                        <label class="inv-label">Instrument Type <span class="req">✦</span></label>
+                        <select class="form-select" id="invInstrumentType" onchange="updateInvSubcategories()">
+                            <option value="">Select type</option>
+                            <option value="Mutual Fund">Mutual Fund</option>
+                            <option value="ETF">ETF</option>
+                            <option value="Stock">Stock</option>
+                            <option value="Bond/FD">Bond / FD</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="inv-label">Asset Class <span class="req">✦</span></label>
+                        <select class="form-select" id="invAssetClass" onchange="updateInvSubcategories()">
+                            <option value="">Select class</option>
+                            <option value="Equity">Equity</option>
+                            <option value="Debt">Debt</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Frequency *</label>
-                    <select class="form-select" id="invFrequency">
-                        <option value="monthly">Monthly</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="one-time">One-time</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Fund House / AMC <span class="opt-label">(optional)</span></label>
-                    <input type="text" class="form-input" id="invFundHouse" placeholder="e.g. HDFC, Mirae, Axis">
-                </div>
-            </div>
 
-            <div class="add-form-grid" style="grid-template-columns: 1fr 1fr; margin-top:12px;">
-                <div class="form-group">
-                    <label class="form-label">Platform <span class="opt-label">(optional)</span></label>
-                    <select class="form-select" id="invPlatform">
-                        <option value="">Select platform</option>
-                        <option value="Zerodha">Zerodha</option>
-                        <option value="Groww">Groww</option>
-                        <option value="Coin by Zerodha">Coin by Zerodha</option>
-                        <option value="Paytm Money">Paytm Money</option>
-                        <option value="ET Money">ET Money</option>
-                        <option value="MFCentral">MFCentral</option>
-                        <option value="HDFC Securities">HDFC Securities</option>
-                        <option value="ICICI Direct">ICICI Direct</option>
-                        <option value="Kuvera">Kuvera</option>
-                        <option value="Other">Other</option>
-                    </select>
+                <!-- Amount + Frequency -->
+                <div class="inv-row" style="margin-top:14px;">
+                    <div>
+                        <label class="inv-label">Amount (₹) <span class="req">✦</span></label>
+                        <input type="number" class="form-input inv-amount-input" id="invAmount" placeholder="5,000" min="1">
+                    </div>
+                    <div>
+                        <label class="inv-label">Frequency <span class="req">✦</span></label>
+                        <select class="form-select" id="invFrequency">
+                            <option value="monthly">Monthly SIP</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="one-time">One-time</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Start Month <span class="opt-label">(optional)</span></label>
-                    <input type="month" class="form-input" id="invStartMonth">
+
+                <!-- Optional section toggle -->
+                <button class="inv-optional-toggle" id="invOptToggle" onclick="toggleInvOptional()">
+                    Additional Details
+                    <span class="toggle-arrow">▼</span>
+                </button>
+                <div class="inv-optional-body" id="invOptBody">
+
+                    <!-- Sub-category + Index/Active -->
+                    <div class="inv-row">
+                        <div>
+                            <label class="inv-label" style="color:var(--text-tertiary)">Sub-Category</label>
+                            <select class="form-select" id="invSubCategory">
+                                <option value="">Select type &amp; class first</option>
+                            </select>
+                        </div>
+                        <div id="invIndexTypeGroup" style="display:none;">
+                            <label class="inv-label" style="color:var(--text-tertiary)">Index / Active</label>
+                            <select class="form-select" id="invIndexType">
+                                <option value="">Select</option>
+                                <option value="Index">Index</option>
+                                <option value="Active">Active</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fund House + Platform -->
+                    <div class="inv-row" style="margin-top:14px;">
+                        <div>
+                            <label class="inv-label" style="color:var(--text-tertiary)">Fund House / AMC</label>
+                            <input type="text" class="form-input" id="invFundHouse" placeholder="e.g. HDFC, Mirae, Axis">
+                        </div>
+                        <div>
+                            <label class="inv-label" style="color:var(--text-tertiary)">Platform</label>
+                            <select class="form-select" id="invPlatform">
+                                <option value="">Select platform</option>
+                                <option value="Zerodha">Zerodha</option>
+                                <option value="Groww">Groww</option>
+                                <option value="Coin by Zerodha">Coin by Zerodha</option>
+                                <option value="Paytm Money">Paytm Money</option>
+                                <option value="ET Money">ET Money</option>
+                                <option value="MFCentral">MFCentral</option>
+                                <option value="HDFC Securities">HDFC Securities</option>
+                                <option value="ICICI Direct">ICICI Direct</option>
+                                <option value="Kuvera">Kuvera</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Month + Notes -->
+                    <div class="inv-row" style="margin-top:14px;">
+                        <div>
+                            <label class="inv-label" style="color:var(--text-tertiary)">Start Month</label>
+                            <input type="month" class="form-input" id="invStartMonth">
+                        </div>
+                        <div>
+                            <label class="inv-label" style="color:var(--text-tertiary)">Notes</label>
+                            <input type="text" class="form-input" id="invNotes" placeholder="e.g. Direct plan, step-up SIP…">
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group" style="margin-top:12px;">
-                <label class="form-label">Notes <span class="opt-label">(optional)</span></label>
-                <input type="text" class="form-input" id="invNotes" placeholder="e.g. Direct plan, IDCW option, step-up SIP…">
-            </div>
+            </div><!-- /inv-modal-body -->
 
+            <!-- Footer -->
             <div class="inv-modal-footer">
-                <button class="action-btn primary" id="saveInvBtn" onclick="saveInvestment(false)">Add Investment</button>
-                <button class="action-btn secondary" id="saveAddAnotherBtn" onclick="saveInvestment(true)">Save &amp; Add Another</button>
-                <button class="action-btn secondary" onclick="closeInvModal()">Cancel</button>
+                <button class="action-btn primary" id="saveInvBtn" onclick="saveInvestment(false)">Save Investment</button>
+                <button class="btn-add-another" id="saveAddAnotherBtn" onclick="saveInvestment(true)">+ Save &amp; Add Another</button>
+                <button class="action-btn secondary" onclick="closeInvModal()" style="margin-left:auto;">Cancel</button>
             </div>
         </div>
     </div>
