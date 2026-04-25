@@ -62,60 +62,61 @@ router.post('/parse', upload.single('file'), async (req, res) => {
 
     const prompt = `You are a financial data extraction expert for the WealthOS app.
 
-The user has uploaded a financial planning spreadsheet. Family members in their account: ${memberNames || 'Manish, Raghavi'}.
+The user has uploaded a financial planning spreadsheet. Family members in their account: ${memberNames || 'family members'}.
 
-Extract data into this exact JSON structure. Return ONLY the JSON object, no explanations.
+Extract data into this exact JSON structure. Return ONLY the JSON object, no explanation or commentary.
 
 {
   "portfolio": [
     {
       "memberId": null,
-      "memberName": "string (exact name from family list, or 'Common' for shared)",
-      "assetClass": "string (Mutual Funds | Stocks | FD/RD | PPF | NPS | EPF | Real Estate | Gold | ESOPs | Cash | Other)",
-      "currentValue": number (in rupees, convert from lakhs if needed: multiply by 100000),
+      "memberName": "string — must be exactly one of: ${memberNames || 'family members'}",
+      "assetClass": "string — must be exactly one of: Mutual Funds | Stocks | FD/RD | PPF | NPS | EPF | Real Estate | Gold | ESOPs | Cash | Other",
+      "currentValue": number (in rupees — convert lakhs ×100000, crores ×10000000),
       "notes": "string or null"
     }
   ],
   "goals": [
     {
       "name": "string",
-      "goalType": "string (Home Purchase | Vehicle | Education | Retirement | Child Expense | Emergency Fund | Other)",
+      "goalType": "string — must be exactly one of: Home Purchase | Vehicle | Education | Retirement | Child Expense | Emergency Fund | Other",
       "targetAmount": number (in rupees),
       "currentAmount": number (in rupees, 0 if unknown),
-      "targetDate": "YYYY" (just the year as string),
+      "targetDate": "YYYY (year only as string)",
       "monthlyContribution": number (in rupees, 0 if unknown),
       "notes": "string or null"
     }
   ],
   "monthlyIncome": [
     {
-      "memberName": "string (exact name from family list)",
+      "memberName": "string — must exactly match a name from: ${memberNames || 'family members'}",
       "yearlyIncome": number (in rupees for FY 2024 or earliest year),
       "monthlyIncome": number (in rupees)
     }
   ],
   "expenseCategories": [
     {
-      "category": "string",
-      "subcategory": "string",
-      "monthlyAmount": number (in rupees, current/2024 value)
+      "category": "string (e.g. Housing, Food, Transport, Entertainment, Healthcare, Education, Utilities, Other)",
+      "subcategory": "string (e.g. Rent, Groceries, EMI — empty string if none)",
+      "monthlyAmount": number (in rupees, current/2024 monthly value)
     }
   ],
   "retirementOverview": {
-    "memberName": "string",
+    "memberName": "string — must exactly match a name from: ${memberNames || 'family members'}",
     "currentAge": number,
     "retirementAge": number,
     "corpusNeededLakhs": number
   }
 }
 
-Notes:
-- All monetary values must be in RUPEES (multiply lakhs by 100000)
-- For portfolio, split by member if data is available per member
-- Goals are common (no memberName needed)
-- For income, map column headers like "Manish", "Raghavi" to the respective members
-- Include all goals found (House, Car, Education, Retirement, etc.)
-- If a value is missing or unclear, use 0 or null
+Rules:
+- Return ONLY valid JSON. No explanation, no markdown, no extra text.
+- All monetary values must be in RUPEES (multiply lakhs by 100000, crores by 10000000).
+- memberName values must exactly match the names listed above.
+- assetClass and goalType must be exactly one of the allowed enum values.
+- For portfolio, split by member if per-member data is available.
+- Goals are shared (no memberName needed for goals).
+- If a value is missing or unclear, use 0 for numbers or null for strings.
 
 Here is the spreadsheet data:
 ${sheetDesc.substring(0, 8000)}`;
@@ -190,9 +191,9 @@ router.post('/excel-to-text', upload.single('file'), async (req, res) => {
 
 router.post('/save', async (req, res) => {
   try {
-    const { portfolio, goals, monthlyIncome, expenseCategories } = req.body;
+    const { portfolio, goals, monthlyIncome, expenseCategories, retirementOverview } = req.body;
     const userId = req.userId;
-    const results = { portfolio: 0, goals: 0, monthlyIncome: 0 };
+    const results = { portfolio: 0, goals: 0, monthlyIncome: 0, expenseCategories: 0, retirement: 0 };
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
@@ -267,6 +268,86 @@ router.post('/save', async (req, res) => {
         results.monthlyIncome++;
       }
       await query('UPDATE setup_progress SET monthly_done = 1, updated_at = NOW() WHERE user_id = $1', [userId]);
+    }
+
+    if (Array.isArray(expenseCategories) && expenseCategories.length > 0) {
+      const expBreakup = expenseCategories.map((ec, i) => ({
+        id: i + 1,
+        source: ec.subcategory ? `${ec.category}: ${ec.subcategory}` : (ec.category || 'Expense'),
+        amount: Number(ec.monthlyAmount) || 0,
+        type: 'expense'
+      })).filter(e => e.amount > 0);
+
+      const totalExpense = expBreakup.reduce((s, e) => s + e.amount, 0);
+
+      let targetMemberId = null;
+      if (Array.isArray(monthlyIncome) && monthlyIncome.length > 0 && monthlyIncome[0].memberId) {
+        targetMemberId = monthlyIncome[0].memberId;
+      } else {
+        const firstMember = await query(
+          'SELECT id FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order, id LIMIT 1',
+          [userId]
+        );
+        if (firstMember.rows[0]) targetMemberId = firstMember.rows[0].id;
+      }
+
+      if (targetMemberId) {
+        const existingRes = await query(
+          'SELECT id FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+          [userId, targetMemberId, year, month]
+        );
+        if (existingRes.rows[0]) {
+          await query(
+            'UPDATE monthly_data SET expenditure = $1, expense_breakup = $2 WHERE id = $3',
+            [totalExpense, JSON.stringify(expBreakup), existingRes.rows[0].id]
+          );
+        } else {
+          await query(
+            'INSERT INTO monthly_data (user_id, member_id, year, month, expenditure, expense_breakup) VALUES ($1, $2, $3, $4, $5, $6)',
+            [userId, targetMemberId, year, month, totalExpense, JSON.stringify(expBreakup)]
+          );
+        }
+        results.expenseCategories = expBreakup.length;
+        await query('UPDATE setup_progress SET monthly_done = 1, updated_at = NOW() WHERE user_id = $1', [userId]);
+      }
+    }
+
+    if (retirementOverview) {
+      const items = Array.isArray(retirementOverview) ? retirementOverview : [retirementOverview];
+      const membersRes = await query(
+        'SELECT id, name FROM family_members WHERE user_id = $1 AND is_active = 1',
+        [userId]
+      );
+      const memberList = membersRes.rows;
+
+      const existingPlan = await query('SELECT config FROM financial_plan WHERE user_id = $1', [userId]);
+      const currentConfig = existingPlan.rows[0]
+        ? JSON.parse(existingPlan.rows[0].config || '{}')
+        : {};
+
+      for (const ro of items) {
+        const name = (ro.memberName || '').toLowerCase();
+        const member = memberList.find(m => m.name.toLowerCase() === name || m.name.toLowerCase().startsWith(name.split(' ')[0]));
+        if (!member) continue;
+
+        const firstName = member.name.split(' ')[0].toLowerCase();
+        const currentAge = Number(ro.currentAge) || 0;
+        const retirementAge = Number(ro.retirementAge) || 60;
+        const yearsToRetire = Math.max(retirementAge - currentAge, 0);
+        const retireFY = year + yearsToRetire;
+
+        currentConfig[`${firstName}RetireFY`] = retireFY;
+        if (ro.corpusNeededLakhs) {
+          currentConfig[`${firstName}CorpusNeededLakhs`] = Number(ro.corpusNeededLakhs);
+        }
+        results.retirement++;
+      }
+
+      await query(
+        `INSERT INTO financial_plan (user_id, config, updated_at) VALUES ($1, $2, NOW())
+         ON CONFLICT (user_id) DO UPDATE SET config = EXCLUDED.config, updated_at = NOW()`,
+        [userId, JSON.stringify(currentConfig)]
+      );
     }
 
     return res.json({ success: true, results });

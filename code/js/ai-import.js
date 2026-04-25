@@ -204,6 +204,33 @@ class AIImport {
         margin-top: 12px; display: none;
         border: 1px solid var(--border-color, #e5e7eb);
       }
+      .ai-imp-member-assign {
+        margin-top: 14px; border: 1px solid rgba(251,146,60,0.35);
+        border-radius: 12px; overflow: hidden; background: rgba(251,146,60,0.04);
+      }
+      .ai-imp-member-assign-title {
+        font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.05em; color: #d97706; padding: 10px 14px 8px;
+        background: rgba(251,146,60,0.08); border-bottom: 1px solid rgba(251,146,60,0.2);
+        display: flex; align-items: center; gap: 6px;
+      }
+      .ai-imp-member-row {
+        display: grid; grid-template-columns: 1fr auto;
+        align-items: center; gap: 10px;
+        padding: 8px 14px; border-bottom: 1px solid rgba(251,146,60,0.12);
+        font-size: 0.8125rem;
+      }
+      .ai-imp-member-row:last-child { border-bottom: none; }
+      .ai-imp-member-label { color: var(--text-primary, #1a1a1a); font-weight: 500; }
+      .ai-imp-member-label span { color: var(--text-tertiary, #999); font-size: 0.75rem; font-weight: 400; margin-left: 6px; }
+      .ai-imp-member-select {
+        padding: 6px 10px; border-radius: 7px;
+        border: 1px solid rgba(251,146,60,0.4);
+        background: var(--bg-elevated, #fff);
+        font-size: 0.8125rem; color: var(--text-primary, #1a1a1a);
+        font-family: 'DM Sans', sans-serif; cursor: pointer;
+        min-width: 140px;
+      }
     `;
     document.head.appendChild(style);
 
@@ -498,6 +525,9 @@ class AIImport {
       const previewEl = m.querySelector('.ai-imp-preview');
       previewEl.innerHTML = previewHtml;
       previewEl.style.display = 'block';
+
+      this._renderMemberAssign(previewEl);
+
       m.querySelector('.ai-imp-btn-confirm').style.display = 'inline-block';
 
     } catch (err) {
@@ -508,11 +538,87 @@ class AIImport {
     parseBtn.disabled = false;
   }
 
+  _renderMemberAssign(previewEl) {
+    const members = this.config.members;
+    if (!Array.isArray(members) || members.length === 0) return;
+
+    const memberNameSet = new Set(members.map(m => m.name.toLowerCase()));
+
+    const items = Array.isArray(this._data) ? this._data : [];
+    const unmatched = [];
+    const seen = new Set();
+
+    for (const item of items) {
+      if (!item.memberName) continue;
+      const key = item.memberName.toLowerCase();
+      if (memberNameSet.has(key)) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unmatched.push({ originalName: item.memberName, key });
+    }
+
+    if (unmatched.length === 0) return;
+
+    const esc = AIImport._esc;
+    const optionsHtml = members.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
+    const rowsHtml = unmatched.map(u => `
+      <div class="ai-imp-member-row">
+        <div class="ai-imp-member-label">${esc(u.originalName)}<span>not matched</span></div>
+        <select class="ai-imp-member-select" data-original="${esc(u.key)}">
+          <option value="">— assign member —</option>
+          ${optionsHtml}
+        </select>
+      </div>
+    `).join('');
+
+    const assignEl = document.createElement('div');
+    assignEl.className = 'ai-imp-member-assign';
+    assignEl.innerHTML = `
+      <div class="ai-imp-member-assign-title">⚠ Unmatched members — assign before importing</div>
+      ${rowsHtml}
+    `;
+    previewEl.appendChild(assignEl);
+  }
+
+  _applyMemberAssignments() {
+    const members = this.config.members;
+    if (!Array.isArray(members) || members.length === 0) return;
+
+    const m = this._modalEl;
+    const selects = m.querySelectorAll('.ai-imp-member-select');
+    if (!selects.length) return;
+
+    const assignMap = {};
+    selects.forEach(sel => {
+      const original = sel.dataset.original;
+      const selectedId = sel.value ? Number(sel.value) : null;
+      const selectedMember = members.find(mem => mem.id === selectedId);
+      if (original && selectedMember) {
+        assignMap[original] = { id: selectedMember.id, name: selectedMember.name };
+      }
+    });
+
+    if (!Object.keys(assignMap).length) return;
+
+    const items = Array.isArray(this._data) ? this._data : [];
+    for (const item of items) {
+      if (!item.memberName) continue;
+      const key = item.memberName.toLowerCase();
+      if (assignMap[key]) {
+        item.memberId = assignMap[key].id;
+        item.memberName = assignMap[key].name;
+      }
+    }
+  }
+
   async _confirm() {
     const m = this._modalEl;
     if (!this._data) return;
     const btn = m.querySelector('.ai-imp-btn-confirm');
     const status = m.querySelector('.ai-imp-status');
+
+    this._applyMemberAssignments();
+
     btn.disabled = true;
     status.style.color = 'var(--text-secondary, #666)';
     status.textContent = '⏳ Saving…';

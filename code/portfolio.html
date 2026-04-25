@@ -2681,32 +2681,36 @@ SBI FD                            ₹1,00,000   FD
 
 — or paste directly from Zerodha/Groww export —`,
 
+                    members: allMembers || [],
+
                     buildPrompt: () => {
                         const memberNames = (allMembers || []).map(m => m.name).join(', ') || 'family members';
-                        return `You are a portfolio data extractor.
+                        return `You are a portfolio data extractor for WealthOS.
 
 Family members: ${memberNames}
 
 Extract all portfolio holdings from the provided data (table, screenshot, broker statement, or text).
 
-Return ONLY a JSON array (no explanation):
+Return ONLY a valid JSON array with no explanation or commentary:
 [{
-  "memberName": "string (exact name from member list, or first member if unclear)",
+  "memberName": "string — must be one of: ${memberNames}",
   "name": "string (asset/fund/stock name)",
-  "assetType": "Stocks|Mutual Funds|Fixed Deposit|Gold|Real Estate|Crypto|Cash|NPS|EPF|PPF|Other",
-  "assetClass": "Equity|Debt|Gold|Real Estate|Cash|Commodity",
-  "currentValue": number (in rupees),
-  "purchaseValue": number or null,
-  "units": number or null,
+  "assetType": "string — must be one of: Mutual Funds | Stocks | FD/RD | PPF | NPS | EPF | Real Estate | Gold | ESOPs | Cash | Other",
+  "assetClass": "string — must be one of: Mutual Funds | Stocks | FD/RD | PPF | NPS | EPF | Real Estate | Gold | ESOPs | Cash | Other",
+  "currentValue": number (in rupees — convert lakhs: ×100000, crores: ×10000000),
+  "purchaseValue": number or 0,
+  "units": number or 0,
   "notes": "string or null"
 }]
 
 Rules:
-- All amounts in INR (₹). Convert lakhs/Cr: 1L = 100000, 1Cr = 10000000
-- Mutual Funds = assetClass Equity (unless it's a debt/liquid fund)
-- Debt funds, FDs, PPF, EPF, NPS = assetClass Debt
-- Gold ETF, SGB, physical gold = assetClass Gold
-- Stocks, ETFs = assetClass Equity`;
+- Return ONLY valid JSON. No explanation, no markdown, no extra text.
+- All amounts in INR. Convert lakhs/Cr: 1L = 100000, 1Cr = 10000000.
+- assetType and assetClass must be exactly one of the values listed above.
+- Mutual Funds, Stocks, ETFs → assetType "Mutual Funds" or "Stocks"; assetClass same.
+- FDs, RDs → assetType "FD/RD"; assetClass "FD/RD".
+- PPF → "PPF", NPS → "NPS", EPF → "EPF", Gold ETF/SGB/physical → "Gold".
+- memberName must exactly match a name from the family list above.`;
                     },
 
                     renderPreview: (data) => {
@@ -2715,12 +2719,11 @@ Rules:
                         const total = arr.reduce((s, a) => s + (Number(a.currentValue) || 0), 0);
                         return `<div class="ai-imp-sec">
                             <div class="ai-imp-sec-title">📊 Portfolio Holdings <span class="ai-imp-badge">${arr.length}</span> <span style="margin-left:auto;font-family:'Space Grotesk',sans-serif;">${rs(total)}</span></div>
-                            <table class="ai-imp-tbl"><thead><tr><th>Member</th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right;">Value</th></tr></thead><tbody>
+                            <table class="ai-imp-tbl"><thead><tr><th>Member</th><th>Name</th><th>Type</th><th style="text-align:right;">Value</th></tr></thead><tbody>
                             ${arr.map(a => `<tr>
                                 <td style="color:var(--text-secondary);font-size:0.75rem;">${esc(a.memberName || '–')}</td>
                                 <td style="font-weight:600;">${esc(a.name)}</td>
                                 <td style="color:var(--text-secondary);">${esc(a.assetType)}</td>
-                                <td style="color:var(--text-secondary);">${esc(a.assetClass)}</td>
                                 <td class="ai-imp-amount" style="text-align:right;">${rs(a.currentValue)}</td>
                             </tr>`).join('')}
                             </tbody></table></div>`;
@@ -2733,12 +2736,14 @@ Rules:
 
                         let saved = 0;
                         for (const asset of arr) {
-                            const memberId = memberMap[(asset.memberName || '').toLowerCase()] || (allMembers[0] && allMembers[0].id);
+                            const memberId = asset.memberId
+                                || memberMap[(asset.memberName || '').toLowerCase()]
+                                || (allMembers[0] && allMembers[0].id);
                             if (!memberId) continue;
                             await WealthAPI.portfolio.add(memberId, {
                                 name: asset.name || 'Unnamed',
                                 assetType: asset.assetType || 'Other',
-                                assetClass: asset.assetClass || 'Equity',
+                                assetClass: asset.assetClass || 'Mutual Funds',
                                 currentValue: Number(asset.currentValue) || 0,
                                 purchaseValue: Number(asset.purchaseValue) || 0,
                                 units: Number(asset.units) || 0,
@@ -2749,10 +2754,11 @@ Rules:
                             saved++;
                         }
                         await loadPageData();
-                        alert(`✓ ${saved} asset${saved !== 1 ? 's' : ''} imported successfully!`);
+                        if (saved > 0) alert(`✓ ${saved} asset${saved !== 1 ? 's' : ''} imported successfully!`);
                     }
                 });
             }
+            _portfolioImporter.config.members = allMembers || [];
             _portfolioImporter.open();
         }
     </script>

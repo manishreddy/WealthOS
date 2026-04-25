@@ -1847,8 +1847,28 @@ function openTaxImport() {
         title: 'Import Tax Details via AI',
         description: 'Paste your salary slip, Form 16, or any income/deduction table and Claude will fill in the tax fields for you.',
         placeholder: 'Gross Salary: 18,00,000\nHRA: 3,60,000\n80C (ELSS+PPF): 1,50,000\n80D Health Insurance: 25,000\n80CCD1B NPS: 50,000\nHome Loan Interest: 2,00,000\n...',
-        buildPrompt(text) {
-            return `Extract income and tax deduction figures from the following data.\n\nReturn a JSON object with these keys (all values in INR as plain numbers):\n- grossSalary\n- hraReceived\n- sec80c (max 150000)\n- sec80d (max 25000)\n- sec80ccd1b (max 50000)\n- homeLoanInterest\n- otherDeductions\n\nReturn ONLY valid JSON, no explanation.\n\nData:\n${text}`;
+        buildPrompt() {
+            return `You are a tax data extractor for WealthOS India tax planning.
+
+Extract income and tax deduction figures from the provided data (salary slip, Form 16, or any income/deduction table).
+
+Return ONLY a valid JSON object with no explanation or commentary:
+{
+  "grossSalary": number (annual gross salary in INR),
+  "hraReceived": number (HRA received in INR, 0 if none),
+  "sec80c": number (total 80C investments in INR, max 150000 — ELSS, PPF, EPF, LIC, etc.),
+  "sec80d": number (health insurance premium in INR, max 25000),
+  "sec80ccd1b": number (NPS additional contribution in INR, max 50000),
+  "homeLoanInterest": number (home loan interest paid in INR, 0 if none),
+  "otherDeductions": number (any other deductions in INR, 0 if none)
+}
+
+Rules:
+- Return ONLY valid JSON. No explanation, no markdown, no extra text.
+- All values in INR as plain numbers (no currency symbols, no commas).
+- Convert lakhs: ×100000, crores: ×10000000.
+- If a value is not mentioned or unclear, use 0.
+- Respect the legal maxima noted above — do not exceed them.`;
         },
         renderPreview(data) {
             if (typeof data !== 'object' || Array.isArray(data)) return '<p style="color:var(--text-secondary)">Could not parse tax data.</p>';

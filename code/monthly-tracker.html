@@ -931,6 +931,22 @@ body {
         .trend-empty p { margin: 0; font-size: 0.875rem; color: var(--text-tertiary); max-width: 280px; line-height: 1.5; }
         .mini-chart.hidden { display: none; }
 
+        /* Nudge Banner */
+        .tracker-nudge { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; background: rgba(143, 230, 44, 0.08); border: 1.5px solid rgba(143, 230, 44, 0.3); border-radius: 14px; margin-bottom: 20px; }
+        .nudge-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+        .nudge-text { flex: 1; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; }
+        .nudge-text strong { display: block; color: var(--text-primary); font-size: 0.9375rem; margin-bottom: 3px; }
+        .nudge-dismiss { background: none; border: none; color: var(--text-tertiary); font-size: 1.25rem; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; opacity: 0.6; transition: opacity 0.15s; }
+        .nudge-dismiss:hover { opacity: 1; }
+
+        /* Trend empty state */
+        .trend-empty { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; gap: 12px; text-align: center; }
+        .trend-empty.show { display: flex; }
+        .trend-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+        .trend-empty h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
+        .trend-empty p { margin: 0; font-size: 0.875rem; color: var(--text-tertiary); max-width: 280px; line-height: 1.5; }
+        .mini-chart.hidden { display: none; }
+
         /* === Accordion Entry Cards === */
         .entry-accordion {
             background: var(--bg-elevated);
@@ -2332,23 +2348,25 @@ Investments:
 
                     buildPrompt: () => {
                         const memberName = (familyMembers.find(m => m.id === currentMemberId) || {}).name || 'member';
-                        return `You are a financial data extractor for ${memberName}'s monthly tracker.
+                        return `You are a financial data extractor for WealthOS — extracting ${memberName}'s monthly tracker data.
 
-Extract all income, expense, and investment line items from the provided data (table, screenshot, bank statement, salary slip, or plain text).
+Extract all income, expense, and investment line items from the provided data (bank statement, salary slip, expense table, screenshot, or plain text).
 
-Return ONLY this JSON (no explanation):
+Return ONLY this exact JSON structure with no explanation or commentary:
 {
-  "incomeBreakup": [{"name": "string", "amount": number}],
-  "expenseBreakup": [{"name": "string", "amount": number}],
-  "investmentBreakup": [{"name": "string", "amount": number}]
+  "incomeBreakup": [{"name": "string (e.g. Salary, Freelance, Rental Income)", "amount": number}],
+  "expenseBreakup": [{"name": "string (e.g. Rent, Groceries, Utilities, EMI)", "amount": number}],
+  "investmentBreakup": [{"name": "string (e.g. HDFC Midcap SIP, NPS, PPF)", "amount": number}]
 }
 
 Rules:
-- All amounts must be positive numbers in INR (₹)
-- name should be descriptive and short (e.g. "Salary", "Rent", "HDFC MF SIP")
-- SIPs, mutual funds, stocks = investmentBreakup
-- EMI payments = expenseBreakup
-- If unsure, put in expenseBreakup`;
+- Return ONLY valid JSON. No explanation, no markdown, no extra text.
+- All amounts must be positive numbers in INR (₹).
+- name should be short and descriptive (max ~30 chars).
+- SIPs, mutual funds, stocks, ETFs, NPS, PPF, FD deposits → investmentBreakup.
+- Rent, groceries, utilities, dining, transport, insurance premiums, EMIs → expenseBreakup.
+- Salary, freelance income, rental income, dividends → incomeBreakup.
+- If classification is unclear, default to expenseBreakup.`;
                     },
 
                     renderPreview: (data) => {

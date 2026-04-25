@@ -2281,6 +2281,17 @@ body {
 
             let html = '';
 
+            const memberOptions = (members || []).map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
+
+            function memberCell(item, idx, type) {
+                if (item.memberId) {
+                    return `<td style="font-weight:500;">${escHtml(memberById[item.memberId] || item.memberName || '–')}</td>`;
+                }
+                return `<td><select class="si-member-assign" data-type="${type}" data-idx="${idx}" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(251,146,60,0.5);background:var(--bg-secondary);font-size:0.8rem;color:var(--text-primary);min-width:110px;">
+                    <option value="">⚠ assign member</option>${memberOptions}
+                </select></td>`;
+            }
+
             // ── Portfolio ──
             if (data.portfolio && data.portfolio.length) {
                 html += `<div class="si-section">
@@ -2288,8 +2299,8 @@ body {
                     <table class="si-table">
                         <thead><tr><th>Member</th><th>Asset Class</th><th>Current Value</th><th>Notes</th></tr></thead>
                         <tbody>
-                        ${data.portfolio.map(p => `<tr>
-                            <td>${escHtml(p.memberName || (p.memberId ? memberById[p.memberId] : '–') || '–')}</td>
+                        ${data.portfolio.map((p, i) => `<tr>
+                            ${memberCell(p, i, 'portfolio')}
                             <td>${escHtml(p.assetClass)}</td>
                             <td style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-primary);">${fmtRs(p.currentValue)}</td>
                             <td style="color:var(--text-tertiary);font-size:0.75rem;">${escHtml(p.notes || '')}</td>
@@ -2324,10 +2335,10 @@ body {
                     <table class="si-table">
                         <thead><tr><th>Member</th><th>Monthly Income</th><th>Annual Income</th></tr></thead>
                         <tbody>
-                        ${data.monthlyIncome.map(i => `<tr>
-                            <td style="font-weight:600;">${escHtml(i.memberName)}</td>
-                            <td style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-primary);">${fmtRs(i.monthlyIncome)}</td>
-                            <td style="color:var(--text-secondary);">${fmtRs(i.yearlyIncome)}/yr</td>
+                        ${data.monthlyIncome.map((item, i) => `<tr>
+                            ${memberCell(item, i, 'monthlyIncome')}
+                            <td style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-primary);">${fmtRs(item.monthlyIncome)}</td>
+                            <td style="color:var(--text-secondary);">${fmtRs(item.yearlyIncome)}/yr</td>
                         </tr>`).join('')}
                         </tbody>
                     </table>
@@ -2394,6 +2405,17 @@ body {
             status.style.color = 'var(--text-secondary)';
             status.textContent = '⏳ Saving data…';
 
+            const dataToSave = JSON.parse(JSON.stringify(_importParsedData));
+
+            document.querySelectorAll('.si-member-assign').forEach(sel => {
+                const type = sel.dataset.type;
+                const idx = Number(sel.dataset.idx);
+                const memberId = sel.value ? Number(sel.value) : null;
+                if (memberId && dataToSave[type] && dataToSave[type][idx] != null) {
+                    dataToSave[type][idx].memberId = memberId;
+                }
+            });
+
             try {
                 const resp = await fetch('/api/import/save', {
                     method: 'POST',
@@ -2401,7 +2423,7 @@ body {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '')
                     },
-                    body: JSON.stringify(_importParsedData)
+                    body: JSON.stringify(dataToSave)
                 });
                 if (!resp.ok) {
                     const e = await resp.json().catch(() => ({}));
@@ -2409,7 +2431,13 @@ body {
                 }
                 const result = await resp.json();
                 const { results } = result;
-                status.textContent = `✓ Imported: ${results.portfolio} portfolio items, ${results.goals} goals, ${results.monthlyIncome} income records.`;
+                const parts = [];
+                if (results.portfolio) parts.push(`${results.portfolio} portfolio items`);
+                if (results.goals) parts.push(`${results.goals} goals`);
+                if (results.monthlyIncome) parts.push(`${results.monthlyIncome} income records`);
+                if (results.expenseCategories) parts.push(`${results.expenseCategories} expense categories`);
+                if (results.retirement) parts.push(`${results.retirement} retirement overviews`);
+                status.textContent = `✓ Imported: ${parts.join(', ') || 'no new records'}.`;
                 status.style.color = 'var(--success)';
                 btn.style.display = 'none';
                 if (typeof showToast === 'function') showToast('Spreadsheet imported successfully!', 'success');

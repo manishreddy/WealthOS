@@ -2459,8 +2459,28 @@ body {
                 title: 'Import Goals via AI',
                 description: 'Paste a table, upload a screenshot, or attach a CSV with your goals data.',
                 placeholder: 'Goal Name | Type | Target Amount | Current Amount | Monthly SIP | Target Date\nBuy House | House | 80,00,000 | 10,00,000 | 25,000 | 2030-01-01\n...',
-                buildPrompt(text) {
-                    return `Extract goals from the following data and return a JSON array.\n\nEach item must have:\n- name (string)\n- goalType (one of: House, Education, Vacation, Vehicle, Retirement, Emergency, Other)\n- targetAmount (number, in INR)\n- currentAmount (number, in INR, default 0)\n- monthlyContribution (number, monthly SIP in INR, default 0)\n- targetDate (string YYYY-MM-DD or YYYY-MM)\n- notes (string, optional)\n\nReturn ONLY valid JSON array, no explanation.\n\nData:\n${text}`;
+                buildPrompt() {
+                    return `You are a financial goals data extractor for WealthOS.
+
+Extract all financial goals from the provided data and return ONLY a valid JSON array with no explanation or commentary.
+
+Each item must have exactly these fields:
+[{
+  "name": "string (goal name, e.g. Buy House, Kids Education)",
+  "goalType": "string — must be exactly one of: Home Purchase | Vehicle | Education | Retirement | Child Expense | Emergency Fund | Other",
+  "targetAmount": number (total target in INR — convert lakhs ×100000, crores ×10000000),
+  "currentAmount": number (amount saved so far in INR, default 0),
+  "monthlyContribution": number (monthly SIP/savings in INR, default 0),
+  "targetDate": "string — year only as YYYY (e.g. 2030)",
+  "notes": "string or null"
+}]
+
+Rules:
+- Return ONLY valid JSON array. No explanation, no markdown, no extra text.
+- All amounts in INR. Convert lakhs: ×100000, crores: ×10000000.
+- goalType must be exactly one of the allowed values listed above.
+- If target date is given as a full date, extract just the year.
+- If a value is unknown, use 0 for numbers or null for strings.`;
                 },
                 renderPreview(data) {
                     if (!Array.isArray(data) || data.length === 0) return '<p style="color:var(--text-secondary)">No goals found.</p>';
