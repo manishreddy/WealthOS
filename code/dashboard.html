@@ -4,1207 +4,307 @@
     <meta charset="UTF-8">
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WealthOS - Dashboard</title>
+    <title>WealthOS – Dashboard</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <link rel="stylesheet" href="css/animations.css">
     <style>
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text-primary);
-        }
+        body { font-family: var(--font); background: var(--bg); color: var(--text-primary); }
 
         .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); }
 
-        .main-content {
-            padding: 32px 40px;
-            overflow-y: auto;
-            background: var(--bg);
-        }
+        /* ── Top bar ─────────────────────────────────────────────────────── */
+        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+        .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; margin-bottom: 4px; }
+        .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); letter-spacing: -0.01em; }
+        .top-actions { display: flex; gap: 10px; align-items: center; }
+        .action-btn { padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.16s; border: none; letter-spacing: -0.01em; font-family: var(--font); }
+        .action-btn.primary { background: var(--text-primary); color: var(--bg); }
+        .action-btn.primary:hover { opacity: 0.88; }
+        .action-btn.secondary { background: var(--card-light-bg); color: var(--text-primary); border: 1.5px solid var(--border-strong); }
+        .action-btn.secondary:hover { background: var(--hover-bg); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--text-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: var(--bg); cursor: pointer; position: relative; }
+        .demo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; background: var(--card-light-bg); color: var(--text-primary); border: 1.5px solid var(--border-strong); cursor: pointer; transition: all 0.16s; text-decoration: none; }
+        .demo-btn:hover { background: var(--hover-bg); }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 32px;
-        }
+        /* ── Dashboard grid — 20px tighter gaps ─────────────────────────── */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; }
 
-        .page-title {
-            font-family: var(--font);
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: -0.04em;
-            margin-bottom: 8px;
-        }
-
-        .page-subtitle {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            letter-spacing: -0.01em;
-        }
-
-        .top-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .action-btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            letter-spacing: -0.01em;
-        }
-
-        .action-btn.primary {
-            background: var(--accent-primary);
-            color: #ffffff;
-        }
-
-        .action-btn.primary:hover {
-            filter: brightness(1.1);
-        }
-
-        .action-btn.secondary {
-            background: var(--bg-elevated);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .action-btn.secondary:hover {
-            background: var(--hover-bg);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        /* Person Tabs — shared styles in user-menu.css */
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        /* Metric Cards */
-        .metric-cards {
+        /* ── Hero card (clean, no gradient bubble) ───────────────────────── */
+        .hero-metric-card {
             grid-column: span 12;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 16px;
-        }
-
-        .metric-card {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            box-shadow: var(--card-shadow);
-            cursor: pointer;
-        }
-
-        .metric-card:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-icon {
-            font-size: 1.5rem;
-        }
-
-        .metric-value {
-            font-family: var(--font);
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            letter-spacing: -0.03em;
-        }
-
-        .metric-subvalue {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .metric-change {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
-            letter-spacing: -0.01em;
-        }
-
-        .metric-change.positive {
-            background: rgba(0, 200, 5, 0.1);
-            color: var(--success);
-        }
-
-        .metric-change.negative {
-            background: rgba(255, 59, 48, 0.1);
-            color: var(--error);
-        }
-
-        /* Charts */
-        .chart-card {
-            grid-column: span 8;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .chart-card.full-width {
-            grid-column: span 12;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .chart-title {
-            font-family: var(--font);
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-        }
-
-        .chart-tabs {
-            display: flex;
-            gap: 6px;
-        }
-
-        .chart-tab {
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: transparent;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            letter-spacing: -0.01em;
-        }
-
-        .chart-tab:hover {
-            border-color: var(--accent-primary);
-            color: var(--text-primary);
-        }
-
-        .chart-tab.active {
-            background: rgba(0, 102, 255, 0.12);
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-        }
-
-        .chart-area {
-            height: 220px;
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .chart-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .chart-grid {
-            stroke: var(--border-subtle);
-            stroke-width: 1;
-        }
-
-        /* Gauge Chart */
-        .gauge-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 220px;
-            position: relative;
-        }
-
-        .gauge-svg {
-            width: 180px;
-            height: 180px;
-        }
-
-        .gauge-bg {
-            fill: none;
-            stroke: var(--border-subtle);
-            stroke-width: 12;
-        }
-
-        .gauge-progress {
-            fill: none;
-            stroke: url(#gaugeGradient);
-            stroke-width: 12;
-            stroke-linecap: round;
-            transition: stroke-dasharray 1s ease;
-        }
-
-        .gauge-value {
-            font-family: var(--font);
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.03em;
-        }
-
-        .gauge-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        /* Goals */
-        .goals-grid {
-            grid-column: span 12;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .goal-card {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            box-shadow: var(--card-shadow);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .goal-card:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .goal-card.expanded {
-            grid-column: span 2;
-        }
-
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .goal-icon {
-            font-size: 2rem;
-        }
-
-        .goal-progress-ring {
-            width: 48px;
-            height: 48px;
-        }
-
-        .goal-ring-bg {
-            fill: none;
-            stroke: var(--border-subtle);
-            stroke-width: 4;
-        }
-
-        .goal-ring-progress {
-            fill: none;
-            stroke: var(--accent-primary);
-            stroke-width: 4;
-            stroke-linecap: round;
-            transition: stroke-dasharray 0.5s ease;
-        }
-
-        .goal-title {
-            font-size: 0.9375rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .goal-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 12px;
-        }
-
-        .goal-current {
-            font-family: var(--font);
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .goal-target {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-        }
-
-        .goal-progress-bar {
-            height: 6px;
-            background: var(--border-subtle);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .goal-progress-fill {
-            height: 100%;
-            background: var(--accent-primary);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-
-        .goal-percentage {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .goal-details {
-            display: none;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .goal-card.expanded .goal-details {
-            display: block;
-        }
-
-        .goal-detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.8125rem;
-        }
-
-        .goal-detail-label {
-            color: var(--text-secondary);
-        }
-
-        .goal-detail-value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* Activity & Allocation */
-        .activity-card {
-            grid-column: span 4;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .activity-title {
-            font-family: var(--font);
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
-        }
-
-        .activity-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .activity-item {
-            display: flex;
-            gap: 12px;
-            cursor: pointer;
-            padding: 10px;
-            margin: -10px;
-            border-radius: 10px;
-            transition: background 0.2s ease;
-        }
-
-        .activity-item:hover {
-            background: var(--hover-bg);
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-
-        .activity-icon.buy {
-            background: rgba(0, 200, 5, 0.12);
-        }
-
-        .activity-icon.sell {
-            background: rgba(255, 59, 48, 0.12);
-        }
-
-        .activity-icon.transfer {
-            background: rgba(0, 102, 255, 0.12);
-        }
-
-        .activity-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .activity-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            letter-spacing: -0.01em;
-        }
-
-        .activity-details {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: -0.01em;
-        }
-
-        .activity-amount {
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        .activity-value {
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            letter-spacing: -0.01em;
-        }
-
-        .activity-time {
-            font-size: 0.6875rem;
-            font-weight: 500;
-            color: var(--text-tertiary);
-            letter-spacing: -0.01em;
-        }
-
-        /* Allocation */
-        .allocation-card {
-            grid-column: span 6;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .allocation-title {
-            font-family: var(--font);
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 24px;
-            letter-spacing: -0.02em;
-        }
-
-        .allocation-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .allocation-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .allocation-color {
-            width: 4px;
-            height: 36px;
-            border-radius: 2px;
-        }
-
-        .allocation-info {
-            flex: 1;
-        }
-
-        .allocation-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .allocation-bar {
-            height: 6px;
-            background: var(--border-subtle);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .allocation-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-
-        .allocation-stats {
-            text-align: right;
-        }
-
-        .allocation-percentage {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            letter-spacing: -0.02em;
-        }
-
-        .allocation-value {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: -0.01em;
-        }
-
-        /* Expandable Sections */
-        .section-toggle {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .section-toggle-icon {
-            font-size: 1.25rem;
-            transition: transform 0.3s ease;
-        }
-
-        .section-toggle.expanded .section-toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .section-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .section-content.expanded {
-            max-height: 2000px;
-        }
-
-        /* Income vs Expense */
-        .income-expense-bars {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .ie-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .ie-label {
-            width: 80px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .ie-bar {
-            flex: 1;
-            height: 32px;
-            background: var(--border-subtle);
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .ie-bar-fill {
-            height: 100%;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: white;
-            transition: width 0.5s ease;
-        }
-
-        .ie-bar-fill.income {
-            background: var(--success, #00C805);
-        }
-
-        .ie-bar-fill.expense {
-            background: #ff9500;
-        }
-
-        .ie-value {
-            width: 100px;
-            text-align: right;
-            font-family: var(--font);
-            font-size: 0.9375rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        /* ── FTUX Nudge Card ─────────────────────────────────────────── */
-        .ftux-nudge-section {
-            grid-column: span 12;
-            margin-bottom: 4px;
-        }
+            background: var(--card-dark-bg, #111);
+            border-radius: 20px; padding: 28px 32px;
+            display: flex; align-items: stretch; gap: 0;
+            position: relative; overflow: hidden;
+            box-shadow: var(--shadow-md);
+            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        /* No decorative backgrounds — design rule: no gradients */
+        .hero-metric-main { flex: 1; }
+        .hero-metric-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+        .hero-metric-value { font-size: 2.75rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; margin-bottom: 6px; line-height: 1; font-feature-settings: 'tnum' 1; }
+        .hero-metric-change { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8125rem; font-weight: 600; color: var(--accent, #8FE62C); }
+        .hero-metric-divider { width: 1px; background: rgba(255,255,255,0.08); margin: 0 28px; }
+        .hero-metric-secondary { display: flex; flex-direction: column; justify-content: center; gap: 18px; flex-shrink: 0; min-width: 220px; }
+        .hero-secondary-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+        .hero-secondary-value { font-size: 1.25rem; font-weight: 700; color: white; letter-spacing: -0.03em; font-feature-settings: 'tnum' 1; }
+        .hero-secondary-sub { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        /* skeleton */
+        .hero-metric-card.loading .hero-metric-value,
+        .hero-metric-card.loading .hero-secondary-value {
+            background: linear-gradient(90deg, rgba(255,255,255,0.07) 25%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.07) 75%);
+            background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear;
+            border-radius: 8px; color: transparent !important;
+        }
+
+        /* ── FTUX Nudge — Rich (lime border, light card) ─────────────────── */
+        .ftux-nudge-section { grid-column: span 12; }
         .ftux-nudge-card {
-            background: linear-gradient(135deg, var(--accent-primary, #0066ff) 0%, #0052cc 100%);
-            border-radius: 18px;
-            padding: 28px 32px;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            position: relative;
-            overflow: hidden;
-            animation: wos-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) both;
+            background: var(--card-light-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent, #8FE62C);
+            background-color: rgba(143, 230, 44, 0.04);
+            padding: 24px 28px;
+            display: flex; align-items: center; gap: 20px;
+            box-shadow: var(--shadow-sm);
+            animation: wos-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) 0.08s both;
         }
-        .ftux-nudge-card::before {
-            content: '';
-            position: absolute;
-            width: 280px; height: 280px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            top: -80px; right: -60px;
-            pointer-events: none;
-        }
-        .ftux-nudge-icon {
-            font-size: 2.75rem;
-            flex-shrink: 0;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-        }
+        .ftux-nudge-icon { font-size: 2.25rem; flex-shrink: 0; }
         .ftux-nudge-body { flex: 1; min-width: 0; }
         .ftux-nudge-step {
             font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: rgba(255,255,255,0.65);
-            margin-bottom: 5px;
+            letter-spacing: 0.06em; color: var(--accent-dark, #5FA518); margin-bottom: 4px;
         }
-        .ftux-nudge-title {
-            font-size: 1.125rem; font-weight: 700; color: white;
-            margin-bottom: 5px; letter-spacing: -0.02em;
-        }
-        .ftux-nudge-desc {
-            font-size: 0.875rem; color: rgba(255,255,255,0.8); line-height: 1.5;
-        }
+        .ftux-nudge-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; }
+        .ftux-nudge-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
         .ftux-nudge-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .ftux-nudge-btn {
-            padding: 11px 22px; background: white; color: var(--accent-primary, #0066ff);
+            padding: 10px 20px; background: var(--accent, #8FE62C); color: #111;
             border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+            cursor: pointer; transition: all 0.16s; white-space: nowrap;
             text-decoration: none; display: inline-block; font-family: var(--font);
         }
-        .ftux-nudge-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
-        .ftux-nudge-dismiss {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(255,255,255,0.15); border: none;
-            color: rgba(255,255,255,0.8); font-size: 1rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s; flex-shrink: 0;
-        }
-        .ftux-nudge-dismiss:hover { background: rgba(255,255,255,0.25); }
+        .ftux-nudge-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .ftux-nudge-dismiss { width: 30px; height: 30px; border-radius: 50%; background: var(--hover-bg); border: none; color: var(--text-tertiary); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.16s; flex-shrink: 0; }
+        .ftux-nudge-dismiss:hover { background: var(--border); color: var(--text-primary); }
+        .ftux-progress-dots { display: flex; gap: 5px; margin-top: 8px; }
+        .ftux-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
+        .ftux-dot.active { background: var(--accent, #8FE62C); width: 18px; border-radius: 3px; }
+        .ftux-dot.done { background: var(--accent, #8FE62C); opacity: 0.4; }
 
-        /* Progress dots in nudge */
-        .ftux-progress-dots {
-            display: flex; gap: 5px; margin-top: 10px;
-        }
-        .ftux-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-        }
-        .ftux-dot.active { background: white; }
-        .ftux-dot.done { background: rgba(255,255,255,0.6); }
-
-        /* ── Family Setup Widget ─────────────────────────────────────── */
+        /* ── Family Setup Widget ─────────────────────────────────────────── */
         .family-setup-widget {
-            grid-column: span 12;
-            background: var(--bg-elevated);
-            border: 2px dashed var(--border-color);
-            border-radius: 18px;
-            padding: 32px;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            margin-bottom: 8px;
+            grid-column: span 12; background: var(--card-light-bg); border-radius: 20px;
+            border: 1.5px dashed var(--border-strong); padding: 28px;
+            display: flex; align-items: center; gap: 24px;
             animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
         }
-        .family-widget-icon { font-size: 3rem; flex-shrink: 0; }
+        .family-widget-icon { font-size: 2.75rem; flex-shrink: 0; }
         .family-widget-body { flex: 1; }
-        .family-widget-title {
-            font-size: 1.0625rem; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 5px; letter-spacing: -0.02em;
-        }
+        .family-widget-title { font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; letter-spacing: -0.02em; }
         .family-widget-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
-        .family-widget-benefit {
-            font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 6px;
-        }
-        .family-widget-btn {
-            padding: 11px 22px; background: var(--accent-primary, #0066ff); color: white;
-            border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
-            text-decoration: none; display: inline-block; font-family: var(--font);
-        }
-        .family-widget-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .family-widget-benefit { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 6px; }
+        .family-widget-btn { padding: 10px 20px; background: var(--text-primary); color: var(--bg); border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.16s; text-decoration: none; display: inline-block; font-family: var(--font); }
+        .family-widget-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
-        /* ── Hero metric card ────────────────────────────────────────── */
-        .hero-metric-card {
-            grid-column: span 12;
-            background: var(--card-dark-bg, #1a1a1a);
-            border-radius: 20px;
-            padding: 28px 32px;
-            display: flex;
-            align-items: stretch;
-            gap: 0;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            margin-bottom: 4px;
-            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
+        /* ── Metric Cards — Rich (watermark + sparkline) ─────────────────── */
+        .metric-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+        .metric-card {
+            background: var(--card-light-bg); border-radius: 12px; padding: 20px;
+            box-shadow: var(--shadow-sm); cursor: pointer;
+            transition: box-shadow 0.16s; border: 1px solid var(--border);
+            position: relative; overflow: hidden;
         }
-        .hero-metric-card::before {
-            content: '';
-            position: absolute;
-            width: 350px; height: 350px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(143,230,44,0.06) 0%, transparent 70%);
-            top: -120px; right: -60px;
-            pointer-events: none;
-        }
-        .hero-metric-main { flex: 1; }
-        .hero-metric-label {
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.06em; color: rgba(255,255,255,0.5); margin-bottom: 8px;
-        }
-        .hero-metric-value {
-            font-size: 2.75rem; font-weight: 800; color: white; letter-spacing: -0.04em;
-            margin-bottom: 6px; line-height: 1;
-            font-feature-settings: 'tnum' 1;
-        }
-        .hero-metric-change {
-            display: inline-flex; align-items: center; gap: 5px;
-            font-size: 0.8125rem; font-weight: 600; color: var(--accent, #8FE62C);
-        }
-        .hero-metric-divider {
-            width: 1px; background: rgba(255,255,255,0.08); margin: 0 32px;
-        }
-        .hero-metric-secondary {
-            display: flex; flex-direction: column; justify-content: center;
-            gap: 18px; flex-shrink: 0; min-width: 220px;
-        }
-        .hero-secondary-item {}
-        .hero-secondary-label {
-            font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 4px;
-        }
-        .hero-secondary-value {
-            font-size: 1.25rem; font-weight: 700; color: white; letter-spacing: -0.03em;
-            font-feature-settings: 'tnum' 1;
-        }
-        .hero-secondary-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+        .metric-card:hover { box-shadow: var(--shadow-md); }
 
-        /* Skeleton for hero */
-        .hero-metric-card.loading .hero-metric-value,
-        .hero-metric-card.loading .hero-secondary-value {
-            background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 75%);
-            background-size: 600px 100%;
-            animation: wos-shimmer 1.5s infinite linear;
-            border-radius: 8px;
-            color: transparent !important;
+        /* Faint icon watermark — 10% opacity, top-right corner */
+        .metric-watermark {
+            position: absolute; top: 12px; right: 14px;
+            font-size: 2rem; opacity: 0.08; pointer-events: none;
+            user-select: none; line-height: 1;
+        }
+        [data-theme="dark"] .metric-watermark { opacity: 0.05; }
+
+        .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .metric-label {
+            font-size: 0.6875rem; font-weight: 700; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        /* Key metric labels get a lime tint */
+        .metric-label.key { color: var(--accent-dark, #5FA518); }
+        [data-theme="dark"] .metric-label.key { color: var(--accent, #8FE62C); }
+
+        .metric-value {
+            font-size: 1.375rem; font-weight: 700; color: var(--text-primary);
+            letter-spacing: -0.03em; margin-bottom: 10px; font-feature-settings: 'tnum' 1;
         }
 
-        /* Chart / gauge skeleton overlay */
+        /* Mini sparkline — 28px tall, shows trend or flat baseline */
+        .metric-sparkline {
+            display: block; width: 100%; height: 28px; overflow: visible;
+        }
+        .spark-line { stroke: var(--accent, #8FE62C); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .spark-area { fill: rgba(143, 230, 44, 0.12); }
+        .spark-baseline { stroke: var(--border-strong); stroke-width: 1; }
+        [data-theme="dark"] .spark-area { fill: rgba(143, 230, 44, 0.08); }
+
+        /* ── Charts ──────────────────────────────────────────────────────── */
+        .chart-card { grid-column: span 8; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .chart-card.full-width { grid-column: span 12; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.6875rem; }
+        .chart-tabs { display: flex; gap: 4px; }
+        .chart-tab { padding: 5px 12px; border-radius: 7px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); background: transparent; border: 1px solid var(--border); cursor: pointer; transition: all 0.16s; }
+        .chart-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .chart-tab.active { background: var(--card-dark-bg, #111); border-color: var(--card-dark-bg, #111); color: #fff; }
+        .chart-area { height: 200px; position: relative; margin-bottom: 8px; }
+        .chart-svg { width: 100%; height: 100%; }
+        .chart-grid { stroke: var(--border); stroke-width: 1; }
+
+        /* Gauge */
+        .gauge-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; position: relative; }
+        .gauge-svg { width: 160px; height: 160px; }
+        .gauge-bg { fill: none; stroke: var(--border); stroke-width: 12; }
+        .gauge-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1s ease; }
+        .gauge-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+        .gauge-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+
+        /* ── Goals ───────────────────────────────────────────────────────── */
+        .goals-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .goal-card { background: var(--card-light-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.16s; overflow: hidden; }
+        .goal-card:hover { box-shadow: var(--shadow-md); }
+        .goal-card.expanded { grid-column: span 2; }
+        .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .goal-icon { font-size: 1.875rem; }
+        .goal-progress-ring { width: 40px; height: 40px; }
+        .goal-ring-bg { fill: none; stroke: var(--border); stroke-width: 4; }
+        .goal-ring-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 4; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; }
+        .goal-title { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+        .goal-stats { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+        .goal-current { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; }
+        .goal-target { font-size: 0.8125rem; color: var(--text-secondary); }
+        .goal-progress-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+        .goal-progress-fill { height: 100%; background: var(--accent, #8FE62C); border-radius: 3px; transition: width 0.5s ease; }
+        .goal-percentage { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        .goal-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .goal-card.expanded .goal-details { display: block; }
+        .goal-detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8125rem; }
+        .goal-detail-label { color: var(--text-secondary); }
+        .goal-detail-value { font-weight: 600; color: var(--text-primary); }
+
+        /* ── Allocation & Activity ───────────────────────────────────────── */
+        .activity-card { grid-column: span 4; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .activity-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 16px; }
+        .activity-list { display: flex; flex-direction: column; gap: 12px; }
+        .activity-item { display: flex; gap: 10px; cursor: pointer; padding: 8px; margin: -8px; border-radius: 10px; transition: background 0.14s; }
+        .activity-item:hover { background: var(--hover-bg); }
+        .activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; }
+        .activity-icon.buy { background: rgba(93,200,64,0.1); }
+        .activity-icon.sell { background: rgba(255,59,48,0.1); }
+        .activity-icon.transfer { background: rgba(59,115,255,0.1); }
+        .activity-info { flex: 1; min-width: 0; }
+        .activity-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .activity-details { font-size: 0.75rem; color: var(--text-secondary); }
+        .activity-amount { text-align: right; flex-shrink: 0; }
+        .activity-value { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+
+        .allocation-card { grid-column: span 6; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .allocation-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 20px; }
+        .allocation-list { display: flex; flex-direction: column; gap: 16px; }
+        .allocation-item { display: flex; align-items: center; gap: 12px; }
+        .allocation-color { width: 3px; height: 30px; border-radius: 2px; }
+        .allocation-info { flex: 1; }
+        .allocation-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .allocation-bar { height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .allocation-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .allocation-stats { text-align: right; }
+        .allocation-percentage { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .allocation-value { font-size: 0.75rem; color: var(--text-secondary); }
+
+        /* ── Sections ────────────────────────────────────────────────────── */
+        .section-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .section-toggle-icon { font-size: 1.125rem; transition: transform 0.28s; }
+        .section-toggle.expanded .section-toggle-icon { transform: rotate(180deg); }
+        .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .section-content.expanded { max-height: 2000px; }
+
+        .income-expense-bars { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+        .ie-row { display: flex; align-items: center; gap: 12px; }
+        .ie-label { width: 80px; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); }
+        .ie-bar { flex: 1; height: 28px; background: var(--border); border-radius: 7px; overflow: hidden; }
+        .ie-bar-fill { height: 100%; border-radius: 7px; display: flex; align-items: center; padding: 0 12px; font-size: 0.8125rem; font-weight: 700; color: white; transition: width 0.5s ease; }
+        .ie-bar-fill.income { background: var(--positive, #5DC840); }
+        .ie-bar-fill.expense { background: var(--warning, #FF9500); }
+        .ie-value { width: 100px; text-align: right; font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; }
+
+        /* ── Skeleton ────────────────────────────────────────────────────── */
+        .wos-skeleton-line { display: block; background: linear-gradient(90deg, var(--border) 25%, var(--hover-bg) 50%, var(--border) 75%); background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear; border-radius: 6px; color: transparent !important; min-height: 18px; }
+        .wos-skeleton-card { pointer-events: none; opacity: 0.55; }
         .chart-card.loading { position: relative; }
-        .chart-card.loading::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.04) 50%, var(--bg-card) 75%);
-            background-size: 600px 100%;
-            animation: wos-shimmer 1.5s infinite linear;
-            pointer-events: none;
-            z-index: 2;
-        }
+        .chart-card.loading::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%); background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear; pointer-events: none; z-index: 2; }
 
-        /* Generic skeleton lines */
-        .wos-skeleton-line {
-            display: block;
-            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.06) 50%, var(--bg-card) 75%);
-            background-size: 600px 100%;
-            animation: wos-shimmer 1.5s infinite linear;
-            border-radius: 6px;
-            color: transparent !important;
-            min-height: 20px;
-        }
-        .wos-skeleton-card { pointer-events: none; opacity: 0.7; }
+        /* ── Modal ───────────────────────────────────────────────────────── */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; animation: wos-fade-in 0.2s ease both; }
+        .modal { background: var(--card-light-bg); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: wos-scale-in 0.28s cubic-bezier(0.22,1,0.36,1) both; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
+        .modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--hover-bg); border: none; cursor: pointer; font-size: 1.25rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: background 0.14s; }
+        .modal-close:hover { background: var(--border); color: var(--text-primary); }
+        .modal-body { margin-bottom: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        .form-input, .form-select { width: 100%; padding: 12px 16px; font-size: 0.9375rem; font-family: var(--font); border: 1.5px solid var(--border-strong); border-radius: 10px; background: var(--input-bg); color: var(--text-primary); transition: border-color 0.14s; outline: none; }
+        .form-input:focus, .form-select:focus { border-color: var(--accent, #8FE62C); box-shadow: 0 0 0 3px rgba(143,230,44,0.15); }
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn { padding: 12px 24px; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: all 0.14s; border: none; font-family: var(--font); }
+        .btn-primary { background: var(--text-primary); color: var(--bg); }
+        .btn-primary:hover { opacity: 0.88; }
+        .btn-secondary { background: var(--hover-bg); color: var(--text-primary); border: 1px solid var(--border-strong); }
+        .btn-secondary:hover { background: var(--border); }
 
-        /* Onboarding Cards (kept as fallback) */
-        .onboarding-section {
-            grid-column: span 12;
-            margin-bottom: 20px;
-            opacity: 1;
-            transition: opacity 0.5s ease, max-height 0.5s ease;
-            display: none;
-        }
+        /* ── Setup banner ────────────────────────────────────────────────── */
+        #setupBanner { background: var(--card-light-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
 
-        .onboarding-section.hidden {
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            margin-bottom: 0;
-        }
+        /* ── Empty state helper ──────────────────────────────────────────── */
+        .empty-state-box { text-align: center; padding: 36px 20px; }
+        .empty-state-box-icon { font-size: 2.25rem; margin-bottom: 10px; opacity: 0.45; }
+        .empty-state-box-text { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .empty-state-box-link { font-size: 0.875rem; font-weight: 600; color: var(--accent-dark, #5FA518); text-decoration: none; }
+        .empty-state-box-link:hover { text-decoration: underline; }
 
-        .onboarding-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .onboarding-card {
-            background: var(--bg-elevated);
-            border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 32px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .onboarding-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: var(--accent-primary);
-        }
-
-        .onboarding-card:hover {
-            border-color: var(--accent-primary);
-            filter: brightness(0.98);
-        }
-
-        .onboarding-card-icon { font-size: 3rem; margin-bottom: 16px; }
-        .onboarding-card-title {
-            font-family: var(--font); font-size: 1.375rem; font-weight: 700;
-            color: var(--text-primary); margin-bottom: 12px; letter-spacing: -0.02em;
-        }
-        .onboarding-card-description {
-            font-size: 0.9375rem; color: var(--text-secondary);
-            margin-bottom: 20px; line-height: 1.5;
-        }
-        .onboarding-card-cta {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 12px 24px; background: var(--accent-primary); color: white;
-            border-radius: 10px; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease;
-        }
-        .onboarding-card:hover .onboarding-card-cta { transform: translateX(4px); }
-
-        /* Demo Button */
-        .demo-btn {
-            padding: 10px 20px;
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .demo-btn:hover {
-            background: var(--hover-bg);
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            transform: translateY(-1px);
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--modal-overlay);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--bg-elevated);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: wos-scale-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-
-        .modal-overlay {
-            animation: wos-fade-in 0.22s ease both;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .modal-title {
-            font-family: var(--font);
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-        }
-
-        .modal-close {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--hover-bg);
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .modal-close:hover {
-            background: var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 0.9375rem;
-            font-family: var(--font);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            font-family: var(--font);
-        }
-
-        .btn-primary {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            filter: brightness(1.1);
-        }
-
-        .btn-secondary {
-            background: var(--hover-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border-color);
-        }
-
-        /* Responsive */
-        @media (max-width: 1536px) {
-            .metric-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .goals-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 1280px) {
-            .metric-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .goals-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .chart-card {
-                grid-column: span 12;
-            }
-
-            .activity-card,
-            .allocation-card {
-                grid-column: span 6;
-            }
-        }
-
+        /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 1536px) { .metric-cards { grid-template-columns: repeat(3, 1fr); } .goals-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1280px) { .metric-cards { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: repeat(2, 1fr); } .chart-card { grid-column: span 12; } .activity-card, .allocation-card { grid-column: span 6; } }
         @media (max-width: 900px) {
             .hero-metric-card { flex-direction: column; gap: 20px; }
-            .hero-metric-divider { width: 100%; height: 1px; margin: 4px 0; }
+            .hero-metric-divider { width: 100%; height: 1px; margin: 0; }
             .hero-metric-secondary { min-width: 0; width: 100%; flex-direction: row; gap: 24px; }
             .hero-metric-value { font-size: 2.25rem; }
-            .ftux-nudge-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .ftux-nudge-card { flex-direction: column; align-items: flex-start; gap: 14px; }
             .ftux-nudge-actions { width: 100%; justify-content: space-between; }
-            .family-setup-widget { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .family-setup-widget { flex-direction: column; align-items: flex-start; }
         }
-
         @media (max-width: 768px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-
-            .main-content {
-                padding: 20px 16px;
-            }
-
-            .metric-cards,
-            .goals-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .activity-card,
-            .allocation-card {
-                grid-column: span 12;
-            }
-
-            .top-bar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .top-actions {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .onboarding-cards {
-                grid-template-columns: 1fr;
-            }
+            .app-container { grid-template-columns: 1fr; }
+            .main-content { padding: 16px; }
+            .metric-cards, .goals-grid { grid-template-columns: 1fr; }
+            .activity-card, .allocation-card { grid-column: span 12; }
+            .top-bar { flex-direction: column; gap: 16px; }
+            .top-actions { flex-wrap: wrap; gap: 8px; }
         }
-
         @media (max-width: 480px) {
             .page-title { font-size: 1.5rem; }
+            .hero-metric-value { font-size: 2rem; }
             .metric-cards { grid-template-columns: 1fr; }
             .goals-grid { grid-template-columns: 1fr; }
-            .action-btn { padding: 8px 14px; font-size: 0.8125rem; }
         }
     </style>
-    <link rel="stylesheet" href="controls.css">
 </head>
 <body>
     <div class="app-container">
@@ -1214,60 +314,46 @@
             <div class="top-bar">
                 <div class="page-header">
                     <div class="page-title" id="pageTitle">Family Dashboard</div>
-                    <div class="page-subtitle" id="pageSubtitle">Complete overview of family wealth and goals</div>
+                    <div class="page-subtitle" id="pageSubtitle">Complete overview of family wealth</div>
                 </div>
                 <div class="top-actions">
-                    <a href="demo-account.html" target="_blank" class="demo-btn" style="text-decoration: none;">
-                        <span>👁️</span>
-                        <span>View Demo Account</span>
+                    <a href="demo-account.html" target="_blank" class="demo-btn" style="text-decoration:none;">
+                        <span>👁️</span><span>View demo</span>
                     </a>
                     <button class="action-btn secondary">₹ INR</button>
-                    <button class="action-btn primary">+ Add Transaction</button>
-                    <div class="user-avatar">M
+                    <button class="action-btn primary">+ Add transaction</button>
+                    <div class="user-avatar" id="userAvatarBtn">M
                         <div class="user-menu-dropdown" id="userMenuDropdown">
                             <div class="user-menu-header">
                                 <div class="user-menu-name" id="userMenuName">Loading...</div>
                                 <div class="user-menu-email" id="userMenuEmail">Loading...</div>
                             </div>
                             <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item">
-                                    <span class="user-menu-item-icon">⚙️</span>
-                                    <span>Settings</span>
-                                </a>
-                                <a href="demo-account.html" target="_blank" class="user-menu-item">
-                                    <span class="user-menu-item-icon">👁️</span>
-                                    <span>View Demo Account</span>
-                                </a>
-                                <div class="user-menu-item logout" onclick="handleLogout()">
-                                    <span class="user-menu-item-icon">🚪</span>
-                                    <span>Logout</span>
-                                </div>
+                                <a href="settings.html" class="user-menu-item"><span class="user-menu-item-icon">⚙️</span><span>Settings</span></a>
+                                <a href="demo-account.html" target="_blank" class="user-menu-item"><span class="user-menu-item-icon">👁️</span><span>View demo account</span></a>
+                                <div class="user-menu-item logout" onclick="handleLogout()"><span class="user-menu-item-icon">🚪</span><span>Logout</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Person Tabs (only shown when 2+ members exist) -->
+            <!-- Person tabs -->
             <div class="person-tabs-container" id="personTabsContainer" style="display:none;">
-                <div class="person-tabs" id="personTabsList">
-                    <!-- Dynamically populated -->
-                </div>
-                <div class="person-tabs-actions">
-                    <a href="settings.html" class="settings-link-btn">⚙️ Manage Members</a>
-                </div>
+                <div class="person-tabs" id="personTabsList"></div>
+                <div class="person-tabs-actions"><a href="settings.html" class="settings-link-btn">⚙️ Manage members</a></div>
             </div>
 
-            <!-- Setup Progress Banner -->
-            <div id="setupBanner" style="background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+            <!-- Setup Banner -->
+            <div id="setupBanner" style="display:none;">
                 <div>
-                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; color: var(--text-primary);">Account Setup <span id="setupPct">0</span>% Complete</div>
-                    <div style="color: var(--text-secondary); font-size: 0.85rem;">Next: <span id="setupNextLabel"></span></div>
-                    <div style="height: 6px; background: var(--border-subtle); border-radius: 3px; width: 300px; margin-top: 10px;">
-                        <div id="setupProgressBar" style="height: 100%; background: var(--accent-primary); border-radius: 3px; transition: width 0.3s;"></div>
+                    <div style="font-weight:600;font-size:0.9375rem;margin-bottom:4px;">Account setup <span id="setupPct">0</span>% complete</div>
+                    <div style="color:var(--text-secondary);font-size:0.8125rem;">Next: <span id="setupNextLabel"></span></div>
+                    <div style="height:5px;background:var(--border);border-radius:3px;width:240px;margin-top:10px;">
+                        <div id="setupProgressBar" style="height:100%;background:var(--accent,#8FE62C);border-radius:3px;transition:width 0.3s;"></div>
                     </div>
                 </div>
-                <a id="setupContinueBtn" href="#" style="background: var(--accent-primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap;">Continue Setup →</a>
+                <a id="setupContinueBtn" href="#" style="background:var(--text-primary);color:var(--bg);padding:10px 20px;border-radius:8px;text-decoration:none;font-size:0.875rem;font-weight:600;white-space:nowrap;">Continue setup →</a>
             </div>
 
             <div class="dashboard-grid" id="dashboardGrid">
@@ -1277,9 +363,7 @@
                     <div class="hero-metric-main">
                         <div class="hero-metric-label">Total Net Worth</div>
                         <div class="hero-metric-value" id="heroNetWorth">—</div>
-                        <div class="hero-metric-change" id="heroChange" style="display:none;">
-                            <span id="heroChangeText"></span>
-                        </div>
+                        <div class="hero-metric-change" id="heroChange" style="display:none;"><span id="heroChangeText"></span></div>
                     </div>
                     <div class="hero-metric-divider"></div>
                     <div class="hero-metric-secondary">
@@ -1296,25 +380,25 @@
                     </div>
                 </div>
 
-                <!-- Family Setup Widget (shown when 0 members) -->
+                <!-- Family Setup Widget -->
                 <div class="family-setup-widget" id="familySetupWidget" style="display:none;">
                     <div class="family-widget-icon">👨‍👩‍👧‍👦</div>
                     <div class="family-widget-body">
                         <div class="family-widget-title">Set up your family account</div>
-                        <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals like a home or your children's education.</div>
-                        <div class="family-widget-benefit">Takes 2 minutes — you can always add or remove members later.</div>
+                        <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals.</div>
+                        <div class="family-widget-benefit">Takes 2 minutes — add or remove members any time.</div>
                     </div>
                     <a href="family-setup.html" class="family-widget-btn">Set up family →</a>
                 </div>
 
-                <!-- FTUX Nudge (one at a time, dismissible) -->
+                <!-- FTUX Nudge -->
                 <div class="ftux-nudge-section" id="ftuxNudgeSection" style="display:none;">
                     <div class="ftux-nudge-card">
                         <div class="ftux-nudge-icon" id="ftuxIcon">📊</div>
                         <div class="ftux-nudge-body">
                             <div class="ftux-nudge-step" id="ftuxStep">Step 1 of 3</div>
                             <div class="ftux-nudge-title" id="ftuxTitle">Add your monthly income &amp; expenses</div>
-                            <div class="ftux-nudge-desc" id="ftuxDesc">See your savings rate and exactly where your money goes — the most important first step.</div>
+                            <div class="ftux-nudge-desc" id="ftuxDesc">See your savings rate and where your money goes.</div>
                             <div class="ftux-progress-dots" id="ftuxDots">
                                 <div class="ftux-dot active"></div>
                                 <div class="ftux-dot"></div>
@@ -1328,325 +412,122 @@
                     </div>
                 </div>
 
-                <!-- Onboarding Cards (legacy, hidden) -->
-                <div class="onboarding-section" id="onboardingSection">
-                    <div class="onboarding-cards">
-                        <div class="onboarding-card" onclick="openAssetModal()">
-                            <div class="onboarding-card-icon">💼</div>
-                            <div class="onboarding-card-title">Add Your First Asset</div>
-                            <div class="onboarding-card-description">Start tracking your investments and watch your wealth grow</div>
-                            <div class="onboarding-card-cta">
-                                <span>Track your investments</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <div class="onboarding-card" onclick="openBudgetModal()">
-                            <div class="onboarding-card-icon">📊</div>
-                            <div class="onboarding-card-title">Set Monthly Budget</div>
-                            <div class="onboarding-card-description">Take control of your finances by setting income and expense targets</div>
-                            <div class="onboarding-card-cta">
-                                <span>Set income & expenses</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <div class="onboarding-card" onclick="openGoalModal()">
-                            <div class="onboarding-card-icon">🎯</div>
-                            <div class="onboarding-card-title">Create Your First Goal</div>
-                            <div class="onboarding-card-description">Plan for your future with smart financial goal planning</div>
-                            <div class="onboarding-card-cta">
-                                <span>Plan your financial goals</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metric Cards -->
+                <!-- Metric Cards (skeleton) — JS will replace these -->
                 <div class="metric-cards" id="metricCards">
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
                 </div>
 
                 <!-- Main Chart -->
                 <div class="chart-card loading" id="mainChart">
                     <div class="chart-header">
-                        <div class="chart-title" id="chartTitle">Net Worth Growth</div>
+                        <div class="chart-title" id="chartTitle">Income &amp; Savings</div>
                         <div class="chart-tabs">
                             <button class="chart-tab" data-months="1">1M</button>
                             <button class="chart-tab active" data-months="3">3M</button>
                             <button class="chart-tab" data-months="6">6M</button>
                             <button class="chart-tab" data-months="12">1Y</button>
-                            <button class="chart-tab" data-months="24">ALL</button>
+                            <button class="chart-tab" data-months="24">All</button>
                         </div>
                     </div>
                     <div class="chart-area">
-                        <svg class="chart-svg" viewBox="0 0 800 220" preserveAspectRatio="none">
-                            <defs>
-                                <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.2" />
-                                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
-                                </linearGradient>
-                            </defs>
-                            <line x1="0" y1="44" x2="800" y2="44" class="chart-grid"/>
-                            <line x1="0" y1="88" x2="800" y2="88" class="chart-grid"/>
-                            <line x1="0" y1="132" x2="800" y2="132" class="chart-grid"/>
-                            <line x1="0" y1="176" x2="800" y2="176" class="chart-grid"/>
-                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60 L 800 220 L 0 220 Z"
-                                  fill="url(#chartGradient)"/>
-                            <path d="M 0 190 L 80 180 L 160 185 L 240 165 L 320 170 L 400 150 L 480 140 L 560 120 L 640 100 L 720 80 L 800 60"
-                                  stroke="var(--accent-primary)"
-                                  stroke-width="3"
-                                  fill="none"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"/>
+                        <svg class="chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+                            <line x1="0" y1="50"  x2="800" y2="50"  class="chart-grid"/>
+                            <line x1="0" y1="100" x2="800" y2="100" class="chart-grid"/>
+                            <line x1="0" y1="150" x2="800" y2="150" class="chart-grid"/>
                         </svg>
                     </div>
                 </div>
 
                 <!-- Savings Rate Gauge -->
                 <div class="chart-card loading" id="savingsGauge">
-                    <div class="chart-header">
-                        <div class="chart-title">Savings Rate</div>
-                    </div>
+                    <div class="chart-header"><div class="chart-title">Savings Rate</div></div>
                     <div class="gauge-container">
-                        <svg class="gauge-svg" viewBox="0 0 180 180">
-                            <defs>
-                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:var(--accent-primary)" />
-                                    <stop offset="100%" style="stop-color:var(--accent-primary)" />
-                                </linearGradient>
-                            </defs>
-                            <circle class="gauge-bg" cx="90" cy="90" r="70"/>
-                            <circle class="gauge-progress" cx="90" cy="90" r="70"
-                                    style="stroke-dasharray: 329.87 439.82; stroke-dashoffset: 0; transform: rotate(-90deg); transform-origin: center;"/>
+                        <svg class="gauge-svg" viewBox="0 0 160 160">
+                            <circle class="gauge-bg" cx="80" cy="80" r="62"/>
+                            <circle class="gauge-progress" cx="80" cy="80" r="62"
+                                style="stroke-dasharray:0 389.55;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center;"/>
                         </svg>
-                        <div style="position: absolute; text-align: center;">
+                        <div style="position:absolute;text-align:center;">
                             <div class="gauge-value" id="gaugeValue">0%</div>
-                            <div class="gauge-label">of income saved</div>
+                            <div class="gauge-label">saved</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Goals Section -->
-                <div class="goals-grid" id="goalsGrid">
-                    <!-- Will be populated by JavaScript -->
-                </div>
+                <!-- Goals -->
+                <div class="goals-grid" id="goalsGrid"></div>
 
-                <!-- Income vs Expense Chart -->
+                <!-- Income vs Expense -->
                 <div class="chart-card full-width" id="incomeExpenseChart">
                     <div class="section-toggle" onclick="toggleSection(this)">
-                        <div class="chart-title">Income vs Expenses (Last 6 Months)</div>
+                        <div class="chart-title">Income vs Expenses</div>
                         <span class="section-toggle-icon">▼</span>
                     </div>
                     <div class="section-content expanded">
                         <div class="income-expense-bars" id="incomeExpenseBars">
-                            <div class="ie-row">
-                                <div class="ie-label">Income</div>
-                                <div class="ie-bar">
-                                    <div class="ie-bar-fill income" id="incomeBar" style="width: 100%;"></div>
-                                </div>
-                                <div class="ie-value" id="incomeBarValue">—</div>
-                            </div>
-                            <div class="ie-row">
-                                <div class="ie-label">Expenses</div>
-                                <div class="ie-bar">
-                                    <div class="ie-bar-fill expense" id="expenseBar" style="width: 0%;"></div>
-                                </div>
-                                <div class="ie-value" id="expenseBarValue">—</div>
-                            </div>
+                            <div class="ie-row"><div class="ie-label">Income</div><div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar" style="width:0%;"></div></div><div class="ie-value" id="incomeBarValue">—</div></div>
+                            <div class="ie-row"><div class="ie-label">Expenses</div><div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar" style="width:0%;"></div></div><div class="ie-value" id="expenseBarValue">—</div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Asset Allocation -->
+                <!-- Allocation -->
                 <div class="allocation-card" id="allocationCard">
-                    <div class="allocation-title" id="allocationTitle">Family Asset Allocation</div>
-                    <div class="allocation-list" id="allocationList">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
+                    <div class="allocation-title">Asset Allocation</div>
+                    <div class="allocation-list" id="allocationList"></div>
                 </div>
 
-                <!-- Recent Activity -->
+                <!-- Activity -->
                 <div class="activity-card" id="activityCard">
                     <div class="activity-title">Recent Activity</div>
-                    <div class="activity-list" id="activityList">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
+                    <div class="activity-list" id="activityList"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Add Asset Modal -->
+    <!-- Modals -->
     <div class="modal-overlay" id="assetModal">
         <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Your First Asset</h2>
-                <button class="modal-close" onclick="closeModal('assetModal')">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="assetForm">
-                    <div class="form-group">
-                        <label class="form-label">Asset Type</label>
-                        <select class="form-select" id="assetType" required>
-                            <option value="">Select type</option>
-                            <option value="stocks">Stocks</option>
-                            <option value="mutual-funds">Mutual Funds</option>
-                            <option value="fixed-deposit">Fixed Deposit</option>
-                            <option value="gold">Gold</option>
-                            <option value="real-estate">Real Estate</option>
-                            <option value="crypto">Cryptocurrency</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Asset Name</label>
-                        <input type="text" class="form-input" id="assetName" placeholder="e.g., HDFC Bank, Nifty 50 Index Fund" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Amount Invested (₹)</label>
-                        <input type="number" class="form-input" id="assetAmount" placeholder="e.g., 50000" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('assetModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitAsset()">Add Asset</button>
-            </div>
+            <div class="modal-header"><h2 class="modal-title">Add asset</h2><button class="modal-close" onclick="closeModal('assetModal')">×</button></div>
+            <div class="modal-body"><form id="assetForm">
+                <div class="form-group"><label class="form-label">Asset type</label><select class="form-select" id="assetType" required><option value="">Select type</option><option value="stocks">Stocks</option><option value="mutual-funds">Mutual funds</option><option value="fixed-deposit">Fixed deposit</option><option value="gold">Gold</option><option value="real-estate">Real estate</option></select></div>
+                <div class="form-group"><label class="form-label">Asset name</label><input type="text" class="form-input" id="assetName" placeholder="e.g. SBI Bluechip Fund" required></div>
+                <div class="form-group"><label class="form-label">Current value (₹)</label><input type="number" class="form-input" id="assetValue" placeholder="0" required></div>
+            </form></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('assetModal')">Cancel</button><button class="btn btn-primary" onclick="submitAsset()">Add asset</button></div>
         </div>
     </div>
-
-    <!-- Set Budget Modal -->
     <div class="modal-overlay" id="budgetModal">
         <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Set Monthly Budget</h2>
-                <button class="modal-close" onclick="closeModal('budgetModal')">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="budgetForm">
-                    <div class="form-group">
-                        <label class="form-label">Monthly Income (₹)</label>
-                        <input type="number" class="form-input" id="monthlyIncome" placeholder="e.g., 150000" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Monthly Expenses (₹)</label>
-                        <input type="number" class="form-input" id="monthlyExpenses" placeholder="e.g., 80000" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Budget Period</label>
-                        <select class="form-select" id="budgetPeriod" required>
-                            <option value="current">Current Month</option>
-                            <option value="next">Starting Next Month</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitBudget()">Set Budget</button>
-            </div>
+            <div class="modal-header"><h2 class="modal-title">Set monthly budget</h2><button class="modal-close" onclick="closeModal('budgetModal')">×</button></div>
+            <div class="modal-body"><form id="budgetForm">
+                <div class="form-group"><label class="form-label">Monthly income (₹)</label><input type="number" class="form-input" id="budgetIncome" placeholder="0" required></div>
+                <div class="form-group"><label class="form-label">Monthly expenses (₹)</label><input type="number" class="form-input" id="budgetExpenses" placeholder="0" required></div>
+            </form></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button><button class="btn btn-primary" onclick="submitBudget()">Save budget</button></div>
         </div>
     </div>
-
-    <!-- Create Goal Modal -->
     <div class="modal-overlay" id="goalModal">
         <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Create Your First Goal</h2>
-                <button class="modal-close" onclick="closeModal('goalModal')">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="goalForm">
-                    <div class="form-group">
-                        <label class="form-label">Goal Name</label>
-                        <input type="text" class="form-input" id="goalName" placeholder="e.g., Home Down Payment, Vacation" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Target Amount (₹)</label>
-                        <input type="number" class="form-input" id="goalTarget" placeholder="e.g., 500000" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Target Date</label>
-                        <input type="date" class="form-input" id="goalDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Monthly Contribution (₹)</label>
-                        <input type="number" class="form-input" id="goalMonthly" placeholder="e.g., 15000" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitGoal()">Create Goal</button>
-            </div>
+            <div class="modal-header"><h2 class="modal-title">Create goal</h2><button class="modal-close" onclick="closeModal('goalModal')">×</button></div>
+            <div class="modal-body"><form id="goalForm">
+                <div class="form-group"><label class="form-label">Goal name</label><input type="text" class="form-input" id="goalName" placeholder="e.g. Emergency fund" required></div>
+                <div class="form-group"><label class="form-label">Target amount (₹)</label><input type="number" class="form-input" id="goalTarget" placeholder="0" required></div>
+            </form></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button><button class="btn btn-primary" onclick="submitGoal()">Create goal</button></div>
         </div>
     </div>
 
-    <script src="/api.js"></script>
-    <script src="auth.js"></script>
-    <script src="user-menu.js"></script>
+    <script src="api.js"></script>
     <script>
-        // ── Theme ────────────────────────────────────────────────────────────
-        (function () {
-            const t = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', t);
-            if (t === 'dark') {
-                const tog = document.getElementById('themeToggle');
-                if (tog) tog.classList.add('active');
-            }
-        })();
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const toggle = document.getElementById('themeToggle');
-            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            toggle.classList.toggle('active', newTheme === 'dark');
-        }
-
-        // ── Step → label / page mappings ─────────────────────────────────────
-        const STEP_LABELS = {
-            family:   'Add family members',
-            monthly:  'Track first month',
-            savings:  'Set up savings plan',
-            portfolio: 'Add your assets',
-            goals:    'Define your goals',
-            planning: 'Set up financial planning'
-        };
-
-        const STEP_PAGES = {
-            family:   '/settings.html',
-            monthly:  '/monthly-tracker.html',
-            savings:  '/savings-plan.html',
-            portfolio: '/portfolio.html',
-            goals:    '/goals.html',
-            planning: '/financial-planning.html'
-        };
-
-        // ── Color palette for asset classes ──────────────────────────────────
-        const ASSET_COLOR_MAP = {
-            'Equity':      '#0066ff',
-            'Debt':        '#6c757d',
-            'Hybrid':      '#8b5cf6',
-            'Cash':        '#00C805',
-            'Real Estate': '#f59e0b',
-            'Commodity':   '#ef4444',
-            'Gold':        '#d97706',
-            'Other':       '#6b7280',
-        };
-
-        // ── Helpers ───────────────────────────────────────────────────────────
-        function fmt(v) {
-            return WealthAPI.formatCurrency(v || 0);
-        }
+        function fmt(v) { return WealthAPI.formatCurrency(v || 0); }
 
         function updateGauge(pct) {
-            const circumference = 2 * Math.PI * 70;
+            const r = 62, circumference = 2 * Math.PI * r;
             const filled = (pct / 100) * circumference * 0.75;
             const gauge = document.querySelector('.gauge-progress');
             if (gauge) {
@@ -1660,712 +541,417 @@
             if (gaugeCard) gaugeCard.classList.remove('loading');
         }
 
-        function toggleGoalExpand(element) {
-            element.classList.toggle('expanded');
-        }
+        function toggleGoalExpand(el) { el.classList.toggle('expanded'); }
+        function toggleSection(el) { el.classList.toggle('expanded'); el.nextElementSibling.classList.toggle('expanded'); }
 
-        function toggleSection(element) {
-            element.classList.toggle('expanded');
-            const content = element.nextElementSibling;
-            content.classList.toggle('expanded');
-        }
+        const STEP_LABELS = { family:'Add family members', monthly:'Track first month', savings:'Set up savings plan', portfolio:'Add your assets', goals:'Define your goals', planning:'Set up financial planning' };
+        const STEP_PAGES  = { family:'/settings.html', monthly:'/monthly-tracker.html', savings:'/savings-plan.html', portfolio:'/portfolio.html', goals:'/goals.html', planning:'/financial-planning.html' };
+        const ASSET_COLOR_MAP = { 'Equity':'#3B73FF','Debt':'#6B6B6B','Hybrid':'#8b5cf6','Cash':'#5DC840','Real Estate':'#f59e0b','Commodity':'#ef4444','Gold':'#d97706','Other':'#6b7280' };
 
-        // ── Render: Setup Banner ──────────────────────────────────────────────
         function renderSetupBanner(progress) {
             const banner = document.getElementById('setupBanner');
-            if (!progress || progress.percentComplete >= 100) {
-                banner.style.display = 'none';
-                return;
-            }
+            if (!progress || progress.percentComplete >= 100) { banner.style.display = 'none'; return; }
             banner.style.display = 'flex';
             document.getElementById('setupPct').textContent = Math.round(progress.percentComplete);
             document.getElementById('setupProgressBar').style.width = Math.round(progress.percentComplete) + '%';
-
             const step = progress.nextStep;
             document.getElementById('setupNextLabel').textContent = STEP_LABELS[step] || step;
             document.getElementById('setupContinueBtn').href = STEP_PAGES[step] || '#';
         }
 
-        // ── Render: Metric Cards ──────────────────────────────────────────────
-        function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth) {
-            const noData = (totalIncome === 0 && totalExpenses === 0 && totalInvestments === 0 && netWorth === 0);
-            const savingsRate = totalIncome > 0
-                ? Math.max(0, (1 - totalExpenses / totalIncome) * 100)
-                : 0;
-            const monthlySavings = totalIncome - totalExpenses - totalInvestments;
+        // ── Sparkline generator ────────────────────────────────────────────
+        function generateSparklineSVG(values, isKey) {
+            const W = 100, H = 28;
+            if (!values || values.every(v => v === 0)) {
+                // Flat baseline (empty state)
+                return `<svg class="metric-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+                    <line x1="0" y1="${H-4}" x2="${W}" y2="${H-4}" class="spark-baseline"/>
+                </svg>`;
+            }
+            const max = Math.max(...values, 1);
+            const pts = values.map((v, i) => {
+                const x = (i / Math.max(values.length - 1, 1)) * W;
+                const y = H - 4 - ((v / max) * (H - 8));
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            });
+            const lastPt = pts[pts.length - 1];
+            const [lx, ly] = lastPt.split(',');
+            const polyline = pts.join(' ');
+            const areaPath = `M ${pts[0]} L ${polyline} L ${lx},${H-4} L 0,${H-4} Z`;
+            return `<svg class="metric-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+                <path d="${areaPath}" class="spark-area"/>
+                <polyline points="${polyline}" class="spark-line"/>
+            </svg>`;
+        }
 
-            const noDataHint = noData
-                ? `<div style="font-size:0.75rem;color:var(--accent-primary);margin-top:8px;"><a href="monthly-tracker.html" style="color:var(--accent-primary);text-decoration:none;">Start tracking in Monthly Tracker →</a></div>`
-                : '';
+        // ── Metric cards (Rich: watermark + sparkline) ──────────────────────
+        function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData) {
+            const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
+            const monthlySavings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
+            const sd = sparkData || {};
 
             const cards = [
-                { label: 'Monthly Income',    icon: '💰', value: fmt(totalIncome) },
-                { label: 'Monthly Expenses',  icon: '📊', value: fmt(totalExpenses) },
-                { label: 'Savings Rate',      icon: '🎯', value: Math.round(savingsRate) + '%' },
-                { label: 'Net Worth',         icon: '💎', value: fmt(netWorth) },
-                { label: 'Monthly Savings',   icon: '💵', value: fmt(Math.max(0, monthlySavings)) },
-                { label: 'Total Investments', icon: '📈', value: fmt(totalInvestments) }
+                { label: 'Monthly Income',    value: fmt(totalIncome),            icon: '💰', key: false, spark: sd.income || [] },
+                { label: 'Monthly Expenses',  value: fmt(totalExpenses),           icon: '📊', key: false, spark: sd.expenses || [] },
+                { label: 'Savings Rate',      value: Math.round(savingsRate) + '%',icon: '🎯', key: true,  spark: sd.savingsRate || [] },
+                { label: 'Net Worth',         value: fmt(netWorth),                icon: '💎', key: true,  spark: sd.netWorth || [] },
+                { label: 'Monthly Savings',   value: fmt(monthlySavings),          icon: '💵', key: false, spark: sd.savings || [] },
+                { label: 'Total Investments', value: fmt(totalInvestments),        icon: '📈', key: false, spark: sd.investments || [] },
             ];
 
             const container = document.getElementById('metricCards');
             container.innerHTML = cards.map(c => `
                 <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-label">${c.label}</div>
-                        <div class="metric-icon">${c.icon}</div>
-                    </div>
+                    <div class="metric-watermark">${c.icon}</div>
+                    <div class="metric-label${c.key ? ' key' : ''}">${c.label}</div>
                     <div class="metric-value">${c.value}</div>
-                    ${noDataHint}
+                    ${generateSparklineSVG(c.spark, c.key)}
                 </div>
             `).join('');
         }
 
-        // ── Render: Goals ─────────────────────────────────────────────────────
+        // ── Goals ─────────────────────────────────────────────────────────────
         function renderGoals(goals) {
             const container = document.getElementById('goalsGrid');
             const circumference = 2 * Math.PI * 22;
-
             if (!goals || goals.length === 0) {
-                container.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border-color);">
-                        <div style="font-size: 3rem; margin-bottom: 16px;">🎯</div>
-                        <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">No goals yet</div>
-                        <div style="font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 24px;">
-                            <a href="goals.html" style="color: var(--accent-primary); text-decoration: none;">Define your goals →</a>
-                        </div>
-                    </div>`;
+                container.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state-box"><div class="empty-state-box-icon">🎯</div><div class="empty-state-box-text">No goals yet</div><a href="goals.html" class="empty-state-box-link">Define your first goal →</a></div></div>`;
                 return;
             }
-
             container.innerHTML = goals.map(goal => {
-                const pct   = Math.min(100, Math.round(goal.progressPct || 0));
+                const pct = Math.min(100, Math.round(goal.progressPct || 0));
                 const offset = circumference - (pct / 100 * circumference);
-                const statusColor = goal.isOnTrack ? 'var(--success)' : 'var(--warning)';
-                const statusLabel = goal.isOnTrack ? 'On Track' : 'Behind';
-                const monthsLeft  = goal.monthsRemaining != null ? goal.monthsRemaining + ' mo left' : '';
-
-                const iconMap = { House: '🏠', Education: '🎓', Vacation: '🏖️', Vehicle: '🚗', Retirement: '🌴', Emergency: '🛡️' };
-                const icon = iconMap[goal.type] || '🎯';
-
+                const statusColor = goal.isOnTrack ? 'var(--positive)' : 'var(--warning)';
+                const iconMap = { House:'🏠', Education:'🎓', Vacation:'🏖️', Vehicle:'🚗', Retirement:'🌴', Emergency:'🛡️' };
                 return `
                     <div class="goal-card" onclick="toggleGoalExpand(this)">
                         <div class="goal-header">
-                            <div class="goal-icon">${icon}</div>
+                            <div class="goal-icon">${iconMap[goal.type] || '🎯'}</div>
                             <svg class="goal-progress-ring" viewBox="0 0 48 48">
                                 <circle class="goal-ring-bg" cx="24" cy="24" r="22"/>
                                 <circle class="goal-ring-progress" cx="24" cy="24" r="22"
-                                        style="stroke-dasharray: ${circumference};
-                                               stroke-dashoffset: ${offset};
-                                               transform: rotate(-90deg);
-                                               transform-origin: center;"/>
+                                    style="stroke-dasharray:${circumference};stroke-dashoffset:${offset};transform:rotate(-90deg);transform-origin:center;"/>
                             </svg>
                         </div>
                         <div class="goal-title">${goal.name || 'Goal'}</div>
-                        <div class="goal-stats">
-                            <div class="goal-current">${fmt(goal.currentAmount || 0)}</div>
-                            <div class="goal-target">of ${fmt(goal.targetAmount || 0)}</div>
-                        </div>
-                        <div class="goal-progress-bar">
-                            <div class="goal-progress-fill" style="width: ${pct}%"></div>
-                        </div>
-                        <div class="goal-percentage" style="display:flex;justify-content:space-between;align-items:center;">
-                            <span>${pct}% complete</span>
-                            <span style="color:${statusColor};font-size:0.7rem;font-weight:700;">${statusLabel}</span>
-                        </div>
+                        <div class="goal-stats"><div class="goal-current">${fmt(goal.currentAmount||0)}</div><div class="goal-target">of ${fmt(goal.targetAmount||0)}</div></div>
+                        <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%"></div></div>
+                        <div class="goal-percentage"><span>${pct}% complete</span><span style="color:${statusColor};font-size:0.7rem;font-weight:700;">${goal.isOnTrack ? 'On track' : 'Behind'}</span></div>
                         <div class="goal-details">
-                            <div class="goal-detail-row">
-                                <span class="goal-detail-label">Remaining</span>
-                                <span class="goal-detail-value">${fmt((goal.targetAmount || 0) - (goal.currentAmount || 0))}</span>
-                            </div>
-                            <div class="goal-detail-row">
-                                <span class="goal-detail-label">Time Left</span>
-                                <span class="goal-detail-value">${monthsLeft || '—'}</span>
-                            </div>
+                            <div class="goal-detail-row"><span class="goal-detail-label">Remaining</span><span class="goal-detail-value">${fmt((goal.targetAmount||0)-(goal.currentAmount||0))}</span></div>
+                            <div class="goal-detail-row"><span class="goal-detail-label">Time left</span><span class="goal-detail-value">${goal.monthsRemaining != null ? goal.monthsRemaining + ' mo' : '—'}</span></div>
                         </div>
                     </div>`;
             }).join('');
         }
 
-        // ── Render: Asset Allocation ──────────────────────────────────────────
         function renderAllocation(byAssetClass) {
             const container = document.getElementById('allocationList');
-
             if (!byAssetClass || byAssetClass.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 2.5rem; margin-bottom: 12px;">📊</div>
-                        <div style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">No assets added yet</div>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                            <a href="portfolio.html" style="color: var(--accent-primary); text-decoration: none;">Add assets in Portfolio to see allocation →</a>
-                        </div>
-                    </div>`;
+                container.innerHTML = `<div class="empty-state-box"><div class="empty-state-box-icon">📊</div><div class="empty-state-box-text">No assets yet</div><a href="portfolio.html" class="empty-state-box-link">Add portfolio assets →</a></div>`;
                 return;
             }
-
             container.innerHTML = byAssetClass.map(item => {
                 const color = ASSET_COLOR_MAP[item.class] || ASSET_COLOR_MAP['Other'];
-                const pct   = Math.round(item.pct || 0);
-                return `
-                    <div class="allocation-item">
-                        <div class="allocation-color" style="background: ${color};"></div>
-                        <div class="allocation-info">
-                            <div class="allocation-name">${item.class}</div>
-                            <div class="allocation-bar">
-                                <div class="allocation-bar-fill" style="width: ${pct}%; background: ${color};"></div>
-                            </div>
-                        </div>
-                        <div class="allocation-stats">
-                            <div class="allocation-percentage">${pct}%</div>
-                            <div class="allocation-value">${fmt(item.value)}</div>
-                        </div>
-                    </div>`;
+                const pct = Math.round(item.pct || 0);
+                return `<div class="allocation-item">
+                    <div class="allocation-color" style="background:${color};"></div>
+                    <div class="allocation-info"><div class="allocation-name">${item.class}</div><div class="allocation-bar"><div class="allocation-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>
+                    <div class="allocation-stats"><div class="allocation-percentage">${pct}%</div><div class="allocation-value">${fmt(item.value)}</div></div>
+                </div>`;
             }).join('');
         }
 
-        // ── Render: Income vs Expense bars ────────────────────────────────────
         function renderIncomeExpenseBars(totalIncome, totalExpenses) {
             const maxVal = Math.max(totalIncome, totalExpenses, 1);
-            const incomeBar   = document.getElementById('incomeBar');
-            const expenseBar  = document.getElementById('expenseBar');
-            const incomeVal   = document.getElementById('incomeBarValue');
-            const expenseVal  = document.getElementById('expenseBarValue');
-
-            if (incomeBar)  incomeBar.style.width  = Math.round((totalIncome / maxVal) * 100) + '%';
-            if (expenseBar) expenseBar.style.width = Math.round((totalExpenses / maxVal) * 100) + '%';
-            if (incomeVal)  incomeVal.textContent  = fmt(totalIncome);
-            if (expenseVal) expenseVal.textContent = fmt(totalExpenses);
+            const ib = document.getElementById('incomeBar'), eb = document.getElementById('expenseBar');
+            const iv = document.getElementById('incomeBarValue'), ev = document.getElementById('expenseBarValue');
+            if (ib) ib.style.width = Math.round((totalIncome / maxVal) * 100) + '%';
+            if (eb) eb.style.width = Math.round((totalExpenses / maxVal) * 100) + '%';
+            if (iv) iv.textContent = fmt(totalIncome);
+            if (ev) ev.textContent = fmt(totalExpenses);
         }
 
-        // ── Render: Recent Activity ───────────────────────────────────────────
         function renderActivity(allMembersMonthData) {
             const container = document.getElementById('activityList');
             if (!container) return;
-
             const members = Array.isArray(allMembersMonthData) ? allMembersMonthData : [];
             const showMemberName = members.length > 1;
             const items = [];
-
             members.forEach(m => {
-                (m.investmentBreakup || []).forEach(b => {
-                    if (b.amount > 0) items.push({
-                        type: 'buy', name: b.name,
-                        detail: 'Investment' + (showMemberName ? ' · ' + m.memberName : ''),
-                        amount: b.amount
-                    });
-                });
-                (m.incomeBreakup || []).forEach(b => {
-                    if (b.amount > 0) items.push({
-                        type: 'transfer', name: b.name,
-                        detail: 'Income' + (showMemberName ? ' · ' + m.memberName : ''),
-                        amount: b.amount
-                    });
-                });
-                (m.expenseBreakup || []).forEach(b => {
-                    if (b.amount > 0) items.push({
-                        type: 'sell', name: b.name,
-                        detail: 'Expense' + (showMemberName ? ' · ' + m.memberName : ''),
-                        amount: b.amount
-                    });
-                });
+                (m.investmentBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'buy', name:b.name, detail:'Investment'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
+                (m.incomeBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'transfer', name:b.name, detail:'Income'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
+                (m.expenseBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'sell', name:b.name, detail:'Expense'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
             });
-
-            items.sort((a, b) => b.amount - a.amount);
+            items.sort((a,b) => b.amount - a.amount);
             const top = items.slice(0, 6);
-
             if (top.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:32px 0;color:var(--text-secondary);font-size:0.875rem;">
-                        No transactions this month.<br>
-                        <a href="monthly-tracker.html" style="color:var(--accent-primary);text-decoration:none;margin-top:6px;display:inline-block;">
-                            Add entries in Monthly Tracker →
-                        </a>
-                    </div>`;
+                container.innerHTML = `<div class="empty-state-box"><div class="empty-state-box-icon">💸</div><div class="empty-state-box-text">No transactions this month</div><a href="monthly-tracker.html" class="empty-state-box-link">Add entries →</a></div>`;
                 return;
             }
-
-            const iconMap = { buy: '📈', sell: '📉', transfer: '💰' };
+            const iconMap = { buy:'📈', sell:'📉', transfer:'💰' };
             container.innerHTML = top.map(item => `
                 <div class="activity-item">
                     <div class="activity-icon ${item.type}">${iconMap[item.type]}</div>
-                    <div class="activity-info">
-                        <div class="activity-name">${item.name}</div>
-                        <div class="activity-details">${item.detail}</div>
-                    </div>
-                    <div class="activity-amount">
-                        <div class="activity-value">${fmt(item.amount)}</div>
-                    </div>
-                </div>
-            `).join('');
+                    <div class="activity-info"><div class="activity-name">${item.name}</div><div class="activity-details">${item.detail}</div></div>
+                    <div class="activity-amount"><div class="activity-value">${fmt(item.amount)}</div></div>
+                </div>`).join('');
         }
 
-        // ── Helper: compute allocation from raw asset list ────────────────────
         function computeAllocationFromAssets(assets) {
             if (!assets || assets.length === 0) return [];
             const classMap = {};
-            assets.forEach(a => {
-                const cls = a.assetClass || 'Other';
-                classMap[cls] = (classMap[cls] || 0) + (a.currentValue || 0);
-            });
+            assets.forEach(a => { const cls = a.assetClass || 'Other'; classMap[cls] = (classMap[cls] || 0) + (a.currentValue || 0); });
             const total = Object.values(classMap).reduce((s, v) => s + v, 0);
-            return Object.entries(classMap)
-                .map(([cls, value]) => ({
-                    class: cls, value,
-                    pct: total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0
-                }))
-                .sort((a, b) => b.value - a.value);
+            return Object.entries(classMap).map(([cls, value]) => ({ class:cls, value, pct: total>0 ? parseFloat(((value/total)*100).toFixed(2)) : 0 })).sort((a,b) => b.value - a.value);
         }
 
-        // ── Render: Income & Savings Trend Chart ──────────────────────────────
+        // ── Net worth chart ────────────────────────────────────────────────────
         async function renderNetWorthChart(numMonths) {
             numMonths = numMonths || 3;
             const now = new Date();
             const monthPairs = [];
             for (let i = numMonths - 1; i >= 0; i--) {
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                monthPairs.push({
-                    year: d.getFullYear(),
-                    month: d.getMonth() + 1,
-                    label: d.toLocaleString('en-US', {
-                        month: 'short',
-                        ...(numMonths > 12 ? { year: '2-digit' } : {})
-                    })
-                });
+                monthPairs.push({ year: d.getFullYear(), month: d.getMonth() + 1, label: d.toLocaleString('en-US', { month: 'short', ...(numMonths > 12 ? { year:'2-digit' } : {}) }) });
             }
-
-            const results = await Promise.all(
-                monthPairs.map(({ year, month }) =>
-                    WealthAPI.monthly.getMonth(year, month).catch(() => [])
-                )
-            );
-
+            const results = await Promise.all(monthPairs.map(({ year, month }) => WealthAPI.monthly.getMonth(year, month).catch(() => [])));
             const data = results.map((rows, i) => {
-                const ms  = Array.isArray(rows) ? rows : [];
-                const inc = ms.reduce((s, m) => s + (m.income      || 0), 0);
+                const ms = Array.isArray(rows) ? rows : [];
+                const inc = ms.reduce((s, m) => s + (m.income || 0), 0);
                 const exp = ms.reduce((s, m) => s + (m.expenditure || 0), 0);
                 const inv = ms.reduce((s, m) => s + (m.investments || 0), 0);
                 return { label: monthPairs[i].label, income: inc, savings: Math.max(0, inc - exp - inv) };
             });
-
-            const maxVal  = Math.max(...data.map(d => d.income), 1);
-            const W = 800, TOP = 20, BOT = 195, n = data.length;
+            const maxVal = Math.max(...data.map(d => d.income), 1);
+            const W = 800, TOP = 15, BOT = 180, n = data.length;
             function toY(val) { return (BOT - ((val / maxVal) * (BOT - TOP))).toFixed(1); }
             function toX(i)   { return ((i / Math.max(n - 1, 1)) * W).toFixed(1); }
-
-            const hasData  = data.some(d => d.income > 0);
-            const incPts   = data.map((d, i) => `${toX(i)} ${toY(d.income)}`).join(' L ');
-            const savPts   = data.map((d, i) => `${toX(i)} ${toY(d.savings)}`).join(' L ');
-            const lastX    = toX(n - 1);
-
+            const hasData = data.some(d => d.income > 0);
+            const incPts = data.map((d, i) => `${toX(i)} ${toY(d.income)}`).join(' L ');
+            const savPts = data.map((d, i) => `${toX(i)} ${toY(d.savings)}`).join(' L ');
+            const lastX = toX(n - 1);
             const svg = document.querySelector('#mainChart .chart-svg');
             if (!svg) return;
-
             svg.innerHTML = `
-                <defs>
-                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.25"/>
-                        <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0"/>
-                    </linearGradient>
-                </defs>
-                <line x1="0" y1="44"  x2="${W}" y2="44"  class="chart-grid"/>
-                <line x1="0" y1="88"  x2="${W}" y2="88"  class="chart-grid"/>
-                <line x1="0" y1="132" x2="${W}" y2="132" class="chart-grid"/>
-                <line x1="0" y1="176" x2="${W}" y2="176" class="chart-grid"/>
+                <line x1="0" y1="50"  x2="${W}" y2="50"  class="chart-grid"/>
+                <line x1="0" y1="100" x2="${W}" y2="100" class="chart-grid"/>
+                <line x1="0" y1="150" x2="${W}" y2="150" class="chart-grid"/>
                 ${hasData ? `
-                <path d="M ${incPts} L ${lastX} ${BOT} L 0 ${BOT} Z" fill="url(#chartGradient)"/>
-                <path d="M ${incPts}" stroke="var(--accent-primary)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M ${savPts}" stroke="var(--success,#00C805)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
-                ${data.map((d, i) => `<circle cx="${toX(i)}" cy="${toY(d.income)}" r="4" fill="var(--accent-primary)"/>`).join('')}
-                ` : `<text x="400" y="110" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="DM Sans,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
-                ${data.map((d, i) => `<text x="${toX(i)}" y="215" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="DM Sans,sans-serif">${d.label}</text>`).join('')}
+                <path d="M ${incPts} L ${lastX} ${BOT} L 0 ${BOT} Z" fill="rgba(143,230,44,0.1)"/>
+                <path d="M ${incPts}" stroke="var(--accent,#8FE62C)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M ${savPts}" stroke="var(--positive,#5DC840)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
+                ${data.map((d, i) => `<circle cx="${toX(i)}" cy="${toY(d.income)}" r="3.5" fill="var(--accent,#8FE62C)"/>`).join('')}
+                ` : `<text x="400" y="100" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="Inter,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
+                ${data.map((d, i) => `<text x="${toX(i)}" y="196" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="Inter,sans-serif">${d.label}</text>`).join('')}
             `;
-
-            // Update title and add legend once
-            document.getElementById('chartTitle').textContent = 'Income & Savings Trend';
+            document.getElementById('chartTitle').textContent = 'Income & Savings';
             const header = document.querySelector('#mainChart .chart-header');
             if (header && !header.querySelector('.chart-legend')) {
                 const legend = document.createElement('div');
                 legend.className = 'chart-legend';
-                legend.style.cssText = 'display:flex;gap:16px;align-items:center;font-size:0.75rem;color:var(--text-secondary);';
-                legend.innerHTML = `
-                    <span style="display:flex;align-items:center;gap:5px;">
-                        <span style="width:14px;height:2.5px;background:var(--accent-primary);display:inline-block;border-radius:2px;"></span>Income
-                    </span>
-                    <span style="display:flex;align-items:center;gap:5px;">
-                        <span style="width:14px;height:0;border-top:2px dashed var(--success,#00C805);display:inline-block;"></span>Savings
-                    </span>`;
-                // Insert before chart-tabs
-                const tabs = header.querySelector('.chart-tabs');
-                header.insertBefore(legend, tabs);
+                legend.style.cssText = 'display:flex;gap:14px;align-items:center;font-size:0.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-secondary);';
+                legend.innerHTML = `<span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:2.5px;background:var(--accent,#8FE62C);display:inline-block;border-radius:2px;"></span>Income</span><span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:0;border-top:2px dashed var(--positive,#5DC840);display:inline-block;"></span>Savings</span>`;
+                header.insertBefore(legend, header.querySelector('.chart-tabs'));
             }
-
-            // Remove skeleton loading overlay
             const chartCard = document.getElementById('mainChart');
             if (chartCard) chartCard.classList.remove('loading');
         }
 
-        // ── Modal helpers (kept for onboarding card buttons) ──────────────────
         function openAssetModal()  { document.getElementById('assetModal').classList.add('active'); }
         function openBudgetModal() { document.getElementById('budgetModal').classList.add('active'); }
         function openGoalModal()   { document.getElementById('goalModal').classList.add('active'); }
         function closeModal(id)    { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); }));
+        function submitAsset()  { const f = document.getElementById('assetForm');  if (f.checkValidity()) { closeModal('assetModal');  f.reset(); } else f.reportValidity(); }
+        function submitBudget() { const f = document.getElementById('budgetForm'); if (f.checkValidity()) { closeModal('budgetModal'); f.reset(); } else f.reportValidity(); }
+        function submitGoal()   { const f = document.getElementById('goalForm');   if (f.checkValidity()) { closeModal('goalModal');   f.reset(); } else f.reportValidity(); }
+        function handleLogout() { WealthAPI.auth.logout(); }
 
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', e => {
-                if (e.target === overlay) overlay.classList.remove('active');
-            });
-        });
-
-        function submitAsset() {
-            const form = document.getElementById('assetForm');
-            if (form.checkValidity()) { closeModal('assetModal'); form.reset(); }
-            else form.reportValidity();
-        }
-        function submitBudget() {
-            const form = document.getElementById('budgetForm');
-            if (form.checkValidity()) { closeModal('budgetModal'); form.reset(); }
-            else form.reportValidity();
-        }
-        function submitGoal() {
-            const form = document.getElementById('goalForm');
-            if (form.checkValidity()) { closeModal('goalModal'); form.reset(); }
-            else form.reportValidity();
-        }
-
-        // ── handleLogout ──────────────────────────────────────────────────────
-        function handleLogout() {
-            WealthAPI.auth.logout();
-        }
-
-        // ── FTUX Nudge System ─────────────────────────────────────────────────
+        // ── FTUX Nudge ────────────────────────────────────────────────────────
         const FTUX_NUDGES = [
-            {
-                id: 'monthly',
-                icon: '📊',
-                step: 'Step 1 of 3 — Start here',
-                title: 'Add your monthly income & expenses',
-                desc: 'See your savings rate and exactly where your money goes. This unlocks your most important financial metric.',
-                cta: 'Go to Monthly Tracker →',
-                href: '/monthly-tracker.html'
-            },
-            {
-                id: 'investments',
-                icon: '📈',
-                step: 'Step 2 of 3 — Great start!',
-                title: 'Log how much you invest each month',
-                desc: 'Track your monthly investment amount to measure your wealth-building habit and savings rate over time.',
-                cta: 'Add Investments →',
-                href: '/monthly-tracker.html'
-            },
-            {
-                id: 'portfolio',
-                icon: '💼',
-                step: 'Step 3 of 3 — Almost there!',
-                title: 'Add your portfolio assets',
-                desc: 'Log each asset — mutual funds, stocks, FDs, gold, real estate — to see your full net worth and how it\'s allocated.',
-                cta: 'Build your Portfolio →',
-                href: '/portfolio.html'
-            }
+            { id:'monthly',     icon:'📊', step:'Step 1 of 3', title:'Add your monthly income & expenses',   desc:'See your savings rate and where your money goes — the most important first step.', cta:'Go to Monthly Tracker →', href:'/monthly-tracker.html' },
+            { id:'investments', icon:'📈', step:'Step 2 of 3', title:'Log how much you invest each month',   desc:'Track monthly investments to measure your wealth-building habit over time.',        cta:'Add investments →',        href:'/monthly-tracker.html' },
+            { id:'portfolio',   icon:'💼', step:'Step 3 of 3', title:'Add your portfolio assets',            desc:'Log funds, stocks, FDs, gold, real estate — see your full net worth and allocation.', cta:'Build your portfolio →',   href:'/portfolio.html' },
         ];
-
-        function getDismissedNudges() {
-            try { return JSON.parse(localStorage.getItem('wealthos_dismissed_nudges') || '[]'); } catch { return []; }
-        }
-        function dismissNudge(id) {
+        function getDismissedNudges() { try { return JSON.parse(localStorage.getItem('wealthos_dismissed_nudges') || '[]'); } catch { return []; } }
+        function dismissNudge(id) { const d = getDismissedNudges(); if (!d.includes(id)) d.push(id); localStorage.setItem('wealthos_dismissed_nudges', JSON.stringify(d)); }
+        function renderFtuxNudge(hasMonthly, hasInvestments, hasPortfolio) {
             const dismissed = getDismissedNudges();
-            if (!dismissed.includes(id)) dismissed.push(id);
-            localStorage.setItem('wealthos_dismissed_nudges', JSON.stringify(dismissed));
-        }
-
-        function renderFtuxNudge(hasMonthlyData, hasInvestments, hasPortfolio) {
-            const dismissed = getDismissedNudges();
-            const checks = [hasMonthlyData, hasInvestments, hasPortfolio];
-            const ids = ['monthly', 'investments', 'portfolio'];
-
-            // Find first incomplete, non-dismissed nudge
-            let activeNudge = null;
-            let activeIdx = -1;
-            for (let i = 0; i < FTUX_NUDGES.length; i++) {
-                if (!checks[i] && !dismissed.includes(ids[i])) {
-                    activeNudge = FTUX_NUDGES[i];
-                    activeIdx = i;
-                    break;
-                }
-            }
-
+            const checks = [hasMonthly, hasInvestments, hasPortfolio];
+            let activeNudge = null, activeIdx = -1;
+            for (let i = 0; i < FTUX_NUDGES.length; i++) { if (!checks[i] && !dismissed.includes(FTUX_NUDGES[i].id)) { activeNudge = FTUX_NUDGES[i]; activeIdx = i; break; } }
             const section = document.getElementById('ftuxNudgeSection');
             if (!section) return;
-
-            if (!activeNudge) {
-                section.style.display = 'none';
-                return;
-            }
-
+            if (!activeNudge) { section.style.display = 'none'; return; }
             section.style.display = '';
             document.getElementById('ftuxIcon').textContent = activeNudge.icon;
             document.getElementById('ftuxStep').textContent = activeNudge.step;
             document.getElementById('ftuxTitle').textContent = activeNudge.title;
             document.getElementById('ftuxDesc').textContent = activeNudge.desc;
-            const cta = document.getElementById('ftuxCta');
-            cta.textContent = activeNudge.cta;
-            cta.href = activeNudge.href;
-
-            // Update progress dots
-            const dotsContainer = document.getElementById('ftuxDots');
-            dotsContainer.innerHTML = FTUX_NUDGES.map((n, i) => {
-                let cls = 'ftux-dot';
-                if (i < activeIdx) cls += ' done';
-                else if (i === activeIdx) cls += ' active';
-                return `<div class="${cls}"></div>`;
-            }).join('');
-
-            // Dismiss handler
-            const dismissBtn = document.getElementById('ftuxDismiss');
-            dismissBtn.onclick = () => {
+            const cta = document.getElementById('ftuxCta'); cta.textContent = activeNudge.cta; cta.href = activeNudge.href;
+            document.getElementById('ftuxDots').innerHTML = FTUX_NUDGES.map((n, i) => `<div class="ftux-dot${i<activeIdx?' done':i===activeIdx?' active':''}"></div>`).join('');
+            document.getElementById('ftuxDismiss').onclick = () => {
                 dismissNudge(activeNudge.id);
-                section.style.transition = 'opacity 0.3s ease, max-height 0.4s ease';
-                section.style.opacity = '0';
-                setTimeout(() => { section.style.display = 'none'; }, 350);
+                section.style.opacity = '0'; section.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => { section.style.display = 'none'; }, 320);
             };
         }
 
-        // ── Hero card update ──────────────────────────────────────────────────
+        // ── Hero card ─────────────────────────────────────────────────────────
         function updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments) {
             const heroCard = document.getElementById('heroCard');
             if (heroCard) heroCard.classList.remove('loading');
-
             const el = (id) => document.getElementById(id);
             if (el('heroNetWorth')) el('heroNetWorth').textContent = fmt(netWorth);
-
             const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
             const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
-
             if (el('heroSavings')) el('heroSavings').textContent = fmt(savings);
             if (el('heroSavingsRate')) el('heroSavingsRate').textContent = savingsRate + '% savings rate';
             if (el('heroIncome')) el('heroIncome').textContent = fmt(totalIncome);
             if (el('heroExpenses')) el('heroExpenses').textContent = fmt(totalExpenses) + ' expenses';
         }
 
-        // ── Person Tabs ───────────────────────────────────────────────────────
-        let allFamilyMembers = [];
-        let currentDashboardMemberId = null;
-
+        // ── Person tabs ───────────────────────────────────────────────────────
+        let allFamilyMembers = [], currentDashboardMemberId = null;
         function buildDashboardPersonTabs(members) {
             const container = document.getElementById('personTabsContainer');
             const tabsList  = document.getElementById('personTabsList');
             const familyWidget = document.getElementById('familySetupWidget');
-
-            // Show family widget if 0 or 1 member (solo/new account)
-            if (familyWidget) {
-                familyWidget.style.display = (!members || members.length <= 1) ? '' : 'none';
-            }
-
-            // Only show person tabs if 2+ members exist
-            if (!members || members.length < 2) {
-                if (container) container.style.display = 'none';
-                return;
-            }
-
+            if (familyWidget) familyWidget.style.display = (!members || members.length <= 1) ? '' : 'none';
+            if (!members || members.length < 2) { if (container) container.style.display = 'none'; return; }
             if (!container || !tabsList) return;
             tabsList.innerHTML = '';
-
             const overall = document.createElement('button');
-            overall.className = 'person-tab overall-tab active';
-            overall.dataset.memberId = 'overall';
-            overall.textContent = 'Overall';
+            overall.className = 'person-tab overall-tab active'; overall.dataset.memberId = 'overall'; overall.textContent = 'Overall';
             overall.addEventListener('click', () => switchDashboardMember('overall'));
             tabsList.appendChild(overall);
-
             members.forEach(m => {
                 const btn = document.createElement('button');
-                btn.className = 'person-tab';
-                btn.dataset.memberId = m.id;
-                btn.textContent = m.name;
+                btn.className = 'person-tab'; btn.dataset.memberId = m.id; btn.textContent = m.name;
                 btn.addEventListener('click', () => switchDashboardMember(m.id));
                 tabsList.appendChild(btn);
             });
-
             container.style.display = '';
         }
 
         async function switchDashboardMember(memberId) {
             currentDashboardMemberId = memberId === 'overall' ? null : memberId;
-            document.querySelectorAll('#personTabsList .person-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.memberId === String(memberId));
-            });
+            document.querySelectorAll('#personTabsList .person-tab').forEach(t => t.classList.toggle('active', t.dataset.memberId === String(memberId)));
             const { year, month } = WealthAPI.getCurrentYearMonth();
-            let income = 0, expenses = 0, investments = 0;
-            let memberMonthData = [];
-
+            let income = 0, expenses = 0, investments = 0, memberMonthData = [];
             if (currentDashboardMemberId === null) {
-                // ── Overall: aggregate all members ────────────────────────────
                 const data = await WealthAPI.monthly.getMonth(year, month).catch(() => []);
                 memberMonthData = Array.isArray(data) ? data : [];
-                income      = memberMonthData.reduce((s, m) => s + (m.income      || 0), 0);
-                expenses    = memberMonthData.reduce((s, m) => s + (m.expenditure || 0), 0);
+                income = memberMonthData.reduce((s, m) => s + (m.income || 0), 0);
+                expenses = memberMonthData.reduce((s, m) => s + (m.expenditure || 0), 0);
                 investments = memberMonthData.reduce((s, m) => s + (m.investments || 0), 0);
-
                 const portfolio = await WealthAPI.portfolio.summary(year, month).catch(() => null);
-                const netWorth  = portfolio ? (portfolio.totalNetWorth || 0) : 0;
+                const netWorth = portfolio ? (portfolio.totalNetWorth || 0) : 0;
                 renderMetrics(income, expenses, investments, netWorth);
                 renderAllocation(portfolio ? (portfolio.byAssetClass || []) : []);
             } else {
-                // ── Per-member: only that member's data ───────────────────────
                 const data = await WealthAPI.monthly.getMemberMonth(year, month, currentDashboardMemberId).catch(() => null);
                 memberMonthData = data ? [data] : [];
-                income      = data ? (data.income      || 0) : 0;
-                expenses    = data ? (data.expenditure || 0) : 0;
-                investments = data ? (data.investments || 0) : 0;
-
+                income = data ? (data.income || 0) : 0; expenses = data ? (data.expenditure || 0) : 0; investments = data ? (data.investments || 0) : 0;
                 const memberAssets = await WealthAPI.portfolio.getMember(currentDashboardMemberId, year, month).catch(() => []);
-                const assetList    = Array.isArray(memberAssets) ? memberAssets : [];
-                const memberTotal  = assetList.reduce((s, a) => s + (a.currentValue || 0), 0);
-                renderMetrics(income, expenses, investments, memberTotal);
+                const assetList = Array.isArray(memberAssets) ? memberAssets : [];
+                renderMetrics(income, expenses, investments, assetList.reduce((s, a) => s + (a.currentValue || 0), 0));
                 renderAllocation(computeAllocationFromAssets(assetList));
             }
-
             const savingsRate = income > 0 ? Math.max(0, (1 - expenses / income) * 100) : 0;
             updateGauge(savingsRate);
             renderIncomeExpenseBars(income, expenses);
             renderActivity(memberMonthData);
         }
 
-        // ── Main initialisation ───────────────────────────────────────────────
-        async function initDashboard() {
-            // Redirect to login if not authenticated
-            WealthAPI.auth.requireAuth();
+        // ── Build historical spark data from chart ─────────────────────────────
+        async function buildSparkData(numMonths) {
+            numMonths = numMonths || 3;
+            const now = new Date();
+            const monthPairs = [];
+            for (let i = numMonths - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                monthPairs.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
+            }
+            const results = await Promise.all(monthPairs.map(({ year, month }) => WealthAPI.monthly.getMonth(year, month).catch(() => [])));
+            const income = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.income || 0), 0));
+            const expenses = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.expenditure || 0), 0));
+            const investments = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.investments || 0), 0));
+            const savings = income.map((inc, i) => Math.max(0, inc - expenses[i] - investments[i]));
+            const savingsRate = income.map((inc, i) => inc > 0 ? Math.round(((inc - expenses[i]) / inc) * 100) : 0);
+            return { income, expenses, savings, savingsRate, investments };
+        }
 
-            // Get cached user
+        // ── Main init ─────────────────────────────────────────────────────────
+        async function initDashboard() {
+            WealthAPI.auth.requireAuth();
             const user = WealthAPI.auth.getCachedUser();
             if (user) {
                 const familyName = user.familyName || '';
                 const displayName = familyName && familyName !== 'My Family' ? familyName : (user.email || '').split('@')[0];
-                document.getElementById('pageTitle').textContent = displayName
-                    ? `Welcome, ${displayName}`
-                    : 'Dashboard';
+                document.getElementById('pageTitle').textContent = displayName ? `Welcome, ${displayName}` : 'Dashboard';
                 document.getElementById('pageSubtitle').textContent = 'Your personal wealth overview';
-
-                // User menu
-                const nameEl  = document.getElementById('userMenuName');
-                const emailEl = document.getElementById('userMenuEmail');
-                if (nameEl)  nameEl.textContent  = familyName || user.email || 'User';
+                const nameEl = document.getElementById('userMenuName'), emailEl = document.getElementById('userMenuEmail');
+                if (nameEl) nameEl.textContent = familyName || user.email || 'User';
                 if (emailEl) emailEl.textContent = user.email || '';
-
-                // Avatar initial
                 const avatarEl = document.querySelector('.user-avatar');
-                if (avatarEl) {
-                    const initials = displayName ? displayName.charAt(0).toUpperCase() : 'U';
-                    avatarEl.childNodes[0].textContent = initials;
-                }
+                if (avatarEl) { const initials = displayName ? displayName.charAt(0).toUpperCase() : 'U'; avatarEl.childNodes[0].textContent = initials; }
             }
 
-            // Load everything in parallel
             const { year, month } = WealthAPI.getCurrentYearMonth();
-            const [progress, monthData, portfolio, goals, familyMembers] = await Promise.all([
+            const [progress, monthData, portfolio, goals, familyMembers, sparkData] = await Promise.all([
                 WealthAPI.setup.getProgress().catch(() => null),
                 WealthAPI.monthly.getMonth(year, month).catch(() => []),
                 WealthAPI.portfolio.summary(year, month).catch(() => null),
                 WealthAPI.goals.getAll().catch(() => []),
-                WealthAPI.family.getMembers().catch(() => [])
+                WealthAPI.family.getMembers().catch(() => []),
+                buildSparkData(6)
             ]);
 
-            // ── Person Tabs ───────────────────────────────────────────────────
             allFamilyMembers = familyMembers || [];
             buildDashboardPersonTabs(allFamilyMembers);
-
-            // ── Setup banner ──────────────────────────────────────────────────
             renderSetupBanner(progress);
 
-            // ── Monthly aggregates ────────────────────────────────────────────
             const members       = Array.isArray(monthData) ? monthData : [];
             const totalIncome      = members.reduce((s, m) => s + (m.income      || 0), 0);
             const totalExpenses    = members.reduce((s, m) => s + (m.expenditure || 0), 0);
             const totalInvestments = members.reduce((s, m) => s + (m.investments || 0), 0);
+            const netWorth         = portfolio ? (portfolio.totalNetWorth || 0) : 0;
+            const byAssetClass     = portfolio ? (portfolio.byAssetClass  || []) : [];
 
-            // ── Net worth from portfolio ──────────────────────────────────────
-            const netWorth     = portfolio ? (portfolio.totalNetWorth || 0) : 0;
-            const byAssetClass = portfolio ? (portfolio.byAssetClass  || []) : [];
-
-            // ── Sidebar ───────────────────────────────────────────────────────
-            const sidebarLabel = document.getElementById('sidebarLabel');
-            const sidebarValue = document.getElementById('sidebarValue');
-            if (sidebarLabel) sidebarLabel.textContent = 'Family Net Worth';
-            if (sidebarValue) sidebarValue.textContent = fmt(netWorth);
-
-            // ── Metric cards ──────────────────────────────────────────────────
-            renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth);
-
-            // ── Gauge ─────────────────────────────────────────────────────────
-            const savingsRate = totalIncome > 0
-                ? Math.max(0, (1 - totalExpenses / totalIncome) * 100)
-                : 0;
+            renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData);
+            const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
             updateGauge(savingsRate);
-
-            // ── Income vs Expense bars ────────────────────────────────────────
             renderIncomeExpenseBars(totalIncome, totalExpenses);
-
-            // ── Goals ─────────────────────────────────────────────────────────
             renderGoals(goals);
-
-            // ── Asset allocation ──────────────────────────────────────────────
             renderAllocation(byAssetClass);
-
-            // ── Recent Activity ───────────────────────────────────────────────
             renderActivity(members);
-
-            // ── Net Worth / Trend Chart ───────────────────────────────────────
             renderNetWorthChart(3);
-
-            // ── Hero metric card ──────────────────────────────────────────────
             updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments);
 
-            // ── FTUX Nudge System: monthly → investments → portfolio ──────────
-            const hasMonthlyData = totalIncome > 0 || totalExpenses > 0;
+            const hasMonthlyData    = totalIncome > 0 || totalExpenses > 0;
             const hasInvestmentData = totalInvestments > 0;
             const hasPortfolioEntries = byAssetClass && byAssetClass.length > 0;
             renderFtuxNudge(hasMonthlyData, hasInvestmentData, hasPortfolioEntries);
 
-            // ── Onboarding section: kept hidden (replaced by FTUX nudge) ──────
-            const onboardingSection = document.getElementById('onboardingSection');
-            if (onboardingSection) onboardingSection.style.display = 'none';
+            const hasGoalData = goals && goals.length > 0;
+            const sV = (id, v) => { const el = document.getElementById(id); if (el) el.style.display = v ? '' : 'none'; };
+            sV('metricCards', hasMonthlyData);
+            sV('savingsGauge', hasMonthlyData);
+            sV('incomeExpenseChart', hasMonthlyData);
+            sV('allocationCard', hasPortfolioEntries);
+            sV('activityCard', hasPortfolioEntries || hasMonthlyData);
+            sV('goalsGrid', hasGoalData);
+            sV('mainChart', true);
 
-            // ── Progressive section reveal — new-user view = max 3-4 sections ─
-            // Sections revealed based on what data the user has added:
-            const hasGoalData  = goals && Array.isArray(goals) && goals.length > 0;
-            const sectionVis = (id, visible) => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = visible ? '' : 'none';
-            };
-            // Monthly data sections (metric cards, gauge, income/expense bars)
-            sectionVis('metricCards',       hasMonthlyData);
-            sectionVis('savingsGauge',      hasMonthlyData);
-            sectionVis('incomeExpenseChart', hasMonthlyData);
-            // Portfolio / investment sections
-            sectionVis('allocationCard',    hasPortfolioEntries);
-            sectionVis('activityCard',      hasPortfolioEntries || hasMonthlyData);
-            // Goals section — visible when goals exist
-            sectionVis('goalsGrid',         hasGoalData);
-            // Net worth chart: always show so new users see the trend container
-            sectionVis('mainChart',         true);
-
-            // ── Scroll reveal for dashboard cards ─────────────────────────────
             const revealEls = document.querySelectorAll('#dashboardGrid > *:not(.hero-metric-card):not(.ftux-nudge-section):not(.family-setup-widget)');
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('wos-reveal', 'visible');
-                        revealObserver.unobserve(entry.target);
-                    }
-                });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('wos-reveal', 'visible'); observer.unobserve(e.target); } });
             }, { threshold: 0.05 });
-
-            revealEls.forEach((el, i) => {
-                el.classList.add('wos-reveal');
-                el.style.transitionDelay = (i * 0.06) + 's';
-                revealObserver.observe(el);
-            });
+            revealEls.forEach((el, i) => { el.classList.add('wos-reveal'); el.style.transitionDelay = (i * 0.05) + 's'; observer.observe(el); });
         }
 
-        // ── Chart tab switching ───────────────────────────────────────────────
         document.querySelectorAll('.chart-tab[data-months]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
@@ -2374,7 +960,6 @@
             });
         });
 
-        // Kick off
         initDashboard().catch(err => console.error('Dashboard init error:', err));
     </script>
     <script src="sidebar.js"></script>

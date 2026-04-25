@@ -43,17 +43,7 @@
             box-shadow: var(--shadow-md);
             animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
         }
-        /* Subtle grid texture instead of gradient blob */
-        .hero-metric-card::before {
-            content: '';
-            position: absolute; top: 0; right: 0; width: 200px; height: 100%;
-            background: repeating-linear-gradient(
-                90deg,
-                transparent 0px, transparent 39px,
-                rgba(255,255,255,0.025) 39px, rgba(255,255,255,0.025) 40px
-            );
-            pointer-events: none;
-        }
+        /* No decorative backgrounds — design rule: no gradients */
         .hero-metric-main { flex: 1; }
         .hero-metric-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
         .hero-metric-value { font-size: 2.75rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; margin-bottom: 6px; line-height: 1; font-feature-settings: 'tnum' 1; }
@@ -125,7 +115,7 @@
         /* ── Metric Cards — Rich (watermark + sparkline) ─────────────────── */
         .metric-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
         .metric-card {
-            background: var(--card-light-bg); border-radius: 16px; padding: 20px;
+            background: var(--card-light-bg); border-radius: 12px; padding: 20px;
             box-shadow: var(--shadow-sm); cursor: pointer;
             transition: box-shadow 0.16s; border: 1px solid var(--border);
             position: relative; overflow: hidden;
@@ -186,7 +176,7 @@
 
         /* ── Goals ───────────────────────────────────────────────────────── */
         .goals-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-        .goal-card { background: var(--card-light-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.16s; overflow: hidden; }
+        .goal-card { background: var(--card-light-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.16s; overflow: hidden; }
         .goal-card:hover { box-shadow: var(--shadow-md); }
         .goal-card.expanded { grid-column: span 2; }
         .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
@@ -315,7 +305,6 @@
             .goals-grid { grid-template-columns: 1fr; }
         }
     </style>
-    <link rel="stylesheet" href="controls.css">
 </head>
 <body>
     <div class="app-container">

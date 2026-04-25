@@ -90,14 +90,13 @@
             border-radius: 10px; color: transparent !important; min-width: 280px;
         }
 
-        /* ── Slim stats row (below hero) ─────────────────────────────────── */
+        /* ── Slim stats row (below hero) — 2 stats only ─────────────────── */
         .slim-stats-row {
             grid-column: span 12;
             display: flex; gap: 0;
-            background: var(--card-light-bg); border-radius: 16px;
+            background: var(--card-light-bg); border-radius: 20px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
-            margin-top: -12px;
             overflow: hidden;
         }
         .slim-stat {
@@ -187,7 +186,7 @@
             display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
         }
         .metric-card {
-            background: var(--card-light-bg); border-radius: 16px; padding: 22px;
+            background: var(--card-light-bg); border-radius: 12px; padding: 22px;
             box-shadow: var(--shadow-sm); cursor: pointer;
             transition: box-shadow 0.18s; border: 1px solid var(--border);
         }
@@ -242,7 +241,7 @@
         /* ── Goals ───────────────────────────────────────────────────────── */
         .goals-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .goal-card {
-            background: var(--card-light-bg); border-radius: 16px; padding: 22px;
+            background: var(--card-light-bg); border-radius: 12px; padding: 22px;
             box-shadow: var(--shadow-sm); border: 1px solid var(--border);
             cursor: pointer; transition: box-shadow 0.18s; overflow: hidden;
         }
@@ -409,7 +408,6 @@
             .slim-stat:last-child { border-bottom: none; }
         }
     </style>
-    <link rel="stylesheet" href="controls.css">
 </head>
 <body>
     <div class="app-container">
@@ -486,7 +484,7 @@
                     </div>
                 </div>
 
-                <!-- Slim Stats Row (below hero) -->
+                <!-- Slim Stats Row (below hero) — 2 stats only -->
                 <div class="slim-stats-row" id="slimStatsRow" style="display:none;">
                     <div class="slim-stat">
                         <div class="slim-stat-label">Savings Rate</div>
@@ -496,12 +494,7 @@
                     <div class="slim-stat">
                         <div class="slim-stat-label">Monthly Savings</div>
                         <div class="slim-stat-value" id="slimMonthlySavings">—</div>
-                        <div class="slim-stat-sub" id="slimExpensesSub">— expenses</div>
-                    </div>
-                    <div class="slim-stat">
-                        <div class="slim-stat-label">Monthly Income</div>
-                        <div class="slim-stat-value" id="slimIncome">—</div>
-                        <div class="slim-stat-sub">this month</div>
+                        <div class="slim-stat-sub" id="slimExpensesSub">— expenses this month</div>
                     </div>
                 </div>
 
@@ -958,14 +951,13 @@
             const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
             const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
 
-            // Slim stats row
+            // Slim stats row (2 metrics only: savings rate + monthly savings)
             const slimRow = document.getElementById('slimStatsRow');
             if (slimRow && (totalIncome > 0 || totalExpenses > 0 || netWorth > 0)) {
                 slimRow.style.display = '';
                 if (el('slimSavingsRate')) el('slimSavingsRate').textContent = savingsRate + '%';
                 if (el('slimMonthlySavings')) el('slimMonthlySavings').textContent = fmt(savings);
-                if (el('slimIncome')) el('slimIncome').textContent = fmt(totalIncome);
-                if (el('slimExpensesSub')) el('slimExpensesSub').textContent = fmt(totalExpenses) + ' expenses';
+                if (el('slimExpensesSub')) el('slimExpensesSub').textContent = fmt(totalExpenses) + ' expenses this month';
             }
         }
 
