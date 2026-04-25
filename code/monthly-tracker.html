@@ -1012,11 +1012,25 @@ body {
             .page-title { font-size: 1.5rem; }
             .summary-metrics-5 { grid-template-columns: 1fr; }
             .month-selector { flex-wrap: wrap; }
-            .breakup-item { grid-template-columns: 1fr 120px 28px; gap: 6px; }
+            .breakup-item { grid-template-columns: 1fr 120px 44px; gap: 6px; }
             .mini-chart { overflow: hidden; }
             .modal-content { width: 95%; }
             .modal-body { padding: 20px; }
             .modal-header { padding: 18px 20px; }
+        }
+
+        @media (max-width: 768px) {
+            input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+            select,
+            textarea {
+                font-size: 1rem;
+            }
+            .remove-item-btn,
+            .custom-item-cancel,
+            .modal-close {
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

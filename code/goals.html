@@ -1115,6 +1115,15 @@ body {
             .form-group.full {
                 grid-column: span 1;
             }
+            input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+            select,
+            textarea {
+                font-size: 1rem;
+            }
+            .gc-menu-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
 
         @media (max-width: 480px) {

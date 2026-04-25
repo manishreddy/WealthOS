@@ -2214,6 +2214,18 @@ body {
             .allocation-dashboard {
                 grid-template-columns: 1fr;
             }
+            input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+            select,
+            textarea {
+                font-size: 1rem;
+            }
+            .delete-btn,
+            .delete-btn-small,
+            .mark-paid-btn,
+            .btn-icon-delete {
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
 
         @media (max-width: 480px) {
