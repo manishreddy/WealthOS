@@ -261,8 +261,25 @@
       cursor: pointer;
       border-radius: 8px;
       transition: background 130ms;
+      flex-shrink: 0;
     }
     .wos-hamburger:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.06)); }
+    .wos-mobile-greeting {
+      flex: 1;
+      margin-left: 10px;
+      font-family: var(--font, 'Inter', sans-serif);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary, #111);
+      letter-spacing: -0.025em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wos-mobile-greeting em {
+      font-style: normal;
+      color: var(--accent, #8FE62C);
+    }
 
     /* ── Overlay ─────────────────────────────────────────────────────── */
     .wos-overlay {
@@ -542,6 +559,7 @@
       <button class="wos-hamburger" id="wosHamburger" aria-label="Open menu">
         ${ICONS.hamburger}
       </button>
+      <div class="wos-mobile-greeting" id="wosMobileGreeting">Welcome</div>
       <a href="dashboard.html" class="wos-mobile-logo">
         <div class="wos-mobile-logo-mark">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -617,10 +635,12 @@
 
   // ── User profile ─────────────────────────────────────────────────────────────
   function loadUserProfile() {
-    let name = '', email = '', initial = '?';
+    let name = '', email = '', initial = '?', firstName = '';
     if (window.WealthAPI && WealthAPI.auth) {
       const user = WealthAPI.auth.getCachedUser ? WealthAPI.auth.getCachedUser() : null;
       if (user) {
+        const fullName = user.name || user.fullName || '';
+        firstName = fullName ? fullName.split(' ')[0] : '';
         const familyName = user.familyName || '';
         const displayName = familyName && familyName !== 'My Family'
           ? familyName
@@ -631,13 +651,20 @@
                 : email ? email.charAt(0).toUpperCase() : '?';
       }
     }
-    const avatarEl  = document.getElementById('wosProfileAvatar');
-    const nameEl    = document.getElementById('wosProfileName');
-    const emailEl   = document.getElementById('wosProfileEmail');
-    const logoutBtn = document.getElementById('wosProfileLogout');
+    const avatarEl    = document.getElementById('wosProfileAvatar');
+    const nameEl      = document.getElementById('wosProfileName');
+    const emailEl     = document.getElementById('wosProfileEmail');
+    const logoutBtn   = document.getElementById('wosProfileLogout');
+    const greetingEl  = document.getElementById('wosMobileGreeting');
     if (avatarEl)  avatarEl.textContent  = initial;
     if (nameEl)    nameEl.textContent    = name  || 'My Account';
     if (emailEl)   emailEl.textContent   = email;
+    if (greetingEl) {
+      const greetName = firstName || name;
+      greetingEl.innerHTML = greetName
+        ? 'Welcome, <em>' + greetName + '</em>'
+        : 'Welcome';
+    }
     if (logoutBtn && !logoutBtn._bound) {
       logoutBtn._bound = true;
       logoutBtn.addEventListener('click', () => {
