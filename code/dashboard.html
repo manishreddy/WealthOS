@@ -20,15 +20,6 @@
         .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
         .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; margin-bottom: 4px; }
         .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); letter-spacing: -0.01em; }
-        .top-actions { display: flex; gap: 10px; align-items: center; }
-        .action-btn { padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.16s; border: none; letter-spacing: -0.01em; font-family: var(--font); }
-        .action-btn.primary { background: var(--text-primary); color: var(--bg); }
-        .action-btn.primary:hover { opacity: 0.88; }
-        .action-btn.secondary { background: var(--card-light-bg); color: var(--text-primary); border: 1.5px solid var(--border-strong); }
-        .action-btn.secondary:hover { background: var(--hover-bg); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--text-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: var(--bg); cursor: pointer; position: relative; }
-        .demo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; background: var(--card-light-bg); color: var(--text-primary); border: 1.5px solid var(--border-strong); cursor: pointer; transition: all 0.16s; text-decoration: none; }
-        .demo-btn:hover { background: var(--hover-bg); }
 
         /* ── Dashboard grid — 20px tighter gaps ─────────────────────────── */
         .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; }
@@ -160,6 +151,26 @@
         .spark-area { fill: rgba(143, 230, 44, 0.12); }
         .spark-baseline { stroke: var(--border-strong); stroke-width: 1; }
         [data-theme="dark"] .spark-area { fill: rgba(143, 230, 44, 0.08); }
+
+        /* ── Metric card empty state ─────────────────────────────────────── */
+        .metric-card--empty {
+            display: flex !important; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; gap: 10px; padding: 18px 12px;
+            border-style: dashed !important;
+        }
+        .metric-card--empty .metric-label { margin-bottom: 0; }
+        .metric-empty-ring {
+            width: 52px; height: 40px; display: block;
+            color: var(--text-tertiary, #C0C0C0);
+        }
+        .metric-empty-cta {
+            font-size: 0.71875rem; font-weight: 600;
+            color: var(--accent-dark, #5FA518); text-decoration: none;
+            letter-spacing: -0.01em; transition: opacity 0.15s;
+        }
+        .metric-empty-cta:hover { opacity: 0.75; }
+        [data-theme="dark"] .metric-empty-cta { color: var(--accent, #8FE62C); }
 
         /* ── Charts ──────────────────────────────────────────────────────── */
         .chart-card { grid-column: span 8; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
@@ -332,26 +343,6 @@
                     <div class="page-title" id="pageTitle">Family Dashboard</div>
                     <div class="page-subtitle" id="pageSubtitle">Complete overview of family wealth</div>
                 </div>
-                <div class="top-actions">
-                    <a href="demo-account.html" target="_blank" class="demo-btn" style="text-decoration:none;">
-                        <span>👁️</span><span>View demo</span>
-                    </a>
-                    <button class="action-btn secondary">₹ INR</button>
-                    <button class="action-btn primary">+ Add transaction</button>
-                    <div class="user-avatar" id="userAvatarBtn">M
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
-                            <div class="user-menu-header">
-                                <div class="user-menu-name" id="userMenuName">Loading...</div>
-                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                            </div>
-                            <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item"><span class="user-menu-item-icon">⚙️</span><span>Settings</span></a>
-                                <a href="demo-account.html" target="_blank" class="user-menu-item"><span class="user-menu-item-icon">👁️</span><span>View demo account</span></a>
-                                <div class="user-menu-item logout" onclick="handleLogout()"><span class="user-menu-item-icon">🚪</span><span>Logout</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Person tabs -->
@@ -360,17 +351,6 @@
                 <div class="person-tabs-actions"><a href="settings.html" class="settings-link-btn">⚙️ Manage members</a></div>
             </div>
 
-            <!-- Setup Banner -->
-            <div id="setupBanner" style="display:none;flex-wrap:wrap;gap:12px;">
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;font-size:0.9375rem;margin-bottom:4px;">Account setup <span id="setupPct">0</span>% complete</div>
-                    <div style="color:var(--text-secondary);font-size:0.8125rem;">Next: <span id="setupNextLabel"></span></div>
-                    <div style="height:5px;background:var(--border);border-radius:3px;width:min(100%,240px);margin-top:10px;">
-                        <div id="setupProgressBar" style="height:100%;background:var(--accent,#8FE62C);border-radius:3px;transition:width 0.3s;"></div>
-                    </div>
-                </div>
-                <a id="setupContinueBtn" href="#" style="background:var(--text-primary);color:var(--bg);padding:10px 20px;border-radius:8px;text-decoration:none;font-size:0.875rem;font-weight:600;white-space:nowrap;align-self:center;">Continue setup →</a>
-            </div>
 
             <div class="dashboard-grid" id="dashboardGrid">
 
@@ -564,20 +544,7 @@
         function toggleGoalExpand(el) { el.classList.toggle('expanded'); }
         function toggleSection(el) { el.classList.toggle('expanded'); el.nextElementSibling.classList.toggle('expanded'); }
 
-        const STEP_LABELS = { family:'Add family members', monthly:'Track first month', savings:'Set up savings plan', portfolio:'Add your assets', goals:'Define your goals', planning:'Set up financial planning' };
-        const STEP_PAGES  = { family:'/settings.html', monthly:'/monthly-tracker.html', savings:'/savings-plan.html', portfolio:'/portfolio.html', goals:'/goals.html', planning:'/financial-planning.html' };
         const ASSET_COLOR_MAP = { 'Equity':'#3B73FF','Debt':'#6B6B6B','Hybrid':'#8b5cf6','Cash':'#5DC840','Real Estate':'#f59e0b','Commodity':'#ef4444','Gold':'#d97706','Other':'#6b7280' };
-
-        function renderSetupBanner(progress) {
-            const banner = document.getElementById('setupBanner');
-            if (!progress || progress.percentComplete >= 100) { banner.style.display = 'none'; return; }
-            banner.style.display = 'flex';
-            document.getElementById('setupPct').textContent = Math.round(progress.percentComplete);
-            document.getElementById('setupProgressBar').style.width = Math.round(progress.percentComplete) + '%';
-            const step = progress.nextStep;
-            document.getElementById('setupNextLabel').textContent = STEP_LABELS[step] || step;
-            document.getElementById('setupContinueBtn').href = STEP_PAGES[step] || '#';
-        }
 
         // ── Sparkline generator ────────────────────────────────────────────
         function generateSparklineSVG(values, isKey) {
@@ -604,6 +571,24 @@
             </svg>`;
         }
 
+        // ── Metric card empty-state illustrations ───────────────────────────
+        function metricEmptyIllustration(label) {
+            const a = 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+            if (label === 'Monthly Income')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><circle cx="24" cy="19" r="14" stroke-dasharray="5 3" opacity="0.2"/><circle cx="24" cy="19" r="9" opacity="0.3"/><line x1="24" y1="13" x2="24" y2="25" opacity="0.5"/><line x1="21" y1="15" x2="27" y2="15" opacity="0.5"/><line x1="21" y1="23" x2="27" y2="23" opacity="0.5"/><line x1="21" y1="19" x2="27" y2="19" opacity="0.5"/></svg>`;
+            if (label === 'Monthly Expenses')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><rect x="14" y="8" width="20" height="26" rx="3" stroke-dasharray="3 2" opacity="0.25"/><line x1="19" y1="15" x2="29" y2="15" opacity="0.4"/><line x1="19" y1="20" x2="29" y2="20" opacity="0.4"/><line x1="19" y1="25" x2="25" y2="25" opacity="0.4"/></svg>`;
+            if (label === 'Savings Rate')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><path d="M10 32 A16 16 0 1 1 38 32" stroke-dasharray="5 3" opacity="0.3"/><line x1="24" y1="32" x2="24" y2="20" opacity="0.45" stroke-width="2"/><circle cx="24" cy="32" r="2.5" opacity="0.4" fill="currentColor" stroke="none"/></svg>`;
+            if (label === 'Net Worth')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><line x1="7" y1="32" x2="41" y2="32" opacity="0.2"/><rect x="9" y="23" width="7" height="9" rx="1.5" stroke-dasharray="2 2" opacity="0.3"/><rect x="20" y="17" width="7" height="15" rx="1.5" stroke-dasharray="2 2" opacity="0.3"/><rect x="31" y="10" width="7" height="22" rx="1.5" stroke-dasharray="2 2" opacity="0.3"/></svg>`;
+            if (label === 'Monthly Savings')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><ellipse cx="22" cy="22" rx="13" ry="10" stroke-dasharray="4 2" opacity="0.25"/><circle cx="29" cy="18" r="2" opacity="0.35"/><path d="M35 20 L38 20 L38 26 L35 26" opacity="0.3"/><line x1="17" y1="32" x2="17" y2="36" opacity="0.3"/><line x1="25" y1="32" x2="25" y2="36" opacity="0.3"/></svg>`;
+            if (label === 'Total Investments')
+                return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><polyline points="8,32 16,24 22,27 30,16 38,10" stroke-dasharray="4 2" opacity="0.35"/><circle cx="38" cy="10" r="3" fill="var(--accent,#8FE62C)" stroke="none" opacity="0.6"/></svg>`;
+            return `<svg viewBox="0 0 48 38" ${a} class="metric-empty-ring"><rect x="8" y="24" width="7" height="10" rx="2" stroke-dasharray="3 2" opacity="0.3"/><rect x="19" y="18" width="7" height="16" rx="2" stroke-dasharray="3 2" opacity="0.3"/><rect x="30" y="12" width="7" height="22" rx="2" stroke-dasharray="3 2" opacity="0.3"/></svg>`;
+        }
+
         // ── Metric cards (Rich: watermark + sparkline) ──────────────────────
         function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData) {
             const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
@@ -611,23 +596,30 @@
             const sd = sparkData || {};
 
             const cards = [
-                { label: 'Monthly Income',    value: fmt(totalIncome),            icon: '💰', key: false, spark: sd.income || [] },
-                { label: 'Monthly Expenses',  value: fmt(totalExpenses),           icon: '📊', key: false, spark: sd.expenses || [] },
-                { label: 'Savings Rate',      value: Math.round(savingsRate) + '%',icon: '🎯', key: true,  spark: sd.savingsRate || [] },
-                { label: 'Net Worth',         value: fmt(netWorth),                icon: '💎', key: true,  spark: sd.netWorth || [] },
-                { label: 'Monthly Savings',   value: fmt(monthlySavings),          icon: '💵', key: false, spark: sd.savings || [] },
-                { label: 'Total Investments', value: fmt(totalInvestments),        icon: '📈', key: false, spark: sd.investments || [] },
+                { label: 'Monthly Income',    raw: totalIncome,      fmtd: fmt(totalIncome),                    icon: '💰', key: false, spark: sd.income || [],      href: 'monthly-tracker.html', hint: 'Track income' },
+                { label: 'Monthly Expenses',  raw: totalExpenses,    fmtd: fmt(totalExpenses),                  icon: '📊', key: false, spark: sd.expenses || [],    href: 'monthly-tracker.html', hint: 'Add expenses' },
+                { label: 'Savings Rate',      raw: savingsRate,      fmtd: Math.round(savingsRate) + '%',       icon: '🎯', key: true,  spark: sd.savingsRate || [], href: 'monthly-tracker.html', hint: 'Track spending' },
+                { label: 'Net Worth',         raw: netWorth,         fmtd: fmt(netWorth),                       icon: '💎', key: true,  spark: sd.netWorth || [],    href: 'portfolio.html',       hint: 'Add assets' },
+                { label: 'Monthly Savings',   raw: monthlySavings,   fmtd: fmt(monthlySavings),                 icon: '💵', key: false, spark: sd.savings || [],     href: 'monthly-tracker.html', hint: 'Track spending' },
+                { label: 'Total Investments', raw: totalInvestments, fmtd: fmt(totalInvestments),               icon: '📈', key: false, spark: sd.investments || [], href: 'savings-plan.html',    hint: 'Log investments' },
             ];
 
             const container = document.getElementById('metricCards');
-            container.innerHTML = cards.map(c => `
-                <div class="metric-card">
+            container.innerHTML = cards.map(c => {
+                if (!c.raw || c.raw <= 0) {
+                    return `<div class="metric-card metric-card--empty">
+                        <div class="metric-label${c.key ? ' key' : ''}">${c.label}</div>
+                        ${metricEmptyIllustration(c.label)}
+                        <a href="${c.href}" class="metric-empty-cta">${c.hint} →</a>
+                    </div>`;
+                }
+                return `<div class="metric-card">
                     <div class="metric-watermark">${c.icon}</div>
                     <div class="metric-label${c.key ? ' key' : ''}">${c.label}</div>
-                    <div class="metric-value">${c.value}</div>
+                    <div class="metric-value">${c.fmtd}</div>
                     ${generateSparklineSVG(c.spark, c.key)}
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         // ── Goals ─────────────────────────────────────────────────────────────
@@ -834,13 +826,14 @@
             const heroCard = document.getElementById('heroCard');
             if (heroCard) heroCard.classList.remove('loading');
             const el = (id) => document.getElementById(id);
-            if (el('heroNetWorth')) el('heroNetWorth').textContent = fmt(netWorth);
+            const isEmpty = netWorth === 0 && totalIncome === 0;
             const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
             const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
-            if (el('heroSavings')) el('heroSavings').textContent = fmt(savings);
-            if (el('heroSavingsRate')) el('heroSavingsRate').textContent = savingsRate + '% savings rate';
-            if (el('heroIncome')) el('heroIncome').textContent = fmt(totalIncome);
-            if (el('heroExpenses')) el('heroExpenses').textContent = fmt(totalExpenses) + ' expenses';
+            if (el('heroNetWorth')) el('heroNetWorth').textContent = isEmpty ? '—' : fmt(netWorth);
+            if (el('heroSavings')) el('heroSavings').textContent = isEmpty ? '—' : fmt(savings);
+            if (el('heroSavingsRate')) el('heroSavingsRate').textContent = isEmpty ? 'Start adding data' : savingsRate + '% savings rate';
+            if (el('heroIncome')) el('heroIncome').textContent = isEmpty ? '—' : fmt(totalIncome);
+            if (el('heroExpenses')) el('heroExpenses').textContent = isEmpty ? '—' : fmt(totalExpenses) + ' expenses';
         }
 
         // ── Person tabs ───────────────────────────────────────────────────────
@@ -936,16 +929,10 @@
                 const displayName = familyName && familyName !== 'My Family' ? familyName : (user.email || '').split('@')[0];
                 document.getElementById('pageTitle').textContent = displayName ? `Welcome, ${displayName}` : 'Dashboard';
                 document.getElementById('pageSubtitle').textContent = 'Your personal wealth overview';
-                const nameEl = document.getElementById('userMenuName'), emailEl = document.getElementById('userMenuEmail');
-                if (nameEl) nameEl.textContent = familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
-                const avatarEl = document.querySelector('.user-avatar');
-                if (avatarEl) { const initials = displayName ? displayName.charAt(0).toUpperCase() : 'U'; avatarEl.childNodes[0].textContent = initials; }
             }
 
             const { year, month } = WealthAPI.getCurrentYearMonth();
-            const [progress, monthData, portfolio, goals, familyMembers, sparkData] = await Promise.all([
-                WealthAPI.setup.getProgress().catch(() => null),
+            const [monthData, portfolio, goals, familyMembers, sparkData] = await Promise.all([
                 WealthAPI.monthly.getMonth(year, month).catch(() => []),
                 WealthAPI.portfolio.summary(year, month).catch(() => null),
                 WealthAPI.goals.getAll().catch(() => []),
@@ -955,7 +942,6 @@
 
             allFamilyMembers = familyMembers || [];
             buildDashboardPersonTabs(allFamilyMembers);
-            renderSetupBanner(progress);
 
             const members       = Array.isArray(monthData) ? monthData : [];
             const totalIncome      = members.reduce((s, m) => s + (m.income      || 0), 0);

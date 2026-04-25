@@ -19,6 +19,8 @@
     logout:      `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
     hamburger:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
     close:       `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    demo:        `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    rupee:       `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="18" y2="3"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="15" y1="21" x2="6" y2="8"/><path d="M6 3a5 5 0 0 1 0 10h2"/></svg>`,
   };
 
   const NAV = [
@@ -324,6 +326,93 @@
       pointer-events: auto;
     }
 
+    /* View Demo link */
+    .wos-demo-link {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 12px; border-radius: 10px;
+      font-size: 0.8125rem; font-weight: 500;
+      color: var(--sidebar-text-muted, #888);
+      text-decoration: none;
+      transition: background 130ms, color 130ms;
+      font-family: var(--font, 'Inter', sans-serif);
+      letter-spacing: -0.01em;
+    }
+    .wos-demo-link:hover {
+      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
+      color: var(--sidebar-text, #111);
+    }
+
+    /* Currency row */
+    .wos-currency-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 10px;
+      font-size: 0.8125rem; font-weight: 500;
+      color: var(--sidebar-text-muted, #888);
+      font-family: var(--font, 'Inter', sans-serif);
+      letter-spacing: -0.01em;
+    }
+    .wos-currency-inner { display: flex; align-items: center; gap: 9px; }
+    .wos-currency-badge {
+      font-size: 0.625rem; font-weight: 700;
+      color: var(--accent-dark, #5FA518);
+      background: rgba(143,230,44,0.14); padding: 2px 7px;
+      border-radius: 6px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    [data-theme="dark"] .wos-currency-badge {
+      color: var(--accent, #8FE62C);
+      background: rgba(143,230,44,0.1);
+    }
+
+    /* Bottom divider */
+    .wos-bottom-divider {
+      height: 1px;
+      background: var(--sidebar-border, rgba(0,0,0,0.07));
+      margin: 6px 0;
+    }
+
+    /* Profile row */
+    .wos-profile-row {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 10px; border-radius: 12px;
+      transition: background 130ms;
+    }
+    .wos-profile-row:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.05)); }
+    .wos-profile-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--text-primary, #111);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.75rem;
+      color: var(--bg, #EBEBEB);
+      flex-shrink: 0; letter-spacing: 0.02em;
+      font-family: var(--font, 'Inter', sans-serif);
+      transition: background 180ms;
+    }
+    [data-theme="dark"] .wos-profile-avatar { background: #fff; color: #111; }
+    .wos-profile-info { flex: 1; min-width: 0; }
+    .wos-profile-name {
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--sidebar-text, #111); letter-spacing: -0.01em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-family: var(--font, 'Inter', sans-serif);
+    }
+    .wos-profile-email {
+      font-size: 0.65rem; color: var(--sidebar-text-muted, #888);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-family: var(--font, 'Inter', sans-serif);
+      margin-top: 1px;
+    }
+    .wos-profile-logout-btn {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: none; cursor: pointer;
+      color: var(--sidebar-text-muted, #888);
+      transition: color 130ms, background 130ms; flex-shrink: 0;
+    }
+    .wos-profile-logout-btn:hover {
+      color: var(--negative, #FF3B3B);
+      background: rgba(255,59,59,0.08);
+    }
+
     /* ── Shared layout collapse ──────────────────────────────────────── */
     @media (max-width: 768px) {
       /* app-container collapses to single column */
@@ -431,6 +520,28 @@
     `;
     bottom.appendChild(card);
 
+    // View Demo link
+    const demoLink = document.createElement('a');
+    demoLink.href = 'demo-account.html';
+    demoLink.target = '_blank';
+    demoLink.rel = 'noopener';
+    demoLink.className = 'wos-demo-link';
+    demoLink.innerHTML = `<span class="wos-nav-icon">${ICONS.demo}</span><span>View demo account</span>`;
+    demoLink.addEventListener('click', closeDrawer);
+    bottom.appendChild(demoLink);
+
+    // Currency row (₹ INR static indicator)
+    const currencyRow = document.createElement('div');
+    currencyRow.className = 'wos-currency-row';
+    currencyRow.innerHTML = `
+      <div class="wos-currency-inner">
+        <span class="wos-nav-icon">${ICONS.rupee}</span>
+        <span>Currency</span>
+      </div>
+      <span class="wos-currency-badge">₹ INR</span>
+    `;
+    bottom.appendChild(currencyRow);
+
     // Theme toggle
     const isDark = getSavedTheme() === 'dark';
     const themeRow = document.createElement('div');
@@ -447,15 +558,23 @@
     themeRow.addEventListener('click', toggleTheme);
     bottom.appendChild(themeRow);
 
-    // Logout
-    const logout = document.createElement('button');
-    logout.className = 'wos-logout';
-    logout.innerHTML = `${ICONS.logout}<span>Log out</span>`;
-    logout.addEventListener('click', () => {
-      if (window.WealthAPI && WealthAPI.auth) WealthAPI.auth.logout();
-      else { localStorage.removeItem('wealthos_jwt'); window.location.href = 'login.html'; }
-    });
-    bottom.appendChild(logout);
+    // Divider above profile
+    const divider = document.createElement('div');
+    divider.className = 'wos-bottom-divider';
+    bottom.appendChild(divider);
+
+    // Profile row (avatar + name + logout icon)
+    const profileRow = document.createElement('div');
+    profileRow.className = 'wos-profile-row';
+    profileRow.innerHTML = `
+      <div class="wos-profile-avatar" id="wosProfileAvatar">?</div>
+      <div class="wos-profile-info">
+        <div class="wos-profile-name" id="wosProfileName">My Account</div>
+        <div class="wos-profile-email" id="wosProfileEmail"></div>
+      </div>
+      <button class="wos-profile-logout-btn" id="wosProfileLogout" title="Log out">${ICONS.logout}</button>
+    `;
+    bottom.appendChild(profileRow);
 
     root.appendChild(bottom);
   }
@@ -543,6 +662,38 @@
   }
   window.toggleTheme = toggleTheme;
 
+  // ── User profile ─────────────────────────────────────────────────────────────
+  function loadUserProfile() {
+    let name = '', email = '', initial = '?';
+    if (window.WealthAPI && WealthAPI.auth) {
+      const user = WealthAPI.auth.getCachedUser ? WealthAPI.auth.getCachedUser() : null;
+      if (user) {
+        const familyName = user.familyName || '';
+        const displayName = familyName && familyName !== 'My Family'
+          ? familyName
+          : (user.email || '').split('@')[0];
+        name    = displayName || user.email || '';
+        email   = user.email  || '';
+        initial = name  ? name.charAt(0).toUpperCase()
+                : email ? email.charAt(0).toUpperCase() : '?';
+      }
+    }
+    const avatarEl  = document.getElementById('wosProfileAvatar');
+    const nameEl    = document.getElementById('wosProfileName');
+    const emailEl   = document.getElementById('wosProfileEmail');
+    const logoutBtn = document.getElementById('wosProfileLogout');
+    if (avatarEl)  avatarEl.textContent  = initial;
+    if (nameEl)    nameEl.textContent    = name  || 'My Account';
+    if (emailEl)   emailEl.textContent   = email;
+    if (logoutBtn && !logoutBtn._bound) {
+      logoutBtn._bound = true;
+      logoutBtn.addEventListener('click', () => {
+        if (window.WealthAPI && WealthAPI.auth) WealthAPI.auth.logout();
+        else { localStorage.removeItem('wealthos_jwt'); window.location.href = 'login.html'; }
+      });
+    }
+  }
+
   // ── Portfolio value ──────────────────────────────────────────────────────────
   function loadPortfolioTotal() {
     const token = localStorage.getItem('wealthos_jwt');
@@ -573,6 +724,7 @@
     buildSidebar(root);
     buildMobileBar();
     applyThemeUI(savedTheme);
+    setTimeout(loadUserProfile, 100);
     setTimeout(loadPortfolioTotal, 300);
   }
 
