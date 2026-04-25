@@ -387,14 +387,23 @@
             .onboarding-card {
                 padding: 32px 24px;
             }
-
             .step-title {
                 font-size: 1.5rem;
             }
-
             .progress-step-label {
                 font-size: 0.7rem;
             }
+        }
+        @media (max-width: 480px) {
+            body { padding: 16px 12px; align-items: flex-start; }
+            .onboarding-card { padding: 24px 16px; border-radius: 16px; }
+            .logo { font-size: 1.5rem; }
+            .step-title { font-size: 1.25rem; }
+            .step-subtitle { font-size: 0.875rem; }
+            .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+            .button-group { flex-direction: column; gap: 8px; }
+            .form-input, .form-select { font-size: 0.9375rem; padding: 12px 14px; }
+            .progress-step-circle { width: 28px; height: 28px; font-size: 0.75rem; }
         }
     </style>
 </head>

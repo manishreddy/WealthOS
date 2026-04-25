@@ -331,9 +331,10 @@
         grid-template-columns: 1fr !important;
       }
 
-      /* Push content below the fixed mobile bar */
+      /* Push content below the fixed mobile bar + ensure consistent padding */
       .main-content {
         margin-top: 56px !important;
+        padding: 16px;
       }
 
       /* Show mobile bar */
