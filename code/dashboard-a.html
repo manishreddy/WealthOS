@@ -698,27 +698,26 @@
             document.getElementById('setupContinueBtn').href = STEP_PAGES[step] || '#';
         }
 
-        // ── Metric cards (Focused: clean empty states) ───────────────────────
+        // ── Metric cards (Focused: per-metric empty prompts) ─────────────────
         function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth) {
-            const noData = (totalIncome === 0 && totalExpenses === 0 && totalInvestments === 0 && netWorth === 0);
             const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
             const monthlySavings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
 
             const cards = [
-                { label: 'Monthly Income',    value: fmt(totalIncome),            isZero: totalIncome === 0,      prompt: { text: 'No income tracked', link: 'monthly-tracker.html', linkText: 'Add income →' } },
-                { label: 'Monthly Expenses',  value: fmt(totalExpenses),           isZero: totalExpenses === 0,    prompt: { text: 'No expenses tracked', link: 'monthly-tracker.html', linkText: 'Add expenses →' } },
-                { label: 'Savings Rate',      value: Math.round(savingsRate) + '%',isZero: savingsRate === 0,      prompt: { text: 'Add income & expenses', link: 'monthly-tracker.html', linkText: 'Get started →' } },
-                { label: 'Net Worth',         value: fmt(netWorth),                isZero: netWorth === 0,         prompt: { text: 'Add portfolio assets', link: 'portfolio.html', linkText: 'Build portfolio →' } },
-                { label: 'Monthly Savings',   value: fmt(monthlySavings),          isZero: monthlySavings === 0,   prompt: { text: 'Track your savings', link: 'monthly-tracker.html', linkText: 'Add data →' } },
-                { label: 'Total Investments', value: fmt(totalInvestments),        isZero: totalInvestments === 0, prompt: { text: 'No investments logged', link: 'savings-plan.html', linkText: 'Add investments →' } },
+                { label: 'Monthly Income',    value: fmt(totalIncome),            isZero: totalIncome === 0,      prompt: { link: 'monthly-tracker.html', linkText: 'Add income →' } },
+                { label: 'Monthly Expenses',  value: fmt(totalExpenses),           isZero: totalExpenses === 0,    prompt: { link: 'monthly-tracker.html', linkText: 'Add expenses →' } },
+                { label: 'Savings Rate',      value: Math.round(savingsRate) + '%',isZero: savingsRate === 0,      prompt: { link: 'monthly-tracker.html', linkText: 'Track income first →' } },
+                { label: 'Net Worth',         value: fmt(netWorth),                isZero: netWorth === 0,         prompt: { link: 'portfolio.html',       linkText: 'Build portfolio →' } },
+                { label: 'Monthly Savings',   value: fmt(monthlySavings),          isZero: monthlySavings === 0,   prompt: { link: 'monthly-tracker.html', linkText: 'Add data →' } },
+                { label: 'Total Investments', value: fmt(totalInvestments),        isZero: totalInvestments === 0, prompt: { link: 'monthly-tracker.html', linkText: 'Log investments →' } },
             ];
 
             const container = document.getElementById('metricCards');
             container.innerHTML = cards.map(c => `
                 <div class="metric-card">
                     <div class="metric-label">${c.label}</div>
-                    <div class="metric-value" style="margin-top:10px;">${(noData && c.isZero) ? '—' : c.value}</div>
-                    ${(noData && c.isZero) ? `<div class="metric-empty-prompt"><a href="${c.prompt.link}">${c.prompt.linkText}</a></div>` : ''}
+                    <div class="metric-value" style="margin-top:10px;">${c.isZero ? '—' : c.value}</div>
+                    ${c.isZero ? `<div class="metric-empty-prompt"><a href="${c.prompt.link}">${c.prompt.linkText}</a></div>` : ''}
                 </div>
             `).join('');
         }
