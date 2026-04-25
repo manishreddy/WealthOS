@@ -105,14 +105,20 @@
             display: flex; align-items: center; gap: 24px;
             box-shadow: var(--shadow-sm);
             animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+            position: relative;
         }
         .family-widget-icon { font-size: 2.25rem; flex-shrink: 0; }
         .family-widget-body { flex: 1; }
         .family-widget-title { font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; letter-spacing: -0.02em; }
         .family-widget-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
         .family-widget-benefit { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 6px; }
+        .family-widget-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
         .family-widget-btn { padding: 10px 20px; background: var(--accent, #8FE62C); color: #111; border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.16s; text-decoration: none; display: inline-block; font-family: var(--font); white-space: nowrap; }
         .family-widget-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .family-widget-skip { font-size: 0.8125rem; font-weight: 500; color: var(--text-tertiary); background: none; border: none; cursor: pointer; font-family: var(--font); padding: 0; white-space: nowrap; transition: color 0.16s; }
+        .family-widget-skip:hover { color: var(--text-secondary); }
+        .family-widget-dismiss { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--hover-bg); border: none; color: var(--text-tertiary); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.16s; }
+        .family-widget-dismiss:hover { background: var(--border); color: var(--text-primary); }
 
         /* ── Metric Cards — Rich (watermark + sparkline) ─────────────────── */
         .metric-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
@@ -291,6 +297,7 @@
             .ftux-nudge-card { flex-direction: column; align-items: flex-start; gap: 14px; }
             .ftux-nudge-actions { width: 100%; justify-content: space-between; }
             .family-setup-widget { flex-direction: column; align-items: flex-start; }
+            .family-widget-actions { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
         }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
@@ -391,13 +398,17 @@
 
                 <!-- Family Setup Widget -->
                 <div class="family-setup-widget" id="familySetupWidget" style="display:none;">
+                    <button class="family-widget-dismiss" id="familyWidgetDismiss" title="Skip for now">×</button>
                     <div class="family-widget-icon">👨‍👩‍👧‍👦</div>
                     <div class="family-widget-body">
                         <div class="family-widget-title">Set up your family account</div>
                         <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals.</div>
                         <div class="family-widget-benefit">Takes 2 minutes — add or remove members any time.</div>
                     </div>
-                    <a href="family-setup.html" class="family-widget-btn">Set up family →</a>
+                    <div class="family-widget-actions">
+                        <a href="family-setup.html" class="family-widget-btn">Set up family →</a>
+                        <button class="family-widget-skip" id="familyWidgetSkip">Maybe later →</button>
+                    </div>
                 </div>
 
                 <!-- FTUX Nudge -->
@@ -777,6 +788,17 @@
         function submitGoal()   { const f = document.getElementById('goalForm');   if (f.checkValidity()) { closeModal('goalModal');   f.reset(); } else f.reportValidity(); }
         function handleLogout() { WealthAPI.auth.logout(); }
 
+        // ── Family Widget skip helpers ────────────────────────────────────────
+        function isFamilyWidgetSkipped() { return localStorage.getItem('wealthos_family_widget_skipped') === '1'; }
+        function skipFamilyWidget() {
+            localStorage.setItem('wealthos_family_widget_skipped', '1');
+            const w = document.getElementById('familySetupWidget');
+            if (!w) return;
+            w.style.transition = 'opacity 0.3s ease';
+            w.style.opacity = '0';
+            setTimeout(() => { w.style.display = 'none'; }, 320);
+        }
+
         // ── FTUX Nudge ────────────────────────────────────────────────────────
         const FTUX_NUDGES = [
             { id:'monthly',     icon:'📊', step:'Step 1 of 3', title:'Add your monthly income & expenses',   desc:'See your savings rate and where your money goes — the most important first step.', cta:'Go to Monthly Tracker →', href:'/monthly-tracker.html' },
@@ -827,7 +849,20 @@
             const container = document.getElementById('personTabsContainer');
             const tabsList  = document.getElementById('personTabsList');
             const familyWidget = document.getElementById('familySetupWidget');
-            if (familyWidget) familyWidget.style.display = (!members || members.length <= 1) ? '' : 'none';
+
+            // Show family widget only when ≤1 member AND user hasn't skipped it
+            const showFamilyWidget = (!members || members.length <= 1) && !isFamilyWidgetSkipped();
+            if (familyWidget) {
+                familyWidget.style.display = showFamilyWidget ? '' : 'none';
+                if (showFamilyWidget) {
+                    // Wire up dismiss × and "Maybe later" buttons
+                    const dismissBtn = document.getElementById('familyWidgetDismiss');
+                    const skipBtn    = document.getElementById('familyWidgetSkip');
+                    if (dismissBtn) dismissBtn.onclick = skipFamilyWidget;
+                    if (skipBtn)    skipBtn.onclick    = skipFamilyWidget;
+                }
+            }
+
             if (!members || members.length < 2) { if (container) container.style.display = 'none'; return; }
             if (!container || !tabsList) return;
             tabsList.innerHTML = '';
