@@ -292,9 +292,7 @@ body {
 
         /* Breakup Section - always visible */
         .breakup-section {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
+            margin-top: 0;
         }
 
         .breakup-list {
@@ -877,8 +875,11 @@ body {
         .category-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
         .amount-input { text-align: right; min-width: 160px; }
 
+        /* Chip section (below breakup list) */
+        .chip-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+        .chip-section-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-bottom: 10px; }
+
         /* Quick Add Chips */
-        .quick-add-section { margin-bottom: 14px; }
         .quick-add-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
         .quick-chip { padding: 4px 11px; border-radius: 16px; font-size: 0.8125rem; font-weight: 500; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; white-space: nowrap; font-family: var(--font); }
         .quick-chip:hover { border-color: var(--accent-primary); background: rgba(0, 102, 255, 0.07); color: var(--accent-primary); }
@@ -1202,16 +1203,17 @@ body {
                         </div>
                     </div>
                     <div class="entry-body" id="incomeBody">
-                        <div class="quick-add-section">
-                            <div class="quick-add-chips" id="incomeChips"></div>
-                        </div>
-                        <div class="breakup-section" id="incomeBreakup" style="margin-top:8px;">
+                        <div class="breakup-section" id="incomeBreakup">
                             <div class="breakup-list" id="incomeBreakupList"></div>
-                            <div class="breakup-total" style="margin-top:12px;">
+                            <div class="breakup-total">
                                 <span class="breakup-total-label">Breakup Total</span>
                                 <span class="breakup-total-value" id="incomeBreakupTotal">₹0</span>
                             </div>
                             <div class="breakup-warning" id="incomeWarning">⚠️ Breakup total doesn't match main amount</div>
+                        </div>
+                        <div class="chip-section">
+                            <div class="chip-section-label">Select items to include</div>
+                            <div class="quick-add-chips" id="incomeChips"></div>
                         </div>
                     </div>
                 </div>
@@ -1234,16 +1236,17 @@ body {
                         </div>
                     </div>
                     <div class="entry-body" id="expenditureBody">
-                        <div class="quick-add-section">
-                            <div class="quick-add-chips" id="expenditureChips"></div>
-                        </div>
-                        <div class="breakup-section" id="expenditureBreakup" style="margin-top:8px;">
+                        <div class="breakup-section" id="expenditureBreakup">
                             <div class="breakup-list" id="expenditureBreakupList"></div>
-                            <div class="breakup-total" style="margin-top:12px;">
+                            <div class="breakup-total">
                                 <span class="breakup-total-label">Breakup Total</span>
                                 <span class="breakup-total-value" id="expenditureBreakupTotal">₹0</span>
                             </div>
                             <div class="breakup-warning" id="expenditureWarning">⚠️ Breakup total doesn't match main amount</div>
+                        </div>
+                        <div class="chip-section">
+                            <div class="chip-section-label">Select items to include</div>
+                            <div class="quick-add-chips" id="expenditureChips"></div>
                         </div>
                     </div>
                 </div>
@@ -1266,16 +1269,17 @@ body {
                         </div>
                     </div>
                     <div class="entry-body" id="investmentsBody">
-                        <div class="quick-add-section">
-                            <div class="quick-add-chips" id="investmentsChips"></div>
-                        </div>
-                        <div class="breakup-section" id="investmentsBreakup" style="margin-top:8px;">
+                        <div class="breakup-section" id="investmentsBreakup">
                             <div class="breakup-list" id="investmentsBreakupList"></div>
-                            <div class="breakup-total" style="margin-top:12px;">
+                            <div class="breakup-total">
                                 <span class="breakup-total-label">Breakup Total</span>
                                 <span class="breakup-total-value" id="investmentsBreakupTotal">₹0</span>
                             </div>
                             <div class="breakup-warning" id="investmentsWarning">⚠️ Breakup total doesn't match main amount</div>
+                        </div>
+                        <div class="chip-section">
+                            <div class="chip-section-label">Select items to include</div>
+                            <div class="quick-add-chips" id="investmentsChips"></div>
                         </div>
                     </div>
                 </div>
@@ -1464,20 +1468,18 @@ body {
         }
 
         function preSelectDefaultChips() {
+            _suppressSave = true;
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 const defaults = DEFAULT_CHIPS[cat] || [];
-                const container = document.getElementById(cat + 'Chips');
-                if (!container) return;
-                // Make all extra chips visible so defaults are reachable
-                container.querySelectorAll('[data-extra="1"]').forEach(b => b.style.display = '');
-                const moreBtn = container.querySelector('[data-more-toggle]');
-                if (moreBtn) moreBtn.textContent = '− less';
-                // Highlight each default chip
+                const list = document.getElementById(cat + 'BreakupList');
+                // Skip if list already has items (existing data loaded)
+                if (list && list.querySelector('.breakup-item')) return;
                 defaults.forEach(name => {
-                    const chip = container.querySelector(`.quick-chip[data-name="${CSS.escape(name)}"]`);
-                    if (chip) chip.classList.add('pre-selected');
+                    const item = (PREDEFINED_CATEGORIES[cat] || []).find(i => i.name === name);
+                    if (item) addPredefinedItem(cat, item.name, item.icon);
                 });
             });
+            _suppressSave = false;
         }
 
         function toggleMoreChips(cat) {
@@ -1505,13 +1507,15 @@ body {
             const displayName = icon ? icon + ' ' + name : name;
             appendBreakupRow(category, displayName, 0);
             updateBreakupTotal(category);
-            // Focus the amount input of the newly added row
-            const list = document.getElementById(category + 'BreakupList');
-            const rows = list.querySelectorAll('.breakup-item');
-            if (rows.length > 0) {
-                const lastRow = rows[rows.length - 1];
-                const amountInput = lastRow.querySelector('.breakup-amount-input');
-                if (amountInput) { amountInput.focus(); amountInput.select(); }
+            // Focus the amount input of the newly added row (skip during bulk pre-population)
+            if (!_suppressSave) {
+                const list = document.getElementById(category + 'BreakupList');
+                const rows = list.querySelectorAll('.breakup-item');
+                if (rows.length > 0) {
+                    const lastRow = rows[rows.length - 1];
+                    const amountInput = lastRow.querySelector('.breakup-amount-input');
+                    if (amountInput) { amountInput.focus(); amountInput.select(); }
+                }
             }
             // Mark chip as added
             const chips = document.querySelectorAll(`#${category}Chips .quick-chip[data-name="${CSS.escape(name)}"]`);
@@ -1904,7 +1908,7 @@ body {
             const list = document.getElementById(category + 'BreakupList');
             list.innerHTML = '';
             if (!items || items.length === 0) {
-                list.innerHTML = '<div class="breakup-empty">Click a highlighted tag above to add a line item</div>';
+                list.innerHTML = '<div class="breakup-empty">Select items from the tags below to add line items</div>';
             } else {
                 items.forEach(item => appendBreakupRow(category, item.name, item.amount));
                 // Mark chips as added for loaded items
@@ -2261,7 +2265,6 @@ body {
 
             // 4b. Init quick-add chips
             initChips();
-            preSelectDefaultChips();
 
             // Hide nudge if previously dismissed
             try {
@@ -2295,6 +2298,9 @@ body {
 
             // 7. Load data
             await loadCurrentView();
+
+            // 8. Pre-populate default items if no saved data for this month
+            preSelectDefaultChips();
         });
 
         // ── AI Import ──────────────────────────────────────────────────────
