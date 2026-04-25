@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Monthly Investments</title>
     <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -114,19 +113,6 @@ body {
             color: var(--error, #ef4444);
         }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #ffffff;
-            cursor: pointer;
-        }
 
         /* Section Divider */
         .section-divider {
@@ -2400,24 +2386,6 @@ body {
                     <div class="page-subtitle">Track SIPs, stocks & ETFs — with full allocation insights</div>
                 </div>
                 <div class="top-actions">
-                    <div class="user-avatar" id="userAvatarBtn">U
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
-                            <div class="user-menu-header">
-                                <div class="user-menu-name" id="userMenuName">Loading...</div>
-                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                            </div>
-                            <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item">
-                                    <span class="user-menu-item-icon">⚙️</span>
-                                    <span>Settings</span>
-                                </a>
-                                <div class="user-menu-item logout" id="logoutBtn">
-                                    <span class="user-menu-item-icon">🚪</span>
-                                    <span>Logout</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -2664,37 +2632,6 @@ body {
         // ===========================
         document.addEventListener('DOMContentLoaded', async () => {
             WealthAPI.auth.requireAuth();
-
-            // User info
-            const user = WealthAPI.auth.getCachedUser();
-            if (user) {
-                const nameEl = document.getElementById('userMenuName');
-                const emailEl = document.getElementById('userMenuEmail');
-                const avatarEl = document.getElementById('userAvatarBtn');
-                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
-                if (avatarEl) {
-                    const initial = (user.familyName || user.email || 'U').charAt(0).toUpperCase();
-                    const textNode = avatarEl.childNodes[0];
-                    if (textNode && textNode.nodeType === 3) textNode.textContent = initial;
-                }
-            }
-
-            // Logout
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                WealthAPI.auth.logout();
-            });
-
-            // User avatar dropdown toggle
-            const avatarBtn = document.getElementById('userAvatarBtn');
-            const dropdown = document.getElementById('userMenuDropdown');
-            if (avatarBtn && dropdown) {
-                avatarBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dropdown.classList.toggle('open');
-                });
-                document.addEventListener('click', () => dropdown.classList.remove('open'));
-            }
 
             // Load family members
             try {

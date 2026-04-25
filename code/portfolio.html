@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Portfolio Command Center</title>
     <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
@@ -91,26 +90,6 @@ body {
             color: var(--accent-primary);
         }
 
-        /* User Avatar */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            margin-left: 12px;
-        }
-
-        .user-avatar:hover {
-            transform: scale(1.05);
-        }
 
         /* Net Worth Dashboard */
         .networth-dashboard {
@@ -1436,24 +1415,6 @@ body {
                     <button class="action-btn secondary" onclick="openZerodhaUpload()">Upload Holdings</button>
                     <input type="file" id="zerodhaFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="onZerodhaFileSelected(event)">
                     <button class="action-btn primary" onclick="openAddModal()">+ Add Asset</button>
-                    <div class="user-avatar" id="userAvatarBtn">U
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
-                            <div class="user-menu-header">
-                                <div class="user-menu-name" id="userMenuName">Loading...</div>
-                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                            </div>
-                            <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item">
-                                    <span class="user-menu-item-icon">⚙️</span>
-                                    <span>Settings</span>
-                                </a>
-                                <div class="user-menu-item logout" onclick="WealthAPI.auth.logout()">
-                                    <span class="user-menu-item-icon">🚪</span>
-                                    <span>Logout</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -1920,33 +1881,6 @@ body {
         // ── Init ───────────────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', async () => {
             WealthAPI.auth.requireAuth();
-
-            // Setup user menu
-            const user = WealthAPI.auth.getCachedUser();
-            if (user) {
-                const nameEl = document.getElementById('userMenuName');
-                const emailEl = document.getElementById('userMenuEmail');
-                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
-                const avatarEl = document.getElementById('userAvatarBtn');
-                if (avatarEl) {
-                    const initial = (user.familyName || user.email || 'U').charAt(0).toUpperCase();
-                    avatarEl.childNodes[0].textContent = initial;
-                }
-            }
-
-            // Wire user avatar click
-            const avatarEl = document.getElementById('userAvatarBtn');
-            if (avatarEl) {
-                avatarEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const dd = document.getElementById('userMenuDropdown');
-                    dd.classList.toggle('active');
-                });
-                document.addEventListener('click', () => {
-                    document.getElementById('userMenuDropdown').classList.remove('active');
-                });
-            }
 
             updateMonthLabel();
             await loadPageData();

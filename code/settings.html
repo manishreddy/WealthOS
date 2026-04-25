@@ -7,7 +7,6 @@
     <title>WealthOS - Settings</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="controls.css">
-    <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,19 +65,6 @@ body {
             letter-spacing: -0.01em;
         }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #ffffff;
-            cursor: pointer;
-        }
 
         /* Settings specific styles */
         .settings-container {
@@ -906,28 +892,6 @@ body {
                     <div class="page-title">Settings</div>
                     <div class="page-subtitle">Manage your WealthOS configuration and preferences</div>
                 </div>
-                <div class="user-avatar">M
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
-                            <div class="user-menu-header">
-                                <div class="user-menu-name" id="userMenuName">Loading...</div>
-                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                            </div>
-                            <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item">
-                                    <span class="user-menu-item-icon">⚙️</span>
-                                    <span>Settings</span>
-                                </a>
-                                <a href="demo-account.html" target="_blank" class="user-menu-item">
-                                    <span class="user-menu-item-icon">👁️</span>
-                                    <span>View Demo Account</span>
-                                </a>
-                                <div class="user-menu-item logout" onclick="handleLogout()">
-                                    <span class="user-menu-item-icon">🚪</span>
-                                    <span>Logout</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
             </div>
 
             <div class="settings-container">
@@ -1628,7 +1592,6 @@ body {
     </div>
 
     <script src="/api.js"></script>
-    <script src="user-menu.js"></script>
     <script>
         // ── Theme Toggle ─────────────────────────────────────────────────────
         const currentTheme = localStorage.getItem('wealthos_theme') || localStorage.getItem('theme') || 'light';
@@ -2165,27 +2128,6 @@ body {
         document.addEventListener('DOMContentLoaded', async () => {
             // Auth guard
             WealthAPI.auth.requireAuth();
-
-            // Populate user menu from cached user
-            const user = WealthAPI.auth.getCachedUser();
-            if (user) {
-                const nameEl = document.getElementById('userMenuName');
-                const emailEl = document.getElementById('userMenuEmail');
-                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
-
-                // Update avatar initial
-                const avatarEl = document.querySelector('.user-avatar');
-                if (avatarEl) {
-                    const initial = user
-                        ? user.familyName.charAt(0).toUpperCase()
-                        : user.email ? user.email.charAt(0).toUpperCase() : 'U';
-                    const firstChild = avatarEl.childNodes[0];
-                    if (firstChild && firstChild.nodeType === 3) {
-                        firstChild.textContent = initial;
-                    }
-                }
-            }
 
             // Load all settings sections
             await loadProfileSettings();

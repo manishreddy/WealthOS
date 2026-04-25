@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Goals Planning</title>
     <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,25 +65,6 @@ body {
             letter-spacing: -0.01em;
         }
 
-        /* User Avatar */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #ffffff;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .user-avatar:hover {
-            transform: scale(1.05);
-        }
 
         .top-actions {
             display: flex;
@@ -1151,24 +1131,6 @@ body {
                     <div class="page-subtitle">Plan, track, and achieve your financial dreams</div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="user-avatar" id="userAvatar">
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
-                            <div class="user-menu-header">
-                                <div class="user-menu-name" id="userMenuName">Loading...</div>
-                                <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                            </div>
-                            <div class="user-menu-items">
-                                <a href="settings.html" class="user-menu-item">
-                                    <span class="user-menu-item-icon">⚙️</span>
-                                    <span>Settings</span>
-                                </a>
-                                <div class="user-menu-item logout" onclick="WealthAPI.auth.logout()">
-                                    <span class="user-menu-item-icon">🚪</span>
-                                    <span>Logout</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="top-actions">
                         <button class="action-btn secondary" onclick="openGoalsImport()" style="display:flex;align-items:center;gap:6px;">✨ Import via AI</button>
                         <button class="action-btn primary" id="addGoalBtn" onclick="openModal()">
@@ -1395,7 +1357,6 @@ body {
     </div>
 
     <script src="/api.js"></script>
-    <script src="user-menu.js"></script>
     <script>
         // ─── State ───────────────────────────────────────────────────────────────
         let allGoals = [];
@@ -1434,21 +1395,6 @@ body {
             if (savedTheme === 'dark') {
                 const tt = document.getElementById('themeToggle');
                 if (tt) tt.classList.add('active');
-            }
-
-            // Populate user info
-            const user = WealthAPI.auth.getCachedUser();
-            if (user) {
-                const initial = (user.familyName || user.email || 'U').charAt(0).toUpperCase();
-                const avatarEl = document.getElementById('userAvatar');
-                if (avatarEl) {
-                    const textNode = document.createTextNode(initial);
-                    avatarEl.insertBefore(textNode, avatarEl.firstChild);
-                }
-                const nameEl = document.getElementById('userMenuName');
-                const emailEl = document.getElementById('userMenuEmail');
-                if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
             }
 
             // Load family members and goals in parallel
