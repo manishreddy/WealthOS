@@ -211,7 +211,7 @@
             .step-title { font-size: 1.25rem; }
             .step-subtitle { font-size: 0.875rem; }
             .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
-            .button-group { flex-direction: column; gap: 8px; }
+            .btn-group { flex-direction: column; gap: 8px; }
             .form-input, .form-select { font-size: 0.9375rem; padding: 12px 14px; }
             .progress-step-circle { width: 28px; height: 28px; font-size: 0.75rem; }
         }
@@ -246,12 +246,6 @@
         <div class="step-label-item" id="lbl2">
             <div class="step-label-circle">2</div>
             <div class="step-label-text">Goals</div>
-            <div class="step-connector"></div>
-        </div>
-        <div class="step-label-item" id="lbl3">
-            <div class="step-label-circle">3</div>
-            <div class="step-label-text">What's next</div>
-            <div class="step-connector"></div>
         </div>
     </div>
 
@@ -348,50 +342,9 @@
 
         <div class="btn-group">
             <button class="btn btn-secondary" onclick="goToStep(1, true)">← Back</button>
-            <button class="btn btn-primary" onclick="goToStep(3)">Continue →</button>
-        </div>
-        <button class="btn-skip" onclick="skipOnboarding()">Skip for now →</button>
-    </div>
-
-    <!-- Step 3: What's Next summary -->
-    <div id="step3" class="step-content">
-        <div class="summary-welcome">
-            <span class="summary-emoji">🎉</span>
-            <div class="summary-name">You're all set!</div>
-            <p class="summary-note">Your account is ready. Here's what we'll help you do first — each step adds more insight to your dashboard.</p>
-        </div>
-
-        <div class="summary-steps">
-            <div class="summary-step-row">
-                <div class="summary-step-num">1</div>
-                <div class="summary-step-info">
-                    <div class="summary-step-title">Add monthly income &amp; expenses</div>
-                    <div class="summary-step-desc">See your savings rate and where your money actually goes</div>
-                </div>
-                <span class="summary-step-badge">5 min</span>
-            </div>
-            <div class="summary-step-row">
-                <div class="summary-step-num">2</div>
-                <div class="summary-step-info">
-                    <div class="summary-step-title">Log your investments</div>
-                    <div class="summary-step-desc">Mutual funds, stocks, FDs — see your portfolio at a glance</div>
-                </div>
-                <span class="summary-step-badge">3 min</span>
-            </div>
-            <div class="summary-step-row">
-                <div class="summary-step-num">3</div>
-                <div class="summary-step-info">
-                    <div class="summary-step-title">Track your goals</div>
-                    <div class="summary-step-desc">Set targets and watch your progress grow every month</div>
-                </div>
-                <span class="summary-step-badge">2 min</span>
-            </div>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn btn-secondary" onclick="goToStep(2, true)">← Back</button>
             <button class="btn btn-primary" onclick="finishOnboarding()">Go to my dashboard →</button>
         </div>
+        <button class="btn-skip" onclick="skipOnboarding()">Skip for now →</button>
     </div>
 
 </div>
@@ -405,7 +358,7 @@
     }
 
     let currentStep = 1;
-    const totalSteps = 3;
+    const totalSteps = 2;
     let selectedRiskValue = '';
     let selectedGoals = [];
 
@@ -413,7 +366,7 @@
         const pct = ((step - 1) / (totalSteps - 1)) * 100;
         document.getElementById('progressFill').style.width = pct + '%';
 
-        ['lbl1','lbl2','lbl3'].forEach((id, i) => {
+        ['lbl1','lbl2'].forEach((id, i) => {
             const el = document.getElementById(id);
             el.classList.remove('active','done');
             if (i + 1 < step) el.classList.add('done');
