@@ -107,40 +107,43 @@ body {
         }
 
         .action-btn {
-            padding: 10px 20px;
+            padding: 9px 18px;
             border-radius: 10px;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.16s ease;
             border: none;
             letter-spacing: -0.01em;
+            font-family: var(--font);
         }
 
         .action-btn.primary {
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            color: #ffffff;
+            background: var(--text-primary, #111);
+            color: var(--bg, #EBEBEB);
         }
 
         .action-btn.primary:hover {
+            opacity: 0.85;
             transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
         }
 
         .action-btn.secondary {
-            background: var(--bg-elevated);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border-strong, rgba(0,0,0,0.18));
         }
 
         .action-btn.secondary:hover {
             background: var(--hover-bg);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
         }
 
         .action-btn.danger {
             width: 36px; height: 36px; padding: 0;
             background: transparent;
-            border: 1px solid transparent;
+            border: 1.5px solid transparent;
             color: var(--text-tertiary);
             display: flex; align-items: center; justify-content: center;
         }
@@ -149,6 +152,25 @@ body {
             background: rgba(239,68,68,0.08);
             border-color: rgba(239,68,68,0.25);
             color: var(--error, #ef4444);
+        }
+
+        /* Per-accordion save row */
+        .acc-save-row {
+            display: flex; justify-content: flex-end; align-items: center;
+            gap: 10px; margin-top: 14px; padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .acc-save-btn {
+            padding: 7px 18px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 600; font-family: var(--font);
+            cursor: pointer; transition: all 0.16s;
+            background: var(--text-primary, #111); color: var(--bg, #EBEBEB);
+            border: none;
+        }
+        .acc-save-btn:hover { opacity: 0.82; transform: translateY(-1px); }
+        .acc-save-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+        .acc-autosave-label {
+            font-size: 0.72rem; color: var(--text-tertiary); font-weight: 500;
         }
 
         /* Category Cards - Vertical Layout */
@@ -1117,13 +1139,11 @@ body {
                     </button>
                 </div>
                 <div class="page-btns">
-                    <button class="action-btn secondary" onclick="goToCurrentMonth()">This Month</button>
-                    <button class="action-btn secondary" onclick="copyFromLastMonth()">Copy Last Month</button>
-                    <button class="action-btn secondary" onclick="openMonthlyImport()">Import via AI</button>
+                    <button class="action-btn secondary" id="copyLastMonthBtn" style="display:none" onclick="copyFromLastMonth()">Copy Last Month</button>
+                    <button class="action-btn secondary" onclick="openMonthlyImport()">AI Import</button>
                     <button class="action-btn danger" id="deleteMonthBtn" style="display:none" onclick="deleteMonthData()" title="Delete month data">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg>
                     </button>
-                    <button class="action-btn primary" onclick="saveMonth()">Save Month</button>
                 </div>
             </div>
 
@@ -1231,6 +1251,10 @@ body {
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="incomeChips"></div>
                         </div>
+                        <div class="acc-save-row">
+                            <span class="acc-autosave-label" id="incomeSaveStatus"></span>
+                            <button class="acc-save-btn" onclick="saveThisCard(this, 'incomeSaveStatus')">Save</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1264,6 +1288,10 @@ body {
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="expenditureChips"></div>
                         </div>
+                        <div class="acc-save-row">
+                            <span class="acc-autosave-label" id="expenditureSaveStatus"></span>
+                            <button class="acc-save-btn" onclick="saveThisCard(this, 'expenditureSaveStatus')">Save</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1296,6 +1324,10 @@ body {
                         <div class="chip-section">
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="investmentsChips"></div>
+                        </div>
+                        <div class="acc-save-row">
+                            <span class="acc-autosave-label" id="investmentsSaveStatus"></span>
+                            <button class="acc-save-btn" onclick="saveThisCard(this, 'investmentsSaveStatus')">Save</button>
                         </div>
                     </div>
                 </div>
@@ -1727,6 +1759,8 @@ body {
             await loadPrevMonthComparisons();
             // Load history
             await loadHistory();
+            // Show/hide "Copy Last Month" based on whether prev month has data
+            checkLastMonthData();
         }
 
         async function loadMemberView(memberId) {
@@ -2040,32 +2074,54 @@ body {
         }
 
         // ===================================
-        // EXPLICIT SAVE BUTTON
+        // PER-CARD SAVE BUTTON
         // ===================================
-        async function saveMonth() {
-            const btn = event && event.target ? event.target : document.querySelector('.action-btn.primary');
+        async function saveThisCard(btn, statusId) {
             if (currentMemberId === null) {
                 alert('Switch to an individual member to save data. Combined view is read-only.');
                 return;
             }
-            const orig = btn.innerHTML;
-            btn.innerHTML = '⏳ Saving...';
+            const statusEl = statusId ? document.getElementById(statusId) : null;
+            const orig = btn.textContent;
+            btn.textContent = 'Saving…';
             btn.disabled = true;
+            if (statusEl) statusEl.textContent = '';
             try {
                 await doSave();
-                btn.innerHTML = '✓ Saved!';
-                btn.style.background = 'var(--success, #00C805)';
+                btn.textContent = '✓ Saved';
+                btn.style.background = 'var(--positive, #5DC840)';
+                if (statusEl) { statusEl.textContent = 'All changes saved'; }
                 setTimeout(() => {
-                    btn.innerHTML = orig;
+                    btn.textContent = orig;
+                    btn.style.background = '';
+                    btn.disabled = false;
+                    if (statusEl) statusEl.textContent = '';
+                }, 2000);
+            } catch(e) {
+                btn.textContent = '✗ Error';
+                setTimeout(() => {
+                    btn.textContent = orig;
                     btn.style.background = '';
                     btn.disabled = false;
                 }, 2000);
+            }
+        }
+
+        // ===================================
+        // CHECK LAST MONTH DATA (for copy CTA)
+        // ===================================
+        async function checkLastMonthData() {
+            const btn = document.getElementById('copyLastMonthBtn');
+            if (!btn) return;
+            if (!currentMemberId) { btn.style.display = 'none'; return; }
+            let pm = currentMonth - 1, py = currentYear;
+            if (pm < 1) { pm = 12; py--; }
+            try {
+                const data = await WealthAPI.monthly.getMemberMonth(py, pm, currentMemberId);
+                const hasData = data && (data.income || data.expenditure || data.investments);
+                btn.style.display = hasData ? '' : 'none';
             } catch(e) {
-                btn.innerHTML = '✗ Error';
-                setTimeout(() => {
-                    btn.innerHTML = orig;
-                    btn.disabled = false;
-                }, 2000);
+                btn.style.display = 'none';
             }
         }
 
