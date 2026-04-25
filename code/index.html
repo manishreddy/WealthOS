@@ -818,6 +818,29 @@
       color: #9CA3AF;
     }
 
+    /* ── SCROLL-REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal[data-delay="100"] { transition-delay: 0.10s; }
+    .reveal[data-delay="200"] { transition-delay: 0.20s; }
+    .reveal[data-delay="300"] { transition-delay: 0.30s; }
+    .reveal[data-delay="400"] { transition-delay: 0.40s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
     /* ── SVG ICONS ── */
     .icon { display: inline-block; vertical-align: middle; }
 
@@ -1031,7 +1054,7 @@
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-left">
+      <div class="hero-left reveal">
         <div class="hero-badge">
           <span class="hero-badge-dot"></span>
           New: AI WealthBot is now live
@@ -1055,7 +1078,7 @@
         </div>
       </div>
 
-      <div class="hero-cards">
+      <div class="hero-cards reveal" data-delay="200">
         <!-- Net Worth dark card -->
         <div class="hero-card-dark">
           <p class="card-label">Total Family Net Worth</p>
@@ -1104,7 +1127,7 @@
     </section>
 
     <!-- SOCIAL PROOF -->
-    <section class="social-proof">
+    <section class="social-proof reveal">
       <p class="social-proof-title">Trusted by modern Indian families</p>
       <div class="social-proof-pills">
         <div class="social-pill">
@@ -1128,14 +1151,14 @@
 
     <!-- FEATURES BENTO -->
     <section class="features" id="features">
-      <div class="section-header">
+      <div class="section-header reveal">
         <h2 class="section-title">Everything you need to grow.</h2>
         <p class="section-sub">Powerful tools designed for the complexities of family finance.</p>
       </div>
 
       <div class="bento-grid">
         <!-- Large dark card: Portfolio -->
-        <div class="bento-card bento-dark bento-lg" style="display:flex;flex-direction:column;justify-content:space-between;min-height:300px;">
+        <div class="bento-card bento-dark bento-lg reveal" style="display:flex;flex-direction:column;justify-content:space-between;min-height:300px;">
           <div>
             <div class="feature-icon feature-icon-dark">
               <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8FE62C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
@@ -1150,7 +1173,7 @@
           </div>
         </div>
         <!-- Small white card: Monthly Budgeting -->
-        <div class="bento-card bento-white bento-sm" style="display:flex;flex-direction:column;">
+        <div class="bento-card bento-white bento-sm reveal" data-delay="100" style="display:flex;flex-direction:column;">
           <div class="feature-icon feature-icon-light">
             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
           </div>
@@ -1158,7 +1181,7 @@
           <p class="feature-desc-dark">Track income and expenses across multiple accounts. Set rules to categorize automatically.</p>
         </div>
         <!-- Small white card: Goal Planning -->
-        <div class="bento-card bento-white bento-sm" style="display:flex;flex-direction:column;">
+        <div class="bento-card bento-white bento-sm reveal" data-delay="200" style="display:flex;flex-direction:column;">
           <div class="feature-icon feature-icon-light">
             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
           </div>
@@ -1166,7 +1189,7 @@
           <p class="feature-desc-dark">Plan for children's education, home down payment, or early retirement with tax-aware calculators.</p>
         </div>
         <!-- Large dark card: AI WealthBot -->
-        <div class="bento-card bento-dark bento-lg bento-ai">
+        <div class="bento-card bento-dark bento-lg bento-ai reveal" data-delay="100">
           <div style="max-width:340px;">
             <div class="feature-icon" style="background:#8FE62C;width:40px;height:40px;">
               <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
@@ -1183,7 +1206,7 @@
     </section>
 
     <!-- PRODUCT SCREENSHOT -->
-    <section class="product-section" id="how-it-works">
+    <section class="product-section reveal" id="how-it-works">
       <div class="browser-mock">
         <div class="browser-bar">
           <div class="browser-dot" style="background:#FC5F5A;"></div>
@@ -1260,9 +1283,9 @@
 
     <!-- TESTIMONIALS -->
     <section class="testimonials">
-      <h2 class="section-title" style="text-align:center;margin-bottom:48px;">Loved by families</h2>
+      <h2 class="section-title reveal" style="text-align:center;margin-bottom:48px;">Loved by families</h2>
       <div class="testimonials-grid">
-        <div class="testimonial-card">
+        <div class="testimonial-card reveal">
           <div>
             <div class="stars">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="#8FE62C" stroke="#8FE62C" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1282,7 +1305,7 @@
           </div>
         </div>
 
-        <div class="testimonial-card">
+        <div class="testimonial-card reveal" data-delay="100">
           <div>
             <div class="stars">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="#8FE62C" stroke="#8FE62C" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1302,7 +1325,7 @@
           </div>
         </div>
 
-        <div class="testimonial-card">
+        <div class="testimonial-card reveal" data-delay="200">
           <div>
             <div class="stars">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="#8FE62C" stroke="#8FE62C" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1326,11 +1349,11 @@
 
     <!-- PRICING -->
     <section class="pricing" id="pricing">
-      <div class="section-header">
+      <div class="section-header reveal">
         <h2 class="section-title">Simple, transparent pricing.</h2>
         <p class="section-sub" style="font-size:16px;">Start free, upgrade when you need family features.</p>
       </div>
-      <div class="pricing-grid">
+      <div class="pricing-grid reveal" data-delay="100">
         <!-- Free -->
         <div class="pricing-card pricing-card-free">
           <h3 class="pricing-name">Individual</h3>
@@ -1397,7 +1420,7 @@
 
     <!-- FINAL CTA -->
     <section class="cta-section">
-      <div class="cta-card">
+      <div class="cta-card reveal">
         <h2 class="cta-title">Ready to take control?</h2>
         <p class="cta-sub">Join thousands of families securing their financial future with WealthOS. Setup takes less than 5 minutes.</p>
         <a href="/signup.html" class="btn-accent" style="border-radius:99px;padding:20px 48px;font-size:18px;font-weight:700;">
@@ -1493,6 +1516,34 @@
       window.addEventListener('resize', function() {
         if (window.innerWidth > 768) closeMenu();
       });
+    })();
+  </script>
+
+  <script>
+    (function() {
+      var els = document.querySelectorAll('.reveal');
+
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+
+      var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (mq.matches) {
+        els.forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      els.forEach(function(el) { observer.observe(el); });
     })();
   </script>
 </body>
