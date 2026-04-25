@@ -1,17 +1,15 @@
 'use strict';
 
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 
 const router = express.Router();
 
-// Helper: format month label e.g. "Jan 2026"
 function monthLabel(year, month) {
   const date = new Date(year, month - 1, 1);
   return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
 }
 
-// Helper: get last N months as [{year, month}] sorted oldest to newest
 function getLastNMonths(n) {
   const months = [];
   const now = new Date();
@@ -22,35 +20,36 @@ function getLastNMonths(n) {
   return months;
 }
 
-// GET /api/monthly/history/:memberId?months=6 - last N months history
-router.get('/history/:memberId', (req, res) => {
+router.get('/history/:memberId', async (req, res) => {
   try {
     const memberId = parseInt(req.params.memberId, 10);
     const numMonths = parseInt(req.query.months, 10) || 6;
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
 
     const months = getLastNMonths(numMonths);
 
-    const result = months.map(({ year, month }) => {
-      const data = db.prepare(
-        'SELECT * FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?'
-      ).get(req.userId, memberId, year, month);
+    const result = await Promise.all(months.map(async ({ year, month }) => {
+      const dataRes = await query(
+        'SELECT * FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+        [req.userId, memberId, year, month]
+      );
+      const data = dataRes.rows[0];
 
       return {
         year,
         month,
         label: monthLabel(year, month),
-        income: data ? data.income : 0,
-        expenditure: data ? data.expenditure : 0,
-        investments: data ? data.investments : 0,
-        savings: data ? (data.income - data.expenditure - data.investments) : 0
+        income: data ? parseFloat(data.income) : 0,
+        expenditure: data ? parseFloat(data.expenditure) : 0,
+        investments: data ? parseFloat(data.investments) : 0,
+        savings: data ? parseFloat(data.income) - parseFloat(data.expenditure) - parseFloat(data.investments) : 0
       };
-    });
+    }));
 
     return res.status(200).json(result);
   } catch (err) {
@@ -59,8 +58,7 @@ router.get('/history/:memberId', (req, res) => {
   }
 });
 
-// GET /api/monthly/:year/:month - all active members with their monthly data
-router.get('/:year/:month', (req, res) => {
+router.get('/:year/:month', async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -69,26 +67,31 @@ router.get('/:year/:month', (req, res) => {
       return res.status(400).json({ error: 'Invalid year or month' });
     }
 
-    // Get all active members for this user
-    const members = db.prepare(
-      'SELECT * FROM family_members WHERE user_id = ? AND is_active = 1 ORDER BY display_order ASC, id ASC'
-    ).all(req.userId);
+    const membersRes = await query(
+      'SELECT * FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order ASC, id ASC',
+      [req.userId]
+    );
 
-    const result = members.map(member => {
-      const data = db.prepare(
-        'SELECT * FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?'
-      ).get(req.userId, member.id, year, month);
+    const result = await Promise.all(membersRes.rows.map(async (member) => {
+      const dataRes = await query(
+        'SELECT * FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+        [req.userId, member.id, year, month]
+      );
+      const data = dataRes.rows[0];
 
       if (data) {
+        const income = parseFloat(data.income);
+        const expenditure = parseFloat(data.expenditure);
+        const investments = parseFloat(data.investments);
         return {
           memberId: member.id,
           memberName: member.name,
           year,
           month,
-          income: data.income,
-          expenditure: data.expenditure,
-          investments: data.investments,
-          savings: data.income - data.expenditure - data.investments,
+          income,
+          expenditure,
+          investments,
+          savings: income - expenditure - investments,
           incomeBreakup: JSON.parse(data.income_breakup || '[]'),
           expenseBreakup: JSON.parse(data.expense_breakup || '[]'),
           investmentBreakup: JSON.parse(data.investment_breakup || '[]')
@@ -108,7 +111,7 @@ router.get('/:year/:month', (req, res) => {
           investmentBreakup: []
         };
       }
-    });
+    }));
 
     return res.status(200).json(result);
   } catch (err) {
@@ -117,8 +120,7 @@ router.get('/:year/:month', (req, res) => {
   }
 });
 
-// GET /api/monthly/:year/:month/:memberId - single member data
-router.get('/:year/:month/:memberId', (req, res) => {
+router.get('/:year/:month/:memberId', async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -128,15 +130,18 @@ router.get('/:year/:month/:memberId', (req, res) => {
       return res.status(400).json({ error: 'Invalid year or month' });
     }
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ? AND is_active = 1'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2 AND is_active = 1',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
+    const member = memberRes.rows[0];
 
-    const data = db.prepare(
-      'SELECT * FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?'
-    ).get(req.userId, memberId, year, month);
+    const dataRes = await query(
+      'SELECT * FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+      [req.userId, memberId, year, month]
+    );
+    const data = dataRes.rows[0];
 
     if (!data) {
       return res.status(200).json({
@@ -154,15 +159,19 @@ router.get('/:year/:month/:memberId', (req, res) => {
       });
     }
 
+    const income = parseFloat(data.income);
+    const expenditure = parseFloat(data.expenditure);
+    const investments = parseFloat(data.investments);
+
     return res.status(200).json({
       memberId,
       memberName: member.name,
       year,
       month,
-      income: data.income,
-      expenditure: data.expenditure,
-      investments: data.investments,
-      savings: data.income - data.expenditure - data.investments,
+      income,
+      expenditure,
+      investments,
+      savings: income - expenditure - investments,
       incomeBreakup: JSON.parse(data.income_breakup || '[]'),
       expenseBreakup: JSON.parse(data.expense_breakup || '[]'),
       investmentBreakup: JSON.parse(data.investment_breakup || '[]')
@@ -173,8 +182,7 @@ router.get('/:year/:month/:memberId', (req, res) => {
   }
 });
 
-// PUT /api/monthly/:year/:month/:memberId - upsert monthly data
-router.put('/:year/:month/:memberId', (req, res) => {
+router.put('/:year/:month/:memberId', async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -184,11 +192,12 @@ router.put('/:year/:month/:memberId', (req, res) => {
       return res.status(400).json({ error: 'Invalid year or month' });
     }
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
+    const member = memberRes.rows[0];
 
     const {
       income = 0,
@@ -203,22 +212,22 @@ router.put('/:year/:month/:memberId', (req, res) => {
     const expenseBreakupStr = JSON.stringify(Array.isArray(expenseBreakup) ? expenseBreakup : []);
     const investmentBreakupStr = JSON.stringify(Array.isArray(investmentBreakup) ? investmentBreakup : []);
 
-    db.prepare(`
+    await query(`
       INSERT INTO monthly_data (user_id, member_id, year, month, income, expenditure, investments, income_breakup, expense_breakup, investment_breakup)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(user_id, member_id, year, month) DO UPDATE SET
-        income = excluded.income,
-        expenditure = excluded.expenditure,
-        investments = excluded.investments,
-        income_breakup = excluded.income_breakup,
-        expense_breakup = excluded.expense_breakup,
-        investment_breakup = excluded.investment_breakup
-    `).run(req.userId, memberId, year, month, income, expenditure, investments, incomeBreakupStr, expenseBreakupStr, investmentBreakupStr);
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ON CONFLICT (user_id, member_id, year, month) DO UPDATE SET
+        income = EXCLUDED.income,
+        expenditure = EXCLUDED.expenditure,
+        investments = EXCLUDED.investments,
+        income_breakup = EXCLUDED.income_breakup,
+        expense_breakup = EXCLUDED.expense_breakup,
+        investment_breakup = EXCLUDED.investment_breakup
+    `, [req.userId, memberId, year, month, income, expenditure, investments, incomeBreakupStr, expenseBreakupStr, investmentBreakupStr]);
 
-    // Update setup progress
-    db.prepare(
-      'UPDATE setup_progress SET monthly_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
-    ).run(req.userId);
+    await query(
+      'UPDATE setup_progress SET monthly_done = 1, updated_at = NOW() WHERE user_id = $1',
+      [req.userId]
+    );
 
     const savings = income - expenditure - investments;
 
@@ -241,9 +250,7 @@ router.put('/:year/:month/:memberId', (req, res) => {
   }
 });
 
-
-// DELETE /api/monthly/:year/:month - delete monthly data for a month (optionally scoped to one member)
-router.delete('/:year/:month', (req, res) => {
+router.delete('/:year/:month', async (req, res) => {
   try {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -255,16 +262,18 @@ router.delete('/:year/:month', (req, res) => {
 
     let result;
     if (memberId) {
-      result = db.prepare(
-        'DELETE FROM monthly_data WHERE user_id = ? AND year = ? AND month = ? AND member_id = ?'
-      ).run(req.userId, year, month, memberId);
+      result = await query(
+        'DELETE FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3 AND member_id = $4',
+        [req.userId, year, month, memberId]
+      );
     } else {
-      result = db.prepare(
-        'DELETE FROM monthly_data WHERE user_id = ? AND year = ? AND month = ?'
-      ).run(req.userId, year, month);
+      result = await query(
+        'DELETE FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3',
+        [req.userId, year, month]
+      );
     }
 
-    return res.status(200).json({ success: true, deleted: result.changes });
+    return res.status(200).json({ success: true, deleted: result.rowCount });
   } catch (err) {
     console.error('DELETE /monthly/:year/:month error:', err);
     return res.status(500).json({ error: 'Internal server error' });

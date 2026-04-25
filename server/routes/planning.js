@@ -1,13 +1,12 @@
 'use strict';
 
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 const { getConfig, computeYearlyProjections } = require('../utils/projections-calc');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const router = express.Router();
 
-// Helper: get last N months as [{year, month}] sorted oldest to newest
 function getLastNMonths(n) {
   const months = [];
   const now = new Date();
@@ -18,41 +17,40 @@ function getLastNMonths(n) {
   return months;
 }
 
-// GET /api/planning/retirement/:memberId
-router.get('/retirement/:memberId', (req, res) => {
+router.get('/retirement/:memberId', async (req, res) => {
   try {
     const memberId = parseInt(req.params.memberId, 10);
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
-
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
+    const member = memberRes.rows[0];
     const age = member.age || 30;
 
-    // Get average monthly investment from last 6 months
     const last6Months = getLastNMonths(6);
     let totalInvestments = 0;
     let countMonths = 0;
-    last6Months.forEach(({ year, month }) => {
-      const row = db.prepare(
-        'SELECT investments FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?'
-      ).get(req.userId, memberId, year, month);
+    for (const { year, month } of last6Months) {
+      const rowRes = await query(
+        'SELECT investments FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+        [req.userId, memberId, year, month]
+      );
+      const row = rowRes.rows[0];
       if (row) {
-        totalInvestments += row.investments || 0;
+        totalInvestments += parseFloat(row.investments) || 0;
         countMonths++;
       }
-    });
+    }
     const avgMonthlyInvestment = countMonths > 0 ? totalInvestments / countMonths : 0;
 
-    // Get total portfolio value for this member
-    const portfolioRow = db.prepare(
-      'SELECT SUM(current_value) as total FROM portfolio_assets WHERE user_id = ? AND member_id = ?'
-    ).get(req.userId, memberId);
-    const currentPortfolio = portfolioRow && portfolioRow.total ? portfolioRow.total : 0;
+    const portfolioRes = await query(
+      'SELECT SUM(current_value) as total FROM portfolio_assets WHERE user_id = $1 AND member_id = $2',
+      [req.userId, memberId]
+    );
+    const currentPortfolio = portfolioRes.rows[0] && portfolioRes.rows[0].total ? parseFloat(portfolioRes.rows[0].total) : 0;
 
-    // Determine return rate from risk_profile
     const riskProfile = member.risk_profile || 'moderate';
     let annualReturnRate;
     if (riskProfile === 'conservative') {
@@ -60,14 +58,12 @@ router.get('/retirement/:memberId', (req, res) => {
     } else if (riskProfile === 'aggressive') {
       annualReturnRate = 0.15;
     } else {
-      annualReturnRate = 0.12; // moderate
+      annualReturnRate = 0.12;
     }
 
     const yearsToRetirement = Math.max(60 - age, 1);
     const r = annualReturnRate;
     const n = yearsToRetirement;
-
-    // Corpus = currentPortfolio * (1+r)^n + annualInvestment * ((1+r)^n - 1) / r
     const annualInvestment = avgMonthlyInvestment * 12;
     const growthFactor = Math.pow(1 + r, n);
     let corpusAtRetirement;
@@ -77,7 +73,6 @@ router.get('/retirement/:memberId', (req, res) => {
       corpusAtRetirement = currentPortfolio * growthFactor + annualInvestment * (growthFactor - 1) / r;
     }
 
-    // Monthly pension using 4% safe withdrawal rate
     const monthlyPensionEstimate = (corpusAtRetirement * 0.04) / 12;
 
     return res.status(200).json({
@@ -97,19 +92,18 @@ router.get('/retirement/:memberId', (req, res) => {
   }
 });
 
-// Helper: compute tax summary from a tax_planning record (or defaults)
 function computeTaxSummary(data) {
-  const grossSalary = data.gross_salary || 0;
-  const hraReceived = data.hra_received || 0;
-  const hraClaimed = data.hra_claimed || 0;
-  const sec80c = data.sec_80c || 0;
-  const sec80d = data.sec_80d || 0;
-  const sec80ccd1b = data.sec_80ccd1b || 0;
-  const homeLoanInterest = data.home_loan_interest || 0;
-  const otherDeductions = data.other_deductions || 0;
+  const grossSalary = parseFloat(data.gross_salary) || 0;
+  const hraReceived = parseFloat(data.hra_received) || 0;
+  const hraClaimed = parseFloat(data.hra_claimed) || 0;
+  const sec80c = parseFloat(data.sec_80c) || 0;
+  const sec80d = parseFloat(data.sec_80d) || 0;
+  const sec80ccd1b = parseFloat(data.sec_80ccd1b) || 0;
+  const homeLoanInterest = parseFloat(data.home_loan_interest) || 0;
+  const otherDeductions = parseFloat(data.other_deductions) || 0;
 
   const standardDeduction = 50000;
-  const effectiveHra = Math.min(hraReceived, hraReceived * 0.5); // simplified HRA
+  const effectiveHra = Math.min(hraReceived, hraReceived * 0.5);
   const totalDeductions = standardDeduction
     + Math.min(sec80c, 150000)
     + Math.min(sec80d, 25000)
@@ -143,21 +137,22 @@ function computeTaxSummary(data) {
   };
 }
 
-// GET /api/planning/tax/:memberId?year=FY2025-26
-router.get('/tax/:memberId', (req, res) => {
+router.get('/tax/:memberId', async (req, res) => {
   try {
     const memberId = parseInt(req.params.memberId, 10);
     const taxYear = req.query.year || 'FY2025-26';
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
 
-    const taxData = db.prepare(
-      'SELECT * FROM tax_planning WHERE user_id = ? AND member_id = ? AND tax_year = ?'
-    ).get(req.userId, memberId, taxYear);
+    const taxRes = await query(
+      'SELECT * FROM tax_planning WHERE user_id = $1 AND member_id = $2 AND tax_year = $3',
+      [req.userId, memberId, taxYear]
+    );
+    const taxData = taxRes.rows[0];
 
     const data = taxData || {
       tax_year: taxYear,
@@ -178,19 +173,18 @@ router.get('/tax/:memberId', (req, res) => {
   }
 });
 
-// PUT /api/planning/config - merge partial config into saved config
-router.put('/config', (req, res) => {
+router.put('/config', async (req, res) => {
   try {
     const updates = req.body;
     if (!updates || typeof updates !== 'object') {
       return res.status(400).json({ error: 'Request body must be a config object' });
     }
-    const existing = getConfig(req.userId);
+    const existing = await getConfig(req.userId);
     const merged = { ...existing, ...updates };
-    db.prepare(`
-      INSERT INTO financial_plan (user_id, config, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(user_id) DO UPDATE SET config = excluded.config, updated_at = CURRENT_TIMESTAMP
-    `).run(req.userId, JSON.stringify(merged));
+    await query(`
+      INSERT INTO financial_plan (user_id, config, updated_at) VALUES ($1, $2, NOW())
+      ON CONFLICT (user_id) DO UPDATE SET config = EXCLUDED.config, updated_at = NOW()
+    `, [req.userId, JSON.stringify(merged)]);
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('PUT /planning/config error:', err);
@@ -198,16 +192,15 @@ router.put('/config', (req, res) => {
   }
 });
 
-// PUT /api/planning/tax/:memberId - upsert tax planning data
-router.put('/tax/:memberId', (req, res) => {
+router.put('/tax/:memberId', async (req, res) => {
   try {
     const memberId = parseInt(req.params.memberId, 10);
 
-    // Verify member belongs to this user
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
 
     const {
       taxYear = 'FY2025-26',
@@ -221,63 +214,64 @@ router.put('/tax/:memberId', (req, res) => {
       otherDeductions = 0
     } = req.body;
 
-    db.prepare(`
+    await query(`
       INSERT INTO tax_planning (user_id, member_id, tax_year, gross_salary, hra_received, hra_claimed, sec_80c, sec_80d, sec_80ccd1b, home_loan_interest, other_deductions)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(user_id, member_id, tax_year) DO UPDATE SET
-        gross_salary = excluded.gross_salary,
-        hra_received = excluded.hra_received,
-        hra_claimed = excluded.hra_claimed,
-        sec_80c = excluded.sec_80c,
-        sec_80d = excluded.sec_80d,
-        sec_80ccd1b = excluded.sec_80ccd1b,
-        home_loan_interest = excluded.home_loan_interest,
-        other_deductions = excluded.other_deductions
-    `).run(
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (user_id, member_id, tax_year) DO UPDATE SET
+        gross_salary = EXCLUDED.gross_salary,
+        hra_received = EXCLUDED.hra_received,
+        hra_claimed = EXCLUDED.hra_claimed,
+        sec_80c = EXCLUDED.sec_80c,
+        sec_80d = EXCLUDED.sec_80d,
+        sec_80ccd1b = EXCLUDED.sec_80ccd1b,
+        home_loan_interest = EXCLUDED.home_loan_interest,
+        other_deductions = EXCLUDED.other_deductions
+    `, [
       req.userId, memberId, taxYear,
       parseFloat(grossSalary), parseFloat(hraReceived), parseFloat(hraClaimed),
       parseFloat(sec80c), parseFloat(sec80d), parseFloat(sec80ccd1b),
       parseFloat(homeLoanInterest), parseFloat(otherDeductions)
+    ]);
+
+    await query(
+      'UPDATE setup_progress SET planning_done = 1, updated_at = NOW() WHERE user_id = $1',
+      [req.userId]
     );
 
-    // Update setup progress
-    db.prepare(
-      'UPDATE setup_progress SET planning_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
-    ).run(req.userId);
+    const savedRes = await query(
+      'SELECT * FROM tax_planning WHERE user_id = $1 AND member_id = $2 AND tax_year = $3',
+      [req.userId, memberId, taxYear]
+    );
 
-    const saved = db.prepare(
-      'SELECT * FROM tax_planning WHERE user_id = ? AND member_id = ? AND tax_year = ?'
-    ).get(req.userId, memberId, taxYear);
-
-    return res.status(200).json(computeTaxSummary(saved));
+    return res.status(200).json(computeTaxSummary(savedRes.rows[0]));
   } catch (err) {
     console.error('PUT /planning/tax/:memberId error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// GET /api/planning/networth-projection
-router.get('/networth-projection', (req, res) => {
+router.get('/networth-projection', async (req, res) => {
   try {
-    // Get total current portfolio value
-    const portfolioRow = db.prepare(
-      'SELECT SUM(pa.current_value) as total FROM portfolio_assets pa JOIN family_members fm ON pa.member_id = fm.id WHERE pa.user_id = ? AND fm.is_active = 1'
-    ).get(req.userId);
-    const currentPortfolio = portfolioRow && portfolioRow.total ? portfolioRow.total : 0;
+    const portfolioRes = await query(
+      'SELECT SUM(pa.current_value) as total FROM portfolio_assets pa JOIN family_members fm ON pa.member_id = fm.id WHERE pa.user_id = $1 AND fm.is_active = 1',
+      [req.userId]
+    );
+    const currentPortfolio = portfolioRes.rows[0] && portfolioRes.rows[0].total ? parseFloat(portfolioRes.rows[0].total) : 0;
 
-    // Get average total monthly investment from last 3 months (all members combined)
     const last3Months = getLastNMonths(3);
     let totalMonthlyInvestment = 0;
     let countMonths = 0;
-    last3Months.forEach(({ year, month }) => {
-      const row = db.prepare(
-        'SELECT SUM(investments) as total_inv FROM monthly_data WHERE user_id = ? AND year = ? AND month = ?'
-      ).get(req.userId, year, month);
+    for (const { year, month } of last3Months) {
+      const rowRes = await query(
+        'SELECT SUM(investments) as total_inv FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3',
+        [req.userId, year, month]
+      );
+      const row = rowRes.rows[0];
       if (row && row.total_inv !== null) {
-        totalMonthlyInvestment += row.total_inv;
+        totalMonthlyInvestment += parseFloat(row.total_inv);
         countMonths++;
       }
-    });
+    }
     const avgMonthlyInvestment = countMonths > 0 ? totalMonthlyInvestment / countMonths : 0;
     const annualInvestment = avgMonthlyInvestment * 12;
     const r = 0.12;
@@ -307,7 +301,6 @@ router.get('/networth-projection', (req, res) => {
   }
 });
 
-// ── Helper: last N months ──────────────────────────────────────────────────
 function getLastNMonthsList(n) {
   const months = [];
   const now = new Date();
@@ -318,7 +311,6 @@ function getLastNMonthsList(n) {
   return months;
 }
 
-// ── Helper: months between now and target date ────────────────────────────
 function calcMonthsRemaining(targetDate) {
   if (!targetDate) return 0;
   const now = new Date();
@@ -327,7 +319,6 @@ function calcMonthsRemaining(targetDate) {
   return Math.max((target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth()), 0);
 }
 
-// ── Helper: required monthly SIP ─────────────────────────────────────────
 function calcRequiredSip(targetAmount, currentAmount, months) {
   const remaining = Math.max(targetAmount - currentAmount, 0);
   if (months <= 0) return remaining;
@@ -337,87 +328,85 @@ function calcRequiredSip(targetAmount, currentAmount, months) {
   return (remaining * rm) / (factor - 1);
 }
 
-// GET /api/planning/comprehensive
-router.get('/comprehensive', (req, res) => {
+router.get('/comprehensive', async (req, res) => {
   try {
     const userId = req.userId;
     const now = new Date();
     const currentFY = now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear();
 
-    // 1. Members
-    const members = db.prepare(
-      'SELECT * FROM family_members WHERE user_id = ? AND is_active = 1 ORDER BY id'
-    ).all(userId);
+    const membersRes = await query(
+      'SELECT * FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY id',
+      [userId]
+    );
+    const members = membersRes.rows;
 
-    // 2. Portfolio by member
-    const portfolioRows = db.prepare(
-      'SELECT member_id, SUM(current_value) as total FROM portfolio_assets WHERE user_id = ? GROUP BY member_id'
-    ).all(userId);
+    const portfolioRowsRes = await query(
+      'SELECT member_id, SUM(current_value) as total FROM portfolio_assets WHERE user_id = $1 GROUP BY member_id',
+      [userId]
+    );
     const portfolioByMember = {};
-    portfolioRows.forEach(r => { portfolioByMember[r.member_id] = r.total || 0; });
+    portfolioRowsRes.rows.forEach(r => { portfolioByMember[r.member_id] = parseFloat(r.total) || 0; });
 
-    // 3. SIP by member (active savings_plan)
-    const sipRows = db.prepare(
-      'SELECT member_id, SUM(amount) as total FROM savings_plan WHERE user_id = ? AND is_active = 1 GROUP BY member_id'
-    ).all(userId);
+    const sipRowsRes = await query(
+      'SELECT member_id, SUM(amount) as total FROM savings_plan WHERE user_id = $1 AND is_active = 1 GROUP BY member_id',
+      [userId]
+    );
     const sipByMember = {};
-    sipRows.forEach(r => { sipByMember[r.member_id] = r.total || 0; });
+    sipRowsRes.rows.forEach(r => { sipByMember[r.member_id] = parseFloat(r.total) || 0; });
 
-    // 4. Goals (not achieved)
-    const goals = db.prepare(
-      'SELECT * FROM goals WHERE user_id = ? AND is_achieved = 0 ORDER BY target_date ASC'
-    ).all(userId);
+    const goalsRes = await query(
+      'SELECT * FROM goals WHERE user_id = $1 AND is_achieved = 0 ORDER BY target_date ASC',
+      [userId]
+    );
+    const goals = goalsRes.rows;
 
-    // 5. Projection config & yearly projections
-    const projConfig = getConfig(userId);
+    const projConfig = await getConfig(userId);
     const yearlyProj = computeYearlyProjections(projConfig);
     const projByFY = {};
     yearlyProj.forEach(p => { projByFY[p.fy] = p; });
 
-    // 6. Last month actuals (last 3 months for income/expense)
     const last3 = getLastNMonthsList(3);
     let lastIncome = 0, lastExpense = 0, dataMonths = 0;
-    last3.forEach(({ year, month }) => {
-      const row = db.prepare(
-        'SELECT SUM(income) as inc, SUM(expenditure) as exp FROM monthly_data WHERE user_id = ? AND year = ? AND month = ?'
-      ).get(userId, year, month);
+    for (const { year, month } of last3) {
+      const rowRes = await query(
+        'SELECT SUM(income) as inc, SUM(expenditure) as exp FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3',
+        [userId, year, month]
+      );
+      const row = rowRes.rows[0];
       if (row && (row.inc || row.exp)) {
-        lastIncome += row.inc || 0;
-        lastExpense += row.exp || 0;
+        lastIncome += parseFloat(row.inc) || 0;
+        lastExpense += parseFloat(row.exp) || 0;
         dataMonths++;
       }
-    });
+    }
     const totalMonthlyIncome = dataMonths > 0 ? lastIncome / dataMonths : 0;
     const totalMonthlyExpense = dataMonths > 0 ? lastExpense / dataMonths : 0;
 
-    // Avg monthly investment per member from last 6 months (fallback for missing SIP data)
     const last6 = getLastNMonthsList(6);
     const avgFromMonthly = {};
-    if (members.length > 0) {
-      members.forEach(m => {
-        let total = 0, cnt = 0;
-        last6.forEach(({ year, month }) => {
-          const row = db.prepare(
-            'SELECT investments FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?'
-          ).get(userId, m.id, year, month);
-          if (row && row.investments) { total += row.investments; cnt++; }
-        });
-        avgFromMonthly[m.id] = cnt > 0 ? total / cnt : 0;
-      });
+    for (const m of members) {
+      let total = 0, cnt = 0;
+      for (const { year, month } of last6) {
+        const rowRes = await query(
+          'SELECT investments FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+          [userId, m.id, year, month]
+        );
+        const row = rowRes.rows[0];
+        if (row && row.investments) { total += parseFloat(row.investments); cnt++; }
+      }
+      avgFromMonthly[m.id] = cnt > 0 ? total / cnt : 0;
     }
 
-    // 7. Per-member calculations
     const rateMap = { conservative: 0.08, moderate: 0.12, aggressive: 0.15 };
     const inflationRate = projConfig.expenseInflationRate || 0.06;
 
-    const totalGoalSip = goals.reduce((s, g) => s + (g.monthly_contribution || 0), 0);
+    const totalGoalSip = goals.reduce((s, g) => s + parseFloat(g.monthly_contribution || 0), 0);
 
     const memberResults = members.map(member => {
       const riskProfile = member.risk_profile || 'moderate';
       const returnRate = rateMap[riskProfile] || 0.12;
       const age = member.age || 30;
 
-      // Retire FY from config or default to 60
       const nameKey = (member.name || '').toLowerCase().replace(/\s+/g, '') + 'RetireFY';
       const retireFY = projConfig[nameKey] || (currentFY + Math.max(60 - age, 1));
       const yearsToRetire = Math.max(retireFY - currentFY, 1);
@@ -434,7 +423,6 @@ router.get('/comprehensive', (req, res) => {
         : currentCorpus * gf + annualSip * (gf - 1) / r;
       const monthlyPension = (corpusAtRetire * 0.04) / 12;
 
-      // Post-retirement drawdown (30 years)
       const projAtRetire = projByFY[retireFY] || yearlyProj[yearlyProj.length - 1] || { totalExpenses: 0 };
       const baseMonthlyExpense = projAtRetire.totalExpenses * 100000 / 12;
       const postReturn = 0.07;
@@ -451,7 +439,6 @@ router.get('/comprehensive', (req, res) => {
         }
       }
 
-      // Goal impact on corpus
       const numMembers = members.length || 1;
       const sipWithoutGoals = avgMonthlySip + totalGoalSip / numMembers;
       const corpusWithout = r === 0
@@ -477,16 +464,16 @@ router.get('/comprehensive', (req, res) => {
       };
     });
 
-    // 8. Per-goal calculations
     const goalResults = goals.map(goal => {
       const monthsLeft = calcMonthsRemaining(goal.target_date);
-      const requiredSip = calcRequiredSip(goal.target_amount, goal.current_amount, monthsLeft);
-      const isOnTrack = (goal.monthly_contribution || 0) >= requiredSip;
-      const shortfall = Math.max(0, requiredSip - (goal.monthly_contribution || 0));
-      const surplus = Math.max(0, (goal.monthly_contribution || 0) - requiredSip);
-      const progressPct = goal.target_amount > 0
-        ? parseFloat(((goal.current_amount / goal.target_amount) * 100).toFixed(2))
-        : 0;
+      const ta = parseFloat(goal.target_amount);
+      const ca = parseFloat(goal.current_amount);
+      const mc = parseFloat(goal.monthly_contribution) || 0;
+      const requiredSip = calcRequiredSip(ta, ca, monthsLeft);
+      const isOnTrack = mc >= requiredSip;
+      const shortfall = Math.max(0, requiredSip - mc);
+      const surplus = Math.max(0, mc - requiredSip);
+      const progressPct = ta > 0 ? parseFloat(((ca / ta) * 100).toFixed(2)) : 0;
 
       let completionFY = null;
       if (goal.target_date) {
@@ -494,24 +481,23 @@ router.get('/comprehensive', (req, res) => {
         completionFY = td.getMonth() >= 3 ? td.getFullYear() + 1 : td.getFullYear();
       }
 
-      // Pre-compute futureValue: fixed from base_year to target year (not from today)
-      const inflationRateGoal = (goal.inflation_rate != null ? goal.inflation_rate : 8) / 100;
+      const inflationRateGoal = (goal.inflation_rate != null ? parseFloat(goal.inflation_rate) : 8) / 100;
       const goalBaseYear = goal.base_year || new Date().getFullYear();
       const goalTargetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : goalBaseYear;
       const yrsFromBase = Math.max(goalTargetYear - goalBaseYear, 0);
-      const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRateGoal, yrsFromBase));
+      const futureValue = Math.round(ta * Math.pow(1 + inflationRateGoal, yrsFromBase));
       const fundingType = goal.funding_type || 'Savings';
       const downPaymentAmount = fundingType === 'EMI'
-        ? Math.round(futureValue * (goal.down_payment_pct || 0) / 100)
+        ? Math.round(futureValue * (parseFloat(goal.down_payment_pct) || 0) / 100)
         : 0;
 
       return {
         id: goal.id,
         name: goal.name,
         goalType: goal.goal_type,
-        targetAmount: goal.target_amount,
-        currentAmount: goal.current_amount,
-        monthlyContribution: goal.monthly_contribution || 0,
+        targetAmount: ta,
+        currentAmount: ca,
+        monthlyContribution: mc,
         targetDate: goal.target_date,
         requiredMonthlySip: Math.round(requiredSip),
         isOnTrack,
@@ -520,27 +506,25 @@ router.get('/comprehensive', (req, res) => {
         monthsRemaining: monthsLeft,
         completionFY,
         progressPct,
-        sipFreedAtCompletion: goal.monthly_contribution || 0,
+        sipFreedAtCompletion: mc,
         assignedMembers: JSON.parse(goal.assigned_members || '[]'),
         notes: goal.notes,
         fundingType,
         isMilestone: goal.is_milestone === 1,
-        downPaymentPct: goal.down_payment_pct || 0,
-        inflationRate: goal.inflation_rate != null ? goal.inflation_rate : 8,
+        downPaymentPct: parseFloat(goal.down_payment_pct) || 0,
+        inflationRate: goal.inflation_rate != null ? parseFloat(goal.inflation_rate) : 8,
         futureValue,
         downPaymentAmount,
       };
     });
 
-    // 9. Summary
     const totalFamilyCorpus = Object.values(portfolioByMember).reduce((s, v) => s + v, 0);
     const totalFamilyMonthlySip = Object.values(sipByMember).reduce((s, v) => s + v, 0);
-    const totalGoalMonthlyCommit = goals.reduce((s, g) => s + (g.monthly_contribution || 0), 0);
+    const totalGoalMonthlyCommit = goals.reduce((s, g) => s + parseFloat(g.monthly_contribution || 0), 0);
     const freeMonthlySavings = totalMonthlyIncome - totalMonthlyExpense - totalFamilyMonthlySip - totalGoalMonthlyCommit;
     const goalsOnTrack = goalResults.filter(g => g.isOnTrack).length;
     const goalsOffTrack = goalResults.filter(g => !g.isOnTrack).length;
 
-    // 10. Timeline
     const timeline = [];
     goalResults.forEach(g => {
       if (g.completionFY) {
@@ -576,7 +560,6 @@ router.get('/comprehensive', (req, res) => {
   }
 });
 
-// POST /api/planning/ai-insights
 router.post('/ai-insights', async (req, res) => {
   try {
     const { comprehensiveData } = req.body;

@@ -4,73 +4,61 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+const { query } = require('../db');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Helper: generate JWT token
-// ownerUserId: set for invited family members so their data queries route to the owner
 function generateToken(userId, email, ownerUserId) {
   const payload = { userId, email };
   if (ownerUserId && ownerUserId !== userId) payload.ownerUserId = ownerUserId;
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 }
 
-// POST /api/auth/signup
-router.post('/signup', (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const { email, password, familyName } = req.body;
 
-    // Validate required fields
     if (!email || !password || !familyName) {
       return res.status(400).json({ error: 'Email, password, and family name are required' });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Validate password length
     if (password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters long' });
     }
 
-    // Validate familyName not empty
     if (!familyName.trim()) {
       return res.status(400).json({ error: 'Family name cannot be empty' });
     }
 
-    // Check if email already exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
-    if (existingUser) {
+    const existing = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+    if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
 
-    // Hash password
     const passwordHash = bcrypt.hashSync(password, 10);
 
-    // Insert user
-    const insertUser = db.prepare(
-      'INSERT INTO users (email, password_hash, family_name) VALUES (?, ?, ?)'
+    const result = await query(
+      'INSERT INTO users (email, password_hash, family_name) VALUES ($1, $2, $3) RETURNING id',
+      [email.toLowerCase().trim(), passwordHash, familyName.trim()]
     );
-    const result = insertUser.run(email.toLowerCase().trim(), passwordHash, familyName.trim());
-    const userId = result.lastInsertRowid;
+    const userId = result.rows[0].id;
 
-    // Insert setup_progress row
-    db.prepare('INSERT INTO setup_progress (user_id) VALUES (?)').run(userId);
+    await query('INSERT INTO setup_progress (user_id) VALUES ($1)', [userId]);
 
-    // Add the account creator as the first family member (primary)
     const userName = (req.body.userName || '').trim();
     if (userName) {
-      db.prepare(
-        'INSERT INTO family_members (user_id, name, role, risk_profile, display_order) VALUES (?, ?, ?, ?, ?)'
-      ).run(userId, userName, 'primary', 'moderate', 0);
+      await query(
+        'INSERT INTO family_members (user_id, name, role, risk_profile, display_order) VALUES ($1, $2, $3, $4, $5)',
+        [userId, userName, 'primary', 'moderate', 0]
+      );
     }
 
-    // Generate token
     const token = generateToken(userId, email.toLowerCase().trim());
 
     return res.status(201).json({
@@ -87,8 +75,7 @@ router.post('/signup', (req, res) => {
   }
 });
 
-// POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -96,19 +83,17 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Find user by email
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
+    const result = await query('SELECT * FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+    const user = result.rows[0];
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Compare password
     const isValid = bcrypt.compareSync(password, user.password_hash);
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Generate token
     const token = generateToken(user.id, user.email);
 
     return res.status(200).json({
@@ -125,8 +110,7 @@ router.post('/login', (req, res) => {
   }
 });
 
-// POST /api/auth/reset-password
-router.post('/reset-password', (req, res) => {
+router.post('/reset-password', async (req, res) => {
   try {
     const { email, newPassword } = req.body;
     if (!email || !newPassword) {
@@ -135,12 +119,13 @@ router.post('/reset-password', (req, res) => {
     if (newPassword.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
-    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
+    const result = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+    const user = result.rows[0];
     if (!user) {
       return res.status(404).json({ error: 'No account found with that email' });
     }
     const hash = bcrypt.hashSync(newPassword, 10);
-    db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hash, user.id);
+    await query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, user.id]);
     return res.status(200).json({ message: 'Password reset successfully' });
   } catch (err) {
     console.error('Reset password error:', err);
@@ -148,10 +133,10 @@ router.post('/reset-password', (req, res) => {
   }
 });
 
-// GET /api/auth/me - protected
-router.get('/me', verifyToken, (req, res) => {
+router.get('/me', verifyToken, async (req, res) => {
   try {
-    const user = db.prepare('SELECT id, email, family_name, created_at FROM users WHERE id = ?').get(req.userId);
+    const result = await query('SELECT id, email, family_name, created_at FROM users WHERE id = $1', [req.userId]);
+    const user = result.rows[0];
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -167,17 +152,19 @@ router.get('/me', verifyToken, (req, res) => {
   }
 });
 
-// GET /api/auth/invite/:token - validate invite token
-router.get('/invite/:token', (req, res) => {
+router.get('/invite/:token', async (req, res) => {
   try {
-    const inv = db.prepare('SELECT * FROM family_invitations WHERE token = ?').get(req.params.token);
+    const result = await query('SELECT * FROM family_invitations WHERE token = $1', [req.params.token]);
+    const inv = result.rows[0];
     if (!inv) return res.status(404).json({ error: 'Invite not found' });
     if (inv.status === 'accepted') return res.status(410).json({ error: 'This invite has already been used' });
     if (inv.status !== 'pending') return res.status(410).json({ error: 'This invite is no longer valid' });
     if (new Date(inv.expires_at) < new Date()) return res.status(410).json({ error: 'This invite has expired' });
 
-    const member = db.prepare('SELECT * FROM family_members WHERE id = ?').get(inv.family_member_id);
-    const owner = db.prepare('SELECT family_name FROM users WHERE id = ?').get(inv.inviter_user_id);
+    const memberRes = await query('SELECT * FROM family_members WHERE id = $1', [inv.family_member_id]);
+    const member = memberRes.rows[0];
+    const ownerRes = await query('SELECT family_name FROM users WHERE id = $1', [inv.inviter_user_id]);
+    const owner = ownerRes.rows[0];
 
     return res.status(200).json({
       valid: true,
@@ -192,40 +179,38 @@ router.get('/invite/:token', (req, res) => {
   }
 });
 
-// POST /api/auth/invite/accept - create account via invite
-router.post('/invite/accept', (req, res) => {
+router.post('/invite/accept', async (req, res) => {
   try {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ error: 'Token and password are required' });
     if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
 
-    const inv = db.prepare('SELECT * FROM family_invitations WHERE token = ?').get(token);
+    const invRes = await query('SELECT * FROM family_invitations WHERE token = $1', [token]);
+    const inv = invRes.rows[0];
     if (!inv) return res.status(404).json({ error: 'Invite not found' });
     if (inv.status !== 'pending') return res.status(410).json({ error: 'Invite already used or expired' });
     if (new Date(inv.expires_at) < new Date()) return res.status(410).json({ error: 'Invite has expired' });
 
-    const member = db.prepare('SELECT * FROM family_members WHERE id = ?').get(inv.family_member_id);
+    const memberRes = await query('SELECT * FROM family_members WHERE id = $1', [inv.family_member_id]);
+    const member = memberRes.rows[0];
     if (!member) return res.status(404).json({ error: 'Family member not found' });
 
-    const owner = db.prepare('SELECT family_name FROM users WHERE id = ?').get(inv.inviter_user_id);
+    const ownerRes = await query('SELECT family_name FROM users WHERE id = $1', [inv.inviter_user_id]);
+    const owner = ownerRes.rows[0];
 
-    // Check if email already has an account
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(inv.email.toLowerCase());
-    if (existing) return res.status(409).json({ error: 'An account with this email already exists. Please log in instead.' });
+    const existingRes = await query('SELECT id FROM users WHERE email = $1', [inv.email.toLowerCase()]);
+    if (existingRes.rows.length > 0) return res.status(409).json({ error: 'An account with this email already exists. Please log in instead.' });
 
     const passwordHash = bcrypt.hashSync(password, 10);
-    const result = db.prepare(
-      'INSERT INTO users (email, password_hash, family_name) VALUES (?, ?, ?)'
-    ).run(inv.email.toLowerCase(), passwordHash, owner ? owner.family_name : 'Family');
-    const newUserId = result.lastInsertRowid;
+    const userResult = await query(
+      'INSERT INTO users (email, password_hash, family_name) VALUES ($1, $2, $3) RETURNING id',
+      [inv.email.toLowerCase(), passwordHash, owner ? owner.family_name : 'Family']
+    );
+    const newUserId = userResult.rows[0].id;
 
-    db.prepare('INSERT INTO setup_progress (user_id) VALUES (?)').run(newUserId);
-
-    // Link the family member to the new user
-    db.prepare('UPDATE family_members SET linked_user_id = ? WHERE id = ?').run(newUserId, member.id);
-
-    // Mark invite as accepted
-    db.prepare("UPDATE family_invitations SET status = 'accepted' WHERE id = ?").run(inv.id);
+    await query('INSERT INTO setup_progress (user_id) VALUES ($1)', [newUserId]);
+    await query('UPDATE family_members SET linked_user_id = $1 WHERE id = $2', [newUserId, member.id]);
+    await query("UPDATE family_invitations SET status = 'accepted' WHERE id = $1", [inv.id]);
 
     const token_jwt = generateToken(newUserId, inv.email.toLowerCase(), inv.inviter_user_id);
 

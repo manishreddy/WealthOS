@@ -2,12 +2,11 @@
 
 const crypto = require('crypto');
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 const { sendInviteEmail } = require('../email');
 
 const router = express.Router();
 
-// Helper: compute age from DOB string (YYYY-MM-DD)
 function ageFromDob(dob) {
   if (!dob) return null;
   const today = new Date();
@@ -19,43 +18,40 @@ function ageFromDob(dob) {
   return age;
 }
 
-// Helper: compute age-based allocation targets
 function computeAgeBasedTargets(age) {
   const safeAge = age && age > 0 ? age : 30;
-  let equity = Math.max(100 - safeAge, 20);   // at least 20%
-  let debt = Math.min(safeAge, 60);            // at most 60%
+  let equity = Math.max(100 - safeAge, 20);
+  let debt = Math.min(safeAge, 60);
   let gold = 5;
   let others = 5;
-
   const total = equity + debt + gold + others;
   if (total !== 100) {
-    const diff = 100 - total;
-    equity = equity + diff;
+    equity = equity + (100 - total);
   }
-
   return { equity, debt, gold, others };
 }
 
-// Helper: update setup_progress family_done
-function markFamilyDone(userId) {
-  db.prepare(
-    'UPDATE setup_progress SET family_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
-  ).run(userId);
+async function markFamilyDone(userId) {
+  await query(
+    'UPDATE setup_progress SET family_done = 1, updated_at = NOW() WHERE user_id = $1',
+    [userId]
+  );
 }
 
-// Helper: get invite status for a member
-function getMemberInviteStatus(memberId) {
-  const inv = db.prepare(
-    'SELECT status, expires_at FROM family_invitations WHERE family_member_id = ? ORDER BY created_at DESC LIMIT 1'
-  ).get(memberId);
+async function getMemberInviteStatus(memberId) {
+  const result = await query(
+    'SELECT status, expires_at FROM family_invitations WHERE family_member_id = $1 ORDER BY created_at DESC LIMIT 1',
+    [memberId]
+  );
+  const inv = result.rows[0];
   if (!inv) return null;
   if (inv.status === 'accepted') return 'accepted';
   if (new Date(inv.expires_at) < new Date()) return 'expired';
   return 'pending';
 }
 
-// Helper: format member for API response
-function formatMember(m) {
+async function formatMember(m) {
+  const inviteStatus = m.email ? await getMemberInviteStatus(m.id) : null;
   return {
     id: m.id,
     name: m.name,
@@ -65,30 +61,31 @@ function formatMember(m) {
     riskProfile: m.risk_profile,
     email: m.email || '',
     linkedUserId: m.linked_user_id || null,
-    inviteStatus: m.email ? getMemberInviteStatus(m.id) : null,
+    inviteStatus,
     isActive: m.is_active === 1,
     displayOrder: m.display_order,
     createdAt: m.created_at
   };
 }
 
-// Helper: create and send invite for a member
 async function createAndSendInvite(member, inviterUserId, appUrl) {
   if (!member.email) return;
 
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Invalidate previous invites for this member
-  db.prepare(
-    "UPDATE family_invitations SET status = 'superseded' WHERE family_member_id = ? AND status = 'pending'"
-  ).run(member.id);
+  await query(
+    "UPDATE family_invitations SET status = 'superseded' WHERE family_member_id = $1 AND status = 'pending'",
+    [member.id]
+  );
 
-  db.prepare(
-    'INSERT INTO family_invitations (family_member_id, inviter_user_id, email, token, status, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(member.id, inviterUserId, member.email, token, 'pending', expiresAt);
+  await query(
+    'INSERT INTO family_invitations (family_member_id, inviter_user_id, email, token, status, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
+    [member.id, inviterUserId, member.email, token, 'pending', expiresAt]
+  );
 
-  const inviter = db.prepare('SELECT family_name FROM users WHERE id = ?').get(inviterUserId);
+  const inviterRes = await query('SELECT family_name FROM users WHERE id = $1', [inviterUserId]);
+  const inviter = inviterRes.rows[0];
   const inviteUrl = `${appUrl}/invite.html?token=${token}`;
 
   try {
@@ -108,19 +105,22 @@ function getAppUrl(req) {
   return process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 }
 
-// GET /api/family - returns familyName + members
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const user = db.prepare('SELECT family_name FROM users WHERE id = ?').get(req.userId);
+    const userRes = await query('SELECT family_name FROM users WHERE id = $1', [req.userId]);
+    const user = userRes.rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const members = db.prepare(
-      'SELECT * FROM family_members WHERE user_id = ? AND is_active = 1 ORDER BY display_order ASC, id ASC'
-    ).all(req.userId);
+    const membersRes = await query(
+      'SELECT * FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order ASC, id ASC',
+      [req.userId]
+    );
+
+    const members = await Promise.all(membersRes.rows.map(formatMember));
 
     return res.status(200).json({
       familyName: user.family_name,
-      members: members.map(formatMember)
+      members
     });
   } catch (err) {
     console.error('GET /family error:', err);
@@ -128,14 +128,13 @@ router.get('/', (req, res) => {
   }
 });
 
-// PUT /api/family - update family name
-router.put('/', (req, res) => {
+router.put('/', async (req, res) => {
   try {
     const { familyName } = req.body;
     if (!familyName || !familyName.trim()) {
       return res.status(400).json({ error: 'Family name is required' });
     }
-    db.prepare('UPDATE users SET family_name = ? WHERE id = ?').run(familyName.trim(), req.userId);
+    await query('UPDATE users SET family_name = $1 WHERE id = $2', [familyName.trim(), req.userId]);
     return res.status(200).json({ familyName: familyName.trim() });
   } catch (err) {
     console.error('PUT /family error:', err);
@@ -143,21 +142,20 @@ router.put('/', (req, res) => {
   }
 });
 
-// GET /api/family/members - list active members
-router.get('/members', (req, res) => {
+router.get('/members', async (req, res) => {
   try {
-    const members = db.prepare(
-      'SELECT * FROM family_members WHERE user_id = ? AND is_active = 1 ORDER BY display_order ASC, id ASC'
-    ).all(req.userId);
-
-    return res.status(200).json(members.map(formatMember));
+    const membersRes = await query(
+      'SELECT * FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order ASC, id ASC',
+      [req.userId]
+    );
+    const members = await Promise.all(membersRes.rows.map(formatMember));
+    return res.status(200).json(members);
   } catch (err) {
     console.error('GET /family/members error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// POST /api/family/members - add new member
 router.post('/members', async (req, res) => {
   try {
     const { name, age, dob, role, riskProfile, email } = req.body;
@@ -172,57 +170,57 @@ router.post('/members', async (req, res) => {
     const safeRiskProfile = riskProfile || 'moderate';
     const safeEmail = (email || '').trim().toLowerCase();
 
-    // Get current max display_order for this user
-    const maxOrder = db.prepare(
-      'SELECT MAX(display_order) as max_order FROM family_members WHERE user_id = ?'
-    ).get(req.userId);
-    const nextOrder = (maxOrder && maxOrder.max_order !== null) ? maxOrder.max_order + 1 : 0;
+    const maxOrderRes = await query(
+      'SELECT MAX(display_order) as max_order FROM family_members WHERE user_id = $1',
+      [req.userId]
+    );
+    const maxOrder = maxOrderRes.rows[0];
+    const nextOrder = (maxOrder && maxOrder.max_order !== null) ? parseInt(maxOrder.max_order) + 1 : 0;
 
-    // Insert member
-    const result = db.prepare(
-      'INSERT INTO family_members (user_id, name, dob, age, role, risk_profile, email, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(req.userId, name.trim(), safeDob, safeAge, safeRole, safeRiskProfile, safeEmail, nextOrder);
+    const result = await query(
+      'INSERT INTO family_members (user_id, name, dob, age, role, risk_profile, email, display_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      [req.userId, name.trim(), safeDob, safeAge, safeRole, safeRiskProfile, safeEmail, nextOrder]
+    );
+    const memberId = result.rows[0].id;
 
-    const memberId = result.lastInsertRowid;
-
-    // Upsert savings_targets with age-based defaults
     const targets = computeAgeBasedTargets(safeAge);
-    db.prepare(`
+    await query(`
       INSERT INTO savings_targets (user_id, member_id, equity_pct, debt_pct, gold_pct, others_pct, use_age_based)
-      VALUES (?, ?, ?, ?, ?, ?, 1)
-      ON CONFLICT(user_id, member_id) DO UPDATE SET
-        equity_pct = excluded.equity_pct,
-        debt_pct = excluded.debt_pct,
-        gold_pct = excluded.gold_pct,
-        others_pct = excluded.others_pct
-    `).run(req.userId, memberId, targets.equity, targets.debt, targets.gold, targets.others);
+      VALUES ($1, $2, $3, $4, $5, $6, 1)
+      ON CONFLICT (user_id, member_id) DO UPDATE SET
+        equity_pct = EXCLUDED.equity_pct,
+        debt_pct = EXCLUDED.debt_pct,
+        gold_pct = EXCLUDED.gold_pct,
+        others_pct = EXCLUDED.others_pct
+    `, [req.userId, memberId, targets.equity, targets.debt, targets.gold, targets.others]);
 
-    markFamilyDone(req.userId);
+    await markFamilyDone(req.userId);
 
-    const member = db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId);
+    const memberRes = await query('SELECT * FROM family_members WHERE id = $1', [memberId]);
+    const member = memberRes.rows[0];
 
-    // Send invite if email provided
     if (safeEmail) {
       await createAndSendInvite(member, req.userId, getAppUrl(req));
     }
 
-    return res.status(201).json(formatMember(db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId)));
+    const refreshed = await query('SELECT * FROM family_members WHERE id = $1', [memberId]);
+    return res.status(201).json(await formatMember(refreshed.rows[0]));
   } catch (err) {
     console.error('POST /family/members error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// PUT /api/family/members/:id - update member
 router.put('/members/:id', async (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
     const { name, age, dob, role, riskProfile, email } = req.body;
 
-    const existing = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-
+    const existingRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    const existing = existingRes.rows[0];
     if (!existing) {
       return res.status(404).json({ error: 'Member not found' });
     }
@@ -238,47 +236,53 @@ router.put('/members/:id', async (req, res) => {
       return res.status(400).json({ error: 'Member name cannot be empty' });
     }
 
-    db.prepare(
-      'UPDATE family_members SET name = ?, dob = ?, age = ?, role = ?, risk_profile = ?, email = ? WHERE id = ? AND user_id = ?'
-    ).run(newName, newDob, newAge, newRole, newRiskProfile, newEmail, memberId, req.userId);
+    await query(
+      'UPDATE family_members SET name = $1, dob = $2, age = $3, role = $4, risk_profile = $5, email = $6 WHERE id = $7 AND user_id = $8',
+      [newName, newDob, newAge, newRole, newRiskProfile, newEmail, memberId, req.userId]
+    );
 
     if (dob !== undefined || age !== undefined) {
       const targets = computeAgeBasedTargets(newAge);
-      const existingTargets = db.prepare(
-        'SELECT * FROM savings_targets WHERE user_id = ? AND member_id = ?'
-      ).get(req.userId, memberId);
+      const targetsRes = await query(
+        'SELECT * FROM savings_targets WHERE user_id = $1 AND member_id = $2',
+        [req.userId, memberId]
+      );
+      const existingTargets = targetsRes.rows[0];
 
       if (existingTargets && existingTargets.use_age_based === 1) {
-        db.prepare(
-          'UPDATE savings_targets SET equity_pct = ?, debt_pct = ?, gold_pct = ?, others_pct = ? WHERE user_id = ? AND member_id = ?'
-        ).run(targets.equity, targets.debt, targets.gold, targets.others, req.userId, memberId);
+        await query(
+          'UPDATE savings_targets SET equity_pct = $1, debt_pct = $2, gold_pct = $3, others_pct = $4 WHERE user_id = $5 AND member_id = $6',
+          [targets.equity, targets.debt, targets.gold, targets.others, req.userId, memberId]
+        );
       }
     }
 
-    markFamilyDone(req.userId);
+    await markFamilyDone(req.userId);
 
-    const updated = db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId);
+    const updatedRes = await query('SELECT * FROM family_members WHERE id = $1', [memberId]);
+    const updated = updatedRes.rows[0];
 
-    // Send invite if a new email was set (and member not already linked)
     const emailChanged = newEmail && newEmail !== (existing.email || '');
     if (emailChanged && !updated.linked_user_id) {
       await createAndSendInvite(updated, req.userId, getAppUrl(req));
     }
 
-    return res.status(200).json(formatMember(db.prepare('SELECT * FROM family_members WHERE id = ?').get(memberId)));
+    const refreshedRes = await query('SELECT * FROM family_members WHERE id = $1', [memberId]);
+    return res.status(200).json(await formatMember(refreshedRes.rows[0]));
   } catch (err) {
     console.error('PUT /family/members/:id error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// POST /api/family/members/:id/resend-invite - resend invite email
 router.post('/members/:id/resend-invite', async (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
-    const member = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ? AND is_active = 1'
-    ).get(memberId, req.userId);
+    const memberRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2 AND is_active = 1',
+      [memberId, req.userId]
+    );
+    const member = memberRes.rows[0];
 
     if (!member) return res.status(404).json({ error: 'Member not found' });
     if (!member.email) return res.status(400).json({ error: 'Member has no email address' });
@@ -292,22 +296,22 @@ router.post('/members/:id/resend-invite', async (req, res) => {
   }
 });
 
-// DELETE /api/family/members/:id - soft delete
-router.delete('/members/:id', (req, res) => {
+router.delete('/members/:id', async (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
 
-    const existing = db.prepare(
-      'SELECT * FROM family_members WHERE id = ? AND user_id = ?'
-    ).get(memberId, req.userId);
-
-    if (!existing) {
+    const existingRes = await query(
+      'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
+    if (!existingRes.rows[0]) {
       return res.status(404).json({ error: 'Member not found' });
     }
 
-    db.prepare(
-      'UPDATE family_members SET is_active = 0 WHERE id = ? AND user_id = ?'
-    ).run(memberId, req.userId);
+    await query(
+      'UPDATE family_members SET is_active = 0 WHERE id = $1 AND user_id = $2',
+      [memberId, req.userId]
+    );
 
     return res.status(200).json({ success: true, message: 'Member deactivated successfully' });
   } catch (err) {

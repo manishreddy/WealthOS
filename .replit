@@ -11,7 +11,7 @@ deploymentTarget = "cloudrun"
 [userenv]
 
 [userenv.shared]
-JWT_SECRET = "wealthos-jwt-secret-bvbp6nuif64-1777102651491"
+JWT_SECRET = "1bb01acac2a7f106133622df36b9947d57a70c51478d89a143d346d18b59d64e36f67b885a9c0a9f3e0dc9874f8b1888f57884786c15f3cb32e477eaad00be04"
 
 [workflows]
 runButton = "Project"

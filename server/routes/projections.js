@@ -1,14 +1,13 @@
 'use strict';
 
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 const { getConfig, computeYearlyProjections, DEFAULT_CONFIG, round2 } = require('../utils/projections-calc');
 const Anthropic = require('@anthropic-ai/sdk');
 const router = express.Router();
 
 const client = new Anthropic();
 
-// Helper: convert FY to list of {year, month} pairs (India: April-March)
 function fyToMonths(fy) {
   const months = [];
   for (let m = 4; m <= 12; m++) months.push({ year: fy - 1, month: m });
@@ -16,26 +15,24 @@ function fyToMonths(fy) {
   return months;
 }
 
-// GET /api/projections/config
-router.get('/config', (req, res) => {
+router.get('/config', async (req, res) => {
   try {
-    res.json(getConfig(req.userId));
+    res.json(await getConfig(req.userId));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// PUT /api/projections/config
-router.put('/config', (req, res) => {
+router.put('/config', async (req, res) => {
   try {
-    const current = getConfig(req.userId);
+    const current = await getConfig(req.userId);
     const updated = { ...current, ...req.body };
-    db.prepare(`
+    await query(`
       INSERT INTO financial_plan (user_id, config, updated_at)
-      VALUES (?, ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(user_id) DO UPDATE SET config = excluded.config, updated_at = CURRENT_TIMESTAMP
-    `).run(req.userId, JSON.stringify(updated));
+      VALUES ($1, $2, NOW())
+      ON CONFLICT (user_id) DO UPDATE SET config = EXCLUDED.config, updated_at = NOW()
+    `, [req.userId, JSON.stringify(updated)]);
     res.json(updated);
   } catch (err) {
     console.error(err);
@@ -43,10 +40,9 @@ router.put('/config', (req, res) => {
   }
 });
 
-// GET /api/projections/yearly - computed yearly projections
-router.get('/yearly', (req, res) => {
+router.get('/yearly', async (req, res) => {
   try {
-    const cfg = getConfig(req.userId);
+    const cfg = await getConfig(req.userId);
     res.json(computeYearlyProjections(cfg));
   } catch (err) {
     console.error(err);
@@ -54,9 +50,7 @@ router.get('/yearly', (req, res) => {
   }
 });
 
-// GET /api/projections/actuals?startFY=2024&endFY=2026
-// Returns actual income/expense/savings aggregated by FY from monthly_data
-router.get('/actuals', (req, res) => {
+router.get('/actuals', async (req, res) => {
   try {
     const startFY = parseInt(req.query.startFY) || 2024;
     const endFY = parseInt(req.query.endFY) || 2026;
@@ -68,13 +62,15 @@ router.get('/actuals', (req, res) => {
       let hasData = false;
 
       for (const { year, month } of months) {
-        const rows = db.prepare(
-          'SELECT SUM(income) as inc, SUM(expenditure) as exp, SUM(investments) as inv FROM monthly_data WHERE user_id = ? AND year = ? AND month = ?'
-        ).get(req.userId, year, month);
+        const rowsRes = await query(
+          'SELECT SUM(income) as inc, SUM(expenditure) as exp, SUM(investments) as inv FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3',
+          [req.userId, year, month]
+        );
+        const rows = rowsRes.rows[0];
         if (rows && (rows.inc || rows.exp || rows.inv)) {
-          totalIncome += rows.inc || 0;
-          totalExpenditure += rows.exp || 0;
-          totalInvestments += rows.inv || 0;
+          totalIncome += parseFloat(rows.inc) || 0;
+          totalExpenditure += parseFloat(rows.exp) || 0;
+          totalInvestments += parseFloat(rows.inv) || 0;
           hasData = true;
         }
       }
@@ -96,7 +92,6 @@ router.get('/actuals', (req, res) => {
   }
 });
 
-// POST /api/projections/ai-parse — parse freeform financial plan text into config
 router.post('/ai-parse', async (req, res) => {
   try {
     const { text } = req.body;
@@ -159,7 +154,6 @@ ${text}`;
     });
 
     const content = response.content[0].text.trim();
-    // Extract JSON from response
     const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
                       content.match(/```\s*([\s\S]*?)\s*```/) ||
                       content.match(/(\{[\s\S]*\})/);

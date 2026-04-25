@@ -4,17 +4,16 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { initDb } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the code/ directory
 app.use(express.static(path.join(__dirname, '../code')));
 
-// Mount all routes
 const { verifyToken } = require('./middleware/auth');
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/family', verifyToken, require('./routes/family'));
@@ -37,6 +36,16 @@ app.get('/index.html', (req, res) => {
   res.redirect('/login.html');
 });
 
-app.listen(PORT, () => {
-  console.log(`WealthOS server running at http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await initDb();
+    app.listen(PORT, () => {
+      console.log(`WealthOS server running at http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  }
+}
+
+startServer();

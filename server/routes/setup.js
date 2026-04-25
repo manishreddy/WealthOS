@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 
 const router = express.Router();
 
@@ -41,7 +41,6 @@ function formatProgress(row) {
 
   const doneCount = Object.values(doneFlags).filter(Boolean).length;
   const percentComplete = parseFloat(((doneCount / STEPS.length) * 100).toFixed(2));
-
   const nextStep = STEPS.find(step => !doneFlags[step]) || null;
 
   return {
@@ -57,22 +56,20 @@ function formatProgress(row) {
   };
 }
 
-// GET /api/setup/progress
-router.get('/progress', (req, res) => {
+router.get('/progress', async (req, res) => {
   try {
-    const row = db.prepare(
-      'SELECT * FROM setup_progress WHERE user_id = ?'
-    ).get(req.userId);
-
-    return res.status(200).json(formatProgress(row));
+    const result = await query(
+      'SELECT * FROM setup_progress WHERE user_id = $1',
+      [req.userId]
+    );
+    return res.status(200).json(formatProgress(result.rows[0]));
   } catch (err) {
     console.error('GET /setup/progress error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// PUT /api/setup/progress - body: { step, done }
-router.put('/progress', (req, res) => {
+router.put('/progress', async (req, res) => {
   try {
     const { step, done } = req.body;
 
@@ -91,15 +88,17 @@ router.put('/progress', (req, res) => {
     const col = STEP_COLUMNS[step];
     const doneInt = done ? 1 : 0;
 
-    db.prepare(
-      `UPDATE setup_progress SET ${col} = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?`
-    ).run(doneInt, req.userId);
+    await query(
+      `UPDATE setup_progress SET ${col} = $1, updated_at = NOW() WHERE user_id = $2`,
+      [doneInt, req.userId]
+    );
 
-    const updated = db.prepare(
-      'SELECT * FROM setup_progress WHERE user_id = ?'
-    ).get(req.userId);
+    const updated = await query(
+      'SELECT * FROM setup_progress WHERE user_id = $1',
+      [req.userId]
+    );
 
-    return res.status(200).json(formatProgress(updated));
+    return res.status(200).json(formatProgress(updated.rows[0]));
   } catch (err) {
     console.error('PUT /setup/progress error:', err);
     return res.status(500).json({ error: 'Internal server error' });

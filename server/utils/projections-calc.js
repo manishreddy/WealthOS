@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../db');
+const { query } = require('../db');
 
 const DEFAULT_CONFIG = {
   baseFY: 2024,
@@ -48,8 +48,9 @@ function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
-function getConfig(userId) {
-  const row = db.prepare('SELECT config FROM financial_plan WHERE user_id = ?').get(userId);
+async function getConfig(userId) {
+  const result = await query('SELECT config FROM financial_plan WHERE user_id = $1', [userId]);
+  const row = result.rows[0];
   if (!row || !row.config || row.config === '{}') return { ...DEFAULT_CONFIG };
   try {
     return { ...DEFAULT_CONFIG, ...JSON.parse(row.config) };

@@ -4,13 +4,11 @@ const express = require('express');
 const multer = require('multer');
 const XLSX = require('xlsx');
 const Anthropic = require('@anthropic-ai/sdk');
-const db = require('../db');
+const { query } = require('../db');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 const anthropic = new Anthropic();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function sheetsToJson(workbook) {
   const result = {};
@@ -34,9 +32,6 @@ function buildSheetsDescription(sheetsJson) {
   return desc;
 }
 
-// ─── POST /api/import/parse ───────────────────────────────────────────────────
-// Accepts multipart file upload (.xlsx, .csv)
-// Returns: { members, portfolio, goals, monthlyIncome, expenses }
 router.post('/parse', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -44,10 +39,7 @@ router.post('/parse', upload.single('file'), async (req, res) => {
     const ext = (req.file.originalname || '').split('.').pop().toLowerCase();
     let sheetsJson = {};
 
-    if (ext === 'xlsx' || ext === 'xls') {
-      const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
-      sheetsJson = sheetsToJson(wb);
-    } else if (ext === 'csv') {
+    if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
       const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
       sheetsJson = sheetsToJson(wb);
     } else {
@@ -56,10 +48,11 @@ router.post('/parse', upload.single('file'), async (req, res) => {
 
     const sheetDesc = buildSheetsDescription(sheetsJson);
 
-    // Get family members for context
-    const members = db.prepare(
-      'SELECT id, name, age FROM family_members WHERE user_id = ? AND is_active = 1'
-    ).all(req.userId);
+    const membersRes = await query(
+      'SELECT id, name, age FROM family_members WHERE user_id = $1 AND is_active = 1',
+      [req.userId]
+    );
+    const members = membersRes.rows;
     const memberNames = members.map(m => m.name).join(', ');
 
     const prompt = `You are a financial data extraction expert for the WealthOS app.
@@ -71,7 +64,7 @@ Extract data into this exact JSON structure. Return ONLY the JSON object, no exp
 {
   "portfolio": [
     {
-      "memberId": null,  // will be resolved by member name
+      "memberId": null,
       "memberName": "string (exact name from family list, or 'Common' for shared)",
       "assetClass": "string (Mutual Funds | Stocks | FD/RD | PPF | NPS | EPF | Real Estate | Gold | ESOPs | Cash | Other)",
       "currentValue": number (in rupees, convert from lakhs if needed: multiply by 100000),
@@ -134,7 +127,6 @@ ${sheetDesc.substring(0, 8000)}`;
 
     const parsed = JSON.parse(jsonMatch[0]);
 
-    // Resolve memberIds from names
     const memberMap = {};
     for (const m of members) {
       memberMap[m.name.toLowerCase()] = m;
@@ -162,8 +154,6 @@ ${sheetDesc.substring(0, 8000)}`;
   }
 });
 
-// ─── POST /api/import/excel-to-text ──────────────────────────────────────────
-// Converts an uploaded Excel/CSV file to plain text for use with AI parse
 router.post('/excel-to-text', upload.single('file'), (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -188,8 +178,6 @@ router.post('/excel-to-text', upload.single('file'), (req, res) => {
   }
 });
 
-// ─── POST /api/import/save ────────────────────────────────────────────────────
-// Saves parsed import data to DB
 router.post('/save', async (req, res) => {
   try {
     const { portfolio, goals, monthlyIncome, expenseCategories } = req.body;
@@ -199,18 +187,16 @@ router.post('/save', async (req, res) => {
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
 
-    // ── Portfolio assets ──
     if (Array.isArray(portfolio)) {
       for (const item of portfolio) {
         if (!item.memberId || !item.assetClass) continue;
-        // Verify member belongs to this user
-        const member = db.prepare('SELECT id FROM family_members WHERE id = ? AND user_id = ?').get(item.memberId, userId);
-        if (!member) continue;
+        const memberRes = await query('SELECT id FROM family_members WHERE id = $1 AND user_id = $2', [item.memberId, userId]);
+        if (!memberRes.rows[0]) continue;
 
-        db.prepare(`
+        await query(`
           INSERT INTO portfolio_assets (user_id, member_id, asset_type, name, asset_class, current_value, purchase_value, notes, last_updated)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `).run(
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        `, [
           userId,
           item.memberId,
           item.assetClass,
@@ -219,20 +205,19 @@ router.post('/save', async (req, res) => {
           Number(item.currentValue) || 0,
           Number(item.currentValue) || 0,
           item.notes || ''
-        );
+        ]);
         results.portfolio++;
       }
-      db.prepare('UPDATE setup_progress SET portfolio_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?').run(userId);
+      await query('UPDATE setup_progress SET portfolio_done = 1, updated_at = NOW() WHERE user_id = $1', [userId]);
     }
 
-    // ── Goals ──
     if (Array.isArray(goals)) {
       for (const g of goals) {
         if (!g.name) continue;
-        db.prepare(`
+        await query(`
           INSERT INTO goals (user_id, name, goal_type, target_amount, current_amount, monthly_contribution, target_date, notes)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `, [
           userId,
           g.name,
           g.goalType || 'Other',
@@ -241,42 +226,37 @@ router.post('/save', async (req, res) => {
           Number(g.monthlyContribution) || 0,
           g.targetDate ? String(g.targetDate) : '',
           g.notes || ''
-        );
+        ]);
         results.goals++;
       }
-      db.prepare('UPDATE setup_progress SET goals_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?').run(userId);
+      await query('UPDATE setup_progress SET goals_done = 1, updated_at = NOW() WHERE user_id = $1', [userId]);
     }
 
-    // ── Monthly income ──
     if (Array.isArray(monthlyIncome)) {
       for (const item of monthlyIncome) {
         if (!item.memberId) continue;
-        const member = db.prepare('SELECT id FROM family_members WHERE id = ? AND user_id = ?').get(item.memberId, userId);
-        if (!member) continue;
+        const memberRes = await query('SELECT id FROM family_members WHERE id = $1 AND user_id = $2', [item.memberId, userId]);
+        if (!memberRes.rows[0]) continue;
 
         const monthly = Number(item.monthlyIncome) || Math.round((Number(item.yearlyIncome) || 0) / 12);
+        const incomeBreakup = JSON.stringify([{ id: 1, source: 'Salary', amount: monthly, type: 'salary' }]);
 
-        // Build income breakup
-        const incomeBreakup = JSON.stringify([{
-          id: 1, source: 'Salary', amount: monthly, type: 'salary'
-        }]);
+        const existingRes = await query(
+          'SELECT id FROM monthly_data WHERE user_id = $1 AND member_id = $2 AND year = $3 AND month = $4',
+          [userId, item.memberId, year, month]
+        );
 
-        // Upsert monthly data
-        const existing = db.prepare('SELECT id FROM monthly_data WHERE user_id = ? AND member_id = ? AND year = ? AND month = ?')
-          .get(userId, item.memberId, year, month);
-
-        if (existing) {
-          db.prepare('UPDATE monthly_data SET income = ?, income_breakup = ? WHERE id = ?')
-            .run(monthly, incomeBreakup, existing.id);
+        if (existingRes.rows[0]) {
+          await query('UPDATE monthly_data SET income = $1, income_breakup = $2 WHERE id = $3', [monthly, incomeBreakup, existingRes.rows[0].id]);
         } else {
-          db.prepare(`
+          await query(`
             INSERT INTO monthly_data (user_id, member_id, year, month, income, income_breakup)
-            VALUES (?, ?, ?, ?, ?, ?)
-          `).run(userId, item.memberId, year, month, monthly, incomeBreakup);
+            VALUES ($1, $2, $3, $4, $5, $6)
+          `, [userId, item.memberId, year, month, monthly, incomeBreakup]);
         }
         results.monthlyIncome++;
       }
-      db.prepare('UPDATE setup_progress SET monthly_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?').run(userId);
+      await query('UPDATE setup_progress SET monthly_done = 1, updated_at = NOW() WHERE user_id = $1', [userId]);
     }
 
     return res.json({ success: true, results });

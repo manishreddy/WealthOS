@@ -1,11 +1,10 @@
 'use strict';
 
 const express = require('express');
-const db = require('../db');
+const { query } = require('../db');
 
 const router = express.Router();
 
-// Helper: calculate months between today and targetDate string "YYYY-MM" or "YYYY-MM-DD"
 function monthsRemaining(targetDate) {
   if (!targetDate) return 0;
   const now = new Date();
@@ -15,19 +14,16 @@ function monthsRemaining(targetDate) {
   return Math.max(diffMonths, 0);
 }
 
-// Helper: SIP formula to reach goal
-// requiredMonthlySip = (remainingAmount * r/12) / ((1 + r/12)^months - 1)
 function calcRequiredSip(targetAmount, currentAmount, months) {
   const remaining = Math.max(targetAmount - currentAmount, 0);
   if (months <= 0) return remaining;
-  const r = 0.12; // 12% annual
+  const r = 0.12;
   const rm = r / 12;
   const factor = Math.pow(1 + rm, months);
   if (factor === 1) return remaining / months;
   return (remaining * rm) / (factor - 1);
 }
 
-// Helper: Step-up SIP (10% annual step-up, 12% annual return)
 function calcStepUpSip(targetAmount, currentAmount, months) {
   if (months <= 0) return 0;
   const R = 0.12 / 12;
@@ -39,30 +35,29 @@ function calcStepUpSip(targetAmount, currentAmount, months) {
   return Math.round(needed / denom);
 }
 
-// Helper: enrich goal with calculated fields
 function enrichGoal(goal) {
   const months = monthsRemaining(goal.target_date);
-  const progressPct = goal.target_amount > 0
-    ? parseFloat(((goal.current_amount / goal.target_amount) * 100).toFixed(2))
+  const targetAmount = parseFloat(goal.target_amount);
+  const currentAmount = parseFloat(goal.current_amount);
+  const monthlyContribution = parseFloat(goal.monthly_contribution);
+  const progressPct = targetAmount > 0
+    ? parseFloat(((currentAmount / targetAmount) * 100).toFixed(2))
     : 0;
-  // Inflation-adjusted future value — fixed from baseYear to targetYear, not from today
-  const inflationRate = goal.inflation_rate != null ? goal.inflation_rate : 8;
+  const inflationRate = goal.inflation_rate != null ? parseFloat(goal.inflation_rate) : 8;
   const baseYear = goal.base_year || new Date().getFullYear();
   const targetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : baseYear;
   const yrsFromBase = Math.max(targetYear - baseYear, 0);
-  const futureValue = Math.round(goal.target_amount * Math.pow(1 + inflationRate / 100, yrsFromBase));
-  // yrsFromNow kept for display (time remaining)
+  const futureValue = Math.round(targetAmount * Math.pow(1 + inflationRate / 100, yrsFromBase));
   const yrsFromNow = months ? Math.round(months / 12) : 0;
 
-  // Funding-type-specific fields
   const fundingType = goal.funding_type || 'Savings';
   let fundingDetails = {};
   if (fundingType === 'EMI') {
-    const dpPct = goal.down_payment_pct || 0;
+    const dpPct = parseFloat(goal.down_payment_pct) || 0;
     const downPaymentAmount = Math.round(futureValue * dpPct / 100);
     const loanAmount = futureValue - downPaymentAmount;
-    const dur = goal.loan_duration_yrs || 1;
-    const roi = goal.loan_roi != null ? goal.loan_roi : 8;
+    const dur = parseInt(goal.loan_duration_yrs) || 1;
+    const roi = goal.loan_roi != null ? parseFloat(goal.loan_roi) : 8;
     const r = roi / 12 / 100;
     const n = dur * 12;
     const emi = r === 0
@@ -77,14 +72,13 @@ function enrichGoal(goal) {
       loanEndsFy: emiTargetYear + dur,
     };
   } else {
-    fundingDetails = { stepUpSip: calcStepUpSip(futureValue, goal.current_amount || 0, months || 0) };
+    fundingDetails = { stepUpSip: calcStepUpSip(futureValue, currentAmount || 0, months || 0) };
   }
 
-  // Use stepUpSip as the reference for on-track check and gap/surplus — same basis as what's shown on the card
   const fundingTypeRaw = goal.funding_type || 'Savings';
   const stepUpSipRef = fundingDetails.stepUpSip || 0;
   const requiredMonthlySip = fundingTypeRaw === 'EMI' ? 0 : stepUpSipRef;
-  const isOnTrack = fundingTypeRaw === 'EMI' ? null : (goal.monthly_contribution || 0) >= stepUpSipRef;
+  const isOnTrack = fundingTypeRaw === 'EMI' ? null : (monthlyContribution || 0) >= stepUpSipRef;
 
   const isMilestone = goal.is_milestone === 1;
 
@@ -92,9 +86,9 @@ function enrichGoal(goal) {
     id: goal.id,
     name: goal.name,
     goalType: goal.goal_type,
-    targetAmount: goal.target_amount,
-    currentAmount: goal.current_amount,
-    monthlyContribution: goal.monthly_contribution,
+    targetAmount,
+    currentAmount,
+    monthlyContribution,
     targetDate: goal.target_date,
     assignedMembers: JSON.parse(goal.assigned_members || '[]'),
     notes: goal.notes,
@@ -108,31 +102,29 @@ function enrichGoal(goal) {
     fundingType: isMilestone ? 'Savings' : fundingType,
     baseYear,
     inflationRate,
-    downPaymentPct: goal.down_payment_pct || 0,
-    loanDurationYrs: goal.loan_duration_yrs || 0,
-    loanRoi: goal.loan_roi != null ? goal.loan_roi : 8,
+    downPaymentPct: parseFloat(goal.down_payment_pct) || 0,
+    loanDurationYrs: parseInt(goal.loan_duration_yrs) || 0,
+    loanRoi: goal.loan_roi != null ? parseFloat(goal.loan_roi) : 8,
     futureValue,
     yrsFromNow,
     ...fundingDetails,
   };
 }
 
-// GET /api/goals - all goals with calculated fields
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const goals = db.prepare(
-      'SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC'
-    ).all(req.userId);
-
-    return res.status(200).json(goals.map(enrichGoal));
+    const goalsRes = await query(
+      'SELECT * FROM goals WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.userId]
+    );
+    return res.status(200).json(goalsRes.rows.map(enrichGoal));
   } catch (err) {
     console.error('GET /goals error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// POST /api/goals - create goal
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const {
       name,
@@ -161,10 +153,11 @@ router.post('/', (req, res) => {
 
     const assignedMembersStr = JSON.stringify(Array.isArray(assignedMembers) ? assignedMembers : []);
 
-    const result = db.prepare(`
+    const result = await query(`
       INSERT INTO goals (user_id, name, goal_type, target_amount, current_amount, monthly_contribution, target_date, assigned_members, notes, funding_type, inflation_rate, down_payment_pct, loan_duration_yrs, loan_roi, is_milestone, base_year)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      RETURNING id
+    `, [
       req.userId,
       name.trim(),
       goalType,
@@ -181,30 +174,31 @@ router.post('/', (req, res) => {
       parseFloat(loanRoi),
       isMilestone ? 1 : 0,
       parseInt(baseYear, 10) || new Date().getFullYear(),
+    ]);
+
+    await query(
+      'UPDATE setup_progress SET goals_done = 1, updated_at = NOW() WHERE user_id = $1',
+      [req.userId]
     );
 
-    // Update setup progress
-    db.prepare(
-      'UPDATE setup_progress SET goals_done = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
-    ).run(req.userId);
-
-    const created = db.prepare('SELECT * FROM goals WHERE id = ?').get(result.lastInsertRowid);
-    return res.status(201).json(enrichGoal(created));
+    const createdRes = await query('SELECT * FROM goals WHERE id = $1', [result.rows[0].id]);
+    return res.status(201).json(enrichGoal(createdRes.rows[0]));
   } catch (err) {
     console.error('POST /goals error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// PUT /api/goals/:id - update goal
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
 
-    const existing = db.prepare(
-      'SELECT * FROM goals WHERE id = ? AND user_id = ?'
-    ).get(id, req.userId);
-    if (!existing) return res.status(404).json({ error: 'Goal not found' });
+    const existingRes = await query(
+      'SELECT * FROM goals WHERE id = $1 AND user_id = $2',
+      [id, req.userId]
+    );
+    if (!existingRes.rows[0]) return res.status(404).json({ error: 'Goal not found' });
+    const existing = existingRes.rows[0];
 
     const {
       name = existing.name,
@@ -236,14 +230,14 @@ router.put('/:id', (req, res) => {
       return res.status(400).json({ error: 'Goal name cannot be empty' });
     }
 
-    db.prepare(`
+    await query(`
       UPDATE goals
-      SET name = ?, goal_type = ?, target_amount = ?, current_amount = ?, monthly_contribution = ?,
-          target_date = ?, assigned_members = ?, notes = ?, is_achieved = ?,
-          funding_type = ?, inflation_rate = ?, down_payment_pct = ?, loan_duration_yrs = ?, loan_roi = ?,
-          is_milestone = ?, base_year = ?
-      WHERE id = ? AND user_id = ?
-    `).run(
+      SET name = $1, goal_type = $2, target_amount = $3, current_amount = $4, monthly_contribution = $5,
+          target_date = $6, assigned_members = $7, notes = $8, is_achieved = $9,
+          funding_type = $10, inflation_rate = $11, down_payment_pct = $12, loan_duration_yrs = $13, loan_roi = $14,
+          is_milestone = $15, base_year = $16
+      WHERE id = $17 AND user_id = $18
+    `, [
       name.toString().trim(),
       goalType,
       parseFloat(targetAmount),
@@ -261,27 +255,27 @@ router.put('/:id', (req, res) => {
       isMilestoneInt,
       parseInt(baseYear, 10) || new Date().getFullYear(),
       id, req.userId
-    );
+    ]);
 
-    const updated = db.prepare('SELECT * FROM goals WHERE id = ?').get(id);
-    return res.status(200).json(enrichGoal(updated));
+    const updatedRes = await query('SELECT * FROM goals WHERE id = $1', [id]);
+    return res.status(200).json(enrichGoal(updatedRes.rows[0]));
   } catch (err) {
     console.error('PUT /goals/:id error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// DELETE /api/goals/:id - delete goal
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
 
-    const existing = db.prepare(
-      'SELECT * FROM goals WHERE id = ? AND user_id = ?'
-    ).get(id, req.userId);
-    if (!existing) return res.status(404).json({ error: 'Goal not found' });
+    const existingRes = await query(
+      'SELECT * FROM goals WHERE id = $1 AND user_id = $2',
+      [id, req.userId]
+    );
+    if (!existingRes.rows[0]) return res.status(404).json({ error: 'Goal not found' });
 
-    db.prepare('DELETE FROM goals WHERE id = ? AND user_id = ?').run(id, req.userId);
+    await query('DELETE FROM goals WHERE id = $1 AND user_id = $2', [id, req.userId]);
 
     return res.status(200).json({ success: true, message: 'Goal deleted successfully' });
   } catch (err) {
