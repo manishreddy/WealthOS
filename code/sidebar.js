@@ -316,10 +316,12 @@
       background: rgba(0,0,0,0.4);
       z-index: 300;
       opacity: 0;
+      pointer-events: none;
       transition: opacity 0.25s ease;
     }
     .wos-overlay.visible {
       opacity: 1;
+      pointer-events: auto;
     }
 
     /* ── Shared layout collapse ──────────────────────────────────────── */
