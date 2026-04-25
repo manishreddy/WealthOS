@@ -259,8 +259,8 @@ class AIImport {
           <div class="ai-imp-dropzone ai-imp-file-zone">
             <div class="ai-imp-dropzone-icon">📁</div>
             <div class="ai-imp-dropzone-title">Click or drag & drop a file</div>
-            <div class="ai-imp-dropzone-hint">Supports .csv, .txt, .xlsx, .xls — max 10 MB</div>
-            <input type="file" accept=".csv,.txt,.xlsx,.xls"
+            <div class="ai-imp-dropzone-hint">Supports .csv, .txt, .xlsx — max 10 MB</div>
+            <input type="file" accept=".csv,.txt,.xlsx"
               style="display:none;" class="ai-imp-csv-input">
           </div>
           <div class="ai-imp-file-chosen ai-imp-csv-chosen">
@@ -327,7 +327,7 @@ class AIImport {
     csvZone.addEventListener('click', () => csvInput.click());
     csvInput.addEventListener('change', e => this._handleCsvFile(e.target.files[0]));
     m.querySelector('.ai-imp-csv-clear').addEventListener('click', () => this._clearCsv());
-    this._setupDragDrop(csvZone, f => this._handleCsvFile(f), ['text/', '.csv', '.txt', '.xlsx', '.xls', 'application/vnd']);
+    this._setupDragDrop(csvZone, f => this._handleCsvFile(f), ['text/', '.csv', '.txt', '.xlsx', 'application/vnd']);
 
     // Parse
     m.querySelector('.ai-imp-btn-parse').addEventListener('click', () => this._parse());
@@ -378,13 +378,17 @@ class AIImport {
 
   _handleCsvFile(file) {
     if (!file) return;
+    if (/\.xls$/i.test(file.name) && !/\.xlsx$/i.test(file.name)) {
+      alert('Legacy .xls format is not supported. Please save your file as .xlsx and try again.');
+      return;
+    }
     this._csvFile = file;
     const m = this._modalEl;
     m.querySelector('.ai-imp-file-zone').style.display = 'none';
     const chosen = m.querySelector('.ai-imp-csv-chosen');
     chosen.style.display = 'flex';
     m.querySelector('.ai-imp-csv-name').textContent = file.name;
-    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+    const isExcel = /\.xlsx$/i.test(file.name);
     m.querySelector('.ai-imp-csv-icon').textContent = isExcel ? '📗' : '📊';
     m.querySelector('.ai-imp-csv-sub').textContent = isExcel ? 'Excel file — will be converted to text for AI' : 'Ready to parse';
   }
@@ -450,7 +454,7 @@ class AIImport {
         headers['Content-Type'] = 'application/json';
       } else if (activePanel === 'file' && this._csvFile) {
         let fileText;
-        const isExcel = /\.(xlsx|xls)$/i.test(this._csvFile.name);
+        const isExcel = /\.xlsx$/i.test(this._csvFile.name);
         if (isExcel) {
           status.textContent = '⏳ Converting Excel to text…';
           const form = new FormData();

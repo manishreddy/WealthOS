@@ -163,6 +163,11 @@ router.post('/excel-to-text', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    const ext = (req.file.originalname || '').split('.').pop().toLowerCase();
+    if (ext === 'xls') {
+      return res.status(400).json({ error: 'Legacy .xls format is not supported. Please save your file as .xlsx and try again.' });
+    }
+
     const wb = await readWorkbookFromBuffer(req.file.buffer);
     let text = '';
 
