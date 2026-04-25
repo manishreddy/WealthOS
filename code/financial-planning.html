@@ -302,6 +302,25 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             .form-group.full { grid-column: span 1; }
             .pj-summary { grid-template-columns: repeat(2, 1fr); }
         }
+        @media (max-width: 768px) {
+            .main-content { padding: 20px 16px; }
+            .top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .sub-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+            .sub-tab { white-space: nowrap; }
+            .member-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+            .timeline-strip { margin: 0 -16px 24px; padding-left: 16px; padding-right: 16px; }
+            .ret-stats { grid-template-columns: 1fr 1fr; }
+            .score-section { flex-direction: column; }
+            .score-donut-wrap { margin: 0 auto; }
+        }
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .hero-grid { grid-template-columns: 1fr; }
+            .ret-stats { grid-template-columns: 1fr; }
+            .pj-summary { grid-template-columns: 1fr; }
+            .pj-config-strip { flex-wrap: wrap; gap: 8px; }
+        }
     </style>
 </head>
 <body>

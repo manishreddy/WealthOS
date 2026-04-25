@@ -1000,7 +1000,7 @@
             }
 
             .main-content {
-                padding: 24px 20px;
+                padding: 20px 16px;
             }
 
             .metric-cards,
@@ -1016,12 +1016,24 @@
             .top-bar {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 20px;
+                gap: 16px;
+            }
+
+            .top-actions {
+                flex-wrap: wrap;
+                gap: 8px;
             }
 
             .onboarding-cards {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .metric-cards { grid-template-columns: 1fr 1fr; }
+            .action-btn { padding: 8px 14px; font-size: 0.8125rem; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

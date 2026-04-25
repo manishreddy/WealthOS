@@ -1,66 +1,67 @@
 # WealthOS
 
-WealthOS is a family financial planning web application built for Indian families. It helps track portfolio assets, monthly income/expenses, savings plans, financial goals, and provides AI-powered insights.
+A family financial planning web app built for Indian families.
+
+## Tech Stack
+- **Backend**: Node.js + Express (`server/server.js`), PostgreSQL via `pg` Pool (`server/db.js`)
+- **Frontend**: Vanilla HTML/CSS/JS in `code/` directory served as static files
+- **Auth**: JWT-based, token stored in `localStorage` as `wealthos_jwt`
+- **AI**: Claude API via `/api/wealthbot/chat` endpoint
+- **Port**: 5000
 
 ## Architecture
+- `server/server.js` — Express server, initializes DB, serves `code/` as static
+- `server/db.js` — PostgreSQL pool (`DATABASE_URL` env var)
+- `code/` — All HTML pages, JS modules, and CSS
+- `code/sidebar.js` — Shared sidebar component injected via `<aside id="sidebar-root"></aside>` on every inner page
+- `code/api.js` — Frontend API client (`WealthAPI` global)
+- `code/design-system.css` — CSS design tokens (no responsive rules)
+- `code/dark-overrides.css` — Dark mode variable overrides
 
-### Stack
-- **Frontend**: Static HTML/JS files served from the `code/` directory
-- **Backend**: Node.js + Express REST API (`server/`)
-- **Database**: PostgreSQL (Replit hosted, via `pg` Pool)
-- **Auth**: JWT tokens (jsonwebtoken + bcryptjs)
-- **AI**: Anthropic Claude (for WealthBot and financial insights)
-- **File parsing**: multer + xlsx (for Zerodha holdings import)
+## Design Language
+- Background: `#EBEBEB` (neutral gray)
+- Dark cards: `#111111`
+- Light cards: `#FFFFFF`
+- Accent: `#8FE62C` (lime green)
+- Font: Inter
+- Card radius: 20px
+- No gradients on primary surfaces
 
-### Project Structure
-```
-code/          - Static frontend (HTML, CSS, JS)
-server/
-  server.js    - Express app entry point, calls initDb() on startup
-  db.js        - PostgreSQL pool, query helper, initDb() schema creation
-  middleware/
-    auth.js    - JWT verifyToken middleware
-  routes/
-    auth.js       - Signup, login, invite flow
-    family.js     - Family members CRUD + invite emails
-    monthly.js    - Monthly income/expense/investment tracking
-    savings.js    - Savings plan (SIPs etc.) CRUD
-    portfolio.js  - Portfolio assets CRUD + Zerodha CSV import
-    goals.js      - Financial goals CRUD
-    planning.js   - Tax planning, retirement, AI insights
-    projections.js - Long-term financial projections
-    setup.js      - Onboarding progress tracking
-    wealthbot.js  - AI chat endpoint
-    import.js     - Bulk spreadsheet import via AI
-    ai-parse.js   - AI text/vision parsing utility
-  utils/
-    projections-calc.js - Projection computation logic (async getConfig)
-  email.js       - Email transport for invite emails
-```
+## Pages
+- `login.html`, `signup.html` — Auth pages (mobile-polished, Task #7)
+- `dashboard.html` — Main family dashboard
+- `monthly-tracker.html` — Income/expense tracker per family member
+- `savings-plan.html` — Monthly investments, EMIs, emergency fund
+- `portfolio.html` — Portfolio view with asset management
+- `goals.html` — Financial goals with SIP tracking
+- `planned.html` — Planned vs actual income/expense tables
+- `financial-planning.html` — Retirement, tax planning, goal simulation
+- `proj-vs-actuals.html` — Projected vs actual comparisons
+- `wealthbot.html` — Claude-powered AI financial advisor chat
+- `settings.html` — Family settings, members, preferences
+- `onboarding.html` — First-run setup flow
+- `invite.html` — Family member invite acceptance
 
-### Database
-All tables are created automatically on startup via `initDb()` in `server/db.js`. Tables:
-- `users` - Accounts with email/password/family_name
-- `family_members` - Per-user family members
-- `monthly_data` - Monthly financial data per member
-- `savings_plan` - SIP/investment plans per member
-- `savings_targets` - Asset allocation targets per member
-- `portfolio_assets` - Portfolio holdings per member
-- `goals` - Financial goals
-- `tax_planning` - Annual tax planning data
-- `setup_progress` - Onboarding progress tracking
-- `financial_plan` - Projection config (JSON blob)
-- `family_invitations` - Member invite tokens
+## Mobile Responsiveness
+- `sidebar.js` injects a fixed mobile top bar (56px) with hamburger button at ≤768px
+- The sidebar becomes a slide-in drawer with an overlay backdrop
+- All inner pages use `@media (max-width: 768px)` and `@media (max-width: 480px)` for content grids
+- `sidebar.js` applies `.app-container { grid-template-columns: 1fr !important }` and `margin-top: 56px !important` on `.main-content` at ≤768px
 
-### Environment Variables
-- `DATABASE_URL` - PostgreSQL connection string (Replit hosted)
-- `JWT_SECRET` - Token signing secret
-- `ANTHROPIC_API_KEY` - For AI features (WealthBot, AI insights)
-- `SMTP_*` - Optional email settings for invite emails
+## Workflows
+- **Start WealthOS**: `cd server && PORT=5000 node server.js`
 
-## Development
-The app runs on port 5000. Start with the "Start WealthOS" workflow.
+## Environment
+- `DATABASE_URL` — PostgreSQL connection string (set in Replit secrets)
+- `JWT_SECRET` — JWT signing secret
+- `ANTHROPIC_API_KEY` — Claude API key for WealthBot
 
-## Deployment
-Target: `autoscale` (configured in `.replit`)
-Run command: `node server/server.js`
+## Completed Tasks
+- Task #6: Security vulnerabilities fixed (xlsx → exceljs)
+- Task #7: Login/signup mobile responsive
+- Task #8: Homepage scroll animations
+- Task #12: Full inner-app mobile responsive (sidebar drawer + all page grids)
+
+## Notes
+- 2 moderate npm vulnerabilities remain (exceljs → uuid@8.x transitive dep), accepted risk
+- `scripts/post-merge.sh` runs `cd server && npm install --prefer-offline` after merges

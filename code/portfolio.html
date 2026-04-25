@@ -1378,13 +1378,31 @@ body {
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
 
-            .main-content { padding: 24px 20px; }
+            .main-content { padding: 20px 16px; }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .filter-controls {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
             .networth-dashboard {
                 grid-template-columns: 1fr;
             }
             .allocation-comparison {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .action-btn { padding: 8px 14px; font-size: 0.8125rem; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

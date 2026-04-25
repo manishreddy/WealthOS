@@ -1081,28 +1081,30 @@ body {
                 flex-direction: column;
             }
             .summary-grid {
-
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .app-container {
-
-            }
-
             .main-content {
-                padding: 24px 20px;
+                padding: 20px 16px;
             }
             .top-bar {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 20px;
+                gap: 16px;
             }
             .goals-container {
                 flex-direction: column;
             }
             .summary-grid {
-
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .goals-timeline-strip {
+                margin: 0 -16px;
+                padding-left: 16px;
+                padding-right: 16px;
             }
             .form-grid {
                 grid-template-columns: 1fr;
@@ -1110,6 +1112,13 @@ body {
             .form-group.full {
                 grid-column: span 1;
             }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .summary-value { font-size: 1.5rem; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

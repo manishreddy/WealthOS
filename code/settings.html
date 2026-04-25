@@ -860,7 +860,13 @@ body {
             }
 
             .main-content {
-                padding: 24px 20px;
+                padding: 20px 16px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
             }
 
             .family-members-list {
@@ -874,6 +880,17 @@ body {
             .inflation-grid {
                 grid-template-columns: 1fr;
             }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .section-card { padding: 20px 16px; }
+            .settings-nav-item { padding: 10px 12px; font-size: 0.875rem; }
         }
     </style>
 </head>

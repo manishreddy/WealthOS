@@ -986,6 +986,15 @@ body {
         @media (max-width: 1280px) {
             .summary-metrics-5 { grid-template-columns: repeat(3, 1fr); }
         }
+        @media (max-width: 768px) {
+            .summary-metrics-5 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .summary-metrics-5 { grid-template-columns: 1fr 1fr; }
+            .month-selector { flex-wrap: wrap; }
+        }
     </style>
     <link rel="stylesheet" href="controls.css">
 </head>

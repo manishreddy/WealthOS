@@ -17,6 +17,8 @@
     sun:         `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
     moon:        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
     logout:      `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+    hamburger:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+    close:       `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
   };
 
   const NAV = [
@@ -38,6 +40,7 @@
 
   // ── CSS ──────────────────────────────────────────────────────────────────────
   const css = `
+    /* ── Desktop sidebar ─────────────────────────────────────────────── */
     .wos-sidebar {
       width: 240px;
       min-width: 240px;
@@ -53,6 +56,7 @@
       overflow-y: auto;
       overflow-x: hidden;
       transition: background 180ms, border-color 180ms;
+      z-index: 100;
     }
     .wos-sidebar::-webkit-scrollbar { width: 0; }
 
@@ -248,6 +252,115 @@
       color: var(--negative, #FF3B3B);
       background: rgba(255,59,59,0.06);
     }
+
+    /* ── Mobile top bar (hamburger header) ───────────────────────────── */
+    .wos-mobile-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--bg-sidebar, #F5F5F5);
+      border-bottom: 1px solid var(--sidebar-border, rgba(0,0,0,0.07));
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 200;
+      transition: background 180ms, border-color 180ms;
+    }
+    .wos-mobile-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .wos-mobile-logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--text-primary, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .wos-mobile-logo-text {
+      font-family: var(--font, 'Inter', sans-serif);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-primary, #111);
+      letter-spacing: -0.04em;
+    }
+    .wos-mobile-logo-text em { font-style: normal; color: var(--accent, #8FE62C); }
+    .wos-hamburger {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      color: var(--text-primary, #111);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 130ms;
+    }
+    .wos-hamburger:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.06)); }
+
+    /* ── Overlay ─────────────────────────────────────────────────────── */
+    .wos-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .wos-overlay.visible {
+      opacity: 1;
+    }
+
+    /* ── Shared layout collapse ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      /* app-container collapses to single column */
+      .app-container {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Push content below the fixed mobile bar */
+      .main-content {
+        margin-top: 56px !important;
+      }
+
+      /* Show mobile bar */
+      .wos-mobile-bar {
+        display: flex;
+      }
+
+      /* Drawer mode for sidebar */
+      .wos-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 260px !important;
+        min-width: 0 !important;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), background 180ms;
+        z-index: 400;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+      }
+      .wos-sidebar.open {
+        transform: translateX(0);
+      }
+
+      /* Show overlay when open */
+      .wos-overlay {
+        display: block;
+      }
+    }
   `;
 
   // Inject CSS
@@ -293,6 +406,8 @@
         <span class="wos-nav-icon">${item.icon}</span>
         <span class="wos-nav-label">${item.label}</span>
       `;
+      // Close drawer on nav click (mobile)
+      a.addEventListener('click', closeDrawer);
       nav.appendChild(a);
     });
 
@@ -338,6 +453,61 @@
     bottom.appendChild(logout);
 
     root.appendChild(bottom);
+  }
+
+  // ── Mobile bar & overlay ─────────────────────────────────────────────────────
+  function buildMobileBar() {
+    // Top bar
+    const bar = document.createElement('div');
+    bar.className = 'wos-mobile-bar';
+    bar.id = 'wosMobileBar';
+    bar.innerHTML = `
+      <a href="dashboard.html" class="wos-mobile-logo">
+        <div class="wos-mobile-logo-mark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </div>
+        <div class="wos-mobile-logo-text">Wealth<em>OS</em></div>
+      </a>
+      <button class="wos-hamburger" id="wosHamburger" aria-label="Open menu">
+        ${ICONS.hamburger}
+      </button>
+    `;
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'wos-overlay';
+    overlay.id = 'wosOverlay';
+    document.body.appendChild(overlay);
+
+    // Event listeners
+    document.getElementById('wosHamburger').addEventListener('click', openDrawer);
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  function openDrawer() {
+    const sidebar = document.querySelector('.wos-sidebar');
+    const overlay = document.getElementById('wosOverlay');
+    const hamburger = document.getElementById('wosHamburger');
+    if (!sidebar || !overlay) return;
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+    if (hamburger) hamburger.innerHTML = ICONS.close;
+  }
+
+  function closeDrawer() {
+    const sidebar = document.querySelector('.wos-sidebar');
+    const overlay = document.getElementById('wosOverlay');
+    const hamburger = document.getElementById('wosHamburger');
+    if (!sidebar || !overlay) return;
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+    if (hamburger) hamburger.innerHTML = ICONS.hamburger;
   }
 
   // ── Theme helpers ────────────────────────────────────────────────────────────
@@ -396,6 +566,7 @@
     const root = document.getElementById('sidebar-root');
     if (!root) return;
     buildSidebar(root);
+    buildMobileBar();
     applyThemeUI(savedTheme);
     setTimeout(loadPortfolioTotal, 300);
   }

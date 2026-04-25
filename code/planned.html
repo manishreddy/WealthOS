@@ -163,6 +163,27 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
         /* Auto-save status */
         .autosave-status { font-size: 0.8125rem; color: var(--text-tertiary); }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .main-content { padding: 28px 24px; }
+        }
+        @media (max-width: 768px) {
+            .main-content { padding: 20px 16px; }
+            .top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .sub-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 4px; }
+            .sub-tab { white-space: nowrap; padding: 8px 14px; font-size: 0.875rem; }
+            .table-card-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .collapsible-header { padding: 14px 16px; }
+            .collapsible-body { padding: 0 16px 16px; }
+            .config-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .config-grid { grid-template-columns: 1fr; }
+            .collapsible-actions { flex-wrap: wrap; gap: 6px; }
+        }
     </style>
 </head>
 <body>

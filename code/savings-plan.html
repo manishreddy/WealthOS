@@ -2162,7 +2162,19 @@ body {
             }
 
             .main-content {
-                padding: 24px 20px;
+                padding: 20px 16px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .top-actions {
+                flex-wrap: wrap;
+                width: 100%;
             }
 
             .account-cards {
@@ -2200,6 +2212,15 @@ body {
             .allocation-dashboard {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 16px 12px; }
+            .page-title { font-size: 1.5rem; }
+            .account-balance { font-size: 1.5rem; }
+            .emergency-amount { font-size: 1.5rem; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .action-btn { width: 100%; justify-content: center; }
         }
 
         /* ── Page Control Bar (month nav + action buttons) ── */
