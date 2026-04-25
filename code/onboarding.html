@@ -6,14 +6,9 @@
     <title>Welcome to WealthOS</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="controls.css">
-    <link rel="stylesheet" href="user-menu.css">
-    <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font), 'Segoe UI', Roboto, sans-serif;
@@ -26,373 +21,188 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .onboarding-container {
-            max-width: 700px;
-            width: 100%;
-        }
+        .onboarding-container { max-width: 680px; width: 100%; }
 
         .onboarding-card {
             background: white;
             border-radius: 20px;
             padding: 48px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            animation: wos-card-pop 0.45s cubic-bezier(0.22,1,0.36,1) both;
         }
 
-        .logo {
-            font-family: var(--font);
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 8px;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo-row {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
         }
-
-        .progress-container {
-            margin: 32px 0;
+        .logo-mark {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: var(--accent, #8FE62C);
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            position: relative;
+        .logo-name {
+            font-size: 1.0625rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.04em;
         }
+        .logo-name em { font-style: normal; color: var(--accent, #8FE62C); }
 
-        .progress-line {
-            position: absolute;
-            top: 16px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #e5e7eb;
-            z-index: 0;
+        /* Progress bar */
+        .progress-bar-wrap {
+            height: 5px; background: #e5e7eb; border-radius: 9999px;
+            overflow: hidden; margin-bottom: 36px;
         }
-
-        .progress-line-fill {
+        .progress-bar-fill {
             height: 100%;
             background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
-            transition: width 0.3s ease;
+            border-radius: 9999px;
+            transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
             width: 0%;
         }
 
-        .progress-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            z-index: 1;
-            position: relative;
+        /* Step labels */
+        .step-labels {
+            display: flex; gap: 0; justify-content: space-between; margin-bottom: 32px;
         }
-
-        .progress-step-circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #999;
-            transition: all 0.3s ease;
+        .step-label-item {
+            display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative;
         }
-
-        .progress-step.active .progress-step-circle {
-            background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
-            border-color: #0066ff;
-            color: white;
+        .step-label-circle {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: white; border: 2px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8125rem; font-weight: 600; color: #9ca3af;
+            transition: all 0.3s ease; z-index: 1; position: relative;
         }
-
-        .progress-step.completed .progress-step-circle {
-            background: #00C805;
-            border-color: #00C805;
-            color: white;
+        .step-label-item.active .step-label-circle {
+            background: #0066ff; border-color: #0066ff; color: white;
         }
-
-        .progress-step-label {
-            font-size: 0.8rem;
-            color: #999;
-            font-weight: 500;
-            white-space: nowrap;
+        .step-label-item.done .step-label-circle {
+            background: #00C805; border-color: #00C805; color: white;
         }
-
-        .progress-step.active .progress-step-label {
-            color: #0066ff;
-            font-weight: 600;
+        .step-label-text {
+            font-size: 0.75rem; font-weight: 500; color: #9ca3af; text-align: center; white-space: nowrap;
         }
+        .step-label-item.active .step-label-text { color: #0066ff; font-weight: 600; }
+        .step-label-item.done .step-label-text { color: #00C805; }
 
-        .step-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
+        /* Connector lines */
+        .step-connector {
+            position: absolute; top: 15px; left: 50%; right: -50%;
+            height: 2px; background: #e5e7eb; z-index: 0;
         }
+        .step-label-item.done .step-connector { background: #00C805; }
+        .step-label-item:last-child .step-connector { display: none; }
 
+        /* Steps */
+        .step-content { display: none; }
         .step-content.active {
             display: block;
+            animation: wos-slide-left 0.35s cubic-bezier(0.22,1,0.36,1) both;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .step-content.going-back {
+            animation: wos-slide-right 0.35s cubic-bezier(0.22,1,0.36,1) both;
         }
 
         .step-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 12px;
+            font-size: 1.625rem; font-weight: 700; color: #1a1a1a;
+            margin-bottom: 10px; letter-spacing: -0.03em;
         }
+        .step-desc { font-size: 0.9375rem; color: #6b7280; margin-bottom: 28px; line-height: 1.6; }
 
-        .step-description {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 32px;
-            line-height: 1.6;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 14px 16px;
-            font-size: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-family: var(--font);
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #0066ff;
-            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-        }
-
-        .member-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 12px;
-        }
-
-        .member-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .member-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: 600;
-        }
-
-        .member-details h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 2px;
-        }
-
-        .member-details p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .btn-remove {
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-remove:hover {
-            background: #ff3b30;
-            border-color: #ff3b30;
-            color: white;
-        }
-
-        .btn-add-member {
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            border: 2px dashed #e5e7eb;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #0066ff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: var(--font);
-        }
-
-        .btn-add-member:hover {
-            border-color: #0066ff;
-            background: rgba(0, 102, 255, 0.05);
-        }
-
-        .risk-options {
-            display: grid;
-            gap: 16px;
-        }
-
+        /* Risk options */
+        .risk-options { display: flex; flex-direction: column; gap: 12px; }
         .risk-option {
-            padding: 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 20px; border: 2px solid #e5e7eb; border-radius: 12px;
+            cursor: pointer; transition: all 0.25s ease;
+        }
+        .risk-option:hover { border-color: #0066ff; background: rgba(0,102,255,0.02); }
+        .risk-option.selected { border-color: #0066ff; background: rgba(0,102,255,0.05); }
+        .risk-option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .risk-option h4 { font-size: 1rem; font-weight: 700; color: #1a1a1a; }
+        .risk-badge {
+            font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            padding: 3px 8px; border-radius: 6px;
+        }
+        .risk-badge.low { background: rgba(0,200,5,0.1); color: #00C805; }
+        .risk-badge.med { background: rgba(245,158,11,0.1); color: #F59E0B; }
+        .risk-badge.high { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .risk-option p { font-size: 0.875rem; color: #6b7280; line-height: 1.5; }
+
+        /* Goals */
+        .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .goal-item {
+            padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px;
+            cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; gap: 12px;
+        }
+        .goal-item:hover { border-color: #0066ff; background: rgba(0,102,255,0.02); }
+        .goal-item.selected { border-color: #0066ff; background: rgba(0,102,255,0.05); }
+        .goal-item-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .goal-item-text { flex: 1; }
+        .goal-item-title { font-size: 0.9375rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+        .goal-item-desc { font-size: 0.8125rem; color: #9ca3af; }
+        .goal-check {
+            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            font-size: 0.6875rem; color: transparent; transition: all 0.2s ease;
+        }
+        .goal-item.selected .goal-check {
+            background: #0066ff; border-color: #0066ff; color: white;
         }
 
-        .risk-option:hover {
-            border-color: #0066ff;
-            background: rgba(0, 102, 255, 0.03);
+        /* Final summary step */
+        .summary-welcome {
+            text-align: center; padding: 12px 0 28px;
         }
+        .summary-emoji { font-size: 3.5rem; display: block; margin-bottom: 16px; animation: wos-bounce-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+        .summary-name { font-size: 1.75rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .summary-note { font-size: 0.9375rem; color: #6b7280; line-height: 1.6; max-width: 440px; margin: 0 auto; }
 
-        .risk-option.selected {
-            border-color: #0066ff;
-            background: rgba(0, 102, 255, 0.05);
+        .summary-steps {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px;
         }
-
-        .risk-option h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 6px;
+        .summary-step-row {
+            display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+            background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;
+            animation: wos-slide-up 0.35s cubic-bezier(0.22,1,0.36,1) both;
         }
-
-        .risk-option p {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .goal-template {
-            padding: 18px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .goal-template:hover {
-            border-color: #0066ff;
-            background: rgba(0, 102, 255, 0.03);
-        }
-
-        .goal-template.selected {
-            border-color: #0066ff;
-            background: rgba(0, 102, 255, 0.05);
-        }
-
-        .goal-template h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .goal-template p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 36px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: var(--font);
-        }
-
-        .btn-primary {
+        .summary-step-row:nth-child(2) { animation-delay: 0.07s; }
+        .summary-step-row:nth-child(3) { animation-delay: 0.14s; }
+        .summary-step-num {
+            width: 32px; height: 32px; border-radius: 50%;
             background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
+        }
+        .summary-step-info { flex: 1; }
+        .summary-step-title { font-size: 0.9375rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+        .summary-step-desc { font-size: 0.8125rem; color: #9ca3af; }
+        .summary-step-badge { font-size: 0.75rem; font-weight: 600; color: #0066ff; white-space: nowrap; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 28px; }
+        .btn {
+            flex: 1; padding: 14px 20px; border: none; border-radius: 10px;
+            font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+            transition: all 0.25s ease; font-family: inherit;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
             color: white;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.25);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #666;
-            border: 2px solid #e5e7eb;
-        }
-
-        .btn-secondary:hover {
-            border-color: #0066ff;
-            color: #0066ff;
-        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,102,255,0.3); }
+        .btn-secondary { background: white; color: #6b7280; border: 2px solid #e5e7eb; flex: 0 0 auto; padding: 14px 20px; }
+        .btn-secondary:hover { border-color: #0066ff; color: #0066ff; }
 
         .btn-skip {
-            margin-top: 16px;
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            border: none;
-            color: #999;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.3s ease;
+            display: block; text-align: center; margin-top: 14px;
+            font-size: 0.875rem; color: #9ca3af; background: none; border: none;
+            cursor: pointer; font-family: inherit; transition: color 0.2s;
         }
-
-        .btn-skip:hover {
-            color: #666;
-        }
+        .btn-skip:hover { color: #6b7280; }
 
         @media (max-width: 600px) {
-            .onboarding-card {
-                padding: 32px 24px;
-            }
-            .step-title {
-                font-size: 1.5rem;
-            }
-            .progress-step-label {
-                font-size: 0.7rem;
-            }
+            .onboarding-card { padding: 32px 24px; }
+            .step-title { font-size: 1.375rem; }
+            .goals-grid { grid-template-columns: 1fr; }
+            .step-label-text { display: none; }
         }
         @media (max-width: 480px) {
             body { padding: 16px 12px; align-items: flex-start; }
@@ -408,274 +218,273 @@
     </style>
 </head>
 <body>
-    <div class="onboarding-container">
-        <div class="onboarding-card">
-            <h1 class="logo">WealthOS</h1>
+<div class="onboarding-container">
+<div class="onboarding-card">
 
-            <div class="progress-container">
-                <div class="progress-steps">
-                    <div class="progress-line">
-                        <div id="progressLineFill" class="progress-line-fill"></div>
-                    </div>
-                    <div class="progress-step active" data-step="1">
-                        <div class="progress-step-circle">1</div>
-                        <div class="progress-step-label">Family</div>
-                    </div>
-                    <div class="progress-step" data-step="2">
-                        <div class="progress-step-circle">2</div>
-                        <div class="progress-step-label">Risk Profile</div>
-                    </div>
-                    <div class="progress-step" data-step="3">
-                        <div class="progress-step-circle">3</div>
-                        <div class="progress-step-label">Goals</div>
-                    </div>
-                </div>
-            </div>
+    <div class="logo-row">
+        <div class="logo-mark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+            </svg>
+        </div>
+        <div class="logo-name">Wealth<em>OS</em></div>
+    </div>
 
-            <!-- Step 1: Family Members -->
-            <div id="step1" class="step-content active">
-                <h2 class="step-title">Who's in your family?</h2>
-                <p class="step-description">Add family members to track expenses and goals together. You can always add more later.</p>
+    <!-- Progress bar -->
+    <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
 
-                <div id="membersList"></div>
-
-                <form id="addMemberForm" style="display: none; margin-bottom: 20px;">
-                    <div class="form-group">
-                        <input type="text" id="memberName" class="form-input" placeholder="Member name" required>
-                    </div>
-                    <div class="form-group">
-                        <select id="memberRelation" class="form-select" required>
-                            <option value="">Select relationship</option>
-                            <option value="spouse">Spouse</option>
-                            <option value="child">Child</option>
-                            <option value="parent">Parent</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Add Member</button>
-                        <button type="button" id="cancelAddMember" class="btn btn-secondary" style="flex: 1;">Cancel</button>
-                    </div>
-                </form>
-
-                <button id="showAddMemberForm" class="btn-add-member">+ Add Family Member</button>
-
-                <div class="button-group">
-                    <button id="nextStep1" class="btn btn-primary">Continue</button>
-                </div>
-            </div>
-
-            <!-- Step 2: Risk Profile -->
-            <div id="step2" class="step-content">
-                <h2 class="step-title">What's your risk tolerance?</h2>
-                <p class="step-description">This helps us provide personalized investment recommendations.</p>
-
-                <div class="risk-options">
-                    <div class="risk-option" data-risk="conservative">
-                        <h4>Conservative</h4>
-                        <p>Prefer stable, low-risk investments. Focus on capital preservation over growth.</p>
-                    </div>
-                    <div class="risk-option" data-risk="moderate">
-                        <h4>Moderate</h4>
-                        <p>Balanced approach with mix of growth and stability. Comfortable with some market fluctuations.</p>
-                    </div>
-                    <div class="risk-option" data-risk="aggressive">
-                        <h4>Aggressive</h4>
-                        <p>High growth potential. Comfortable with significant market volatility for higher returns.</p>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button id="prevStep2" class="btn btn-secondary">Back</button>
-                    <button id="nextStep2" class="btn btn-primary">Continue</button>
-                </div>
-            </div>
-
-            <!-- Step 3: Financial Goals -->
-            <div id="step3" class="step-content">
-                <h2 class="step-title">What are your financial goals?</h2>
-                <p class="step-description">Select goals you'd like to track. You can customize these later.</p>
-
-                <div class="goal-template" data-goal="retirement">
-                    <h4>Retirement Planning</h4>
-                    <p>Build wealth for a comfortable retirement</p>
-                </div>
-                <div class="goal-template" data-goal="education">
-                    <h4>Children's Education</h4>
-                    <p>Save for college or university expenses</p>
-                </div>
-                <div class="goal-template" data-goal="home">
-                    <h4>Home Purchase</h4>
-                    <p>Save for a down payment on a house</p>
-                </div>
-                <div class="goal-template" data-goal="emergency">
-                    <h4>Emergency Fund</h4>
-                    <p>Build a financial safety net</p>
-                </div>
-                <div class="goal-template" data-goal="vacation">
-                    <h4>Dream Vacation</h4>
-                    <p>Save for that special trip</p>
-                </div>
-
-                <div class="button-group">
-                    <button id="prevStep3" class="btn btn-secondary">Back</button>
-                    <button id="completeOnboarding" class="btn btn-primary">Complete Setup</button>
-                </div>
-            </div>
-
-            <button id="skipOnboarding" class="btn-skip">Skip for now →</button>
+    <!-- Step indicators -->
+    <div class="step-labels">
+        <div class="step-label-item active" id="lbl1">
+            <div class="step-label-circle">1</div>
+            <div class="step-label-text">Risk</div>
+            <div class="step-connector"></div>
+        </div>
+        <div class="step-label-item" id="lbl2">
+            <div class="step-label-circle">2</div>
+            <div class="step-label-text">Goals</div>
+            <div class="step-connector"></div>
+        </div>
+        <div class="step-label-item" id="lbl3">
+            <div class="step-label-circle">3</div>
+            <div class="step-label-text">What's next</div>
+            <div class="step-connector"></div>
         </div>
     </div>
 
-    <script src="auth.js"></script>
-    <script>
-        // Check if user is logged in
-        if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-            window.location.href = 'login.html';
-        }
+    <!-- Step 1: Risk Profile -->
+    <div id="step1" class="step-content active">
+        <h2 class="step-title">What's your risk tolerance?</h2>
+        <p class="step-desc">This helps us personalise investment recommendations and alerts for you.</p>
 
-        // State
-        let currentStep = 1;
-        let familyMembers = [];
-        let selectedRisk = '';
-        let selectedGoals = [];
-
-        // Elements
-        const steps = document.querySelectorAll('.step-content');
-        const progressSteps = document.querySelectorAll('.progress-step');
-        const progressLineFill = document.getElementById('progressLineFill');
-        const membersList = document.getElementById('membersList');
-        const addMemberForm = document.getElementById('addMemberForm');
-        const showAddMemberFormBtn = document.getElementById('showAddMemberForm');
-        const cancelAddMemberBtn = document.getElementById('cancelAddMember');
-
-        // Get current user
-        const currentUser = getCurrentUser();
-        if (currentUser) {
-            document.querySelector('.step-title').textContent = `Welcome, ${currentUser.userName}!`;
-        }
-
-        // Step navigation
-        document.getElementById('nextStep1').addEventListener('click', () => goToStep(2));
-        document.getElementById('prevStep2').addEventListener('click', () => goToStep(1));
-        document.getElementById('nextStep2').addEventListener('click', () => {
-            if (!selectedRisk) {
-                alert('Please select your risk tolerance');
-                return;
-            }
-            goToStep(3);
-        });
-        document.getElementById('prevStep3').addEventListener('click', () => goToStep(2));
-        document.getElementById('completeOnboarding').addEventListener('click', finishOnboarding);
-        document.getElementById('skipOnboarding').addEventListener('click', skipOnboarding);
-
-        function goToStep(step) {
-            currentStep = step;
-
-            steps.forEach((s, i) => {
-                s.classList.toggle('active', i + 1 === step);
-            });
-
-            progressSteps.forEach((s, i) => {
-                const stepNum = i + 1;
-                if (stepNum < step) {
-                    s.classList.add('completed');
-                    s.classList.remove('active');
-                } else if (stepNum === step) {
-                    s.classList.add('active');
-                    s.classList.remove('completed');
-                } else {
-                    s.classList.remove('active', 'completed');
-                }
-            });
-
-            const progress = ((step - 1) / 2) * 100;
-            progressLineFill.style.width = progress + '%';
-        }
-
-        // Family members
-        showAddMemberFormBtn.addEventListener('click', () => {
-            addMemberForm.style.display = 'block';
-            showAddMemberFormBtn.style.display = 'none';
-        });
-
-        cancelAddMemberBtn.addEventListener('click', () => {
-            addMemberForm.style.display = 'none';
-            showAddMemberFormBtn.style.display = 'block';
-            addMemberForm.reset();
-        });
-
-        addMemberForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('memberName').value.trim();
-            const relation = document.getElementById('memberRelation').value;
-
-            if (name && relation) {
-                familyMembers.push({ name, relation });
-                renderMembers();
-                addMemberForm.reset();
-                addMemberForm.style.display = 'none';
-                showAddMemberFormBtn.style.display = 'block';
-            }
-        });
-
-        function renderMembers() {
-            if (familyMembers.length === 0) {
-                membersList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No family members added yet</p>';
-                return;
-            }
-
-            membersList.innerHTML = familyMembers.map((member, index) => `
-                <div class="member-item">
-                    <div class="member-info">
-                        <div class="member-avatar">${member.name.charAt(0).toUpperCase()}</div>
-                        <div class="member-details">
-                            <h4>${member.name}</h4>
-                            <p>${member.relation.charAt(0).toUpperCase() + member.relation.slice(1)}</p>
-                        </div>
-                    </div>
-                    <button class="btn-remove" onclick="removeMember(${index})">Remove</button>
+        <div class="risk-options">
+            <div class="risk-option" data-risk="conservative" onclick="selectRisk(this)">
+                <div class="risk-option-header">
+                    <h4>Conservative</h4>
+                    <span class="risk-badge low">Low risk</span>
                 </div>
-            `).join('');
-        }
+                <p>Prefer stable, low-risk investments. Capital preservation is the priority over growth.</p>
+            </div>
+            <div class="risk-option" data-risk="moderate" onclick="selectRisk(this)">
+                <div class="risk-option-header">
+                    <h4>Moderate</h4>
+                    <span class="risk-badge med">Balanced</span>
+                </div>
+                <p>A balanced mix of growth and stability. Comfortable with some market fluctuations.</p>
+            </div>
+            <div class="risk-option" data-risk="aggressive" onclick="selectRisk(this)">
+                <div class="risk-option-header">
+                    <h4>Aggressive</h4>
+                    <span class="risk-badge high">High growth</span>
+                </div>
+                <p>High growth potential. Comfortable with significant market volatility for higher returns.</p>
+            </div>
+        </div>
 
-        window.removeMember = function(index) {
-            familyMembers.splice(index, 1);
-            renderMembers();
-        };
+        <div class="btn-group">
+            <button class="btn btn-primary" id="riskContinueBtn" onclick="advanceFromRisk()">Continue →</button>
+        </div>
+        <button class="btn-skip" onclick="skipOnboarding()">Skip for now →</button>
+    </div>
 
-        renderMembers();
+    <!-- Step 2: Financial Goals -->
+    <div id="step2" class="step-content">
+        <h2 class="step-title">What are your financial goals?</h2>
+        <p class="step-desc">Select the goals you'd like to track. You can customise targets and amounts later.</p>
 
-        // Risk profile
-        document.querySelectorAll('.risk-option').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.risk-option').forEach(o => o.classList.remove('selected'));
-                option.classList.add('selected');
-                selectedRisk = option.dataset.risk;
-            });
+        <div class="goals-grid" id="goalsGrid">
+            <div class="goal-item" data-goal="retirement" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">🏖️</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Retirement</div>
+                    <div class="goal-item-desc">Build wealth for the future</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+            <div class="goal-item" data-goal="education" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">🎓</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Education</div>
+                    <div class="goal-item-desc">Children's education fund</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+            <div class="goal-item" data-goal="home" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">🏡</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Home Purchase</div>
+                    <div class="goal-item-desc">Save for a down payment</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+            <div class="goal-item" data-goal="emergency" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">🛡️</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Emergency Fund</div>
+                    <div class="goal-item-desc">6 months of expenses</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+            <div class="goal-item" data-goal="vacation" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">✈️</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Dream Vacation</div>
+                    <div class="goal-item-desc">Save for a special trip</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+            <div class="goal-item" data-goal="business" onclick="toggleGoal(this)">
+                <span class="goal-item-icon">💼</span>
+                <div class="goal-item-text">
+                    <div class="goal-item-title">Business / Side Income</div>
+                    <div class="goal-item-desc">Start or grow a business</div>
+                </div>
+                <div class="goal-check">✓</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goToStep(1, true)">← Back</button>
+            <button class="btn btn-primary" onclick="goToStep(3)">Continue →</button>
+        </div>
+        <button class="btn-skip" onclick="skipOnboarding()">Skip for now →</button>
+    </div>
+
+    <!-- Step 3: What's Next summary -->
+    <div id="step3" class="step-content">
+        <div class="summary-welcome">
+            <span class="summary-emoji">🎉</span>
+            <div class="summary-name">You're all set!</div>
+            <p class="summary-note">Your account is ready. Here's what we'll help you do first — each step adds more insight to your dashboard.</p>
+        </div>
+
+        <div class="summary-steps">
+            <div class="summary-step-row">
+                <div class="summary-step-num">1</div>
+                <div class="summary-step-info">
+                    <div class="summary-step-title">Add monthly income &amp; expenses</div>
+                    <div class="summary-step-desc">See your savings rate and where your money actually goes</div>
+                </div>
+                <span class="summary-step-badge">5 min</span>
+            </div>
+            <div class="summary-step-row">
+                <div class="summary-step-num">2</div>
+                <div class="summary-step-info">
+                    <div class="summary-step-title">Log your investments</div>
+                    <div class="summary-step-desc">Mutual funds, stocks, FDs — see your portfolio at a glance</div>
+                </div>
+                <span class="summary-step-badge">3 min</span>
+            </div>
+            <div class="summary-step-row">
+                <div class="summary-step-num">3</div>
+                <div class="summary-step-info">
+                    <div class="summary-step-title">Track your goals</div>
+                    <div class="summary-step-desc">Set targets and watch your progress grow every month</div>
+                </div>
+                <span class="summary-step-badge">2 min</span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goToStep(2, true)">← Back</button>
+            <button class="btn btn-primary" onclick="finishOnboarding()">Go to my dashboard →</button>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script src="/api.js"></script>
+<script src="auth.js"></script>
+<script>
+    if (!WealthAPI.auth.isLoggedIn()) {
+        window.location.href = '/login.html';
+    }
+
+    let currentStep = 1;
+    const totalSteps = 3;
+    let selectedRiskValue = '';
+    let selectedGoals = [];
+
+    function updateProgress(step) {
+        const pct = ((step - 1) / (totalSteps - 1)) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+
+        ['lbl1','lbl2','lbl3'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            el.classList.remove('active','done');
+            if (i + 1 < step) el.classList.add('done');
+            else if (i + 1 === step) el.classList.add('active');
         });
+    }
 
-        // Goals
-        document.querySelectorAll('.goal-template').forEach(goal => {
-            goal.addEventListener('click', () => {
-                const goalType = goal.dataset.goal;
-                if (selectedGoals.includes(goalType)) {
-                    selectedGoals = selectedGoals.filter(g => g !== goalType);
-                    goal.classList.remove('selected');
-                } else {
-                    selectedGoals.push(goalType);
-                    goal.classList.add('selected');
-                }
-            });
-        });
+    function goToStep(step, goingBack = false) {
+        const current = document.getElementById('step' + currentStep);
+        const next = document.getElementById('step' + step);
+        if (!next) return;
 
-        function finishOnboarding() {
-            window.location.href = 'dashboard.html';
+        current.classList.remove('active','going-back');
+        current.style.display = 'none';
+
+        next.classList.remove('active','going-back');
+        if (goingBack) next.classList.add('going-back');
+        next.style.display = 'block';
+        next.classList.add('active');
+        currentStep = step;
+        updateProgress(step);
+    }
+
+    function selectRisk(el) {
+        document.querySelectorAll('.risk-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedRiskValue = el.dataset.risk;
+        const errEl = document.getElementById('riskError');
+        if (errEl) errEl.style.display = 'none';
+    }
+
+    function advanceFromRisk() {
+        if (!selectedRiskValue) {
+            let errEl = document.getElementById('riskError');
+            if (!errEl) {
+                errEl = document.createElement('p');
+                errEl.id = 'riskError';
+                errEl.style.cssText = 'color:#ef4444;font-size:0.875rem;margin-top:8px;text-align:center';
+                errEl.textContent = 'Please choose a risk profile to continue.';
+                document.getElementById('riskContinueBtn').insertAdjacentElement('afterend', errEl);
+            }
+            errEl.style.display = '';
+            return;
         }
+        goToStep(2);
+    }
 
-        function skipOnboarding() {
-            window.location.href = 'dashboard.html';
+    function toggleGoal(el) {
+        const goal = el.dataset.goal;
+        if (selectedGoals.includes(goal)) {
+            selectedGoals = selectedGoals.filter(g => g !== goal);
+            el.classList.remove('selected');
+        } else {
+            selectedGoals.push(goal);
+            el.classList.add('selected');
         }
-    </script>
+    }
+
+    function finishOnboarding() {
+        try {
+            const prefs = { riskProfile: selectedRiskValue, goals: selectedGoals };
+            localStorage.setItem('wealthos_onboarding_prefs', JSON.stringify(prefs));
+        } catch(e) {}
+        window.location.href = '/dashboard.html';
+    }
+
+    function skipOnboarding() {
+        window.location.href = '/dashboard.html';
+    }
+
+    updateProgress(1);
+</script>
 </body>
 </html>

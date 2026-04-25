@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         body {
             font-family: var(--font);
@@ -702,12 +703,206 @@
             color: var(--text-primary);
         }
 
-        /* Onboarding Cards */
+        /* ── FTUX Nudge Card ─────────────────────────────────────────── */
+        .ftux-nudge-section {
+            grid-column: span 12;
+            margin-bottom: 4px;
+        }
+        .ftux-nudge-card {
+            background: linear-gradient(135deg, var(--accent-primary, #0066ff) 0%, #0052cc 100%);
+            border-radius: 18px;
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+            animation: wos-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .ftux-nudge-card::before {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            top: -80px; right: -60px;
+            pointer-events: none;
+        }
+        .ftux-nudge-icon {
+            font-size: 2.75rem;
+            flex-shrink: 0;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+        .ftux-nudge-body { flex: 1; min-width: 0; }
+        .ftux-nudge-step {
+            font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: rgba(255,255,255,0.65);
+            margin-bottom: 5px;
+        }
+        .ftux-nudge-title {
+            font-size: 1.125rem; font-weight: 700; color: white;
+            margin-bottom: 5px; letter-spacing: -0.02em;
+        }
+        .ftux-nudge-desc {
+            font-size: 0.875rem; color: rgba(255,255,255,0.8); line-height: 1.5;
+        }
+        .ftux-nudge-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .ftux-nudge-btn {
+            padding: 11px 22px; background: white; color: var(--accent-primary, #0066ff);
+            border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+            text-decoration: none; display: inline-block; font-family: var(--font);
+        }
+        .ftux-nudge-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+        .ftux-nudge-dismiss {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.15); border: none;
+            color: rgba(255,255,255,0.8); font-size: 1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; flex-shrink: 0;
+        }
+        .ftux-nudge-dismiss:hover { background: rgba(255,255,255,0.25); }
+
+        /* Progress dots in nudge */
+        .ftux-progress-dots {
+            display: flex; gap: 5px; margin-top: 10px;
+        }
+        .ftux-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+        .ftux-dot.active { background: white; }
+        .ftux-dot.done { background: rgba(255,255,255,0.6); }
+
+        /* ── Family Setup Widget ─────────────────────────────────────── */
+        .family-setup-widget {
+            grid-column: span 12;
+            background: var(--bg-elevated);
+            border: 2px dashed var(--border-color);
+            border-radius: 18px;
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 8px;
+            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+        }
+        .family-widget-icon { font-size: 3rem; flex-shrink: 0; }
+        .family-widget-body { flex: 1; }
+        .family-widget-title {
+            font-size: 1.0625rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 5px; letter-spacing: -0.02em;
+        }
+        .family-widget-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
+        .family-widget-benefit {
+            font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 6px;
+        }
+        .family-widget-btn {
+            padding: 11px 22px; background: var(--accent-primary, #0066ff); color: white;
+            border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+            text-decoration: none; display: inline-block; font-family: var(--font);
+        }
+        .family-widget-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* ── Hero metric card ────────────────────────────────────────── */
+        .hero-metric-card {
+            grid-column: span 12;
+            background: var(--card-dark-bg, #1a1a1a);
+            border-radius: 20px;
+            padding: 28px 32px;
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            margin-bottom: 4px;
+            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .hero-metric-card::before {
+            content: '';
+            position: absolute;
+            width: 350px; height: 350px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(143,230,44,0.06) 0%, transparent 70%);
+            top: -120px; right: -60px;
+            pointer-events: none;
+        }
+        .hero-metric-main { flex: 1; }
+        .hero-metric-label {
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.06em; color: rgba(255,255,255,0.5); margin-bottom: 8px;
+        }
+        .hero-metric-value {
+            font-size: 2.75rem; font-weight: 800; color: white; letter-spacing: -0.04em;
+            margin-bottom: 6px; line-height: 1;
+            font-feature-settings: 'tnum' 1;
+        }
+        .hero-metric-change {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.8125rem; font-weight: 600; color: var(--accent, #8FE62C);
+        }
+        .hero-metric-divider {
+            width: 1px; background: rgba(255,255,255,0.08); margin: 0 32px;
+        }
+        .hero-metric-secondary {
+            display: flex; flex-direction: column; justify-content: center;
+            gap: 18px; flex-shrink: 0; min-width: 220px;
+        }
+        .hero-secondary-item {}
+        .hero-secondary-label {
+            font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 4px;
+        }
+        .hero-secondary-value {
+            font-size: 1.25rem; font-weight: 700; color: white; letter-spacing: -0.03em;
+            font-feature-settings: 'tnum' 1;
+        }
+        .hero-secondary-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+        /* Skeleton for hero */
+        .hero-metric-card.loading .hero-metric-value,
+        .hero-metric-card.loading .hero-secondary-value {
+            background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 75%);
+            background-size: 600px 100%;
+            animation: wos-shimmer 1.5s infinite linear;
+            border-radius: 8px;
+            color: transparent !important;
+        }
+
+        /* Chart / gauge skeleton overlay */
+        .chart-card.loading { position: relative; }
+        .chart-card.loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.04) 50%, var(--bg-card) 75%);
+            background-size: 600px 100%;
+            animation: wos-shimmer 1.5s infinite linear;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Generic skeleton lines */
+        .wos-skeleton-line {
+            display: block;
+            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.06) 50%, var(--bg-card) 75%);
+            background-size: 600px 100%;
+            animation: wos-shimmer 1.5s infinite linear;
+            border-radius: 6px;
+            color: transparent !important;
+            min-height: 20px;
+        }
+        .wos-skeleton-card { pointer-events: none; opacity: 0.7; }
+
+        /* Onboarding Cards (kept as fallback) */
         .onboarding-section {
             grid-column: span 12;
             margin-bottom: 20px;
             opacity: 1;
             transition: opacity 0.5s ease, max-height 0.5s ease;
+            display: none;
         }
 
         .onboarding-section.hidden {
@@ -737,9 +932,7 @@
         .onboarding-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 4px;
             background: var(--accent-primary);
         }
@@ -749,49 +942,21 @@
             filter: brightness(0.98);
         }
 
-        .onboarding-card-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
+        .onboarding-card-icon { font-size: 3rem; margin-bottom: 16px; }
         .onboarding-card-title {
-            font-family: var(--font);
-            font-size: 1.375rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
+            font-family: var(--font); font-size: 1.375rem; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 12px; letter-spacing: -0.02em;
         }
-
         .onboarding-card-description {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            line-height: 1.5;
+            font-size: 0.9375rem; color: var(--text-secondary);
+            margin-bottom: 20px; line-height: 1.5;
         }
-
         .onboarding-card-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: var(--accent-primary);
-            color: white;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; background: var(--accent-primary); color: white;
+            border-radius: 10px; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease;
         }
-
-        .onboarding-card:hover .onboarding-card-cta {
-            transform: translateX(4px);
-        }
+        .onboarding-card:hover .onboarding-card-cta { transform: translateX(4px); }
 
         /* Demo Button */
         .demo-btn {
@@ -845,18 +1010,11 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease;
+            animation: wos-scale-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .modal-overlay {
+            animation: wos-fade-in 0.22s ease both;
         }
 
         .modal-header {
@@ -994,6 +1152,16 @@
             }
         }
 
+        @media (max-width: 900px) {
+            .hero-metric-card { flex-direction: column; gap: 20px; }
+            .hero-metric-divider { width: 100%; height: 1px; margin: 4px 0; }
+            .hero-metric-secondary { min-width: 0; width: 100%; flex-direction: row; gap: 24px; }
+            .hero-metric-value { font-size: 2.25rem; }
+            .ftux-nudge-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .ftux-nudge-actions { width: 100%; justify-content: space-between; }
+            .family-setup-widget { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+
         @media (max-width: 768px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -1042,7 +1210,7 @@
     <div class="app-container">
         <aside id="sidebar-root"></aside>
 
-        <main class="main-content">
+        <main class="main-content wos-page-enter">
             <div class="top-bar">
                 <div class="page-header">
                     <div class="page-title" id="pageTitle">Family Dashboard</div>
@@ -1080,7 +1248,7 @@
                 </div>
             </div>
 
-            <!-- Person Tabs -->
+            <!-- Person Tabs (only shown when 2+ members exist) -->
             <div class="person-tabs-container" id="personTabsContainer" style="display:none;">
                 <div class="person-tabs" id="personTabsList">
                     <!-- Dynamically populated -->
@@ -1102,8 +1270,65 @@
                 <a id="setupContinueBtn" href="#" style="background: var(--accent-primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap;">Continue Setup →</a>
             </div>
 
-            <div class="dashboard-grid">
-                <!-- Onboarding Cards -->
+            <div class="dashboard-grid" id="dashboardGrid">
+
+                <!-- Hero Net Worth Card -->
+                <div class="hero-metric-card loading" id="heroCard">
+                    <div class="hero-metric-main">
+                        <div class="hero-metric-label">Total Net Worth</div>
+                        <div class="hero-metric-value" id="heroNetWorth">—</div>
+                        <div class="hero-metric-change" id="heroChange" style="display:none;">
+                            <span id="heroChangeText"></span>
+                        </div>
+                    </div>
+                    <div class="hero-metric-divider"></div>
+                    <div class="hero-metric-secondary">
+                        <div class="hero-secondary-item">
+                            <div class="hero-secondary-label">Monthly Savings</div>
+                            <div class="hero-secondary-value" id="heroSavings">—</div>
+                            <div class="hero-secondary-sub" id="heroSavingsRate">—% savings rate</div>
+                        </div>
+                        <div class="hero-secondary-item">
+                            <div class="hero-secondary-label">Monthly Income</div>
+                            <div class="hero-secondary-value" id="heroIncome">—</div>
+                            <div class="hero-secondary-sub" id="heroExpenses">— expenses</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Setup Widget (shown when 0 members) -->
+                <div class="family-setup-widget" id="familySetupWidget" style="display:none;">
+                    <div class="family-widget-icon">👨‍👩‍👧‍👦</div>
+                    <div class="family-widget-body">
+                        <div class="family-widget-title">Set up your family account</div>
+                        <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals like a home or your children's education.</div>
+                        <div class="family-widget-benefit">Takes 2 minutes — you can always add or remove members later.</div>
+                    </div>
+                    <a href="family-setup.html" class="family-widget-btn">Set up family →</a>
+                </div>
+
+                <!-- FTUX Nudge (one at a time, dismissible) -->
+                <div class="ftux-nudge-section" id="ftuxNudgeSection" style="display:none;">
+                    <div class="ftux-nudge-card">
+                        <div class="ftux-nudge-icon" id="ftuxIcon">📊</div>
+                        <div class="ftux-nudge-body">
+                            <div class="ftux-nudge-step" id="ftuxStep">Step 1 of 3</div>
+                            <div class="ftux-nudge-title" id="ftuxTitle">Add your monthly income &amp; expenses</div>
+                            <div class="ftux-nudge-desc" id="ftuxDesc">See your savings rate and exactly where your money goes — the most important first step.</div>
+                            <div class="ftux-progress-dots" id="ftuxDots">
+                                <div class="ftux-dot active"></div>
+                                <div class="ftux-dot"></div>
+                                <div class="ftux-dot"></div>
+                            </div>
+                        </div>
+                        <div class="ftux-nudge-actions">
+                            <a href="#" class="ftux-nudge-btn" id="ftuxCta">Go to Monthly Tracker →</a>
+                            <button class="ftux-nudge-dismiss" id="ftuxDismiss" title="Dismiss">×</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onboarding Cards (legacy, hidden) -->
                 <div class="onboarding-section" id="onboardingSection">
                     <div class="onboarding-cards">
                         <div class="onboarding-card" onclick="openAssetModal()">
@@ -1140,11 +1365,14 @@
 
                 <!-- Metric Cards -->
                 <div class="metric-cards" id="metricCards">
-                    <!-- Will be populated by JavaScript -->
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
+                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:70%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:12px;margin-top:8px"></div></div>
                 </div>
 
                 <!-- Main Chart -->
-                <div class="chart-card" id="mainChart">
+                <div class="chart-card loading" id="mainChart">
                     <div class="chart-header">
                         <div class="chart-title" id="chartTitle">Net Worth Growth</div>
                         <div class="chart-tabs">
@@ -1180,7 +1408,7 @@
                 </div>
 
                 <!-- Savings Rate Gauge -->
-                <div class="chart-card" id="savingsGauge">
+                <div class="chart-card loading" id="savingsGauge">
                     <div class="chart-header">
                         <div class="chart-title">Savings Rate</div>
                     </div>
@@ -1428,6 +1656,8 @@
                 gauge.style.transformOrigin = 'center';
             }
             document.getElementById('gaugeValue').textContent = Math.round(pct) + '%';
+            const gaugeCard = document.getElementById('savingsGauge');
+            if (gaugeCard) gaugeCard.classList.remove('loading');
         }
 
         function toggleGoalExpand(element) {
@@ -1767,6 +1997,10 @@
                 const tabs = header.querySelector('.chart-tabs');
                 header.insertBefore(legend, tabs);
             }
+
+            // Remove skeleton loading overlay
+            const chartCard = document.getElementById('mainChart');
+            if (chartCard) chartCard.classList.remove('loading');
         }
 
         // ── Modal helpers (kept for onboarding card buttons) ──────────────────
@@ -1802,19 +2036,138 @@
             WealthAPI.auth.logout();
         }
 
+        // ── FTUX Nudge System ─────────────────────────────────────────────────
+        const FTUX_NUDGES = [
+            {
+                id: 'monthly',
+                icon: '📊',
+                step: 'Step 1 of 3 — Start here',
+                title: 'Add your monthly income & expenses',
+                desc: 'See your savings rate and exactly where your money goes. This unlocks your most important financial metric.',
+                cta: 'Go to Monthly Tracker →',
+                href: '/monthly-tracker.html'
+            },
+            {
+                id: 'investments',
+                icon: '📈',
+                step: 'Step 2 of 3 — Great start!',
+                title: 'Log how much you invest each month',
+                desc: 'Track your monthly investment amount to measure your wealth-building habit and savings rate over time.',
+                cta: 'Add Investments →',
+                href: '/monthly-tracker.html'
+            },
+            {
+                id: 'portfolio',
+                icon: '💼',
+                step: 'Step 3 of 3 — Almost there!',
+                title: 'Add your portfolio assets',
+                desc: 'Log each asset — mutual funds, stocks, FDs, gold, real estate — to see your full net worth and how it\'s allocated.',
+                cta: 'Build your Portfolio →',
+                href: '/portfolio.html'
+            }
+        ];
+
+        function getDismissedNudges() {
+            try { return JSON.parse(localStorage.getItem('wealthos_dismissed_nudges') || '[]'); } catch { return []; }
+        }
+        function dismissNudge(id) {
+            const dismissed = getDismissedNudges();
+            if (!dismissed.includes(id)) dismissed.push(id);
+            localStorage.setItem('wealthos_dismissed_nudges', JSON.stringify(dismissed));
+        }
+
+        function renderFtuxNudge(hasMonthlyData, hasInvestments, hasPortfolio) {
+            const dismissed = getDismissedNudges();
+            const checks = [hasMonthlyData, hasInvestments, hasPortfolio];
+            const ids = ['monthly', 'investments', 'portfolio'];
+
+            // Find first incomplete, non-dismissed nudge
+            let activeNudge = null;
+            let activeIdx = -1;
+            for (let i = 0; i < FTUX_NUDGES.length; i++) {
+                if (!checks[i] && !dismissed.includes(ids[i])) {
+                    activeNudge = FTUX_NUDGES[i];
+                    activeIdx = i;
+                    break;
+                }
+            }
+
+            const section = document.getElementById('ftuxNudgeSection');
+            if (!section) return;
+
+            if (!activeNudge) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = '';
+            document.getElementById('ftuxIcon').textContent = activeNudge.icon;
+            document.getElementById('ftuxStep').textContent = activeNudge.step;
+            document.getElementById('ftuxTitle').textContent = activeNudge.title;
+            document.getElementById('ftuxDesc').textContent = activeNudge.desc;
+            const cta = document.getElementById('ftuxCta');
+            cta.textContent = activeNudge.cta;
+            cta.href = activeNudge.href;
+
+            // Update progress dots
+            const dotsContainer = document.getElementById('ftuxDots');
+            dotsContainer.innerHTML = FTUX_NUDGES.map((n, i) => {
+                let cls = 'ftux-dot';
+                if (i < activeIdx) cls += ' done';
+                else if (i === activeIdx) cls += ' active';
+                return `<div class="${cls}"></div>`;
+            }).join('');
+
+            // Dismiss handler
+            const dismissBtn = document.getElementById('ftuxDismiss');
+            dismissBtn.onclick = () => {
+                dismissNudge(activeNudge.id);
+                section.style.transition = 'opacity 0.3s ease, max-height 0.4s ease';
+                section.style.opacity = '0';
+                setTimeout(() => { section.style.display = 'none'; }, 350);
+            };
+        }
+
+        // ── Hero card update ──────────────────────────────────────────────────
+        function updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments) {
+            const heroCard = document.getElementById('heroCard');
+            if (heroCard) heroCard.classList.remove('loading');
+
+            const el = (id) => document.getElementById(id);
+            if (el('heroNetWorth')) el('heroNetWorth').textContent = fmt(netWorth);
+
+            const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
+            const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
+
+            if (el('heroSavings')) el('heroSavings').textContent = fmt(savings);
+            if (el('heroSavingsRate')) el('heroSavingsRate').textContent = savingsRate + '% savings rate';
+            if (el('heroIncome')) el('heroIncome').textContent = fmt(totalIncome);
+            if (el('heroExpenses')) el('heroExpenses').textContent = fmt(totalExpenses) + ' expenses';
+        }
+
         // ── Person Tabs ───────────────────────────────────────────────────────
         let allFamilyMembers = [];
-        let currentDashboardMemberId = null; // null = Overall
+        let currentDashboardMemberId = null;
 
         function buildDashboardPersonTabs(members) {
-            if (!members || members.length === 0) return;
             const container = document.getElementById('personTabsContainer');
             const tabsList  = document.getElementById('personTabsList');
-            if (!container || !tabsList) return;
+            const familyWidget = document.getElementById('familySetupWidget');
 
+            // Show family widget if 0 or 1 member (solo/new account)
+            if (familyWidget) {
+                familyWidget.style.display = (!members || members.length <= 1) ? '' : 'none';
+            }
+
+            // Only show person tabs if 2+ members exist
+            if (!members || members.length < 2) {
+                if (container) container.style.display = 'none';
+                return;
+            }
+
+            if (!container || !tabsList) return;
             tabsList.innerHTML = '';
 
-            // Overall tab FIRST and active by default
             const overall = document.createElement('button');
             overall.className = 'person-tab overall-tab active';
             overall.dataset.memberId = 'overall';
@@ -1885,10 +2238,11 @@
             const user = WealthAPI.auth.getCachedUser();
             if (user) {
                 const familyName = user.familyName || '';
-                document.getElementById('pageTitle').textContent = familyName
-                    ? `Welcome, ${familyName}`
-                    : 'Family Dashboard';
-                document.getElementById('pageSubtitle').textContent = 'Complete overview of family wealth and goals';
+                const displayName = familyName && familyName !== 'My Family' ? familyName : (user.email || '').split('@')[0];
+                document.getElementById('pageTitle').textContent = displayName
+                    ? `Welcome, ${displayName}`
+                    : 'Dashboard';
+                document.getElementById('pageSubtitle').textContent = 'Your personal wealth overview';
 
                 // User menu
                 const nameEl  = document.getElementById('userMenuName');
@@ -1898,8 +2252,9 @@
 
                 // Avatar initial
                 const avatarEl = document.querySelector('.user-avatar');
-                if (avatarEl && familyName) {
-                    avatarEl.childNodes[0].textContent = familyName.charAt(0).toUpperCase();
+                if (avatarEl) {
+                    const initials = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+                    avatarEl.childNodes[0].textContent = initials;
                 }
             }
 
@@ -1960,12 +2315,54 @@
             // ── Net Worth / Trend Chart ───────────────────────────────────────
             renderNetWorthChart(3);
 
-            // ── Onboarding section: hide if there's real data ─────────────────
+            // ── Hero metric card ──────────────────────────────────────────────
+            updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments);
+
+            // ── FTUX Nudge System: monthly → investments → portfolio ──────────
+            const hasMonthlyData = totalIncome > 0 || totalExpenses > 0;
+            const hasInvestmentData = totalInvestments > 0;
+            const hasPortfolioEntries = byAssetClass && byAssetClass.length > 0;
+            renderFtuxNudge(hasMonthlyData, hasInvestmentData, hasPortfolioEntries);
+
+            // ── Onboarding section: kept hidden (replaced by FTUX nudge) ──────
             const onboardingSection = document.getElementById('onboardingSection');
-            const hasAnyData = totalIncome > 0 || totalExpenses > 0 || netWorth > 0 || (goals && goals.length > 0);
-            if (onboardingSection) {
-                onboardingSection.style.display = hasAnyData ? 'none' : 'block';
-            }
+            if (onboardingSection) onboardingSection.style.display = 'none';
+
+            // ── Progressive section reveal — new-user view = max 3-4 sections ─
+            // Sections revealed based on what data the user has added:
+            const hasGoalData  = goals && Array.isArray(goals) && goals.length > 0;
+            const sectionVis = (id, visible) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = visible ? '' : 'none';
+            };
+            // Monthly data sections (metric cards, gauge, income/expense bars)
+            sectionVis('metricCards',       hasMonthlyData);
+            sectionVis('savingsGauge',      hasMonthlyData);
+            sectionVis('incomeExpenseChart', hasMonthlyData);
+            // Portfolio / investment sections
+            sectionVis('allocationCard',    hasPortfolioEntries);
+            sectionVis('activityCard',      hasPortfolioEntries || hasMonthlyData);
+            // Goals section — visible when goals exist
+            sectionVis('goalsGrid',         hasGoalData);
+            // Net worth chart: always show so new users see the trend container
+            sectionVis('mainChart',         true);
+
+            // ── Scroll reveal for dashboard cards ─────────────────────────────
+            const revealEls = document.querySelectorAll('#dashboardGrid > *:not(.hero-metric-card):not(.ftux-nudge-section):not(.family-setup-widget)');
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('wos-reveal', 'visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.05 });
+
+            revealEls.forEach((el, i) => {
+                el.classList.add('wos-reveal');
+                el.style.transitionDelay = (i * 0.06) + 's';
+                revealObserver.observe(el);
+            });
         }
 
         // ── Chart tab switching ───────────────────────────────────────────────

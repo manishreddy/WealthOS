@@ -19,8 +19,8 @@ router.post('/signup', async (req, res) => {
   try {
     const { email, password, familyName } = req.body;
 
-    if (!email || !password || !familyName) {
-      return res.status(400).json({ error: 'Email, password, and family name are required' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,9 +32,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 8 characters long' });
     }
 
-    if (!familyName.trim()) {
-      return res.status(400).json({ error: 'Family name cannot be empty' });
-    }
+    const resolvedFamilyName = (familyName || '').trim() || 'My Family';
 
     const existing = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
     if (existing.rows.length > 0) {
@@ -45,7 +43,7 @@ router.post('/signup', async (req, res) => {
 
     const result = await query(
       'INSERT INTO users (email, password_hash, family_name) VALUES ($1, $2, $3) RETURNING id',
-      [email.toLowerCase().trim(), passwordHash, familyName.trim()]
+      [email.toLowerCase().trim(), passwordHash, resolvedFamilyName]
     );
     const userId = result.rows[0].id;
 
@@ -66,7 +64,8 @@ router.post('/signup', async (req, res) => {
       user: {
         id: userId,
         email: email.toLowerCase().trim(),
-        familyName: familyName.trim()
+        familyName: resolvedFamilyName,
+        needsFamilySetup: true
       }
     });
   } catch (err) {

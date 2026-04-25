@@ -1,0 +1,220 @@
+/* ──────────────────────────────────────────────────────────────
+   WealthOS — Shared Animation Library
+   Usage: add classes directly to elements, or use JS to apply.
+   Respects prefers-reduced-motion globally.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Reduced Motion Safety Net ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+@keyframes wos-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes wos-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wos-slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wos-slide-left {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes wos-slide-right {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes wos-card-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes wos-scale-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes wos-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+@keyframes wos-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wos-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes wos-bounce-in {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  80%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+/* ── Utility Classes ────────────────────────────────────────── */
+
+/* Fade in */
+.wos-fade-in {
+  animation: wos-fade-in 0.35s ease both;
+}
+.wos-fade-in-slow {
+  animation: wos-fade-in 0.6s ease both;
+}
+
+/* Slide up (standard page entry) */
+.wos-slide-up {
+  animation: wos-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.wos-slide-up-delay-1 {
+  animation: wos-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.07s both;
+}
+.wos-slide-up-delay-2 {
+  animation: wos-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+.wos-slide-up-delay-3 {
+  animation: wos-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.21s both;
+}
+.wos-slide-up-delay-4 {
+  animation: wos-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+}
+
+/* Slide left (next step) */
+.wos-slide-left {
+  animation: wos-slide-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Slide right (prev step) */
+.wos-slide-right {
+  animation: wos-slide-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Card pop (on scroll reveal) */
+.wos-card-pop {
+  animation: wos-card-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Scale in (modal open) */
+.wos-scale-in {
+  animation: wos-scale-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Bounce in */
+.wos-bounce-in {
+  animation: wos-bounce-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Skeleton Screens ───────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border-subtle, #e5e7eb) 25%,
+    var(--hover-bg, #f3f4f6) 50%,
+    var(--border-subtle, #e5e7eb) 75%
+  );
+  background-size: 600px 100%;
+  animation: wos-shimmer 1.5s infinite linear;
+  border-radius: 8px;
+  color: transparent !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+}
+
+.skeleton-title {
+  height: 1.6em;
+  width: 55%;
+  border-radius: 6px;
+  margin-bottom: 0.75em;
+}
+
+.skeleton-metric {
+  height: 2.2em;
+  width: 70%;
+  border-radius: 8px;
+}
+
+.skeleton-card {
+  border-radius: 16px;
+  min-height: 140px;
+}
+
+/* ── Scroll Reveal ──────────────────────────────────────────── */
+.wos-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.wos-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Modal transition ───────────────────────────────────────── */
+.wos-modal-enter {
+  animation: wos-scale-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.wos-modal-overlay-enter {
+  animation: wos-fade-in 0.22s ease both;
+}
+
+/* ── Sidebar nav hover ──────────────────────────────────────── */
+.wos-nav-item {
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.wos-nav-item:hover {
+  transform: translateX(3px);
+}
+.wos-nav-item.active {
+  transform: translateX(3px);
+}
+
+/* ── Page entry ─────────────────────────────────────────────── */
+.wos-page-enter {
+  animation: wos-slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Stagger helper (used with JS) ─────────────────────────── */
+.wos-stagger > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.wos-stagger.ready > * {
+  opacity: 1;
+  transform: none;
+}
+.wos-stagger.ready > *:nth-child(1) { transition-delay: 0ms; }
+.wos-stagger.ready > *:nth-child(2) { transition-delay: 60ms; }
+.wos-stagger.ready > *:nth-child(3) { transition-delay: 120ms; }
+.wos-stagger.ready > *:nth-child(4) { transition-delay: 180ms; }
+.wos-stagger.ready > *:nth-child(5) { transition-delay: 240ms; }
+.wos-stagger.ready > *:nth-child(6) { transition-delay: 300ms; }

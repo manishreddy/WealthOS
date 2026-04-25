@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Your Account — WealthOS</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font), 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg, #f9fafb);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header bar ── */
+        .setup-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background: var(--bg, #f9fafb);
+            border-bottom: 1px solid var(--border, #e5e7eb);
+            z-index: 100;
+        }
+        .brand-link {
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .brand-mark {
+            width: 32px; height: 32px; border-radius: 9px;
+            background: var(--accent, #8FE62C);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .brand-name {
+            font-size: 1rem; font-weight: 800; color: var(--text-primary, #111);
+            letter-spacing: -0.04em;
+        }
+        .brand-name em { font-style: normal; color: var(--accent, #8FE62C); }
+        .step-badge {
+            font-size: 0.8125rem; color: var(--text-secondary, #6b7280); font-weight: 500;
+        }
+
+        /* ── Card ── */
+        .setup-card {
+            background: white;
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 600px;
+            margin-top: 56px;
+            animation: wos-card-pop 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        /* ── Steps container ── */
+        .step-wrap { position: relative; overflow: hidden; }
+
+        .setup-step {
+            display: none;
+        }
+        .setup-step.active {
+            display: block;
+            animation: wos-slide-left 0.35s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .setup-step.going-back {
+            animation: wos-slide-right 0.35s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        /* Progress dots */
+        .step-dots {
+            display: flex; gap: 6px; margin-bottom: 32px;
+        }
+        .step-dot {
+            height: 4px; border-radius: 9999px;
+            background: var(--border, #e5e7eb);
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        .step-dot.active { background: #0066ff; }
+        .step-dot.done { background: #00C805; }
+
+        /* Typography */
+        .setup-eyebrow {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #0066ff; margin-bottom: 8px;
+        }
+        .setup-title {
+            font-size: 1.75rem; font-weight: 700; color: #1a1a1a;
+            margin-bottom: 10px; letter-spacing: -0.03em; line-height: 1.2;
+        }
+        .setup-desc {
+            font-size: 0.9375rem; color: #6b7280; line-height: 1.6; margin-bottom: 32px;
+        }
+
+        /* Solo/Family choice cards */
+        .choice-cards {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px;
+        }
+        .choice-card {
+            padding: 24px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            background: white;
+        }
+        .choice-card:hover { border-color: #0066ff; background: rgba(0,102,255,0.02); }
+        .choice-card.selected { border-color: #0066ff; background: rgba(0,102,255,0.05); }
+        .choice-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .choice-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .choice-desc { font-size: 0.8125rem; color: #9ca3af; line-height: 1.4; }
+
+        /* Form fields */
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block; font-size: 0.875rem; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;
+        }
+        .form-hint {
+            font-size: 0.8125rem; color: #9ca3af; margin-bottom: 8px; display: block;
+        }
+        .form-input, .form-select {
+            width: 100%; padding: 13px 16px; font-size: 0.9375rem;
+            border: 2px solid #e5e7eb; border-radius: 10px;
+            font-family: var(--font), 'Segoe UI', sans-serif;
+            transition: all 0.2s ease; background: white; color: #1a1a1a;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none; border-color: #0066ff;
+            box-shadow: 0 0 0 3px rgba(0,102,255,0.1);
+        }
+        .form-input::placeholder { color: #d1d5db; }
+
+        /* Members */
+        .members-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        .member-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px; background: #f9fafb;
+            border-radius: 12px; border: 1px solid #e5e7eb;
+            animation: wos-slide-up 0.3s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .member-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
+        }
+        .member-details { flex: 1; min-width: 0; }
+        .member-name { font-size: 0.9375rem; font-weight: 600; color: #1a1a1a; }
+        .member-rel { font-size: 0.8125rem; color: #9ca3af; }
+        .btn-remove-member {
+            padding: 6px 12px; background: transparent; border: 1px solid #e5e7eb;
+            border-radius: 7px; font-size: 0.8125rem; color: #9ca3af;
+            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+        }
+        .btn-remove-member:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+        .add-member-form {
+            padding: 20px; background: #f9fafb; border-radius: 14px;
+            border: 1.5px dashed #e5e7eb; margin-bottom: 12px;
+            display: none;
+        }
+        .add-member-form.visible { display: block; animation: wos-slide-down 0.25s ease both; }
+        .add-member-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .add-member-actions { display: flex; gap: 8px; }
+
+        .btn-add-member {
+            width: 100%; padding: 13px; background: transparent;
+            border: 2px dashed #e5e7eb; border-radius: 10px;
+            font-size: 0.9375rem; font-weight: 600; color: #0066ff;
+            cursor: pointer; transition: all 0.25s ease; font-family: inherit;
+        }
+        .btn-add-member:hover { border-color: #0066ff; background: rgba(0,102,255,0.04); }
+
+        /* Benefit callout */
+        .benefit-box {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 14px 16px; background: rgba(0,102,255,0.05);
+            border-radius: 12px; border: 1px solid rgba(0,102,255,0.12);
+            margin-bottom: 24px;
+        }
+        .benefit-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+        .benefit-text { font-size: 0.875rem; color: #374151; line-height: 1.5; }
+        .benefit-text strong { color: #1a1a1a; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 32px; }
+        .btn {
+            flex: 1; padding: 14px 20px; border: none; border-radius: 10px;
+            font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s ease; font-family: inherit;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,102,255,0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-primary.loading { color: transparent; position: relative; }
+        .btn-primary.loading::after {
+            content: ''; position: absolute; width: 18px; height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: wos-spin 0.7s linear infinite;
+            top: 50%; left: 50%; transform: translate(-50%,-50%);
+        }
+        .btn-secondary {
+            background: white; color: #6b7280; border: 2px solid #e5e7eb; flex: 0 0 auto; padding: 14px 24px;
+        }
+        .btn-secondary:hover { border-color: #0066ff; color: #0066ff; }
+
+        .skip-link {
+            display: block; text-align: center; margin-top: 16px;
+            font-size: 0.875rem; color: #9ca3af; cursor: pointer;
+            text-decoration: none; transition: color 0.2s;
+        }
+        .skip-link:hover { color: #6b7280; }
+
+        @media (max-width: 640px) {
+            .setup-card { padding: 32px 24px; margin-top: 56px; }
+            .choice-cards { grid-template-columns: 1fr; }
+            .setup-header { padding: 0 20px; }
+            .add-member-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header bar -->
+    <header class="setup-header">
+        <a href="/" class="brand-link">
+            <div class="brand-mark">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                </svg>
+            </div>
+            <span class="brand-name">Wealth<em>OS</em></span>
+        </a>
+        <span class="step-badge">Step 2 of 3 — Account Setup</span>
+    </header>
+
+    <div class="setup-card">
+
+        <!-- Progress dots -->
+        <div class="step-dots">
+            <div class="step-dot done" id="dot0"></div>
+            <div class="step-dot active" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+        </div>
+
+        <div class="step-wrap">
+
+            <!-- Step A: Solo or Family? -->
+            <div class="setup-step active" id="stepA">
+                <div class="setup-eyebrow">How you'll track</div>
+                <h2 class="setup-title">Solo or with family?</h2>
+                <p class="setup-desc">WealthOS works great for individuals and for households. You can always add family members later.</p>
+
+                <div class="choice-cards">
+                    <div class="choice-card" id="choiceSolo" onclick="selectMode('solo')">
+                        <span class="choice-icon">👤</span>
+                        <div class="choice-title">Solo</div>
+                        <div class="choice-desc">Track just my own finances and investments</div>
+                    </div>
+                    <div class="choice-card" id="choiceFamily" onclick="selectMode('family')">
+                        <span class="choice-icon">👨‍👩‍👧‍👦</span>
+                        <div class="choice-title">Family</div>
+                        <div class="choice-desc">Track our household finances together</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="btnANext" onclick="goToStep('B')" disabled>Continue →</button>
+                </div>
+                <a class="skip-link" onclick="skipAll()">Set up later →</a>
+            </div>
+
+            <!-- Step B: Family name + members (only if family mode) -->
+            <div class="setup-step" id="stepB">
+                <div class="setup-eyebrow">Family account</div>
+                <h2 class="setup-title">Name your family account</h2>
+                <p class="setup-desc">Give your household a name — this will appear across your dashboard and reports.</p>
+
+                <div class="benefit-box">
+                    <span class="benefit-icon">💡</span>
+                    <div class="benefit-text"><strong>Why it helps:</strong> With a family account you can see combined net worth, split income and expenses per person, and track shared goals like a home purchase or education fund.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="familyNameInput">Family name</label>
+                    <span class="form-hint">No default — type a name that feels right for your household.</span>
+                    <input type="text" id="familyNameInput" class="form-input" placeholder="e.g. The Sharmas" autocomplete="off" maxlength="60">
+                    <div id="familyNameError" style="font-size:0.8125rem;color:#ef4444;margin-top:6px;display:none;"></div>
+                </div>
+
+                <!-- Members -->
+                <div style="margin-bottom:8px;font-size:0.875rem;font-weight:600;color:#1a1a1a;">Family members <span style="color:#9ca3af;font-weight:400">(optional — you can add later)</span></div>
+                <div class="members-list" id="membersList"></div>
+
+                <div class="add-member-form" id="addMemberForm">
+                    <div class="add-member-row">
+                        <input type="text" class="form-input" id="memberNameInput" placeholder="Name (e.g. Priya)">
+                        <select class="form-select" id="memberRelInput">
+                            <option value="">Relationship</option>
+                            <option value="spouse">Spouse / Partner</option>
+                            <option value="child">Child</option>
+                            <option value="parent">Parent</option>
+                            <option value="sibling">Sibling</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="add-member-actions">
+                        <button class="btn btn-primary" style="flex:1;padding:10px;" onclick="confirmAddMember()">Add</button>
+                        <button class="btn btn-secondary" style="flex:0 0 auto;padding:10px 16px;" onclick="hideAddMemberForm()">Cancel</button>
+                    </div>
+                </div>
+
+                <button class="btn-add-member" id="showAddMemberBtn" onclick="showAddMemberForm()">+ Add a family member</button>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep('A')">← Back</button>
+                    <button class="btn btn-primary" id="btnBSave" onclick="saveFamilyAndContinue()">Save &amp; continue →</button>
+                </div>
+                <a class="skip-link" onclick="skipAll()">Skip for now — set up later →</a>
+            </div>
+
+        </div>
+    </div>
+
+<script src="/api.js"></script>
+<script src="auth.js"></script>
+<script>
+    if (!WealthAPI.auth.isLoggedIn()) {
+        window.location.href = '/login.html';
+    }
+
+    let selectedMode = null;
+    let pendingMembers = [];
+    let currentStep = 'A';
+
+    function selectMode(mode) {
+        selectedMode = mode;
+        document.getElementById('choiceSolo').classList.toggle('selected', mode === 'solo');
+        document.getElementById('choiceFamily').classList.toggle('selected', mode === 'family');
+        document.getElementById('btnANext').disabled = false;
+    }
+
+    function updateDots(step) {
+        const map = { A: 1, B: 2 };
+        const idx = map[step] || 1;
+        ['dot0', 'dot1', 'dot2'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            el.classList.remove('active', 'done');
+            if (i < idx) el.classList.add('done');
+            else if (i === idx) el.classList.add('active');
+        });
+    }
+
+    function goToStep(step, back = false) {
+        if (step === 'B' && selectedMode === 'solo') {
+            skipAll();
+            return;
+        }
+        const current = document.getElementById('step' + currentStep);
+        const next = document.getElementById('step' + step);
+        if (!next) return;
+        current.classList.remove('active', 'going-back');
+        current.style.display = 'none';
+        next.classList.remove('going-back');
+        if (back) next.classList.add('going-back');
+        next.style.display = 'block';
+        next.classList.add('active');
+        currentStep = step;
+        updateDots(step);
+    }
+
+    function skipAll() {
+        try { localStorage.setItem('wealthos_setup_mode', selectedMode || 'solo'); } catch(e) {}
+        window.location.href = '/onboarding.html';
+    }
+
+    // ── Member management ──
+    function renderMembers() {
+        const list = document.getElementById('membersList');
+        if (pendingMembers.length === 0) {
+            list.innerHTML = '';
+            return;
+        }
+        list.innerHTML = pendingMembers.map((m, i) => `
+            <div class="member-row">
+                <div class="member-avatar">${m.name.charAt(0).toUpperCase()}</div>
+                <div class="member-details">
+                    <div class="member-name">${m.name}</div>
+                    <div class="member-rel">${capitalize(m.relation)}</div>
+                </div>
+                <button class="btn-remove-member" onclick="removeMember(${i})">Remove</button>
+            </div>
+        `).join('');
+    }
+
+    function capitalize(s) {
+        return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    }
+
+    function showAddMemberForm() {
+        document.getElementById('addMemberForm').classList.add('visible');
+        document.getElementById('showAddMemberBtn').style.display = 'none';
+        document.getElementById('memberNameInput').focus();
+    }
+
+    function hideAddMemberForm() {
+        document.getElementById('addMemberForm').classList.remove('visible');
+        document.getElementById('showAddMemberBtn').style.display = 'block';
+        document.getElementById('memberNameInput').value = '';
+        document.getElementById('memberRelInput').value = '';
+    }
+
+    function confirmAddMember() {
+        const name = document.getElementById('memberNameInput').value.trim();
+        const relation = document.getElementById('memberRelInput').value;
+        if (!name) { document.getElementById('memberNameInput').focus(); return; }
+        if (!relation) { document.getElementById('memberRelInput').focus(); return; }
+        pendingMembers.push({ name, relation });
+        renderMembers();
+        hideAddMemberForm();
+    }
+
+    window.removeMember = function(i) {
+        pendingMembers.splice(i, 1);
+        renderMembers();
+    };
+
+    // ── Save family & go to onboarding ──
+    async function saveFamilyAndContinue() {
+        const familyName = document.getElementById('familyNameInput').value.trim();
+        const errorEl = document.getElementById('familyNameError');
+        errorEl.style.display = 'none';
+
+        if (!familyName) {
+            errorEl.textContent = 'Please enter a family name to continue, or skip below.';
+            errorEl.style.display = 'block';
+            document.getElementById('familyNameInput').focus();
+            return;
+        }
+
+        const btn = document.getElementById('btnBSave');
+        btn.disabled = true;
+        btn.classList.add('loading');
+
+        try {
+            await WealthAPI.family.updateName(familyName);
+
+            for (const m of pendingMembers) {
+                try {
+                    await WealthAPI.family.addMember({ name: m.name, role: m.relation });
+                } catch (e) {
+                    console.warn('Member add failed:', e.message);
+                }
+            }
+
+            try { localStorage.setItem('wealthos_setup_mode', 'family'); } catch(e) {}
+            window.location.href = '/onboarding.html';
+        } catch (err) {
+            errorEl.textContent = err.message || 'Failed to save. Please try again.';
+            errorEl.style.display = 'block';
+            btn.disabled = false;
+            btn.classList.remove('loading');
+        }
+    }
+</script>
+</body>
+</html>
