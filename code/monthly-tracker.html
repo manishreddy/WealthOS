@@ -1102,6 +1102,258 @@ body {
                 min-height: 44px;
             }
         }
+
+        /* =============================================
+           SIMPLIFIED TRACKER REDESIGN
+        ============================================= */
+
+        /* Compact month summary strip */
+        .month-strip {
+            display: flex;
+            align-items: stretch;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .mss-item {
+            flex: 1;
+            padding: 14px 16px;
+            text-align: center;
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .mss-item:last-child { border-right: none; }
+        .mss-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-tertiary);
+        }
+        .mss-value {
+            font-family: var(--font);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+        .mss-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* JS sets summaryNet className to 'summary-metric-value success/error' */
+        .month-strip .summary-metric-value {
+            font-family: var(--font);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 0;
+        }
+        .month-strip .summary-metric-value.success { color: var(--success, #00C805); }
+        .month-strip .summary-metric-value.error   { color: var(--error, #ef4444); }
+
+        /* Three-card grid */
+        .tracker-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Individual flat card */
+        .tc-card {
+            background: var(--bg-elevated);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        .tc-card.income      { border-top: 3px solid rgba(0,200,5,0.5); }
+        .tc-card.expenditure { border-top: 3px solid rgba(255,100,0,0.45); }
+        .tc-card.investments { border-top: 3px solid rgba(59,115,255,0.5); }
+
+        /* Card header section */
+        .tc-head { padding: 18px 18px 8px; }
+        .tc-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .tc-label-icon { font-size: 0.95rem; }
+        .tc-label .investments-tag { font-size: 0.6rem; letter-spacing: 0; }
+
+        /* Amount input inside cards */
+        .tc-card .amount-input {
+            width: 100%;
+            font-family: var(--font);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--border-subtle);
+            padding: 3px 0 7px;
+            letter-spacing: -0.03em;
+            transition: border-color 0.18s;
+            text-align: left;
+            min-width: unset;
+            border-radius: 0;
+        }
+        .tc-card .amount-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent, #8FE62C);
+        }
+        .tc-card .amount-input::placeholder { color: var(--text-tertiary); }
+
+        /* Comparison line below amount */
+        .tc-comparison {
+            padding: 5px 18px 10px;
+            font-size: 0.72rem;
+            min-height: 24px;
+        }
+
+        /* Card body */
+        .tc-body {
+            padding: 0 16px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Breakup items — cleaner style */
+        .tc-card .breakup-item {
+            display: grid;
+            grid-template-columns: 1fr 100px 26px;
+            gap: 6px;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .tc-card .breakup-item:last-of-type { border-bottom: none; }
+        .tc-card .breakup-name-input {
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: transparent;
+            font-size: 0.825rem;
+            color: var(--text-primary);
+            font-family: var(--font);
+            transition: all 0.15s;
+            width: 100%;
+        }
+        .tc-card .breakup-name-input:hover  { background: var(--hover-bg); border-color: var(--border-subtle); }
+        .tc-card .breakup-name-input:focus  { outline: none; background: var(--bg-secondary); border-color: var(--border-color); }
+        .tc-card .breakup-amount-input {
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: transparent;
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: var(--font);
+            transition: all 0.15s;
+            text-align: right;
+            width: 100%;
+        }
+        .tc-card .breakup-amount-input:hover { background: var(--hover-bg); border-color: var(--border-subtle); }
+        .tc-card .breakup-amount-input:focus { outline: none; background: var(--bg-secondary); border-color: var(--border-color); }
+        .tc-card .remove-item-btn {
+            width: 24px; height: 24px;
+            border-radius: 4px; border: none;
+            background: transparent;
+            color: var(--text-tertiary);
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s; padding: 0; flex-shrink: 0;
+        }
+        .tc-card .remove-item-btn:hover { background: rgba(239,68,68,0.1); color: var(--error, #ef4444); }
+
+        /* Breakup total — simpler */
+        .tc-card .breakup-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 4px 4px;
+            background: none;
+            border-radius: 0;
+            margin-top: 2px;
+        }
+        .tc-card .breakup-total-label { font-size: 0.7rem; font-weight: 600; color: var(--text-tertiary); }
+        .tc-card .breakup-total-value { font-size: 0.8rem;  font-weight: 700; color: var(--text-primary); }
+
+        /* Breakup warning — compact */
+        .tc-card .breakup-warning {
+            padding: 5px 8px;
+            margin: 2px 0 4px;
+            background: rgba(255,149,0,0.08);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--warning);
+            display: none;
+        }
+        .tc-card .breakup-warning.show { display: block; }
+
+        /* Chip section — no label */
+        .tc-card .chip-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .tc-card .chip-section-label { display: none; }
+
+        /* Empty state inside card */
+        .tc-card .breakup-empty {
+            padding: 10px 4px;
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .tracker-cards { grid-template-columns: 1fr; gap: 12px; }
+        }
+        @media (max-width: 768px) {
+            .month-strip { flex-wrap: wrap; }
+            .mss-item { flex: 1 1 33%; }
+            .mss-item:nth-child(3n) { border-right: 1px solid var(--border-subtle); }
+            .mss-item:nth-child(4), .mss-item:nth-child(5) {
+                border-top: 1px solid var(--border-subtle);
+                flex: 1 1 50%;
+            }
+        }
+        @media (max-width: 480px) {
+            .month-strip { flex-direction: column; }
+            .mss-item {
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-subtle);
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+            .mss-item:last-child { border-bottom: none; }
+            .mss-sub { display: none; }
+        }
     </style>
     <link rel="stylesheet" href="controls.css">
 </head>
@@ -1112,7 +1364,6 @@ body {
         <main class="main-content">
             <div class="page-header">
                 <h1 class="page-title">Monthly Tracker</h1>
-                <p class="page-subtitle">Track your monthly income, expenses, investments and savings in 2 minutes</p>
             </div>
 
             <!-- Empty state: no family members -->
@@ -1157,55 +1408,44 @@ body {
                 </div>
             </div>
 
-            <!-- Summary Dashboard (shown at top, updates as you type) -->
-            <div class="summary-dashboard">
-                <div class="summary-card">
-                    <h3 class="summary-title">Monthly Summary</h3>
-                    <div class="summary-metrics-5">
-                        <div class="summary-metric">
-                            <div class="summary-metric-label">Total Income</div>
-                            <div class="summary-metric-value" id="summaryIncome">₹0</div>
-                            <div class="summary-metric-change" id="summaryIncomeChange">vs last month</div>
-                        </div>
-                        <div class="summary-metric">
-                            <div class="summary-metric-label">Expenditure</div>
-                            <div class="summary-metric-value" id="summaryExpenditure">₹0</div>
-                            <div class="summary-metric-change">expenses only</div>
-                        </div>
-                        <div class="summary-metric">
-                            <div class="summary-metric-label">Investments</div>
-                            <div class="summary-metric-value" id="summaryInvestments">₹0</div>
-                            <div class="summary-metric-change" id="summaryInvestRate">invest rate</div>
-                        </div>
-                        <div class="summary-metric">
-                            <div class="summary-metric-label">Cash Balance</div>
-                            <div class="summary-metric-value success" id="summaryNet">₹0</div>
-                            <div class="summary-metric-change" id="summaryNetChange">of income</div>
-                        </div>
-                        <div class="summary-metric">
-                            <div class="summary-metric-label">Savings Rate</div>
-                            <div style="display:flex;align-items:center;justify-content:center;height:52px;">
-                                <div class="gauge-container" style="width:52px;height:52px;margin:0;">
-                                    <svg class="gauge-svg" viewBox="0 0 180 180">
-                                        <defs>
-                                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" style="stop-color:#0066ff" />
-                                                <stop offset="100%" style="stop-color:#00d4ff" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle class="gauge-bg" cx="90" cy="90" r="70"/>
-                                        <circle class="gauge-progress" id="gaugeProgress" cx="90" cy="90" r="70"
-                                                style="stroke-dasharray: 0 439.82; stroke-dashoffset: 0;"/>
-                                    </svg>
-                                    <div class="gauge-value">
-                                        <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;color:var(--text-primary);line-height:1;" id="gaugePercentage">0%</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="summary-metric-change" id="gaugeStatus">enter amounts</div>
-                        </div>
-                    </div>
+            <!-- Compact Month Summary Strip -->
+            <div class="month-strip">
+                <div class="mss-item">
+                    <div class="mss-label">Income</div>
+                    <div class="mss-value" id="summaryIncome">₹0</div>
+                    <div class="mss-sub" id="summaryIncomeChange">vs last month</div>
                 </div>
+                <div class="mss-item">
+                    <div class="mss-label">Spent</div>
+                    <div class="mss-value" id="summaryExpenditure">₹0</div>
+                    <div class="mss-sub">expenses</div>
+                </div>
+                <div class="mss-item">
+                    <div class="mss-label">Invested</div>
+                    <div class="mss-value" id="summaryInvestments">₹0</div>
+                    <div class="mss-sub" id="summaryInvestRate">invest rate</div>
+                </div>
+                <div class="mss-item">
+                    <div class="mss-label">Saved</div>
+                    <div class="mss-value summary-metric-value" id="summaryNet">₹0</div>
+                    <div class="mss-sub" id="summaryNetChange">of income</div>
+                </div>
+                <div class="mss-item">
+                    <div class="mss-label">Save Rate</div>
+                    <div class="mss-value" id="gaugePercentage">0%</div>
+                    <div class="mss-sub" id="gaugeStatus">enter amounts</div>
+                </div>
+            </div>
+
+            <!-- Hidden elements kept for JS compatibility -->
+            <div style="display:none" aria-hidden="true">
+                <div id="savingsDisplay" class="display-card-value">₹0</div>
+                <div id="netDisplay" class="display-card-value">₹0</div>
+                <div id="savingsComparison"></div>
+                <div id="netComparison"></div>
+                <input type="hidden" id="savingsInput" value="0">
+                <input type="hidden" id="netInput" value="0">
+                <svg><circle id="gaugeProgress" cx="90" cy="90" r="70" style="stroke-dasharray: 0 439.82; stroke-dashoffset: 0;"/></svg>
             </div>
 
             <!-- Nudge Banner -->
@@ -1218,135 +1458,75 @@ body {
                 <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">×</button>
             </div>
 
-            <!-- Category Cards - Vertical Layout -->
-            <div class="categories-grid">
+            <!-- Tracker Cards -->
+            <div class="tracker-cards">
 
-                <!-- Income Accordion -->
-                <div class="entry-accordion income open" id="incomeAccordion">
-                    <div class="entry-row" onclick="toggleAccordion('income')">
-                        <div class="entry-row-left">
-                            <div class="entry-icon">💰</div>
-                            <div class="entry-info">
-                                <div class="entry-name">Income</div>
-                                <div class="prev-month-comparison" id="incomeComparison"><span>Loading...</span></div>
-                            </div>
-                        </div>
-                        <div class="entry-row-right">
-                            <input type="text" class="amount-input" id="incomeInput" placeholder="₹0" onclick="event.stopPropagation()">
-                            <button class="entry-toggle" type="button" onclick="event.stopPropagation(); toggleAccordion('income')" title="Expand to add items">
-                                <svg class="entry-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
-                            </button>
-                        </div>
+                <!-- Income -->
+                <div class="tc-card income">
+                    <div class="tc-head">
+                        <div class="tc-label"><span class="tc-label-icon">💰</span> Income</div>
+                        <input type="text" class="amount-input" id="incomeInput" placeholder="₹0">
                     </div>
-                    <div class="entry-body" id="incomeBody">
+                    <div class="prev-month-comparison tc-comparison" id="incomeComparison"><span>Loading...</span></div>
+                    <div class="tc-body">
                         <div class="breakup-section" id="incomeBreakup">
                             <div class="breakup-list" id="incomeBreakupList"></div>
                             <div class="breakup-total">
-                                <span class="breakup-total-label">Breakup Total</span>
+                                <span class="breakup-total-label">Breakup total</span>
                                 <span class="breakup-total-value" id="incomeBreakupTotal">₹0</span>
                             </div>
-                            <div class="breakup-warning" id="incomeWarning">⚠️ Breakup total doesn't match main amount</div>
+                            <div class="breakup-warning" id="incomeWarning">⚠️ Doesn't match total</div>
                         </div>
                         <div class="chip-section">
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="incomeChips"></div>
                         </div>
-                        <div class="acc-save-row">
-                            <span class="acc-autosave-label" id="incomeSaveStatus"></span>
-                            <button class="acc-save-btn" onclick="saveThisCard(this, 'incomeSaveStatus')">Save</button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Expenditure Accordion -->
-                <div class="entry-accordion expenditure open" id="expenditureAccordion">
-                    <div class="entry-row" onclick="toggleAccordion('expenditure')">
-                        <div class="entry-row-left">
-                            <div class="entry-icon">💸</div>
-                            <div class="entry-info">
-                                <div class="entry-name">Expenditure</div>
-                                <div class="prev-month-comparison" id="expenditureComparison"><span>Loading...</span></div>
-                            </div>
-                        </div>
-                        <div class="entry-row-right">
-                            <input type="text" class="amount-input" id="expenditureInput" placeholder="₹0" onclick="event.stopPropagation()">
-                            <button class="entry-toggle" type="button" onclick="event.stopPropagation(); toggleAccordion('expenditure')" title="Expand to add items">
-                                <svg class="entry-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
-                            </button>
-                        </div>
+                <!-- Expenditure -->
+                <div class="tc-card expenditure">
+                    <div class="tc-head">
+                        <div class="tc-label"><span class="tc-label-icon">💸</span> Expenditure</div>
+                        <input type="text" class="amount-input" id="expenditureInput" placeholder="₹0">
                     </div>
-                    <div class="entry-body" id="expenditureBody">
+                    <div class="prev-month-comparison tc-comparison" id="expenditureComparison"><span>Loading...</span></div>
+                    <div class="tc-body">
                         <div class="breakup-section" id="expenditureBreakup">
                             <div class="breakup-list" id="expenditureBreakupList"></div>
                             <div class="breakup-total">
-                                <span class="breakup-total-label">Breakup Total</span>
+                                <span class="breakup-total-label">Breakup total</span>
                                 <span class="breakup-total-value" id="expenditureBreakupTotal">₹0</span>
                             </div>
-                            <div class="breakup-warning" id="expenditureWarning">⚠️ Breakup total doesn't match main amount</div>
+                            <div class="breakup-warning" id="expenditureWarning">⚠️ Doesn't match total</div>
                         </div>
                         <div class="chip-section">
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="expenditureChips"></div>
                         </div>
-                        <div class="acc-save-row">
-                            <span class="acc-autosave-label" id="expenditureSaveStatus"></span>
-                            <button class="acc-save-btn" onclick="saveThisCard(this, 'expenditureSaveStatus')">Save</button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Investments Accordion -->
-                <div class="entry-accordion investments open" id="investmentsAccordion">
-                    <div class="entry-row" onclick="toggleAccordion('investments')">
-                        <div class="entry-row-left">
-                            <div class="entry-icon">📈</div>
-                            <div class="entry-info">
-                                <div class="entry-name">Savings / Investments <span class="investments-tag">Counts as Expense</span></div>
-                                <div class="prev-month-comparison" id="investmentsComparison"><span>Loading...</span></div>
-                            </div>
-                        </div>
-                        <div class="entry-row-right">
-                            <input type="text" class="amount-input" id="investmentsInput" placeholder="₹0" onclick="event.stopPropagation()">
-                            <button class="entry-toggle" type="button" onclick="event.stopPropagation(); toggleAccordion('investments')" title="Expand to add items">
-                                <svg class="entry-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
-                            </button>
-                        </div>
+                <!-- Investments / Savings -->
+                <div class="tc-card investments">
+                    <div class="tc-head">
+                        <div class="tc-label"><span class="tc-label-icon">📈</span> Savings / Investments <span class="investments-tag">Counts as Expense</span></div>
+                        <input type="text" class="amount-input" id="investmentsInput" placeholder="₹0">
                     </div>
-                    <div class="entry-body" id="investmentsBody">
+                    <div class="prev-month-comparison tc-comparison" id="investmentsComparison"><span>Loading...</span></div>
+                    <div class="tc-body">
                         <div class="breakup-section" id="investmentsBreakup">
                             <div class="breakup-list" id="investmentsBreakupList"></div>
                             <div class="breakup-total">
-                                <span class="breakup-total-label">Breakup Total</span>
+                                <span class="breakup-total-label">Breakup total</span>
                                 <span class="breakup-total-value" id="investmentsBreakupTotal">₹0</span>
                             </div>
-                            <div class="breakup-warning" id="investmentsWarning">⚠️ Breakup total doesn't match main amount</div>
+                            <div class="breakup-warning" id="investmentsWarning">⚠️ Doesn't match total</div>
                         </div>
                         <div class="chip-section">
                             <div class="chip-section-label">Select items to include</div>
                             <div class="quick-add-chips" id="investmentsChips"></div>
                         </div>
-                        <div class="acc-save-row">
-                            <span class="acc-autosave-label" id="investmentsSaveStatus"></span>
-                            <button class="acc-save-btn" onclick="saveThisCard(this, 'investmentsSaveStatus')">Save</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Savings + Net Display Row -->
-                <div class="display-row">
-                    <div class="category-card savings display-card" id="savingsCard">
-                        <div class="display-card-label">💎 Cash Balance</div>
-                        <div class="display-card-value savings-positive" id="savingsDisplay">₹0</div>
-                        <div class="prev-month-comparison" id="savingsComparison" style="margin-top:8px;"><span>Loading...</span></div>
-                        <div class="display-card-note">Auto-calculated · Savings − Investments</div>
-                        <input type="hidden" id="savingsInput" value="0">
-                    </div>
-                    <div class="category-card net display-card" id="netCard">
-                        <div class="display-card-label">📊 Net Balance</div>
-                        <div class="display-card-value" id="netDisplay">₹0</div>
-                        <div class="prev-month-comparison" id="netComparison" style="margin-top:8px;"><span>Loading...</span></div>
-                        <div class="display-card-note">Can be negative if outflows exceed income</div>
-                        <input type="hidden" id="netInput" value="0">
                     </div>
                 </div>
 
