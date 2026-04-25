@@ -2137,6 +2137,11 @@ body {
         function renderBreakup(category, items) {
             const list = document.getElementById(category + 'BreakupList');
             list.innerHTML = '';
+
+            // Always reset chip states first, then re-mark based on actual data
+            document.querySelectorAll(`#${category}Chips .quick-chip[data-name]`)
+                .forEach(chip => chip.classList.remove('added'));
+
             if (!items || items.length === 0) {
                 list.innerHTML = '<div class="breakup-empty">Select items from the tags below to add line items</div>';
             } else {
@@ -2184,7 +2189,28 @@ body {
             const row      = btn.closest('.breakup-item');
             const section  = row.closest('.breakup-section');
             const category = section.id.replace('Breakup', '');
+
+            // Capture the item name before removing the row
+            const nameInput = row.querySelector('.breakup-name-input');
+            const rowName   = nameInput ? nameInput.value.trim() : '';
+
             row.remove();
+
+            // Un-mark the corresponding chip if no other row still uses that name
+            if (rowName && category) {
+                const list  = document.getElementById(category + 'BreakupList');
+                const chips = document.querySelectorAll(`#${category}Chips .quick-chip[data-name]`);
+                chips.forEach(chip => {
+                    if (rowName.includes(chip.dataset.name)) {
+                        let stillPresent = false;
+                        list.querySelectorAll('.breakup-name-input').forEach(inp => {
+                            if (inp.value.trim().includes(chip.dataset.name)) stillPresent = true;
+                        });
+                        if (!stillPresent) chip.classList.remove('added');
+                    }
+                });
+            }
+
             updateBreakupTotal(category);
             scheduleBreakupSave(category);
         }
@@ -2550,9 +2576,6 @@ body {
 
             // 7. Load data
             await loadCurrentView();
-
-            // 8. Pre-populate default items if no saved data for this month
-            preSelectDefaultChips();
         });
 
         // ── AI Import ──────────────────────────────────────────────────────
