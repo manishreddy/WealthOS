@@ -34,7 +34,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
         .table-card-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .table-card-title { font-family: var(--font); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
-        .table-wrapper { overflow-x: auto; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
         thead th { background: var(--bg-secondary); padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
@@ -170,7 +170,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
-            .main-content { padding: 20px 16px; overflow-x: hidden; }
+            .main-content { padding: 20px 16px; }
             .top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
             .sub-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 4px; }
             .sub-tab { white-space: nowrap; padding: 8px 14px; font-size: 0.875rem; }

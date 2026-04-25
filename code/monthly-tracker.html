@@ -639,6 +639,8 @@ body {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .history-item {
@@ -650,6 +652,28 @@ body {
             border-radius: 12px;
             transition: all 0.2s ease;
             cursor: pointer;
+            min-width: 560px;
+        }
+
+        .history-header-row {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr);
+            gap: 16px;
+            padding: 6px 16px;
+            min-width: 560px;
+        }
+
+        .history-col-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+
+        .history-col-label:first-child {
+            text-align: left;
         }
 
         .history-item:hover {
@@ -786,7 +810,6 @@ body {
 
             .main-content {
                 padding: 24px 20px;
-                overflow-x: hidden;
             }
 
             .display-row {
@@ -812,11 +835,6 @@ body {
 
             .summary-metrics {
                 grid-template-columns: 1fr;
-            }
-
-            .history-item {
-                grid-template-columns: 1fr;
-                gap: 8px;
             }
 
             .person-tabs-container {
@@ -996,7 +1014,6 @@ body {
             .month-selector { flex-wrap: wrap; }
             .breakup-item { grid-template-columns: 1fr 120px 28px; gap: 6px; }
             .mini-chart { overflow: hidden; }
-            .main-content { overflow-x: hidden; }
             .modal-content { width: 95%; }
             .modal-body { padding: 20px; }
             .modal-header { padding: 18px 20px; }
@@ -2041,7 +2058,15 @@ body {
                 return;
             }
 
-            historyList.innerHTML = histData.map(row => {
+            const headerRow = `<div class="history-header-row">
+                <span class="history-col-label">Month</span>
+                <span class="history-col-label">Income</span>
+                <span class="history-col-label">Expenses</span>
+                <span class="history-col-label">Investments</span>
+                <span class="history-col-label">Savings</span>
+                <span class="history-col-label">Net</span>
+            </div>`;
+            historyList.innerHTML = headerRow + histData.map(row => {
                 const label = row.label || (MONTH_NAMES[(row.month || 1) - 1].slice(0, 3) + ' ' + row.year);
                 const net   = (row.income || 0) - (row.expenditure || 0) - (row.investments || 0);
                 return `<div class="history-item" onclick="jumpToHistoryMonth(${row.year},${row.month})">

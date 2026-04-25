@@ -30,11 +30,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .summary-sub { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 4px; }
 
         /* Table */
-        .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 28px; }
+        .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: clip; margin-bottom: 28px; }
         .table-card-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .table-card-title { font-family: var(--font); font-size: 1.1rem; font-weight: 700; }
         .table-note { font-size: 0.8125rem; color: var(--text-tertiary); }
-        .table-wrapper { overflow-x: auto; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
         thead th { background: var(--bg-secondary); padding: 10px 14px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
@@ -88,7 +88,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             .main-content { padding: 28px 24px; }
         }
         @media (max-width: 768px) {
-            .main-content { padding: 20px 16px; overflow-x: hidden; }
+            .app-container { grid-template-columns: 1fr; }
+            .main-content { padding: 20px 16px; }
             .top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
             .summary-grid { grid-template-columns: 1fr; }
             .table-card-header { flex-direction: column; align-items: flex-start; gap: 8px; }
