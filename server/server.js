@@ -28,12 +28,12 @@ app.use('/api/ai-parse', verifyToken, require('./routes/ai-parse'));
 app.use('/api/import', verifyToken, require('./routes/import'));
 app.use('/api/projections', verifyToken, require('./routes/projections'));
 
-// Root and index.html → login
+// Root → homepage
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../code/login.html'));
+  res.sendFile(path.join(__dirname, '../code/index.html'));
 });
 app.get('/index.html', (req, res) => {
-  res.redirect('/login.html');
+  res.sendFile(path.join(__dirname, '../code/index.html'));
 });
 
 async function startServer() {
