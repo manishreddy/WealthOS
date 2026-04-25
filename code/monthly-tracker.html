@@ -1569,7 +1569,15 @@ body {
         // ===================================
         function buildPersonTabs(members) {
             const container = document.getElementById('personTabsList');
+            const tabsWrap = document.getElementById('personTabsContainer');
             container.innerHTML = '';
+
+            // Hide tab bar entirely when there is only one member — no Overall needed
+            if (members.length <= 1) {
+                tabsWrap.style.display = 'none';
+                return;
+            }
+            tabsWrap.style.display = '';
 
             // Overall tab first
             const overall = document.createElement('button');
@@ -2176,7 +2184,8 @@ body {
 
             // 6. Build tabs + set default member
             buildPersonTabs(familyMembers);
-            currentMemberId = null; // null = overall
+            // With 1 member: no tabs shown, load that member's data directly
+            currentMemberId = familyMembers.length === 1 ? familyMembers[0].id : null;
 
             // 7. Load data
             await loadCurrentView();

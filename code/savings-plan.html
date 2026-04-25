@@ -2439,7 +2439,7 @@ body {
                 </div>
 
                 <!-- Person Tabs -->
-                <div class="person-tabs-container">
+                <div class="person-tabs-container" id="personTabsContainer">
                     <div class="person-tabs" id="personTabsList"></div>
                     <div class="person-tabs-actions">
                         <a href="settings.html" class="settings-link-btn">Manage Members</a>
@@ -2702,8 +2702,8 @@ body {
             // Build person tabs
             buildPersonTabs();
 
-            // Load overall first
-            await switchToMember('overall');
+            // With 1 member: skip Overall, load that member's plan directly
+            await switchToMember(familyMembers.length === 1 ? familyMembers[0].id : 'overall');
         });
 
         // ===========================
@@ -2711,7 +2711,16 @@ body {
         // ===========================
         function buildPersonTabs() {
             const tabsList = document.getElementById('personTabsList');
+            const tabsWrap = document.getElementById('personTabsContainer');
             tabsList.innerHTML = '';
+
+            // Hide tab bar entirely when there is only one member
+            if (familyMembers.length <= 1) {
+                tabsWrap.style.display = 'none';
+                return;
+            }
+            tabsWrap.style.display = '';
+
             // Overall tab first
             const overall = document.createElement('button');
             overall.className = 'person-tab overall-tab active';

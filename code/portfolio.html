@@ -1482,7 +1482,7 @@ body {
             </div>
 
             <!-- Person Tabs -->
-            <div class="person-tabs-container">
+            <div class="person-tabs-container" id="personTabsContainer">
                 <div class="person-tabs" id="memberFilterBtns">
                     <!-- Injected by renderMemberFilterBtns() -->
                 </div>
@@ -2030,7 +2030,17 @@ body {
         // ── Member filter buttons ──────────────────────────────────────────────
         function renderMemberFilterBtns() {
             const container = document.getElementById('memberFilterBtns');
+            const tabsWrap = document.getElementById('personTabsContainer');
             container.innerHTML = '';
+
+            // Hide tab bar entirely when there is only one member
+            if (allMembers.length <= 1) {
+                tabsWrap.style.display = 'none';
+                if (allMembers.length === 1) currentMemberFilter = allMembers[0].id;
+                return;
+            }
+            tabsWrap.style.display = '';
+
             // Overall tab first
             const overall = document.createElement('button');
             overall.className = 'person-tab overall-tab active';
