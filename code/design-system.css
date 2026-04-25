@@ -1,0 +1,599 @@
+/*
+ * WealthOS Design System
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Single source of truth for all visual tokens and base components.
+ * Load this BEFORE page-specific styles.
+ *
+ * Inspired by: clean modern fintech — dark/light card system on neutral gray.
+ * ──────────────────────────────────────────────────────────────────────────────
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── CSS Custom Properties (Light Mode Default) ────────────────────────────── */
+:root {
+  /* --- Page Background --- */
+  --bg:                 #EBEBEB;
+  --bg-sidebar:         #F5F5F5;
+
+  /* --- Card Surfaces --- */
+  --card-dark-bg:       #111111;
+  --card-dark-surface:  #1C1C1C;
+  --card-light-bg:      #FFFFFF;
+  --card-light-shadow:  0 2px 24px rgba(0, 0, 0, 0.07);
+  --card-hover-shadow:  0 6px 32px rgba(0, 0, 0, 0.12);
+  --card-radius:        20px;
+  --card-padding:       28px;
+
+  /* --- Typography on Dark Cards --- */
+  --on-dark:            #FFFFFF;
+  --on-dark-secondary:  rgba(255, 255, 255, 0.55);
+  --on-dark-tertiary:   rgba(255, 255, 255, 0.3);
+
+  /* --- Typography on Light / Page --- */
+  --text-primary:       #111111;
+  --text-secondary:     #6B6B6B;
+  --text-tertiary:      #ABABAB;
+
+  /* --- Accent Colors --- */
+  --accent:             #8FE62C;       /* Lime green — progress, positive values */
+  --accent-dark:        #6CC41A;
+  --accent-glow:        rgba(143, 230, 44, 0.22);
+  --accent-blue:        #3B73FF;
+  --accent-blue-subtle: rgba(59, 115, 255, 0.10);
+  --positive:           #5DC840;
+  --negative:           #FF3B3B;
+  --warning:            #FF9500;
+
+  /* --- Borders --- */
+  --border:             rgba(0, 0, 0, 0.08);
+  --border-strong:      rgba(0, 0, 0, 0.14);
+  --border-on-dark:     rgba(255, 255, 255, 0.08);
+
+  /* --- Sidebar specific --- */
+  --sidebar-text:       #111111;
+  --sidebar-text-muted: #888888;
+  --sidebar-active-bg:  #111111;
+  --sidebar-active-text:#FFFFFF;
+  --sidebar-hover-bg:   rgba(0, 0, 0, 0.05);
+  --sidebar-border:     rgba(0, 0, 0, 0.07);
+
+  /* --- Input --- */
+  --input-bg:           #FFFFFF;
+  --input-border:       rgba(0, 0, 0, 0.14);
+  --input-focus-border: #111111;
+  --input-placeholder:  #ABABAB;
+
+  /* --- Form surfaces (auth pages) --- */
+  --form-bg:            #FFFFFF;
+
+  /* --- Shadow utility --- */
+  --shadow-sm:          0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md:          0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg:          0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* --- Typography --- */
+  --font:               'Inter', -apple-system, system-ui, BlinkMacSystemFont, sans-serif;
+  --font-num:           'Inter', -apple-system, monospace;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+
+  /* --- Transitions --- */
+  --ease:               cubic-bezier(0.16, 1, 0.3, 1);
+  --duration:           180ms;
+
+  /* === Backward-compat aliases (used by older pages) === */
+  --bg-primary:         #EBEBEB;
+  --bg-secondary:       #F5F5F5;
+  --bg-tertiary:        #F5F5F5;
+  --bg-elevated:        #FFFFFF;
+  --border-color:       rgba(0, 0, 0, 0.08);
+  --border-subtle:      rgba(0, 0, 0, 0.05);
+  --accent-primary:     #111111;
+  --accent-secondary:   #3B73FF;
+  --gradient-start:     #111111;
+  --gradient-end:       #333333;
+  --success:            #5DC840;
+  --error:              #FF3B3B;
+  --card-shadow:        0 2px 24px rgba(0, 0, 0, 0.07);
+  --hover-bg:           rgba(0, 0, 0, 0.04);
+  --sidebar-bg:         #F5F5F5;
+}
+
+/* ── Dark Mode Overrides ───────────────────────────────────────────────────── */
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --bg:                 #0A0A0A;
+  --bg-sidebar:         #111111;
+
+  --card-dark-bg:       #1A1A1A;
+  --card-dark-surface:  #222222;
+  --card-light-bg:      #1C1C1C;
+  --card-light-shadow:  0 2px 24px rgba(0, 0, 0, 0.4);
+  --card-hover-shadow:  0 6px 32px rgba(0, 0, 0, 0.5);
+
+  --on-dark:            #FFFFFF;
+  --on-dark-secondary:  rgba(255, 255, 255, 0.5);
+
+  --text-primary:       #F0F0F0;
+  --text-secondary:     #888888;
+  --text-tertiary:      #555555;
+
+  --border:             rgba(255, 255, 255, 0.07);
+  --border-strong:      rgba(255, 255, 255, 0.12);
+  --border-on-dark:     rgba(255, 255, 255, 0.07);
+
+  --sidebar-text:       #F0F0F0;
+  --sidebar-text-muted: #666666;
+  --sidebar-active-bg:  #FFFFFF;
+  --sidebar-active-text:#111111;
+  --sidebar-hover-bg:   rgba(255, 255, 255, 0.05);
+  --sidebar-border:     rgba(255, 255, 255, 0.06);
+
+  --input-bg:           #1C1C1C;
+  --input-border:       rgba(255, 255, 255, 0.1);
+  --input-focus-border: #FFFFFF;
+  --input-placeholder:  #555555;
+
+  --form-bg:            #1A1A1A;
+
+  /* backward-compat */
+  --bg-primary:         #1A1A1A;
+  --bg-secondary:       #111111;
+  --bg-tertiary:        #111111;
+  --bg-elevated:        #1C1C1C;
+  --border-color:       rgba(255, 255, 255, 0.07);
+  --border-subtle:      rgba(255, 255, 255, 0.04);
+  --accent-primary:     #F0F0F0;
+  --gradient-start:     #FFFFFF;
+  --gradient-end:       #CCCCCC;
+  --hover-bg:           rgba(255, 255, 255, 0.04);
+  --sidebar-bg:         #111111;
+  --card-shadow:        none;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+/* ── Typography Scale ──────────────────────────────────────────────────────── */
+.ds-display {
+  font-family: var(--font);
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.ds-h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.ds-h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.ds-h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ds-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ds-body { font-size: 0.9375rem; line-height: 1.6; }
+.ds-small { font-size: 0.8125rem; line-height: 1.5; }
+.ds-caption { font-size: 0.6875rem; line-height: 1.4; }
+
+.ds-mono {
+  font-family: var(--font-num);
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── Card System ───────────────────────────────────────────────────────────── */
+.card-dark {
+  background: var(--card-dark-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  color: var(--on-dark);
+  transition: box-shadow var(--duration) var(--ease);
+}
+.card-dark:hover { box-shadow: inset 0 0 0 1px var(--border-on-dark); }
+
+.card-light {
+  background: var(--card-light-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  color: var(--text-primary);
+  box-shadow: var(--card-light-shadow);
+  transition: box-shadow var(--duration) var(--ease);
+}
+.card-light:hover { box-shadow: var(--card-hover-shadow); }
+
+/* Generic card (light default) */
+.ds-card {
+  background: var(--card-light-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-light-shadow);
+}
+.ds-card-sm { padding: 20px; border-radius: 14px; }
+
+/* ── Progress Bar ──────────────────────────────────────────────────────────── */
+.ds-progress-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+[data-theme="dark"] .ds-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+.ds-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent);
+  transition: width 0.6s var(--ease);
+}
+.ds-progress-fill.blue { background: var(--accent-blue); }
+.ds-progress-fill.positive { background: var(--positive); }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--duration) var(--ease);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.ds-btn-sm {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 0.8125rem;
+  border-radius: 8px;
+}
+
+.ds-btn-primary {
+  background: var(--text-primary);
+  color: var(--bg);
+}
+.ds-btn-primary:hover { opacity: 0.88; }
+
+.ds-btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+}
+.ds-btn-secondary:hover { background: var(--hover-bg); }
+
+.ds-btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.ds-btn-ghost:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+.ds-btn-accent {
+  background: var(--accent);
+  color: #111111;
+}
+.ds-btn-accent:hover { filter: brightness(1.08); }
+
+/* ── Input / Form ──────────────────────────────────────────────────────────── */
+.ds-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration) var(--ease);
+}
+.ds-input::placeholder { color: var(--input-placeholder); }
+.ds-input:focus { border-color: var(--input-focus-border); }
+
+.ds-label-text {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Badge / Tag ───────────────────────────────────────────────────────────── */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ds-badge-positive { background: rgba(93, 200, 64, 0.12); color: #3A9C20; }
+.ds-badge-negative { background: rgba(255, 59, 59, 0.10); color: #CC2222; }
+.ds-badge-neutral  { background: rgba(0,0,0,0.06); color: var(--text-secondary); }
+[data-theme="dark"] .ds-badge-positive { background: rgba(93, 200, 64, 0.15); color: #6FCC50; }
+[data-theme="dark"] .ds-badge-negative { background: rgba(255, 59, 59, 0.15); color: #FF6060; }
+[data-theme="dark"] .ds-badge-neutral  { background: rgba(255,255,255,0.08); }
+
+/* ── Number display helpers ────────────────────────────────────────────────── */
+.ds-amount {
+  font-family: var(--font-num);
+  font-feature-settings: 'tnum' 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.ds-amount-xl  { font-size: 3rem; }
+.ds-amount-lg  { font-size: 2rem; }
+.ds-amount-md  { font-size: 1.5rem; }
+.ds-amount-sm  { font-size: 1.125rem; }
+
+.ds-positive { color: var(--positive); }
+.ds-negative { color: var(--negative); }
+.ds-muted    { color: var(--text-secondary); }
+.ds-on-dark  { color: var(--on-dark); }
+
+/* ── Divider ───────────────────────────────────────────────────────────────── */
+.ds-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  border: none;
+  margin: 0;
+}
+.ds-divider-on-dark { background: var(--border-on-dark); }
+
+/* ── App shell ─────────────────────────────────────────────────────────────── */
+.ds-app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+.ds-main {
+  padding: 36px 40px;
+  overflow-y: auto;
+  background: var(--bg);
+  transition: background var(--duration) var(--ease);
+}
+
+/* ── Page Header ───────────────────────────────────────────────────────────── */
+.ds-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+.ds-page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+.ds-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Metric Card component ─────────────────────────────────────────────────── */
+.ds-metric-card {
+  background: var(--card-light-bg);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--card-light-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow var(--duration) var(--ease);
+}
+.ds-metric-card:hover { box-shadow: var(--card-hover-shadow); }
+.ds-metric-card.dark {
+  background: var(--card-dark-bg);
+  box-shadow: none;
+}
+.ds-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.ds-metric-card.dark .ds-metric-label { color: var(--on-dark-secondary); }
+.ds-metric-value {
+  font-family: var(--font-num);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-feature-settings: 'tnum' 1;
+}
+.ds-metric-card.dark .ds-metric-value { color: var(--on-dark); }
+.ds-metric-change {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ── Data Row (list item) ──────────────────────────────────────────────────── */
+.ds-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.ds-data-row:last-child { border-bottom: none; }
+.ds-data-row-dark {
+  border-bottom-color: var(--border-on-dark);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 9999px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+/* ── Utility ───────────────────────────────────────────────────────────────── */
+.ds-flex   { display: flex; }
+.ds-col    { flex-direction: column; }
+.ds-gap-4  { gap: 4px; }
+.ds-gap-8  { gap: 8px; }
+.ds-gap-12 { gap: 12px; }
+.ds-gap-16 { gap: 16px; }
+.ds-gap-20 { gap: 20px; }
+.ds-gap-24 { gap: 24px; }
+.ds-items-center { align-items: center; }
+.ds-justify-between { justify-content: space-between; }
+.ds-w-full { width: 100%; }
+.ds-text-right { text-align: right; }
+
+/* ── Modal / Overlay ───────────────────────────────────────────────────────── */
+.ds-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: dsBackdropIn 0.2s var(--ease);
+}
+.ds-modal {
+  background: var(--card-light-bg);
+  border-radius: var(--card-radius);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+  animation: dsModalIn 0.25s var(--ease);
+}
+@keyframes dsBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dsModalIn    { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+/* ── Toast ─────────────────────────────────────────────────────────────────── */
+.ds-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+.ds-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: var(--text-primary);
+  color: var(--bg);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: dsToastIn 0.25s var(--ease);
+}
+.ds-toast.success { background: #111; }
+.ds-toast.error   { background: var(--negative); color: #fff; }
+@keyframes dsToastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── Select / Dropdown ─────────────────────────────────────────────────────── */
+.ds-select {
+  height: 44px;
+  padding: 0 14px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.ds-select:focus { border-color: var(--input-focus-border); }
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.ds-table { width: 100%; border-collapse: collapse; }
+.ds-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  padding: 0 12px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.ds-table td {
+  padding: 14px 12px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.ds-table tr:last-child td { border-bottom: none; }
+.ds-table tbody tr:hover td { background: var(--hover-bg); }
+
+/* ── Skeleton loading ──────────────────────────────────────────────────────── */
+.ds-skeleton {
+  background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.06) 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: dsSkeleton 1.4s ease infinite;
+}
+[data-theme="dark"] .ds-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+}
+@keyframes dsSkeleton { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes dsFadeIn  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes dsSlideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+.ds-anim-fade  { animation: dsFadeIn  0.3s var(--ease) both; }
+.ds-anim-slide { animation: dsSlideIn 0.3s var(--ease) both; }

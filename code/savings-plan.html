@@ -5,73 +5,26 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Monthly Investments</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #ffffff;
-            --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-            --border-color: #e5e7eb;
-            --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff;
-            --accent-secondary: #00d4ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #00C805;
-            --warning: #fb923c;
-            --error: #FF3B30;
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --hover-bg: #f8f9fa;
-            --input-bg: #f8f9fa;
-        }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #141d2e;
-            --bg-elevated: #141d2e;
-            --text-primary: #e8eaed;
-            --text-secondary: #9ca3af;
-            --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09);
-            --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff;
-            --accent-secondary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #22c55e;
-            --warning: #fb923c;
-            --error: #ef4444;
-            --card-shadow: none;
-            --hover-bg: rgba(255, 255, 255, 0.04);
-            --input-bg: rgba(255, 255, 255, 0.04);
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, sans-serif;
-            background: var(--bg-primary);
+body {
+            font-family: var(--font);
+            background: var(--bg);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
         
         .main-content {
             padding: 32px 40px;
             overflow-y: auto;
-            background: var(--bg-primary);
+            background: var(--bg);
             transition: background-color 0.3s ease;
         }
 
@@ -98,7 +51,7 @@
         }
 
         .page-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -190,7 +143,7 @@
         }
 
         .section-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -278,7 +231,7 @@
         }
 
         .account-balance {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.875rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -345,7 +298,7 @@
         }
 
         .emergency-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -385,7 +338,7 @@
         }
 
         .card-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -427,7 +380,7 @@
         }
 
         .emi-day {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -459,7 +412,7 @@
         }
 
         .emi-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.125rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -567,7 +520,7 @@
             color: var(--text-primary);
             font-size: 0.9375rem;
             font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -627,7 +580,7 @@
         }
 
         .current-month {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -703,7 +656,7 @@
             color: var(--text-primary);
             font-size: 0.9375rem;
             font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -761,7 +714,7 @@
         }
 
         .total-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -917,7 +870,7 @@
         }
 
         .savings-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1016,7 +969,7 @@
         }
 
         .timeline-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.125rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1193,7 +1146,7 @@
         }
 
         .section-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1239,7 +1192,7 @@
         }
 
         .investment-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--accent-primary);
@@ -1302,7 +1255,7 @@
         }
 
         .modal-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1354,7 +1307,7 @@
         }
 
         .detail-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1380,7 +1333,7 @@
             background: var(--bg-secondary);
             color: var(--text-primary);
             font-size: 0.9375rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -1472,7 +1425,7 @@
         .inv-badge.others { background: rgba(139,92,246,0.15); color: #7c3aed; }
 
         .inv-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-weight: 700;
             color: var(--accent-primary);
         }
@@ -1532,7 +1485,7 @@
         .month-nav-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
 
         .current-month-label {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1578,7 +1531,7 @@
         .breakup-asset-card.others .breakup-card-label { color: #7c3aed; }
 
         .breakup-card-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1618,7 +1571,7 @@
         }
 
         .breakup-item-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-weight: 700;
             color: var(--text-primary);
             flex-shrink: 0;
@@ -1696,14 +1649,14 @@
         }
 
         .insight-pct {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.875rem;
             font-weight: 700;
             color: var(--text-secondary);
         }
 
         .insight-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.875rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1783,7 +1736,7 @@
         }
 
         .total-monthly-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--accent-primary);
@@ -1834,7 +1787,7 @@
             color: var(--text-primary);
             font-size: 0.9375rem;
             font-weight: 600;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
             width: 100%;
         }
@@ -1891,7 +1844,7 @@
         }
 
         .card-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1951,7 +1904,7 @@
         }
 
         .allocation-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1974,7 +1927,7 @@
         }
 
         .total-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -2028,7 +1981,7 @@
         }
 
         .breakdown-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 700;
             color: var(--text-secondary);
@@ -2168,7 +2121,7 @@
         }
 
         .history-table td:not(:first-child) {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-weight: 600;
         }
 
@@ -2278,7 +2231,7 @@
         }
         .month-nav-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
         .month-display {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 600;
             color: var(--text-primary);
@@ -2305,7 +2258,7 @@
             margin-bottom: 20px;
         }
         .combined-section-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.0625rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -2313,7 +2266,7 @@
         .combined-total-wrap { text-align: right; }
         .combined-total-label { font-size: 0.75rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         .combined-total-val {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--accent-primary);
@@ -2357,7 +2310,7 @@
             margin-bottom: 24px;
         }
         .inv-modal-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -3655,14 +3608,14 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
 
             <!-- Tab Switcher -->
             <div style="display:flex;gap:8px;margin-bottom:16px;background:var(--bg-secondary);padding:4px;border-radius:10px;width:fit-content;">
-                <button id="tabPasteBtn" onclick="switchImportTab('paste')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--accent-primary);color:#fff;transition:all 0.2s;">📋 Paste / Type</button>
-                <button id="tabCsvBtn" onclick="switchImportTab('csv')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;color:var(--text-secondary);transition:all 0.2s;">📁 Upload CSV</button>
-                <button id="tabScreenshotBtn" onclick="switchImportTab('screenshot')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;color:var(--text-secondary);transition:all 0.2s;">📷 Screenshot</button>
+                <button id="tabPasteBtn" onclick="switchImportTab('paste')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family: var(--font);background:var(--accent-primary);color:#fff;transition:all 0.2s;">📋 Paste / Type</button>
+                <button id="tabCsvBtn" onclick="switchImportTab('csv')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family: var(--font);background:transparent;color:var(--text-secondary);transition:all 0.2s;">📁 Upload CSV</button>
+                <button id="tabScreenshotBtn" onclick="switchImportTab('screenshot')" style="padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family: var(--font);background:transparent;color:var(--text-secondary);transition:all 0.2s;">📷 Screenshot</button>
             </div>
 
             <!-- Paste Tab -->
             <div id="importPasteTab">
-                <textarea id="importInput" style="width:100%;min-height:150px;padding:14px;border:1px solid var(--border-color);border-radius:12px;background:var(--input-bg);color:var(--text-primary);font-size:0.875rem;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;" placeholder="Paste CSV rows, Google Sheets table, or describe your investments:
+                <textarea id="importInput" style="width:100%;min-height:150px;padding:14px;border:1px solid var(--border-color);border-radius:12px;background:var(--input-bg);color:var(--text-primary);font-size:0.875rem;font-family: var(--font);resize:vertical;outline:none;" placeholder="Paste CSV rows, Google Sheets table, or describe your investments:
 
 Fund Name, Amount, Frequency, Type
 HDFC Midcap Opportunities, 5000, Monthly, MF

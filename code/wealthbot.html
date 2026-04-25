@@ -5,62 +5,18 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthBot AI Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="controls.css">
+    <link rel="stylesheet" href="user-menu.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-            --border-color: #e5e7eb;
-            --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff;
-            --accent-secondary: #00d4ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --hover-bg: #f8f9fa;
-            --modal-overlay: rgba(0,0,0,0.5);
-            --bubble-bot-bg: #f5f5f5;
-            --bubble-bot-color: #333333;
-        }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #141d2e;
-            --bg-elevated: #141d2e;
-            --text-primary: #e8eaed;
-            --text-secondary: #9ca3af;
-            --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09);
-            --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff;
-            --accent-secondary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #fb923c;
-            --card-shadow: none;
-            --hover-bg: rgba(255,255,255,0.04);
-            --modal-overlay: rgba(0,0,0,0.7);
-            --bubble-bot-bg: rgba(255,255,255,0.07);
-            --bubble-bot-color: #e8eaed;
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
+body {
+            font-family: var(--font), 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
@@ -69,7 +25,7 @@
         /* App Layout */
         .app-container {
             display: grid;
-            grid-template-columns: 252px 1fr;
+            grid-template-columns: 240px 1fr;
             min-height: 100vh;
         }
 
@@ -77,7 +33,7 @@
 
         /* Main Content */
         .main-content {
-            background: var(--bg-primary);
+            background: var(--bg);
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -95,7 +51,7 @@
         }
 
         .page-header h1 {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             letter-spacing: -0.02em;
@@ -258,7 +214,7 @@
         .input-area {
             padding: 16px 32px 24px;
             border-top: 1px solid var(--border-color);
-            background: var(--bg-primary);
+            background: var(--bg);
             flex-shrink: 0;
         }
 
@@ -278,7 +234,7 @@
             outline: none;
             transition: border-color 0.2s ease;
             font-family: inherit;
-            background: var(--bg-primary);
+            background: var(--bg);
             color: var(--text-primary);
         }
 

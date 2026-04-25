@@ -5,71 +5,27 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Settings</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #ffffff;
-            --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-            --border-color: #e5e7eb;
-            --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff;
-            --accent-secondary: #00d4ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #00C805;
-            --error: #FF3B30;
-            --warning: #fb923c;
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --hover-bg: #f8f9fa;
-        }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #141d2e;
-            --bg-elevated: #141d2e;
-            --text-primary: #e8eaed;
-            --text-secondary: #9ca3af;
-            --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09);
-            --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff;
-            --accent-secondary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #fb923c;
-            --card-shadow: none;
-            --hover-bg: rgba(255, 255, 255, 0.04);
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, sans-serif;
-            background: var(--bg-primary);
+body {
+            font-family: var(--font);
+            background: var(--bg);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
         
         .main-content {
             padding: 32px 40px;
             overflow-y: auto;
-            background: var(--bg-primary);
+            background: var(--bg);
             transition: background-color 0.3s ease;
         }
 
@@ -96,7 +52,7 @@
         }
 
         .page-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -214,7 +170,7 @@
         }
 
         .section-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -254,10 +210,10 @@
             padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            background: var(--bg-primary);
+            background: var(--bg);
             color: var(--text-primary);
             font-size: 0.9375rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -272,10 +228,10 @@
             padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            background: var(--bg-primary);
+            background: var(--bg);
             color: var(--text-primary);
             font-size: 0.9375rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -301,7 +257,7 @@
             transition: all 0.2s ease;
             border: none;
             letter-spacing: -0.01em;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
         }
 
         .btn-primary {
@@ -657,7 +613,7 @@
         }
 
         .modal-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -807,7 +763,7 @@
             padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            background: var(--bg-primary);
+            background: var(--bg);
             color: var(--text-primary);
             font-size: 0.875rem;
             text-align: right;
@@ -2525,7 +2481,7 @@
         .si-table tbody tr:last-child td { border-bottom: none; }
         .si-stat { background: var(--bg-secondary); border-radius: 10px; padding: 12px 14px; }
         .si-stat-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 4px; }
-        .si-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); }
+        .si-stat-val { font-family: var(--font); font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); }
     </style>
     <script src="sidebar.js"></script>
 </body>

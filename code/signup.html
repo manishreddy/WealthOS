@@ -3,1191 +3,716 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - WealthOS</title>
+    <title>Create Account — WealthOS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #0ea5e9 100%);
-            --accent-blue: #0066ff;
-            --accent-cyan: #00d4ff;
-            --success: #00C805;
-            --error: #ff3b30;
-            --warning: #ff9500;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @keyframes meshGradient {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInFromLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInFromRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes confetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
-        }
-
-        @keyframes checkmark {
-            0% { stroke-dashoffset: 100; }
-            100% { stroke-dashoffset: 0; }
-        }
-
         body {
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
+            background: var(--bg);
+            display: flex;
             min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-            background-size: 400% 400%;
-            animation: meshGradient 15s ease infinite;
+            align-items: stretch;
         }
 
-        .signup-container {
+        /* ── Split Layout ── */
+        .auth-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            width: 100%;
             min-height: 100vh;
-            position: relative;
         }
 
-        /* Left Side - Visual Showcase */
-        .visual-side {
-            position: relative;
+        /* ── Left — Dark branding panel ── */
+        .auth-brand {
+            background: var(--card-dark-bg);
+            padding: 56px 60px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            padding: 80px 60px;
+            justify-content: space-between;
+            position: relative;
             overflow: hidden;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
         }
-
-        .visual-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .brand {
-            animation: slideInFromLeft 0.8s ease;
-        }
-
-        .brand-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .brand-tagline {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 16px;
-            line-height: 1.4;
-            animation: slideInFromLeft 1s ease;
-        }
-
-        .brand-description {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 48px;
-            line-height: 1.7;
-            animation: slideInFromLeft 1.2s ease;
-        }
-
-        .dashboard-preview {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 32px;
-            animation: slideInFromLeft 1.4s ease;
-        }
-
-        .preview-header {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .preview-dot {
-            width: 12px;
-            height: 12px;
+        .auth-brand::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
+            background: radial-gradient(circle, rgba(143,230,44,0.08) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
         }
-
-        .preview-content {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .preview-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .preview-bar:nth-child(1) { width: 80%; animation-delay: 0s; }
-        .preview-bar:nth-child(2) { width: 60%; animation-delay: 0.3s; }
-        .preview-bar:nth-child(3) { width: 90%; animation-delay: 0.6s; }
-
-        .trust-badges {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            animation: slideInFromLeft 1.6s ease;
-        }
-
-        .trust-badge {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-        }
-
-        .trust-badge-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-
-        .trust-badge-text {
-            font-size: 0.85rem;
-            color: #ffffff;
-            font-weight: 500;
-        }
-
-        /* Floating Elements */
-        .floating-element {
+        .auth-brand::after {
+            content: '';
             position: absolute;
             width: 300px;
             height: 300px;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-            animation: float 8s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(59,115,255,0.06) 0%, transparent 70%);
+            bottom: 80px;
+            left: -60px;
+            pointer-events: none;
         }
 
-        .floating-1 {
-            top: 10%;
-            left: 10%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .brand-logo-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
         }
-
-        .floating-2 {
-            bottom: 20%;
-            right: 10%;
-            background: linear-gradient(135deg, #f093fb 0%, #4facfe 100%);
-            animation-delay: 2s;
-        }
-
-        /* Right Side - Signup Form */
-        .form-side {
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 60px;
-            background: #ffffff;
+            flex-shrink: 0;
+        }
+        .brand-name {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.04em;
+        }
+        .brand-name em { font-style: normal; color: var(--accent); }
+
+        .brand-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px 0;
             position: relative;
+            z-index: 1;
+        }
+        .brand-headline {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+        .brand-headline em { font-style: normal; color: var(--accent); }
+        .brand-sub {
+            font-size: 1rem;
+            color: var(--on-dark-secondary);
+            line-height: 1.65;
+            margin-bottom: 48px;
+            max-width: 380px;
+        }
+
+        .feature-list { display: flex; flex-direction: column; gap: 16px; }
+        .feature-item { display: flex; align-items: center; gap: 14px; }
+        .feature-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+        .feature-text { font-size: 0.9375rem; color: var(--on-dark-secondary); }
+        .feature-text strong { color: #fff; font-weight: 600; }
+
+        .stat-row-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 48px;
+        }
+        .stat-mini-card {
+            background: var(--card-dark-surface);
+            border: 1px solid var(--border-on-dark);
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+        .stat-mini-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--on-dark-secondary);
+            margin-bottom: 6px;
+        }
+        .stat-mini-value {
+            font-size: 1.375rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.04em;
+            font-feature-settings: 'tnum' 1;
+        }
+        .stat-mini-change {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .brand-footer {
+            font-size: 0.8125rem;
+            color: var(--on-dark-tertiary, rgba(255,255,255,0.28));
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Right — Form panel ── */
+        .auth-form-side {
+            background: var(--bg);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 48px 56px;
             overflow-y: auto;
         }
 
-        .form-container {
+        .auth-form-wrap {
             width: 100%;
-            max-width: 500px;
-            animation: fadeIn 0.8s ease;
+            max-width: 420px;
+            padding-top: 12px;
+            animation: dsFadeIn 0.35s var(--ease) both;
         }
 
-        .form-header {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .form-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
+        .auth-form-header { margin-bottom: 28px; }
+        .auth-form-title {
+            font-size: 1.875rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
             color: var(--text-primary);
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
+            margin-bottom: 6px;
         }
+        .auth-form-sub { font-size: 0.9375rem; color: var(--text-secondary); }
 
-        .form-subtitle {
-            font-size: 1.05rem;
-            color: var(--text-secondary);
-        }
-
-        .progress-indicator {
+        /* Step indicator */
+        .step-indicator {
             display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            justify-content: center;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 28px;
         }
-
-        .progress-step {
-            flex: 1;
-            max-width: 100px;
+        .step-pip {
+            width: 28px;
             height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 9999px;
+            background: var(--border);
+            transition: background 200ms;
         }
+        .step-pip + .step-pip { margin-left: 4px; }
+        .step-pip.done { background: var(--accent); }
 
-        .progress-step.active::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--primary-gradient);
-            animation: slideInFromLeft 0.5s ease;
-        }
-
-        .step-label {
+        /* Section titles */
+        .form-section-head {
             font-size: 0.75rem;
-            color: var(--text-tertiary);
-            text-align: center;
-            margin-top: 8px;
-            font-weight: 500;
-        }
-
-        .signup-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-section-title {
-            font-size: 0.875rem;
             font-weight: 600;
-            color: var(--text-tertiary);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            margin-top: 4px;
         }
 
+        /* Form */
+        .auth-form { display: flex; flex-direction: column; gap: 0; }
+        .form-section { margin-bottom: 20px; }
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 12px;
         }
 
-        .form-group {
-            position: relative;
+        .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .field-group:last-child { margin-bottom: 0; }
+        .field-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
         }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.25rem;
-            color: var(--text-tertiary);
-            transition: color 0.3s ease;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .form-input {
+        .field-input {
             width: 100%;
-            padding: 18px 18px 18px 54px;
-            font-size: 1rem;
-            font-family: 'DM Sans', sans-serif;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            background: #ffffff;
+            height: 46px;
+            padding: 0 14px;
+            background: var(--card-light-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: var(--font);
+            font-size: 0.9375rem;
             color: var(--text-primary);
-        }
-
-        .form-input:focus {
             outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1), 0 8px 24px rgba(0, 102, 255, 0.15);
-            transform: translateY(-2px);
+            transition: border-color 150ms;
+            box-shadow: var(--shadow-sm);
         }
+        .field-input::placeholder { color: var(--text-tertiary); }
+        .field-input:focus { border-color: var(--text-primary); }
+        .field-input.error { border-color: var(--negative); }
+        .field-input.success { border-color: var(--positive); }
 
-        .form-input:focus ~ .input-icon {
-            color: var(--accent-blue);
-        }
-
-        .form-input.error {
-            border-color: var(--error);
-            animation: shake 0.3s ease;
-        }
-
-        .form-input.success {
-            border-color: var(--success);
-            padding-right: 48px;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .form-label {
-            position: absolute;
-            left: 54px;
-            top: 18px;
-            font-size: 1rem;
-            color: var(--text-tertiary);
-            pointer-events: none;
-            transition: all 0.3s ease;
-            background: #ffffff;
-            padding: 0 4px;
-            z-index: 1;
-        }
-
-        .form-input:focus ~ .form-label,
-        .form-input:not(:placeholder-shown) ~ .form-label {
-            top: -10px;
-            left: 48px;
-            font-size: 0.8rem;
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        .input-checkmark {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.25rem;
-            color: var(--success);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .form-input.success ~ .input-checkmark {
-            opacity: 1;
-        }
-
-        .error-message {
-            color: var(--error);
-            font-size: 0.875rem;
-            margin-top: 8px;
+        .field-error {
+            font-size: 0.8125rem;
+            color: var(--negative);
             display: none;
-            align-items: center;
-            gap: 6px;
         }
+        .field-error.show { display: block; }
 
-        .error-message.show { display: flex; }
-
-        .error-message::before {
-            content: "⚠";
-            font-size: 1rem;
-        }
-
-        .password-strength {
-            margin-top: 12px;
-        }
-
+        /* Password strength */
+        .password-strength { margin-top: 8px; }
         .strength-bar-container {
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 9999px;
             overflow: hidden;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
-
         .strength-bar {
             height: 100%;
+            border-radius: 9999px;
             width: 0%;
-            transition: all 0.4s ease;
-            border-radius: 3px;
+            transition: width 300ms, background 300ms;
         }
-
-        .strength-bar.weak {
-            width: 33%;
-            background: linear-gradient(90deg, #ff3b30 0%, #ff6b6b 100%);
-        }
-
-        .strength-bar.medium {
-            width: 66%;
-            background: linear-gradient(90deg, #ff9500 0%, #ffb700 100%);
-        }
-
-        .strength-bar.strong {
-            width: 100%;
-            background: linear-gradient(90deg, #00C805 0%, #34d058 100%);
-        }
-
+        .strength-bar.weak  { width: 33%; background: var(--negative); }
+        .strength-bar.medium { width: 66%; background: var(--warning, #F59E0B); }
+        .strength-bar.strong { width: 100%; background: var(--positive); }
         .strength-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 6px;
         }
-
-        .strength-text.weak { color: var(--error); }
-        .strength-text.medium { color: var(--warning); }
-        .strength-text.strong { color: var(--success); }
-
-        .password-requirements {
-            font-size: 0.8rem;
-            color: var(--text-tertiary);
-            margin-top: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
+        .strength-text.weak   { color: var(--negative); }
+        .strength-text.medium { color: var(--warning, #F59E0B); }
+        .strength-text.strong { color: var(--positive); }
+        .password-requirements { display: flex; flex-wrap: wrap; gap: 8px; }
         .requirement {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.3s ease;
-        }
-
-        .requirement.met {
-            color: var(--success);
-        }
-
-        .requirement::before {
-            content: "○";
-            font-size: 0.6rem;
-        }
-
-        .requirement.met::before {
-            content: "✓";
-            font-size: 0.9rem;
-        }
-
-        .character-count {
-            position: absolute;
-            right: 18px;
-            bottom: -24px;
             font-size: 0.75rem;
             color: var(--text-tertiary);
+            background: var(--hover-bg);
+            border-radius: 6px;
+            padding: 3px 8px;
+            transition: all 150ms;
+        }
+        .requirement.met {
+            background: rgba(93,200,64,0.1);
+            color: var(--positive);
         }
 
-        .checkbox-wrapper {
+        /* Character count */
+        .character-count {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Terms checkbox */
+        .terms-label {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            padding: 16px;
-            background: rgba(0, 102, 255, 0.03);
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-            transition: all 0.3s ease;
+            gap: 10px;
             cursor: pointer;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--card-light-bg);
+            box-shadow: var(--shadow-sm);
+            transition: border-color 150ms;
         }
-
-        .checkbox-wrapper:hover {
-            border-color: var(--accent-blue);
-            background: rgba(0, 102, 255, 0.05);
-        }
-
-        .custom-checkbox {
-            position: relative;
-            width: 24px;
-            height: 24px;
+        .terms-label:hover { border-color: var(--border-strong); }
+        .terms-check {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-primary);
+            cursor: pointer;
             flex-shrink: 0;
+            margin-top: 1px;
         }
-
-        .custom-checkbox input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 24px;
-            width: 24px;
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .custom-checkbox input:checked ~ .checkmark {
-            background: var(--primary-gradient);
-            border-color: var(--accent-blue);
-        }
-
-        .checkmark::after {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 7px;
-            top: 3px;
-            width: 6px;
-            height: 12px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .custom-checkbox input:checked ~ .checkmark::after {
-            display: block;
-            animation: checkmark 0.3s ease;
-        }
-
-        .checkbox-label {
-            font-size: 0.95rem;
+        .terms-text {
+            font-size: 0.8125rem;
             color: var(--text-secondary);
             line-height: 1.5;
-            user-select: none;
         }
-
-        .checkbox-label a {
-            color: var(--accent-blue);
+        .terms-text a {
+            color: var(--text-primary);
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 600;
         }
+        .terms-text a:hover { text-decoration: underline; }
 
-        .checkbox-label a:hover {
-            text-decoration: underline;
-        }
-
-        .btn-signup {
+        /* Submit button */
+        .auth-submit {
             width: 100%;
-            padding: 18px;
-            background: var(--primary-gradient);
-            color: white;
+            height: 48px;
+            background: var(--text-primary);
+            color: var(--bg);
             border: none;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 600;
+            border-radius: 10px;
+            font-family: var(--font);
+            font-size: 0.9375rem;
+            font-weight: 700;
             cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: opacity 150ms;
+            letter-spacing: -0.01em;
+            margin-top: 20px;
             position: relative;
-            overflow: hidden;
-            margin-top: 12px;
         }
-
-        .btn-signup::before {
+        .auth-submit:hover { opacity: 0.88; }
+        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-submit.loading { color: transparent; }
+        .auth-submit.loading::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-signup:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-signup:hover::before {
-            left: 100%;
-        }
-
-        .btn-signup:active {
-            transform: translateY(0);
-        }
-
-        .btn-signup:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-signup.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            animation: spin 0.7s linear infinite;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
         }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        @keyframes spin {
-            to { transform: translateY(-50%) rotate(360deg); }
-        }
-
-        .divider {
+        /* Divider */
+        .auth-divider {
             text-align: center;
-            margin: 32px 0;
             position: relative;
             color: var(--text-tertiary);
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.8125rem;
+            margin: 20px 0;
         }
-
-        .divider::before,
-        .divider::after {
+        .auth-divider::before,
+        .auth-divider::after {
             content: '';
             position: absolute;
             top: 50%;
-            width: 42%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+            width: 44%;
+            background: var(--border);
         }
+        .auth-divider::before { left: 0; }
+        .auth-divider::after { right: 0; }
 
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-
-        .login-link {
+        .auth-footer-link {
             text-align: center;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            font-size: 1rem;
         }
-
-        .login-link a {
-            color: var(--accent-blue);
-            text-decoration: none;
+        .auth-footer-link a {
+            color: var(--text-primary);
             font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .login-link a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-blue);
-            transition: width 0.3s ease;
-        }
-
-        .login-link a:hover::after {
-            width: 100%;
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 32px;
-        }
-
-        .back-link a {
-            color: var(--text-tertiary);
             text-decoration: none;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
+        .auth-footer-link a:hover { text-decoration: underline; }
 
-        .back-link a:hover {
-            color: var(--text-secondary);
-            transform: translateX(-4px);
+        /* Responsive */
+        @media (max-width: 900px) {
+            .auth-container { grid-template-columns: 1fr; }
+            .auth-brand { display: none; }
+            .auth-form-side { padding: 36px 24px; align-items: center; }
         }
-
-        /* Confetti */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #f093fb;
-            position: absolute;
-            animation: confetti 3s ease-out forwards;
-            z-index: 1000;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .signup-container {
-                grid-template-columns: 1fr;
-            }
-
-            .visual-side {
-                display: none;
-            }
-
-            .form-side {
-                padding: 40px 24px;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .form-title {
-                font-size: 2rem;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .brand-logo {
-                font-size: 2.5rem;
-            }
-
-            .dashboard-preview {
-                padding: 20px;
-            }
-
-            .trust-badges {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 480px) {
+            .auth-form-side { padding: 24px 16px; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="signup-container">
-        <!-- Left Side - Visual Showcase -->
-        <div class="visual-side">
-            <div class="floating-element floating-1"></div>
-            <div class="floating-element floating-2"></div>
+<div class="auth-container">
 
-            <div class="visual-content">
-                <div class="brand">
-                    <h1 class="brand-logo">WealthOS</h1>
-                    <h2 class="brand-tagline">Your Family's Financial Operating System</h2>
-                    <p class="brand-description">
-                        Track portfolio, manage monthly finances, plan goals, and grow wealth together. Built for Indian families.
-                    </p>
+    <!-- Left — Branding -->
+    <div class="auth-brand">
+        <a href="/" class="brand-logo-link">
+            <div class="brand-mark">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                </svg>
+            </div>
+            <span class="brand-name">Wealth<em>OS</em></span>
+        </a>
+
+        <div class="brand-body">
+            <h1 class="brand-headline">Set up your<br><em>family profile.</em></h1>
+            <p class="brand-sub">One account for the whole family. Track everyone's finances, goals, and investments in a single place.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-dot"></div>
+                    <div class="feature-text"><strong>Family members</strong> — add spouse, children with individual tracking</div>
                 </div>
-
-                <div class="dashboard-preview">
-                    <div class="preview-header">
-                        <div class="preview-dot"></div>
-                        <div class="preview-dot"></div>
-                        <div class="preview-dot"></div>
-                    </div>
-                    <div class="preview-content">
-                        <div class="preview-bar"></div>
-                        <div class="preview-bar"></div>
-                        <div class="preview-bar"></div>
-                    </div>
+                <div class="feature-item">
+                    <div class="feature-dot"></div>
+                    <div class="feature-text"><strong>Shared goals</strong> — plan for education, home, and retirement together</div>
                 </div>
+                <div class="feature-item">
+                    <div class="feature-dot"></div>
+                    <div class="feature-text"><strong>Consolidated view</strong> — family net worth at a glance</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot"></div>
+                    <div class="feature-text"><strong>Private & secure</strong> — end-to-end encrypted, yours alone</div>
+                </div>
+            </div>
 
-                <div class="trust-badges">
-                    <div class="trust-badge">
-                        <div class="trust-badge-icon">💼</div>
-                        <div class="trust-badge-text">Portfolio Tracker</div>
-                    </div>
-                    <div class="trust-badge">
-                        <div class="trust-badge-icon">📊</div>
-                        <div class="trust-badge-text">Monthly Tracker</div>
-                    </div>
-                    <div class="trust-badge">
-                        <div class="trust-badge-icon">🎯</div>
-                        <div class="trust-badge-text">Goal Planning</div>
-                    </div>
-                    <div class="trust-badge">
-                        <div class="trust-badge-icon">🤖</div>
-                        <div class="trust-badge-text">AI WealthBot</div>
-                    </div>
+            <div class="stat-row-group">
+                <div class="stat-mini-card">
+                    <div class="stat-mini-label">Net Worth</div>
+                    <div class="stat-mini-value">₹84.2L</div>
+                    <div class="stat-mini-change">↑ 12.4% YTD</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-label">Monthly Savings</div>
+                    <div class="stat-mini-value">₹32K</div>
+                    <div class="stat-mini-change">68% of goal</div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Side - Signup Form -->
-        <div class="form-side">
-            <div class="form-container">
-                <div class="form-header">
-                    <h1 class="form-title">Create your account</h1>
-                    <p class="form-subtitle">Start managing your family's wealth today</p>
+        <div class="brand-footer">© 2025 WealthOS. Built for Indian families.</div>
+    </div>
+
+    <!-- Right — Signup Form -->
+    <div class="auth-form-side">
+        <div class="auth-form-wrap">
+            <div class="auth-form-header">
+                <h1 class="auth-form-title">Create your account</h1>
+                <p class="auth-form-sub">Start managing your family's wealth today</p>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step-pip done"></div>
+                <div class="step-pip done"></div>
+                <div class="step-pip done"></div>
+            </div>
+
+            <form id="signupForm" class="auth-form" autocomplete="on">
+                <!-- Step 1: Family -->
+                <div class="form-section">
+                    <div class="form-section-head">Step 1 — Family</div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="field-label" for="familyName">Family name</label>
+                            <input type="text" id="familyName" class="field-input" placeholder="e.g. The Sharmas" autocomplete="off" required>
+                            <div id="familyNameError" class="field-error"></div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="userName">Your name</label>
+                            <input type="text" id="userName" class="field-input" placeholder="e.g. Rahul" autocomplete="given-name" required>
+                            <div id="userNameError" class="field-error"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="progress-indicator">
-                    <div>
-                        <div class="progress-step active"></div>
-                        <div class="step-label">Family</div>
+                <!-- Step 2: Account -->
+                <div class="form-section">
+                    <div class="form-section-head">Step 2 — Account</div>
+                    <div class="field-group">
+                        <label class="field-label" for="email">Email address</label>
+                        <input type="email" id="email" class="field-input" placeholder="you@example.com" autocomplete="email" required>
+                        <div id="emailError" class="field-error"></div>
                     </div>
-                    <div>
-                        <div class="progress-step active"></div>
-                        <div class="step-label">Account</div>
-                    </div>
-                    <div>
-                        <div class="progress-step active"></div>
-                        <div class="step-label">Security</div>
-                    </div>
-                </div>
-
-                <form id="signupForm" class="signup-form">
-                    <!-- Section 1: Family Details -->
-                    <div class="form-section">
-                        <div class="form-section-title">Step 1/3 - Family Details</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <div class="input-wrapper">
-                                    <input
-                                        type="text"
-                                        id="familyName"
-                                        class="form-input"
-                                        placeholder=" "
-                                        required
-                                    >
-                                    <span class="input-icon">👨‍👩‍👧‍👦</span>
-                                    <label for="familyName" class="form-label">Family Name</label>
-                                    <span class="input-checkmark">✓</span>
-                                </div>
-                                <div id="familyNameError" class="error-message"></div>
+                    <div class="field-group">
+                        <label class="field-label" for="password">Password</label>
+                        <input type="password" id="password" class="field-input" placeholder="Minimum 8 characters" autocomplete="new-password" required maxlength="128">
+                        <div id="passwordError" class="field-error"></div>
+                        <div class="character-count"><span id="passwordCount">0</span>/128</div>
+                        <div class="password-strength">
+                            <div class="strength-bar-container">
+                                <div id="strengthBar" class="strength-bar"></div>
                             </div>
-
-                            <div class="form-group">
-                                <div class="input-wrapper">
-                                    <input
-                                        type="text"
-                                        id="userName"
-                                        class="form-input"
-                                        placeholder=" "
-                                        required
-                                    >
-                                    <span class="input-icon">👤</span>
-                                    <label for="userName" class="form-label">Your Name</label>
-                                    <span class="input-checkmark">✓</span>
-                                </div>
-                                <div id="userNameError" class="error-message"></div>
+                            <div id="strengthText" class="strength-text"></div>
+                            <div class="password-requirements">
+                                <div id="req-length" class="requirement">8+ characters</div>
+                                <div id="req-uppercase" class="requirement">Uppercase letter</div>
+                                <div id="req-number" class="requirement">Number</div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Section 2: Account Credentials -->
-                    <div class="form-section">
-                        <div class="form-section-title">Step 2/3 - Account Details</div>
-                        <div class="form-group full-width">
-                            <div class="input-wrapper">
-                                <input
-                                    type="email"
-                                    id="email"
-                                    class="form-input"
-                                    placeholder=" "
-                                    required
-                                >
-                                <span class="input-icon">📧</span>
-                                <label for="email" class="form-label">Email Address</label>
-                                <span class="input-checkmark">✓</span>
-                            </div>
-                            <div id="emailError" class="error-message"></div>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <div class="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="password"
-                                    class="form-input"
-                                    placeholder=" "
-                                    required
-                                    maxlength="128"
-                                >
-                                <span class="input-icon">🔒</span>
-                                <label for="password" class="form-label">Password</label>
-                                <span class="character-count"><span id="passwordCount">0</span>/128</span>
-                            </div>
-                            <div id="passwordError" class="error-message"></div>
-                            <div class="password-strength">
-                                <div class="strength-bar-container">
-                                    <div id="strengthBar" class="strength-bar"></div>
-                                </div>
-                                <div id="strengthText" class="strength-text"></div>
-                                <div class="password-requirements">
-                                    <div id="req-length" class="requirement">At least 8 characters</div>
-                                    <div id="req-uppercase" class="requirement">One uppercase letter</div>
-                                    <div id="req-number" class="requirement">One number</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 3: Terms Acceptance -->
-                    <div class="form-section">
-                        <div class="form-section-title">Step 3/3 - Terms & Conditions</div>
-                        <label class="checkbox-wrapper">
-                            <div class="custom-checkbox">
-                                <input type="checkbox" id="agreeTerms" required>
-                                <span class="checkmark"></span>
-                            </div>
-                            <div class="checkbox-label">
-                                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand my data will be securely encrypted and stored.
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" id="signupBtn" class="btn-signup">
-                        Create Account
-                    </button>
-                </form>
-
-                <div class="divider">or</div>
-
-                <div class="login-link">
-                    Already have an account? <a href="login.html">Sign in</a>
                 </div>
 
-                <div class="back-link">
-                    <a href="../index.html">← Back to Home</a>
+                <!-- Step 3: Terms -->
+                <div class="form-section">
+                    <div class="form-section-head">Step 3 — Agreement</div>
+                    <label class="terms-label">
+                        <input type="checkbox" id="agreeTerms" class="terms-check" required>
+                        <span class="terms-text">
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. My data will be securely encrypted and stored.
+                        </span>
+                    </label>
                 </div>
+
+                <button type="submit" id="signupBtn" class="auth-submit">Create account</button>
+            </form>
+
+            <div class="auth-divider">or</div>
+
+            <div class="auth-footer-link">
+                Already have an account? <a href="login.html">Sign in</a>
             </div>
         </div>
     </div>
+</div>
 
+<script src="/api.js"></script>
+<script src="auth.js"></script>
+<script>
+    if (WealthAPI && WealthAPI.auth.isLoggedIn()) {
+      window.location.href = '/dashboard.html';
+    }
 
-    <script src="/api.js"></script>
-    <script src="auth.js"></script>
-    <script>
-        // Check if already logged in
-        if (WealthAPI && WealthAPI.auth.isLoggedIn()) {
-          window.location.href = '/dashboard.html';
-        }
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        return Math.min(strength, 3);
+    }
 
-        // Password strength and UI helpers (preserved from original)
-        function calculatePasswordStrength(password) {
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (password.length >= 12) strength++;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
-            return Math.min(strength, 3);
-        }
+    function checkPasswordRequirements(password) {
+        return {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password)
+        };
+    }
 
-        function checkPasswordRequirements(password) {
-            return {
-                length: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                number: /[0-9]/.test(password)
-            };
-        }
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
 
-        function createConfetti() {
-            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDelay = Math.random() * 0.3 + 's';
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 30);
-            }
-        }
-
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
-        function addSuccessValidation(input, errorElement) {
-            input.addEventListener('blur', () => {
-                if (input.value.trim() && !input.classList.contains('error')) {
-                    input.classList.add('success');
-                } else {
-                    input.classList.remove('success');
-                }
-            });
-            input.addEventListener('input', () => {
-                input.classList.remove('error');
+    function addSuccessValidation(input, errorElement) {
+        input.addEventListener('blur', () => {
+            if (input.value.trim() && !input.classList.contains('error')) {
+                input.classList.add('success');
+            } else {
                 input.classList.remove('success');
-                errorElement.classList.remove('show');
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-          const signupForm = document.getElementById('signupForm');
-          const familyNameInput = document.getElementById('familyName');
-          const userNameInput = document.getElementById('userName');
-          const emailInput = document.getElementById('email');
-          const passwordInput = document.getElementById('password');
-          const agreeTermsCheckbox = document.getElementById('agreeTerms');
-          const signupBtn = document.getElementById('signupBtn');
-          const strengthBar = document.getElementById('strengthBar');
-          const strengthText = document.getElementById('strengthText');
-          const passwordCount = document.getElementById('passwordCount');
-
-          const familyNameError = document.getElementById('familyNameError');
-          const userNameError = document.getElementById('userNameError');
-          const emailError = document.getElementById('emailError');
-          const passwordError = document.getElementById('passwordError');
-
-          // Password strength checker
-          if (passwordInput) {
-            passwordInput.addEventListener('input', () => {
-                const password = passwordInput.value;
-                if (passwordCount) passwordCount.textContent = password.length;
-
-                const strength = calculatePasswordStrength(password);
-                const requirements = checkPasswordRequirements(password);
-
-                if (strengthBar) strengthBar.className = 'strength-bar';
-                if (strengthText) strengthText.className = 'strength-text';
-
-                if (strength >= 3) {
-                    if (strengthBar) strengthBar.classList.add('strong');
-                    if (strengthText) { strengthText.classList.add('strong'); strengthText.innerHTML = '<span>●</span> Strong password'; }
-                } else if (strength >= 2) {
-                    if (strengthBar) strengthBar.classList.add('medium');
-                    if (strengthText) { strengthText.classList.add('medium'); strengthText.innerHTML = '<span>●</span> Medium password'; }
-                } else if (strength >= 1) {
-                    if (strengthBar) strengthBar.classList.add('weak');
-                    if (strengthText) { strengthText.classList.add('weak'); strengthText.innerHTML = '<span>●</span> Weak password'; }
-                } else {
-                    if (strengthText) strengthText.innerHTML = '';
-                }
-
-                const reqLength = document.getElementById('req-length');
-                const reqUpper = document.getElementById('req-uppercase');
-                const reqNumber = document.getElementById('req-number');
-                if (reqLength) reqLength.classList.toggle('met', requirements.length);
-                if (reqUpper) reqUpper.classList.toggle('met', requirements.uppercase);
-                if (reqNumber) reqNumber.classList.toggle('met', requirements.number);
-
-                passwordInput.classList.remove('error');
-                if (passwordError) passwordError.classList.remove('show');
-            });
-          }
-
-          // Input validation with checkmarks
-          if (familyNameInput && familyNameError) addSuccessValidation(familyNameInput, familyNameError);
-          if (userNameInput && userNameError) addSuccessValidation(userNameInput, userNameError);
-          if (emailInput && emailError) addSuccessValidation(emailInput, emailError);
-
-          if (!signupForm) return;
-
-          signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // Clear previous errors and success states
-            const inputs = [familyNameInput, userNameInput, emailInput, passwordInput].filter(Boolean);
-            const errors = [familyNameError, userNameError, emailError, passwordError].filter(Boolean);
-            inputs.forEach(input => { input.classList.remove('error'); input.classList.remove('success'); });
-            errors.forEach(error => error.classList.remove('show'));
-
-            const familyName = familyNameInput ? familyNameInput.value.trim() : '';
-            const userName = userNameInput ? userNameInput.value.trim() : '';
-            const email = emailInput ? emailInput.value.trim() : '';
-            const password = passwordInput ? passwordInput.value : '';
-            const agreeTerms = agreeTermsCheckbox ? agreeTermsCheckbox.checked : false;
-
-            let hasError = false;
-
-            if (!familyName) {
-              if (familyNameInput) familyNameInput.classList.add('error');
-              if (familyNameError) { familyNameError.textContent = 'Family name is required'; familyNameError.classList.add('show'); }
-              hasError = true;
             }
-
-            if (!userName) {
-              if (userNameInput) userNameInput.classList.add('error');
-              if (userNameError) { userNameError.textContent = 'Your name is required'; userNameError.classList.add('show'); }
-              hasError = true;
-            }
-
-            if (!email) {
-              if (emailInput) emailInput.classList.add('error');
-              if (emailError) { emailError.textContent = 'Email is required'; emailError.classList.add('show'); }
-              hasError = true;
-            } else if (!isValidEmail(email)) {
-              if (emailInput) emailInput.classList.add('error');
-              if (emailError) { emailError.textContent = 'Please enter a valid email address'; emailError.classList.add('show'); }
-              hasError = true;
-            }
-
-            if (!password) {
-              if (passwordInput) passwordInput.classList.add('error');
-              if (passwordError) { passwordError.textContent = 'Password is required'; passwordError.classList.add('show'); }
-              hasError = true;
-            } else if (password.length < 8) {
-              if (passwordInput) passwordInput.classList.add('error');
-              if (passwordError) { passwordError.textContent = 'Password must be at least 8 characters'; passwordError.classList.add('show'); }
-              hasError = true;
-            }
-
-            if (!agreeTerms) {
-              alert('Please agree to the Terms of Service and Privacy Policy');
-              hasError = true;
-            }
-
-            if (hasError) return;
-
-            if (signupBtn) { signupBtn.disabled = true; signupBtn.classList.add('loading'); signupBtn.textContent = 'Creating Account...'; }
-
-            try {
-              await WealthAPI.auth.signup(email, password, familyName, userName);
-              if (signupBtn) signupBtn.textContent = 'Success!';
-              createConfetti();
-              setTimeout(() => { window.location.href = '/dashboard.html'; }, 1500);
-            } catch (err) {
-              const msg = err.message || 'Signup failed. Please try again.';
-              if (msg.toLowerCase().includes('email')) {
-                if (emailInput) emailInput.classList.add('error');
-                if (emailError) { emailError.textContent = msg; emailError.classList.add('show'); }
-              } else if (msg.toLowerCase().includes('password')) {
-                if (passwordInput) passwordInput.classList.add('error');
-                if (passwordError) { passwordError.textContent = msg; passwordError.classList.add('show'); }
-              } else {
-                alert(msg);
-              }
-              if (signupBtn) { signupBtn.disabled = false; signupBtn.classList.remove('loading'); signupBtn.textContent = 'Create Account'; }
-            }
-          });
         });
+        input.addEventListener('input', () => {
+            input.classList.remove('error');
+            input.classList.remove('success');
+            if (errorElement) errorElement.classList.remove('show');
+        });
+    }
 
-        console.log('%c WealthOS Signup', 'color: #0066ff; font-size: 16px; font-weight: bold;');
-        console.log('Create your account to access all features');
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const signupForm = document.getElementById('signupForm');
+      const familyNameInput = document.getElementById('familyName');
+      const userNameInput = document.getElementById('userName');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const agreeTermsCheckbox = document.getElementById('agreeTerms');
+      const signupBtn = document.getElementById('signupBtn');
+      const strengthBar = document.getElementById('strengthBar');
+      const strengthText = document.getElementById('strengthText');
+      const passwordCount = document.getElementById('passwordCount');
+      const familyNameError = document.getElementById('familyNameError');
+      const userNameError = document.getElementById('userNameError');
+      const emailError = document.getElementById('emailError');
+      const passwordError = document.getElementById('passwordError');
+
+      if (passwordInput) {
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            if (passwordCount) passwordCount.textContent = password.length;
+            const strength = calculatePasswordStrength(password);
+            const requirements = checkPasswordRequirements(password);
+            if (strengthBar) strengthBar.className = 'strength-bar';
+            if (strengthText) strengthText.className = 'strength-text';
+            if (strength >= 3) {
+                if (strengthBar) strengthBar.classList.add('strong');
+                if (strengthText) { strengthText.classList.add('strong'); strengthText.innerHTML = '● Strong password'; }
+            } else if (strength >= 2) {
+                if (strengthBar) strengthBar.classList.add('medium');
+                if (strengthText) { strengthText.classList.add('medium'); strengthText.innerHTML = '● Medium password'; }
+            } else if (strength >= 1) {
+                if (strengthBar) strengthBar.classList.add('weak');
+                if (strengthText) { strengthText.classList.add('weak'); strengthText.innerHTML = '● Weak password'; }
+            } else {
+                if (strengthText) strengthText.innerHTML = '';
+            }
+            const reqLength = document.getElementById('req-length');
+            const reqUpper = document.getElementById('req-uppercase');
+            const reqNumber = document.getElementById('req-number');
+            if (reqLength) reqLength.classList.toggle('met', requirements.length);
+            if (reqUpper) reqUpper.classList.toggle('met', requirements.uppercase);
+            if (reqNumber) reqNumber.classList.toggle('met', requirements.number);
+            passwordInput.classList.remove('error');
+            if (passwordError) passwordError.classList.remove('show');
+        });
+      }
+
+      if (familyNameInput && familyNameError) addSuccessValidation(familyNameInput, familyNameError);
+      if (userNameInput && userNameError) addSuccessValidation(userNameInput, userNameError);
+      if (emailInput && emailError) addSuccessValidation(emailInput, emailError);
+
+      if (!signupForm) return;
+
+      signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inputs = [familyNameInput, userNameInput, emailInput, passwordInput].filter(Boolean);
+        const errors = [familyNameError, userNameError, emailError, passwordError].filter(Boolean);
+        inputs.forEach(i => { i.classList.remove('error'); i.classList.remove('success'); });
+        errors.forEach(e => e.classList.remove('show'));
+
+        const familyName = familyNameInput ? familyNameInput.value.trim() : '';
+        const userName = userNameInput ? userNameInput.value.trim() : '';
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+        const agreeTerms = agreeTermsCheckbox ? agreeTermsCheckbox.checked : false;
+
+        let hasError = false;
+        if (!familyName) {
+          if (familyNameInput) familyNameInput.classList.add('error');
+          if (familyNameError) { familyNameError.textContent = 'Family name is required'; familyNameError.classList.add('show'); }
+          hasError = true;
+        }
+        if (!userName) {
+          if (userNameInput) userNameInput.classList.add('error');
+          if (userNameError) { userNameError.textContent = 'Your name is required'; userNameError.classList.add('show'); }
+          hasError = true;
+        }
+        if (!email) {
+          if (emailInput) emailInput.classList.add('error');
+          if (emailError) { emailError.textContent = 'Email is required'; emailError.classList.add('show'); }
+          hasError = true;
+        } else if (!isValidEmail(email)) {
+          if (emailInput) emailInput.classList.add('error');
+          if (emailError) { emailError.textContent = 'Enter a valid email address'; emailError.classList.add('show'); }
+          hasError = true;
+        }
+        if (!password) {
+          if (passwordInput) passwordInput.classList.add('error');
+          if (passwordError) { passwordError.textContent = 'Password is required'; passwordError.classList.add('show'); }
+          hasError = true;
+        } else if (password.length < 8) {
+          if (passwordInput) passwordInput.classList.add('error');
+          if (passwordError) { passwordError.textContent = 'Password must be at least 8 characters'; passwordError.classList.add('show'); }
+          hasError = true;
+        }
+        if (!agreeTerms) { alert('Please agree to the Terms of Service to continue.'); hasError = true; }
+        if (hasError) return;
+
+        if (signupBtn) { signupBtn.disabled = true; signupBtn.classList.add('loading'); }
+
+        try {
+          await WealthAPI.auth.signup(email, password, familyName, userName);
+          if (signupBtn) signupBtn.textContent = 'Success!';
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 1200);
+        } catch (err) {
+          const msg = err.message || 'Signup failed. Please try again.';
+          if (msg.toLowerCase().includes('email')) {
+            if (emailInput) emailInput.classList.add('error');
+            if (emailError) { emailError.textContent = msg; emailError.classList.add('show'); }
+          } else if (msg.toLowerCase().includes('password')) {
+            if (passwordInput) passwordInput.classList.add('error');
+            if (passwordError) { passwordError.textContent = msg; passwordError.classList.add('show'); }
+          } else {
+            alert(msg);
+          }
+          if (signupBtn) { signupBtn.disabled = false; signupBtn.classList.remove('loading'); signupBtn.textContent = 'Create account'; }
+        }
+      });
+    });
+</script>
 </body>
 </html>

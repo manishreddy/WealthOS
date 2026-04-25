@@ -5,66 +5,21 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Portfolio Command Center</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #ffffff;
-            --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-            --border-color: #e5e7eb;
-            --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff;
-            --accent-secondary: #00d4ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #00C805;
-            --error: #FF3B30;
-            --warning: #ff9500;
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --hover-bg: #f8f9fa;
-        }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #141d2e;
-            --bg-elevated: #141d2e;
-            --text-primary: #e8eaed;
-            --text-secondary: #9ca3af;
-            --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09);
-            --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff;
-            --accent-secondary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #fb923c;
-            --card-shadow: none;
-            --hover-bg: rgba(255, 255, 255, 0.04);
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, sans-serif;
-            background: var(--bg-primary);
+body {
+            font-family: var(--font);
+            background: var(--bg);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
         /* Sidebar */
 
@@ -100,7 +55,7 @@
         }
 
         .page-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -182,7 +137,7 @@
         }
 
         .networth-card-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -249,7 +204,7 @@
         }
 
         .section-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.375rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -429,7 +384,7 @@
         .action-type.sell { color: #ef4444; }
 
         .action-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.125rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -504,7 +459,7 @@
         }
 
         .liability-stat-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -559,7 +514,7 @@
         }
 
         .loan-outstanding {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.375rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -822,7 +777,7 @@
         }
 
         .holding-amount {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1033,7 +988,7 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             color: var(--text-primary);
-            font-family: 'DM Sans', -apple-system, sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 500;
             transition: all 0.2s ease;
@@ -1103,7 +1058,7 @@
         }
 
         .result-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--accent-primary);
@@ -1167,7 +1122,7 @@
         }
 
         .current-month-label {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1266,7 +1221,7 @@
         }
         .mf-breakdown-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 240px 1fr;
             gap: 28px;
             align-items: start;
         }
@@ -1297,7 +1252,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            font-family: 'DM Sans', -apple-system, sans-serif;
+            font-family: var(--font);
         }
         .p-modal-overlay.open { display: flex; }
         .p-modal {
@@ -1317,7 +1272,7 @@
             gap: 16px;
         }
         .p-modal-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.375rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -1378,7 +1333,7 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             color: var(--text-primary);
-            font-family: 'DM Sans', -apple-system, sans-serif;
+            font-family: var(--font);
             font-size: 0.9rem;
             font-weight: 500;
             transition: border-color 0.15s, box-shadow 0.15s;
@@ -1394,7 +1349,7 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            font-family: 'DM Sans', -apple-system, sans-serif;
+            font-family: var(--font);
             font-size: 0.875rem;
             font-weight: 600;
             color: var(--text-secondary);

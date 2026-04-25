@@ -1,35 +1,49 @@
 /**
- * WealthOS Shared Sidebar
+ * WealthOS Shared Sidebar — Design System Edition
  * Drop <aside id="sidebar-root"></aside> + <script src="sidebar.js"> into any page.
- * Active item is detected automatically from the current URL filename.
  */
 (function () {
+  const ICONS = {
+    dashboard:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>`,
+    monthly:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    savings:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    portfolio:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+    goals:       `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+    planned:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    planning:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+    projections: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><polyline points="8 6 18 6 18 16"/></svg>`,
+    wealthbot:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+    settings:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    sun:         `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+    moon:        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    logout:      `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  };
+
   const NAV = [
-    { group: true },
-    { href: 'dashboard.html',          icon: '📊', label: 'Dashboard' },
-    { href: 'monthly-tracker.html',    icon: '📅', label: 'Monthly Tracker' },
-    { href: 'savings-plan.html',       icon: '💰', label: 'Monthly Investments' },
+    { href: 'dashboard.html',          icon: ICONS.dashboard,   label: 'Dashboard' },
+    { href: 'monthly-tracker.html',    icon: ICONS.monthly,     label: 'Monthly Tracker' },
+    { href: 'savings-plan.html',       icon: ICONS.savings,     label: 'Monthly Investments' },
     { divider: true },
-    { href: 'portfolio.html',          icon: '💼', label: 'Portfolio' },
-    { href: 'goals.html',              icon: '🎯', label: 'Goals' },
-    { href: 'planned.html',            icon: '🗓️', label: 'Planned' },
-    { href: 'financial-planning.html', icon: '📈', label: 'Financial Planning' },
-    { href: 'proj-vs-actuals.html',    icon: '⚖️', label: 'Proj vs Actuals' },
+    { href: 'portfolio.html',          icon: ICONS.portfolio,   label: 'Portfolio' },
+    { href: 'goals.html',              icon: ICONS.goals,       label: 'Goals' },
+    { href: 'planned.html',            icon: ICONS.planned,     label: 'Planned' },
+    { href: 'financial-planning.html', icon: ICONS.planning,    label: 'Financial Planning' },
+    { href: 'proj-vs-actuals.html',    icon: ICONS.projections, label: 'Proj vs Actuals' },
     { divider: true },
-    { href: 'wealthbot.html',          icon: '🤖', label: 'WealthBot' },
-    { href: 'settings.html',           icon: '⚙️', label: 'Settings' },
+    { href: 'wealthbot.html',          icon: ICONS.wealthbot,   label: 'WealthBot' },
+    { href: 'settings.html',           icon: ICONS.settings,    label: 'Settings' },
   ];
 
   const currentFile = window.location.pathname.split('/').pop() || 'dashboard.html';
 
-  // ── CSS ────────────────────────────────────────────────────────────────────
+  // ── CSS ──────────────────────────────────────────────────────────────────────
   const css = `
     .wos-sidebar {
-      width: 252px;
-      min-width: 252px;
-      background: var(--sidebar-bg, var(--bg-secondary));
-      border-right: 1px solid var(--border-color);
-      padding: 28px 16px 20px;
+      width: 240px;
+      min-width: 240px;
+      background: var(--bg-sidebar, #F5F5F5);
+      border-right: 1px solid var(--sidebar-border, rgba(0,0,0,0.07));
+      padding: 24px 12px 20px;
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -38,203 +52,178 @@
       height: 100vh;
       overflow-y: auto;
       overflow-x: hidden;
-      transition: background 0.3s, border-color 0.3s;
+      transition: background 180ms, border-color 180ms;
     }
-
-    /* hide scrollbar but allow scroll */
     .wos-sidebar::-webkit-scrollbar { width: 0; }
 
-    /* ── Logo ── */
+    /* Logo */
     .wos-logo {
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 0 8px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       text-decoration: none;
     }
     .wos-logo-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--text-primary, #111);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,102,255,0.25);
     }
+    .wos-logo-mark svg { display: block; }
     .wos-logo-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.03em;
+      font-family: var(--font, 'Inter', sans-serif);
+      font-size: 1.0625rem;
+      font-weight: 800;
+      color: var(--text-primary, #111);
+      letter-spacing: -0.04em;
     }
     .wos-logo-text em {
       font-style: normal;
-      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--accent, #8FE62C);
     }
 
-    /* ── Nav list ── */
+    /* Nav */
     .wos-nav {
       display: flex;
       flex-direction: column;
       flex: 1;
-      gap: 2px;
+      gap: 1px;
     }
-
     .wos-nav-divider {
       height: 1px;
-      background: var(--border-subtle);
-      margin: 8px 8px;
+      background: var(--sidebar-border, rgba(0,0,0,0.07));
+      margin: 8px 4px;
     }
-
     .wos-nav-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 9px 10px 9px 12px;
-      border-radius: 9px;
+      padding: 9px 12px;
+      border-radius: 10px;
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--text-secondary);
+      color: var(--sidebar-text-muted, #888);
       text-decoration: none;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
+      transition: background 130ms, color 130ms;
       letter-spacing: -0.01em;
       position: relative;
       border: none;
       background: none;
       width: 100%;
       text-align: left;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font, 'Inter', sans-serif);
     }
     .wos-nav-item:hover {
-      background: var(--hover-bg);
-      color: var(--text-primary);
-    }
-    .wos-nav-item:hover .wos-nav-icon {
-      opacity: 1;
+      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
+      color: var(--sidebar-text, #111);
     }
     .wos-nav-item.active {
-      background: linear-gradient(135deg, rgba(0,102,255,0.1) 0%, rgba(0,212,255,0.07) 100%);
-      color: var(--accent-primary);
+      background: var(--sidebar-active-bg, #111);
+      color: var(--sidebar-active-text, #fff);
       font-weight: 600;
     }
-    .wos-nav-item.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 6px;
-      bottom: 6px;
-      width: 3px;
-      border-radius: 0 3px 3px 0;
-      background: linear-gradient(180deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    }
-    .wos-nav-item.active .wos-nav-icon {
-      opacity: 1;
-    }
-
     .wos-nav-icon {
-      width: 28px;
-      height: 28px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 7px;
-      font-size: 15px;
       flex-shrink: 0;
       opacity: 0.75;
-      transition: opacity 0.15s;
     }
-    .wos-nav-item.active .wos-nav-icon {
-      background: rgba(0,102,255,0.1);
-    }
+    .wos-nav-item.active .wos-nav-icon,
+    .wos-nav-item:hover .wos-nav-icon { opacity: 1; }
     .wos-nav-label {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* ── Bottom area ── */
+    /* Bottom area */
     .wos-sidebar-bottom {
-      margin-top: 12px;
+      margin-top: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 2px;
     }
 
-    /* Portfolio value */
+    /* Portfolio value card */
     .wos-portfolio-card {
-      padding: 14px 16px;
-      background: linear-gradient(135deg, rgba(0,102,255,0.07) 0%, rgba(0,212,255,0.05) 100%);
-      border: 1px solid rgba(0,102,255,0.15);
+      padding: 14px 12px;
+      background: var(--card-dark-bg, #111);
       border-radius: 12px;
+      margin-bottom: 6px;
     }
     .wos-portfolio-label {
       font-size: 0.6875rem;
-      font-weight: 700;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-tertiary);
+      letter-spacing: 0.06em;
+      color: var(--on-dark-secondary, rgba(255,255,255,0.5));
       margin-bottom: 4px;
     }
     .wos-portfolio-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.25rem;
+      font-family: var(--font, 'Inter', sans-serif);
+      font-size: 1.125rem;
       font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
+      color: #fff;
+      letter-spacing: -0.03em;
+      font-feature-settings: 'tnum' 1;
     }
 
-    /* Theme toggle row */
+    /* Theme toggle */
     .wos-theme-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 12px;
-      border-radius: 9px;
+      padding: 9px 12px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.15s;
-      border: 1px solid var(--border-color);
-      background: var(--bg-elevated);
+      transition: background 130ms;
+      color: var(--sidebar-text-muted, #888);
     }
-    .wos-theme-row:hover { background: var(--hover-bg); }
-    .wos-theme-label {
+    .wos-theme-row:hover {
+      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
+      color: var(--sidebar-text, #111);
+    }
+    .wos-theme-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--text-secondary);
+      font-weight: 500;
+      font-family: var(--font, 'Inter', sans-serif);
+      letter-spacing: -0.01em;
     }
     .wos-toggle {
-      width: 40px;
-      height: 22px;
-      background: var(--border-color);
-      border-radius: 11px;
+      width: 36px;
+      height: 20px;
+      background: var(--border, rgba(0,0,0,0.12));
+      border-radius: 10px;
       position: relative;
-      transition: background 0.3s;
+      transition: background 0.25s;
       flex-shrink: 0;
     }
-    .wos-toggle.on {
-      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    }
+    .wos-toggle.on { background: var(--accent, #8FE62C); }
     .wos-toggle-knob {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       background: #fff;
       border-radius: 50%;
       position: absolute;
       top: 2px;
       left: 2px;
-      transition: transform 0.25s;
+      transition: transform 0.22s cubic-bezier(0.16,1,0.3,1);
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
-    .wos-toggle.on .wos-toggle-knob {
-      transform: translateX(18px);
-    }
+    .wos-toggle.on .wos-toggle-knob { transform: translateX(16px); }
 
     /* Logout */
     .wos-logout {
@@ -242,30 +231,31 @@
       align-items: center;
       gap: 8px;
       padding: 9px 12px;
-      border-radius: 9px;
+      border-radius: 10px;
       font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--text-tertiary);
+      font-weight: 500;
+      color: var(--sidebar-text-muted, #888);
       cursor: pointer;
-      transition: color 0.15s, background 0.15s;
+      transition: color 130ms, background 130ms;
       border: none;
       background: none;
       width: 100%;
       text-align: left;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font, 'Inter', sans-serif);
+      letter-spacing: -0.01em;
     }
     .wos-logout:hover {
-      color: var(--error);
-      background: rgba(255,59,48,0.06);
+      color: var(--negative, #FF3B3B);
+      background: rgba(255,59,59,0.06);
     }
   `;
 
-  // ── Inject CSS ──────────────────────────────────────────────────────────────
+  // Inject CSS
   const style = document.createElement('style');
   style.textContent = css;
   document.head.appendChild(style);
 
-  // ── Render HTML ────────────────────────────────────────────────────────────
+  // ── Render HTML ──────────────────────────────────────────────────────────────
   function buildSidebar(root) {
     root.className = 'wos-sidebar';
     root.innerHTML = '';
@@ -275,7 +265,12 @@
     logo.href = 'dashboard.html';
     logo.className = 'wos-logo';
     logo.innerHTML = `
-      <div class="wos-logo-mark">💎</div>
+      <div class="wos-logo-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+      </div>
       <div class="wos-logo-text">Wealth<em>OS</em></div>
     `;
     root.appendChild(logo);
@@ -285,7 +280,6 @@
     nav.className = 'wos-nav';
 
     NAV.forEach(item => {
-      if (item.group) return;
       if (item.divider) {
         const hr = document.createElement('div');
         hr.className = 'wos-nav-divider';
@@ -322,7 +316,10 @@
     const themeRow = document.createElement('div');
     themeRow.className = 'wos-theme-row';
     themeRow.innerHTML = `
-      <span class="wos-theme-label">${isDark ? '☀️' : '🌙'} Dark Mode</span>
+      <div class="wos-theme-inner">
+        <span id="wosThemeIcon">${isDark ? ICONS.sun : ICONS.moon}</span>
+        <span id="wosThemeLabel">${isDark ? 'Light mode' : 'Dark mode'}</span>
+      </div>
       <div class="wos-toggle${isDark ? ' on' : ''}" id="wosToggle">
         <div class="wos-toggle-knob"></div>
       </div>
@@ -333,7 +330,7 @@
     // Logout
     const logout = document.createElement('button');
     logout.className = 'wos-logout';
-    logout.innerHTML = `<span>→</span><span>Log Out</span>`;
+    logout.innerHTML = `${ICONS.logout}<span>Log out</span>`;
     logout.addEventListener('click', () => {
       if (window.WealthAPI && WealthAPI.auth) WealthAPI.auth.logout();
       else { localStorage.removeItem('wealthos_jwt'); window.location.href = 'login.html'; }
@@ -343,27 +340,25 @@
     root.appendChild(bottom);
   }
 
-  // ── Theme helpers ─────────────────────────────────────────────────────────
+  // ── Theme helpers ────────────────────────────────────────────────────────────
   function getSavedTheme() {
-    // Support both storage keys so all pages stay in sync
     return localStorage.getItem('wealthos_theme') || localStorage.getItem('theme') || 'light';
   }
-
   function saveTheme(val) {
     localStorage.setItem('wealthos_theme', val);
-    localStorage.setItem('theme', val);  // keep legacy pages in sync
+    localStorage.setItem('theme', val);
   }
-
   function applyThemeUI(val) {
     const isDark = val === 'dark';
     const tog = document.getElementById('wosToggle');
-    const lbl = tog && tog.previousElementSibling;
+    const lbl = document.getElementById('wosThemeLabel');
+    const ico = document.getElementById('wosThemeIcon');
     if (tog) tog.classList.toggle('on', isDark);
-    if (lbl) lbl.textContent = isDark ? '☀️ Dark Mode' : '🌙 Dark Mode';
+    if (lbl) lbl.textContent = isDark ? 'Light mode' : 'Dark mode';
+    if (ico) ico.innerHTML = isDark ? ICONS.sun : ICONS.moon;
     const legacy = document.getElementById('themeToggle');
     if (legacy) legacy.classList.toggle('active', isDark);
   }
-
   function toggleTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const next = isDark ? 'light' : 'dark';
@@ -371,21 +366,18 @@
     saveTheme(next);
     applyThemeUI(next);
   }
-
-  // Expose so legacy onclick="toggleTheme()" still works
   window.toggleTheme = toggleTheme;
 
-  // ── Portfolio value ────────────────────────────────────────────────────────
+  // ── Portfolio value ──────────────────────────────────────────────────────────
   function loadPortfolioTotal() {
     const token = localStorage.getItem('wealthos_jwt');
     if (!token) return;
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    fetch(`/api/portfolio/?year=${year}&month=${month}`, { headers: { Authorization: 'Bearer ' + token } })
+    fetch(`/api/portfolio/?year=${now.getFullYear()}&month=${now.getMonth() + 1}`, {
+      headers: { Authorization: 'Bearer ' + token }
+    })
       .then(r => r.ok ? r.json() : [])
       .then(memberData => {
-        // API returns [{memberId, memberName, assets:[]}]
         let total = 0;
         (memberData || []).forEach(mp => {
           (mp.assets || []).forEach(a => { total += a.currentValue || 0; });
@@ -393,23 +385,18 @@
         const el = document.getElementById('wosSidebarTotal');
         if (el && window.WealthAPI) el.textContent = WealthAPI.formatCurrency(total);
         else if (el) el.textContent = '₹' + (total / 100000).toFixed(1) + 'L';
-        const legacy = document.getElementById('sidebarTotal');
-        if (legacy && el) legacy.textContent = el.textContent;
       })
       .catch(() => {});
   }
 
-  // ── Init ───────────────────────────────────────────────────────────────────
+  // ── Init ─────────────────────────────────────────────────────────────────────
   function init() {
-    // Apply saved theme first to prevent flash
     const savedTheme = getSavedTheme();
     document.documentElement.setAttribute('data-theme', savedTheme);
-
     const root = document.getElementById('sidebar-root');
     if (!root) return;
     buildSidebar(root);
     applyThemeUI(savedTheme);
-    // Load portfolio total after a short delay to not block render
     setTimeout(loadPortfolioTotal, 300);
   }
 

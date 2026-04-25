@@ -5,37 +5,20 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Proj vs Actuals</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a; --text-secondary: #666666; --text-tertiary: #999999;
-            --border-color: #e5e7eb; --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff; --gradient-start: #0066ff; --gradient-end: #00d4ff;
-            --success: #00C805; --error: #FF3B30; --warning: #fb923c;
-            --card-shadow: 0 1px 3px rgba(0,0,0,0.06); --hover-bg: #f8f9fa;
-        }
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e; --bg-secondary: #111827; --bg-elevated: #141d2e;
-            --text-primary: #e8eaed; --text-secondary: #9ca3af; --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09); --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff; --gradient-start: #0066ff; --gradient-end: #00d4ff;
-            --success: #22c55e; --error: #ef4444; --warning: #fb923c;
-            --card-shadow: none; --hover-bg: rgba(255,255,255,0.04);
-        }
-        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
-        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+body { font-family: var(--font); background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
         
         /* Main */
         .main-content { padding: 32px 40px; overflow-y: auto; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .page-title { font-family: var(--font); font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; }
         .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: #fff; cursor: pointer; }
 
@@ -43,20 +26,20 @@
         .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
         .summary-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; }
         .summary-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-        .summary-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+        .summary-value { font-family: var(--font); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
         .summary-sub { font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 4px; }
 
         /* Table */
         .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 28px; }
         .table-card-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .table-card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; }
+        .table-card-title { font-family: var(--font); font-size: 1.1rem; font-weight: 700; }
         .table-note { font-size: 0.8125rem; color: var(--text-tertiary); }
         .table-wrapper { overflow-x: auto; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
         thead th { background: var(--bg-secondary); padding: 10px 14px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
         thead th:first-child { text-align: left; }
-        thead th.group-header { background: var(--bg-primary); text-align: center; font-size: 0.6875rem; letter-spacing: 0.06em; padding: 6px; border-bottom: 1px solid var(--border-subtle); color: var(--text-tertiary); }
+        thead th.group-header { background: var(--bg); text-align: center; font-size: 0.6875rem; letter-spacing: 0.06em; padding: 6px; border-bottom: 1px solid var(--border-subtle); color: var(--text-tertiary); }
         tbody td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border-subtle); font-size: 0.8125rem; white-space: nowrap; }
         tbody td:first-child { text-align: left; font-weight: 600; }
         tbody tr:last-child td { border-bottom: none; }
@@ -83,7 +66,7 @@
         /* Empty state */
         .empty-state { text-align: center; padding: 64px 32px; }
         .empty-icon { font-size: 3rem; margin-bottom: 16px; }
-        .empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .empty-title { font-family: var(--font); font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
         .empty-text { font-size: 0.9375rem; color: var(--text-secondary); max-width: 400px; margin: 0 auto 24px; }
         .empty-link { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border-radius: 10px; font-weight: 600; font-size: 0.875rem; text-decoration: none; }
 
@@ -93,7 +76,7 @@
         .toast.error { background: var(--error); color: white; }
 
         /* Section divider */
-        .section-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin: 28px 0 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
+        .section-label { font-family: var(--font); font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin: 28px 0 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
 
         /* col group shading */
         .planned-col { background: rgba(0,102,255,0.04); }

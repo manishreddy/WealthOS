@@ -5,70 +5,25 @@
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthOS - Monthly Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root[data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #ffffff;
-            --bg-elevated: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
-            --border-color: #e5e7eb;
-            --border-subtle: #f0f0f0;
-            --accent-primary: #0066ff;
-            --accent-secondary: #00d4ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #00C805;
-            --error: #FF3B30;
-            --warning: #ff9500;
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --hover-bg: #f8f9fa;
-        }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #141d2e;
-            --bg-elevated: #141d2e;
-            --text-primary: #e8eaed;
-            --text-secondary: #9ca3af;
-            --text-tertiary: #6b7280;
-            --border-color: rgba(255,255,255,0.09);
-            --border-subtle: rgba(255,255,255,0.05);
-            --accent-primary: #0066ff;
-            --accent-secondary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #00d4ff;
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #fb923c;
-            --card-shadow: none;
-            --hover-bg: rgba(255, 255, 255, 0.04);
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, sans-serif;
-            background: var(--bg-primary);
+body {
+            font-family: var(--font);
+            background: var(--bg);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
         .main-content {
             padding: 32px 40px;
             overflow-y: auto;
-            background: var(--bg-primary);
+            background: var(--bg);
             max-height: 100vh;
         }
 
@@ -77,7 +32,7 @@
         }
 
         .page-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -159,7 +114,7 @@
         }
 
         .current-month {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -276,7 +231,7 @@
         }
 
         .category-name {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -289,7 +244,7 @@
 
         .amount-input {
             width: 100%;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -391,7 +346,7 @@
             background: var(--bg-secondary);
             font-size: 0.875rem;
             color: var(--text-primary);
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -410,7 +365,7 @@
             font-size: 0.875rem;
             font-weight: 600;
             color: var(--text-primary);
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -475,7 +430,7 @@
         }
 
         .breakup-total-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -509,7 +464,7 @@
         }
 
         .summary-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -537,7 +492,7 @@
         }
 
         .summary-metric-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -603,7 +558,7 @@
         }
 
         .gauge-percentage {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 2.5rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -663,7 +618,7 @@
         }
 
         .history-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -709,7 +664,7 @@
         }
 
         .history-value {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.875rem;
             font-weight: 600;
             color: var(--text-secondary);
@@ -751,7 +706,7 @@
         }
 
         .modal-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
@@ -798,7 +753,7 @@
             background: var(--bg-secondary);
             color: var(--text-primary);
             font-size: 0.9375rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: all 0.2s ease;
         }
 
@@ -894,7 +849,7 @@
         /* Quick Add Chips */
         .quick-add-section { margin-bottom: 14px; }
         .quick-add-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-        .quick-chip { padding: 4px 11px; border-radius: 16px; font-size: 0.8125rem; font-weight: 500; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+        .quick-chip { padding: 4px 11px; border-radius: 16px; font-size: 0.8125rem; font-weight: 500; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; white-space: nowrap; font-family: var(--font); }
         .quick-chip:hover { border-color: var(--accent-primary); background: rgba(0, 102, 255, 0.07); color: var(--accent-primary); }
         .quick-chip.added { border-color: var(--success); background: rgba(0, 200, 5, 0.07); color: var(--success); }
         .quick-chip.more-chip { color: var(--text-tertiary); border-color: var(--border-subtle); font-size: 0.75rem; }
@@ -906,16 +861,16 @@
 
         /* Custom input row */
         .custom-input-row { display: flex; gap: 8px; align-items: center; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; }
-        .custom-item-input { flex: 1; min-width: 160px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent-primary); background: var(--bg-elevated); color: var(--text-primary); font-size: 0.875rem; font-family: 'DM Sans', sans-serif; }
+        .custom-item-input { flex: 1; min-width: 160px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent-primary); background: var(--bg-elevated); color: var(--text-primary); font-size: 0.875rem; font-family: var(--font); }
         .custom-item-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1); }
-        .custom-item-add { padding: 7px 14px; border-radius: 8px; background: var(--accent-primary); color: #fff; border: none; font-size: 0.8125rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+        .custom-item-add { padding: 7px 14px; border-radius: 8px; background: var(--accent-primary); color: #fff; border: none; font-size: 0.8125rem; font-weight: 600; cursor: pointer; font-family: var(--font); }
         .custom-item-cancel { width: 28px; height: 28px; border-radius: 6px; border: none; background: rgba(255, 59, 48, 0.1); color: var(--error); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
         /* Savings + Net display */
         .display-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .display-card { padding: 24px 28px; }
         .display-card-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 8px; }
-        .display-card-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
+        .display-card-value { font-family: var(--font); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
         .display-card-note { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 6px; }
 
         /* Investments tag */
@@ -960,7 +915,7 @@
         .entry-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
         .entry-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
         .entry-name {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font);
             font-size: 0.9375rem;
             font-weight: 700;
             color: var(--text-primary);

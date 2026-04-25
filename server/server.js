@@ -29,9 +29,12 @@ app.use('/api/ai-parse', verifyToken, require('./routes/ai-parse'));
 app.use('/api/import', verifyToken, require('./routes/import'));
 app.use('/api/projections', verifyToken, require('./routes/projections'));
 
-// Fallback: serve index.html or dashboard for SPA
+// Root and index.html → login
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../code/login.html'));
+});
+app.get('/index.html', (req, res) => {
+  res.redirect('/login.html');
 });
 
 app.listen(PORT, () => {
