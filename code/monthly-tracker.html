@@ -695,6 +695,40 @@ body {
             text-align: right;
         }
 
+        @media (max-width: 540px) {
+            .history-list {
+                overflow-x: visible;
+            }
+            .history-header-row {
+                display: none;
+            }
+            .history-item {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px 16px;
+                min-width: 0;
+            }
+            .history-month {
+                grid-column: 1 / -1;
+                font-size: 0.95rem;
+                margin-bottom: 2px;
+            }
+            .history-value {
+                display: flex;
+                flex-direction: column;
+                text-align: left;
+                gap: 2px;
+            }
+            .history-value::before {
+                content: attr(data-label);
+                font-size: 0.65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--text-tertiary);
+            }
+        }
+
         /* Person Tabs — shared styles live in user-menu.css */
 
         /* Modal Styles */
@@ -2085,11 +2119,11 @@ body {
                 const net   = (row.income || 0) - (row.expenditure || 0) - (row.investments || 0);
                 return `<div class="history-item" onclick="jumpToHistoryMonth(${row.year},${row.month})">
                     <span class="history-month">${label}</span>
-                    <span class="history-value">${fmtCurrency(row.income)}</span>
-                    <span class="history-value">${fmtCurrency(row.expenditure)}</span>
-                    <span class="history-value">${fmtCurrency(row.investments)}</span>
-                    <span class="history-value">${fmtCurrency(row.savings || net)}</span>
-                    <span class="history-value" style="color:${net >= 0 ? 'var(--success)' : 'var(--error)'}">${fmtCurrency(net)}</span>
+                    <span class="history-value" data-label="Income">${fmtCurrency(row.income)}</span>
+                    <span class="history-value" data-label="Expenses">${fmtCurrency(row.expenditure)}</span>
+                    <span class="history-value" data-label="Investments">${fmtCurrency(row.investments)}</span>
+                    <span class="history-value" data-label="Savings">${fmtCurrency(row.savings || net)}</span>
+                    <span class="history-value" data-label="Net" style="color:${net >= 0 ? 'var(--success)' : 'var(--error)'}">${fmtCurrency(net)}</span>
                 </div>`;
             }).join('');
         }
