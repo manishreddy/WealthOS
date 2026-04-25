@@ -1383,6 +1383,7 @@ body {
             text-transform: uppercase;
             letter-spacing: 0.05em;
             background: var(--bg-secondary);
+            white-space: nowrap;
         }
 
         .investments-table th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
@@ -2538,7 +2539,7 @@ body {
                         <button class="inv-tc-btn" data-inv-filter="Bond/FD" onclick="setInvFilter('Bond/FD')">FD/Bond</button>
                         <button class="inv-tc-btn" data-inv-filter="Cash" onclick="setInvFilter('Cash')">Cash</button>
                     </div>
-                    <div id="investmentsListContainer"></div>
+                    <div id="investmentsListContainer" style="overflow-x:auto;-webkit-overflow-scrolling:touch;"></div>
                 </div>
 
             </div><!-- end #planContent -->

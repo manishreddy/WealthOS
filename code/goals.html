@@ -682,6 +682,7 @@ body {
             color: var(--text-tertiary);
             text-align: left;
             border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
         }
         .emi-table th.right { text-align: right; }
         .emi-table th:nth-child(2) { width: 45%; }
@@ -2414,6 +2415,7 @@ body {
                         <div class="emi-section-title">📊 Year-wise Monthly EMI Breakdown</div>
                         <div class="emi-section-sub">Step-up SIPs (10% annual) &amp; loan repayments by year</div>
                     </div>
+                    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                     <table class="emi-table">
                         <thead>
                             <tr>
@@ -2426,6 +2428,7 @@ body {
                         </thead>
                         <tbody>${tableRows}</tbody>
                     </table>
+                    </div>
                 </div>`;
         }
 

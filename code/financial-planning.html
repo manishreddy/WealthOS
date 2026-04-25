@@ -67,7 +67,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .sip-afford-verdict.surplus { color: var(--success); background: rgba(0,200,5,0.07); }
         .sip-afford-verdict.shortfall { color: var(--error); background: rgba(239,68,68,0.07); }
         .sip-afford-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
-        .sip-afford-table th { text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: 5px 8px 8px; border-bottom: 1px solid var(--border-color); }
+        .sip-afford-table th { text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: 5px 8px 8px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         .sip-afford-table th:not(:first-child) { text-align: right; }
         .sip-afford-table td { padding: 8px 8px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); vertical-align: middle; }
         .sip-afford-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
@@ -764,6 +764,7 @@ function renderOverview(data) {
                         ? `⚠️ Monthly savings fall short by ${fmt(Math.abs(gap))} — not enough to fund all goal SIPs`
                         : `✅ Monthly savings cover all goal SIPs with ${fmt(gap)} to spare`}
                 </div>
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                 <table class="sip-afford-table">
                     <thead><tr>
                         <th>Goal</th>
@@ -773,6 +774,7 @@ function renderOverview(data) {
                     </tr></thead>
                     <tbody>${goalRows}</tbody>
                 </table>
+                </div>
             </div>`;
     }
 
