@@ -46,28 +46,6 @@ body {
             letter-spacing: -0.01em;
         }
 
-        /* User Avatar */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #ffffff;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            position: absolute;
-            top: 32px;
-            right: 40px;
-        }
-
-        .user-avatar:hover {
-            transform: scale(1.05);
-        }
 
         /* Month Selector */
         .month-selector-container {
@@ -909,6 +887,9 @@ body {
         .quick-chip.more-chip:hover { color: var(--text-secondary); border-color: var(--border-color); background: var(--hover-bg); }
         .quick-chip.custom-chip { border-style: dashed; color: var(--accent-primary); border-color: rgba(0, 102, 255, 0.35); }
         .quick-chip.custom-chip:hover { background: rgba(0, 102, 255, 0.08); }
+        .quick-chip.pre-selected { border-color: rgba(143, 230, 44, 0.6); background: rgba(143, 230, 44, 0.1); color: var(--text-primary); }
+        .quick-chip.pre-selected:hover { border-color: rgba(143, 230, 44, 0.9); background: rgba(143, 230, 44, 0.18); }
+        .quick-chip.pre-selected.added { border-color: var(--success); background: rgba(0, 200, 5, 0.07); color: var(--success); }
         .extra-chips { display: none; }
         .extra-chips.open { display: contents; }
 
@@ -931,7 +912,23 @@ body {
         .savings-positive { color: var(--success) !important; }
         .savings-negative { color: var(--error) !important; }
 
-        .breakup-empty { padding: 12px; text-align: center; color: var(--text-tertiary); font-size: 0.875rem; font-style: italic; }
+        .breakup-empty { padding: 14px 12px; text-align: center; color: var(--text-tertiary); font-size: 0.875rem; font-style: italic; }
+
+        /* Nudge Banner */
+        .tracker-nudge { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; background: rgba(143, 230, 44, 0.08); border: 1.5px solid rgba(143, 230, 44, 0.3); border-radius: 14px; margin-bottom: 20px; }
+        .nudge-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+        .nudge-text { flex: 1; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; }
+        .nudge-text strong { display: block; color: var(--text-primary); font-size: 0.9375rem; margin-bottom: 3px; }
+        .nudge-dismiss { background: none; border: none; color: var(--text-tertiary); font-size: 1.25rem; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; opacity: 0.6; transition: opacity 0.15s; }
+        .nudge-dismiss:hover { opacity: 1; }
+
+        /* Trend empty state */
+        .trend-empty { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; gap: 12px; text-align: center; }
+        .trend-empty.show { display: flex; }
+        .trend-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+        .trend-empty h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
+        .trend-empty p { margin: 0; font-size: 0.875rem; color: var(--text-tertiary); max-width: 280px; line-height: 1.5; }
+        .mini-chart.hidden { display: none; }
 
         /* === Accordion Entry Cards === */
         .entry-accordion {
@@ -1074,28 +1071,6 @@ body {
         <aside id="sidebar-root"></aside>
 
         <main class="main-content">
-            <div class="user-avatar">M
-                <div class="user-menu-dropdown" id="userMenuDropdown">
-                    <div class="user-menu-header">
-                        <div class="user-menu-name" id="userMenuName">Loading...</div>
-                        <div class="user-menu-email" id="userMenuEmail">Loading...</div>
-                    </div>
-                    <div class="user-menu-items">
-                        <a href="settings.html" class="user-menu-item">
-                            <span class="user-menu-item-icon">⚙️</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="demo-account.html" target="_blank" class="user-menu-item">
-                            <span class="user-menu-item-icon">👁️</span>
-                            <span>View Demo Account</span>
-                        </a>
-                        <div class="user-menu-item logout" onclick="handleLogout()">
-                            <span class="user-menu-item-icon">🚪</span>
-                            <span>Logout</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="page-header">
                 <h1 class="page-title">Monthly Tracker</h1>
                 <p class="page-subtitle">Track your monthly income, expenses, investments and savings in 2 minutes</p>
@@ -1196,11 +1171,21 @@ body {
                 </div>
             </div>
 
+            <!-- Nudge Banner -->
+            <div class="tracker-nudge" id="trackerNudge">
+                <div class="nudge-icon">💡</div>
+                <div class="nudge-text">
+                    <strong>Fill in this month's numbers to get started</strong>
+                    Enter your total amount in each section, then click the tags below to break it down by category. Takes about 2 minutes!
+                </div>
+                <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">×</button>
+            </div>
+
             <!-- Category Cards - Vertical Layout -->
             <div class="categories-grid">
 
                 <!-- Income Accordion -->
-                <div class="entry-accordion income" id="incomeAccordion">
+                <div class="entry-accordion income open" id="incomeAccordion">
                     <div class="entry-row" onclick="toggleAccordion('income')">
                         <div class="entry-row-left">
                             <div class="entry-icon">💰</div>
@@ -1232,7 +1217,7 @@ body {
                 </div>
 
                 <!-- Expenditure Accordion -->
-                <div class="entry-accordion expenditure" id="expenditureAccordion">
+                <div class="entry-accordion expenditure open" id="expenditureAccordion">
                     <div class="entry-row" onclick="toggleAccordion('expenditure')">
                         <div class="entry-row-left">
                             <div class="entry-icon">💸</div>
@@ -1264,12 +1249,12 @@ body {
                 </div>
 
                 <!-- Investments Accordion -->
-                <div class="entry-accordion investments" id="investmentsAccordion">
+                <div class="entry-accordion investments open" id="investmentsAccordion">
                     <div class="entry-row" onclick="toggleAccordion('investments')">
                         <div class="entry-row-left">
                             <div class="entry-icon">📈</div>
                             <div class="entry-info">
-                                <div class="entry-name">Investments <span class="investments-tag">Counts as Expense</span></div>
+                                <div class="entry-name">Savings / Investments <span class="investments-tag">Counts as Expense</span></div>
                                 <div class="prev-month-comparison" id="investmentsComparison"><span>Loading...</span></div>
                             </div>
                         </div>
@@ -1322,26 +1307,26 @@ body {
                     <button class="action-btn secondary" onclick="exportMonth()">📥 Export Data</button>
                 </div>
 
-                <div class="mini-chart">
-                    <svg class="mini-chart-svg" viewBox="0 0 800 80" preserveAspectRatio="none">
+                <div class="mini-chart" id="miniChart">
+                    <svg class="mini-chart-svg" viewBox="0 0 800 80" preserveAspectRatio="none" id="miniChartSvg">
                         <defs>
                             <linearGradient id="trendGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:0.2" />
                                 <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
                             </linearGradient>
                         </defs>
-                        <path d="M 0 60 L 133 55 L 267 50 L 400 45 L 533 40 L 667 35 L 800 30 L 800 80 L 0 80 Z"
-                              fill="url(#trendGradient)"/>
-                        <path d="M 0 60 L 133 55 L 267 50 L 400 45 L 533 40 L 667 35 L 800 30"
-                              stroke="var(--accent-primary)"
-                              stroke-width="2"
-                              fill="none"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"/>
+                        <path id="trendFill" d="" fill="url(#trendGradient)"/>
+                        <path id="trendLine" d="" stroke="var(--accent-primary)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
 
-                <div class="history-list">
+                <div class="trend-empty" id="trendEmpty">
+                    <div class="trend-empty-icon">📊</div>
+                    <h4>No trend data yet</h4>
+                    <p>Save data for at least one month to see your 6-month financial trend here.</p>
+                </div>
+
+                <div class="history-list" id="historyList">
                     <!-- dynamically populated by loadHistory() -->
                 </div>
             </div>
@@ -1385,47 +1370,58 @@ body {
                 { name: 'Car Loan EMI',         icon: '🚗' },
                 { name: 'Personal Loan EMI',    icon: '💳' },
                 { name: 'Groceries',            icon: '🛒' },
+                { name: 'Utilities',            icon: '🔌' },
+                { name: 'Transport',            icon: '🚌' },
+                { name: 'Shopping',             icon: '👕' },
+                { name: 'Maid',                 icon: '🧹' },
+                { name: 'Cook',                 icon: '👨‍🍳' },
+                { name: 'Travel',               icon: '✈️' },
+                { name: 'Entertainment',        icon: '🎬' },
+                { name: 'Kids Education',       icon: '🎒' },
+                { name: 'Kids Transport',       icon: '🚸' },
                 { name: 'Dining Out',           icon: '🍽️' },
-                { name: 'Electricity',          icon: '⚡' },
-                { name: 'Water Bill',           icon: '💧' },
-                { name: 'Internet',             icon: '🌐' },
-                { name: 'Mobile Bill',          icon: '📱' },
-                { name: 'Fuel/Petrol',          icon: '⛽' },
-                { name: 'Public Transport',     icon: '🚌' },
                 { name: 'Life Insurance',       icon: '🛡️' },
                 { name: 'Health Insurance',     icon: '💊' },
                 { name: 'Vehicle Insurance',    icon: '🚙' },
-                { name: 'School/Tuition Fees',  icon: '📚' },
                 { name: 'Medical/Healthcare',   icon: '🏥' },
-                { name: 'Entertainment/OTT',    icon: '🎬' },
-                { name: 'Shopping/Clothing',    icon: '👕' },
                 { name: 'Personal Care',        icon: '💇' },
-                { name: 'House Help',           icon: '🧹' },
-                { name: 'Travel',               icon: '✈️' },
                 { name: 'Subscriptions',        icon: '📋' },
                 { name: 'Maintenance',          icon: '🔧' },
                 { name: 'Charity/Donations',    icon: '❤️' },
                 { name: 'Miscellaneous',        icon: '💰' },
             ],
             investments: [
-                { name: 'Mutual Funds',         icon: '📈' },
-                { name: 'SIP',                  icon: '💹' },
-                { name: 'Stocks/Equity',         icon: '📊' },
-                { name: 'Fixed Deposit',        icon: '🏦' },
-                { name: 'PPF',                  icon: '📋' },
-                { name: 'EPF',                  icon: '💼' },
-                { name: 'NPS',                  icon: '🏛️' },
-                { name: 'Gold',                 icon: '🥇' },
-                { name: 'Real Estate',          icon: '🏠' },
-                { name: 'Crypto',               icon: '₿' },
-                { name: 'Bonds/Debentures',     icon: '📜' },
-                { name: 'ULIP',                 icon: '🛡️' },
+                { name: 'Mutual Funds',           icon: '📈' },
+                { name: 'Fixed Deposit',          icon: '🏦' },
+                { name: 'PPF',                    icon: '📋' },
+                { name: 'EPF',                    icon: '💼' },
+                { name: 'Stocks/Equity',          icon: '📊' },
+                { name: 'NPS',                    icon: '🏛️' },
+                { name: 'Gold',                   icon: '🥇' },
                 { name: 'RD (Recurring Deposit)', icon: '🔄' },
-                { name: 'Other Investments',    icon: '💰' },
+                { name: 'Real Estate',            icon: '🏠' },
+                { name: 'Bonds/Debentures',       icon: '📜' },
+                { name: 'ULIP',                   icon: '🛡️' },
+                { name: 'Other Investments',      icon: '💰' },
             ]
         };
 
-        const VISIBLE_CHIPS = 5; // chips shown before "more"
+        const VISIBLE_CHIPS = 8; // chips shown before "more"
+
+        // Pre-selected defaults per category
+        const DEFAULT_CHIPS = {
+            income:      ['Salary'],
+            expenditure: ['Rent', 'Groceries', 'Utilities', 'Transport', 'Shopping', 'Maid', 'Cook', 'Travel', 'Entertainment'],
+            investments: ['Mutual Funds', 'Fixed Deposit', 'PPF', 'EPF'],
+        };
+
+        let _suppressSave = false;
+
+        function dismissNudge() {
+            const el = document.getElementById('trackerNudge');
+            if (el) { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
+            try { localStorage.setItem('nudgeDismissed_tracker', '1'); } catch(e) {}
+        }
 
         function initChips() {
             ['income', 'expenditure', 'investments'].forEach(cat => {
@@ -1464,6 +1460,23 @@ body {
                 customBtn.textContent = '+ Custom';
                 customBtn.addEventListener('click', () => showCustomInput(cat));
                 container.appendChild(customBtn);
+            });
+        }
+
+        function preSelectDefaultChips() {
+            ['income', 'expenditure', 'investments'].forEach(cat => {
+                const defaults = DEFAULT_CHIPS[cat] || [];
+                const container = document.getElementById(cat + 'Chips');
+                if (!container) return;
+                // Make all extra chips visible so defaults are reachable
+                container.querySelectorAll('[data-extra="1"]').forEach(b => b.style.display = '');
+                const moreBtn = container.querySelector('[data-more-toggle]');
+                if (moreBtn) moreBtn.textContent = '− less';
+                // Highlight each default chip
+                defaults.forEach(name => {
+                    const chip = container.querySelector(`.quick-chip[data-name="${CSS.escape(name)}"]`);
+                    if (chip) chip.classList.add('pre-selected');
+                });
             });
         }
 
@@ -1891,7 +1904,7 @@ body {
             const list = document.getElementById(category + 'BreakupList');
             list.innerHTML = '';
             if (!items || items.length === 0) {
-                list.innerHTML = '<div class="breakup-empty">Click a category above to add items</div>';
+                list.innerHTML = '<div class="breakup-empty">Click a highlighted tag above to add a line item</div>';
             } else {
                 items.forEach(item => appendBreakupRow(category, item.name, item.amount));
                 // Mark chips as added for loaded items
@@ -1979,6 +1992,7 @@ body {
 
         function scheduleBreakupSave(category) {
             if (currentMemberId === null) return;
+            if (_suppressSave) return;
             clearTimeout(saveTimers[category]);
             saveTimers[category] = setTimeout(() => doSave(), 800);
         }
@@ -2072,7 +2086,9 @@ body {
         // HISTORY SECTION
         // ===================================
         async function loadHistory() {
-            const historyList = document.querySelector('.history-list');
+            const historyList = document.getElementById('historyList');
+            const miniChart   = document.getElementById('miniChart');
+            const trendEmpty  = document.getElementById('trendEmpty');
             if (!historyList) return;
 
             let histData = [];
@@ -2096,15 +2112,37 @@ body {
                         });
                     });
                     histData = Object.values(combined).sort((a, b) =>
-                        b.year !== a.year ? b.year - a.year : b.month - a
+                        b.year !== a.year ? b.year - a.year : b.month - a.month
                     ).slice(0, 6);
                 }
             } catch(e) { histData = []; }
 
             if (!histData || histData.length === 0) {
-                historyList.innerHTML = '<div style="padding:20px;color:var(--text-secondary);text-align:center;">No history yet.</div>';
+                historyList.innerHTML = '';
+                if (miniChart)  miniChart.classList.add('hidden');
+                if (trendEmpty) trendEmpty.classList.add('show');
                 return;
             }
+
+            // Show chart, hide empty state
+            if (miniChart)  miniChart.classList.remove('hidden');
+            if (trendEmpty) trendEmpty.classList.remove('show');
+
+            // Render mini-chart SVG path from income data (oldest → newest)
+            const sorted = [...histData].sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+            const incomes = sorted.map(r => r.income || 0);
+            const maxInc  = Math.max(...incomes, 1);
+            const pts     = incomes.map((v, i) => {
+                const x = (i / Math.max(incomes.length - 1, 1)) * 800;
+                const y = 75 - (v / maxInc) * 65;
+                return `${x} ${y}`;
+            });
+            const linePath = 'M ' + pts.join(' L ');
+            const fillPath = linePath + ` L 800 80 L 0 80 Z`;
+            const trendLine = document.getElementById('trendLine');
+            const trendFill = document.getElementById('trendFill');
+            if (trendLine) trendLine.setAttribute('d', linePath);
+            if (trendFill) trendFill.setAttribute('d', fillPath);
 
             const headerRow = `<div class="history-header-row">
                 <span class="history-col-label">Month</span>
@@ -2210,21 +2248,7 @@ body {
             // 1. Auth guard
             WealthAPI.auth.requireAuth();
 
-            // 2. User menu
-            const user = WealthAPI.auth.getCachedUser();
-            if (user) {
-                const nameEl   = document.getElementById('userMenuName');
-                const emailEl  = document.getElementById('userMenuEmail');
-                const avatarEl = document.querySelector('.user-avatar');
-                if (nameEl)  nameEl.textContent  = user.familyName || user.email || 'User';
-                if (emailEl) emailEl.textContent = user.email || '';
-                if (avatarEl) {
-                    const label = user.familyName || user.email || 'U';
-                    const initial = label.charAt(0).toUpperCase();
-                    const textNode = avatarEl.childNodes[0];
-                    if (textNode && textNode.nodeType === 3) textNode.textContent = initial;
-                }
-            }
+            // 2. User menu (handled by sidebar.js)
 
             // 3. Set current year/month
             const ym = WealthAPI.getCurrentYearMonth();
@@ -2237,6 +2261,15 @@ body {
 
             // 4b. Init quick-add chips
             initChips();
+            preSelectDefaultChips();
+
+            // Hide nudge if previously dismissed
+            try {
+                if (localStorage.getItem('nudgeDismissed_tracker') === '1') {
+                    const nudge = document.getElementById('trackerNudge');
+                    if (nudge) nudge.remove();
+                }
+            } catch(e) {}
 
             // 5. Load family members
             try {
