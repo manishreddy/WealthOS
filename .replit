@@ -7,3 +7,36 @@ channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "wealthos-jwt-secret-bvbp6nuif64-1777102651491"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start WealthOS"
+
+[[workflows.workflow]]
+name = "Start WealthOS"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd server && PORT=5000 node server.js"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
