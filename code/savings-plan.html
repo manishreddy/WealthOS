@@ -2222,6 +2222,9 @@ body {
             .emergency-amount { font-size: 1.5rem; }
             .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
             .action-btn { width: 100%; justify-content: center; }
+            .breakup-cards-grid { grid-template-columns: 1fr; }
+            .add-form-grid { grid-template-columns: 1fr; }
+            .equity-insights-grid { grid-template-columns: 1fr; }
         }
 
         /* ── Page Control Bar (month nav + action buttons) ── */
@@ -2362,6 +2365,13 @@ body {
             font-weight: 400;
             font-size: 0.8125rem;
             color: var(--text-tertiary);
+        }
+
+        @media (max-width: 600px) {
+            .inv-modal { padding: 20px 16px; border-radius: 16px; }
+            .inv-modal .add-form-grid { grid-template-columns: 1fr !important; }
+            .inv-modal-footer { flex-direction: column; }
+            .inv-modal-footer button { width: 100%; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

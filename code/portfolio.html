@@ -234,8 +234,10 @@ body {
 
         .chart-container {
             position: relative;
+            width: 100%;
             height: 280px;
             margin-bottom: 20px;
+            overflow: hidden;
         }
 
         .allocation-comparison {
@@ -1402,10 +1404,21 @@ body {
             }
         }
 
+        @media (max-width: 768px) {
+            .mf-breakdown-grid { grid-template-columns: 1fr; }
+        }
+
         @media (max-width: 480px) {
             .main-content { padding: 16px 12px; }
             .page-title { font-size: 1.5rem; }
             .action-btn { padding: 8px 14px; font-size: 0.8125rem; }
+            .chart-container { height: 220px; }
+            .allocation-card { padding: 20px 16px; }
+            .p-form-grid { grid-template-columns: 1fr; }
+            .p-modal-header { padding: 20px 20px 0; }
+            .p-modal-body { padding: 16px 20px 20px; }
+            .p-modal-footer { flex-direction: column; }
+            .p-modal-footer button, .p-modal-footer .action-btn { width: 100%; justify-content: center; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

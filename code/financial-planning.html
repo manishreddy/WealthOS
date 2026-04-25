@@ -123,8 +123,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
         /* Retirement readiness score donut */
         .score-section { display: flex; align-items: center; gap: 32px; margin-bottom: 24px; }
-        .score-donut-wrap { flex-shrink: 0; position: relative; width: 140px; height: 140px; }
-        .score-donut-wrap svg { width: 140px; height: 140px; }
+        .score-donut-wrap { flex-shrink: 0; position: relative; width: 140px; height: 140px; max-width: 100%; }
+        .score-donut-wrap svg { width: 140px; height: 140px; max-width: 100%; height: auto; }
         .score-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
         .score-number { font-family: var(--font); font-size: 2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1; }
         .score-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
@@ -137,8 +137,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .score-item-pts { font-weight: 700; color: var(--text-primary); }
 
         /* Drawdown SVG */
-        .drawdown-wrap { width: 100%; overflow-x: auto; }
-        .drawdown-wrap svg { display: block; width: 100%; max-width: 700px; }
+        .drawdown-wrap { width: 100%; overflow-x: hidden; }
+        .drawdown-wrap svg { display: block; width: 100%; max-width: 100%; height: auto; }
 
         /* Milestones */
         .milestones { display: flex; flex-direction: column; gap: 10px; }
@@ -314,12 +314,16 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             .score-donut-wrap { margin: 0 auto; }
         }
         @media (max-width: 480px) {
-            .main-content { padding: 16px 12px; }
+            .main-content { padding: 16px 12px; overflow-x: hidden; }
             .page-title { font-size: 1.5rem; }
             .hero-grid { grid-template-columns: 1fr; }
             .ret-stats { grid-template-columns: 1fr; }
             .pj-summary { grid-template-columns: 1fr; }
             .pj-config-strip { flex-wrap: wrap; gap: 8px; }
+            .score-donut-wrap { width: 100px; height: 100px; }
+            .score-donut-wrap svg { width: 100px; height: 100px; }
+            .score-number { font-size: 1.5rem; }
+            .drawdown-wrap { overflow-x: hidden; }
         }
     </style>
 </head>
@@ -1164,7 +1168,7 @@ function renderDrawdownSVG(drawdownData, depletedYear, container) {
         return;
     }
 
-    const W = 620, H = 200, PAD = 50;
+    const W = Math.max(280, container.clientWidth || 620), H = 200, PAD = 50;
     const maxY = drawdownData[0].corpus;
     const minY = Math.min(0, Math.min(...drawdownData.map(d => d.corpus)));
     const rangeY = maxY - minY || 1;
@@ -1194,7 +1198,7 @@ function renderDrawdownSVG(drawdownData, depletedYear, container) {
         y: scaleY(v), label: fmt(v)
     }));
 
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;">
+    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
         <defs>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#0066ff" stop-opacity="0.15"/>

@@ -1086,6 +1086,7 @@ body {
         }
 
         @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
             .main-content {
                 padding: 20px 16px;
                 overflow-x: hidden;
@@ -1121,6 +1122,9 @@ body {
             .summary-value { font-size: 1.5rem; }
             .gc-metrics { grid-template-columns: repeat(2, 1fr); }
             .gc-metrics.six { grid-template-columns: repeat(2, 1fr); }
+            .modal { width: 95%; }
+            .modal-body { padding: 20px; }
+            .modal-header { padding: 20px 20px 16px; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">

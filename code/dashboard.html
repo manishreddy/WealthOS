@@ -170,7 +170,7 @@
 
         /* Gauge */
         .gauge-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; position: relative; }
-        .gauge-svg { width: 160px; height: 160px; }
+        .gauge-svg { width: 160px; height: 160px; max-width: 100%; }
         .gauge-bg { fill: none; stroke: var(--border); stroke-width: 12; }
         .gauge-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1s ease; }
         .gauge-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
@@ -294,7 +294,7 @@
         }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
-            .main-content { padding: 16px; }
+            .main-content { padding: 16px; overflow-x: hidden; }
             .metric-cards, .goals-grid { grid-template-columns: 1fr; }
             .activity-card, .allocation-card { grid-column: span 12; }
             .top-bar { flex-direction: column; gap: 16px; }
@@ -308,6 +308,10 @@
             .hero-metric-value { font-size: 2rem; }
             .metric-cards { grid-template-columns: 1fr; }
             .goals-grid { grid-template-columns: 1fr; }
+            .chart-card { overflow: hidden; }
+            .chart-area { height: 160px; }
+            .gauge-container { height: 160px; }
+            .gauge-svg { width: 120px; height: 120px; }
         }
     </style>
 </head>
