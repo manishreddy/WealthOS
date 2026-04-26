@@ -1,33 +1,23 @@
-// WealthOS Auth - uses JWT API backend
+// WealthOS Auth - session-based auth via Replit Auth
 // Requires api.js to be loaded first
 
 const Auth = {
-  // Check if user is logged in (has valid token)
-  isLoggedIn() {
+  async isLoggedIn() {
     return WealthAPI.auth.isLoggedIn();
   },
 
-  // Require auth on protected pages - call at page load
-  requireAuth() {
+  async requireAuth() {
     return WealthAPI.auth.requireAuth();
   },
 
-  // Get current user from cache (fast, no API call)
-  getCurrentUser() {
-    return WealthAPI.auth.getCachedUser();
+  async getCurrentUser() {
+    return WealthAPI.auth.getUser();
   },
 
-  // Login - returns { token, user } or throws error
-  async login(email, password) {
-    return WealthAPI.auth.login(email, password);
+  login() {
+    WealthAPI.auth.login();
   },
 
-  // Signup - returns { token, user } or throws error
-  async signup(email, password, familyName) {
-    return WealthAPI.auth.signup(email, password, familyName);
-  },
-
-  // Logout and redirect
   logout() {
     WealthAPI.auth.logout();
   }

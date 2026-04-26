@@ -324,9 +324,9 @@
 <script src="/api.js"></script>
 <script src="auth.js"></script>
 <script>
-    if (!WealthAPI.auth.isLoggedIn()) {
-        window.location.href = '/login.html';
-    }
+    (async () => {
+        if (!(await WealthAPI.auth.requireAuth())) return;
+    })();
 
     let currentStep = 1;
     const totalSteps = 2;

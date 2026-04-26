@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeUserMenu();
 });
 
-function initializeUserMenu() {
-    // Get user data
-    const user = (typeof WealthAPI !== 'undefined') ? WealthAPI.auth.getCachedUser() : null;
+async function initializeUserMenu() {
+    // Get user data from session
+    const user = (typeof WealthAPI !== 'undefined') ? await WealthAPI.auth.getUser() : null;
     if (!user) return;
 
     // Update avatar with user's initial
@@ -25,10 +25,16 @@ function initializeUserMenu() {
         });
     }
 
+    // Update name/email in dropdown if present
+    const nameEl = document.getElementById('userMenuName');
+    const emailEl = document.getElementById('userMenuEmail');
+    if (nameEl) nameEl.textContent = user.familyName || user.email || 'User';
+    if (emailEl) emailEl.textContent = user.email || '';
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         const dropdown = document.getElementById('userMenuDropdown');
-        if (dropdown && !dropdown.contains(e.target) && !avatar.contains(e.target)) {
+        if (dropdown && avatar && !dropdown.contains(e.target) && !avatar.contains(e.target)) {
             closeUserMenu();
         }
     });

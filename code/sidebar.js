@@ -634,22 +634,19 @@
   window.toggleTheme = toggleTheme;
 
   // ── User profile ─────────────────────────────────────────────────────────────
-  function loadUserProfile() {
+  function applyUserProfile(user) {
     let name = '', email = '', initial = '?', firstName = '';
-    if (window.WealthAPI && WealthAPI.auth) {
-      const user = WealthAPI.auth.getCachedUser ? WealthAPI.auth.getCachedUser() : null;
-      if (user) {
-        const fullName = user.name || user.fullName || '';
-        firstName = fullName ? fullName.split(' ')[0] : '';
-        const familyName = user.familyName || '';
-        const displayName = familyName && familyName !== 'My Family'
-          ? familyName
-          : (user.email || '').split('@')[0];
-        name    = displayName || user.email || '';
-        email   = user.email  || '';
-        initial = name  ? name.charAt(0).toUpperCase()
-                : email ? email.charAt(0).toUpperCase() : '?';
-      }
+    if (user) {
+      const fullName = user.name || user.fullName || '';
+      firstName = fullName ? fullName.split(' ')[0] : '';
+      const familyName = user.familyName || '';
+      const displayName = familyName && familyName !== 'My Family'
+        ? familyName
+        : (user.email || '').split('@')[0];
+      name    = displayName || user.email || '';
+      email   = user.email  || '';
+      initial = name  ? name.charAt(0).toUpperCase()
+              : email ? email.charAt(0).toUpperCase() : '?';
     }
     const avatarEl    = document.getElementById('wosProfileAvatar');
     const nameEl      = document.getElementById('wosProfileName');
@@ -668,19 +665,24 @@
     if (logoutBtn && !logoutBtn._bound) {
       logoutBtn._bound = true;
       logoutBtn.addEventListener('click', () => {
-        if (window.WealthAPI && WealthAPI.auth) WealthAPI.auth.logout();
-        else { localStorage.removeItem('wealthos_jwt'); window.location.href = 'login.html'; }
+        window.location.href = '/api/logout';
       });
+    }
+  }
+
+  function loadUserProfile() {
+    if (window.WealthAPI && WealthAPI.auth && WealthAPI.auth.getUser) {
+      WealthAPI.auth.getUser().then(applyUserProfile).catch(() => applyUserProfile(null));
+    } else {
+      applyUserProfile(null);
     }
   }
 
   // ── Portfolio value ──────────────────────────────────────────────────────────
   function loadPortfolioTotal() {
-    const token = localStorage.getItem('wealthos_jwt');
-    if (!token) return;
     const now = new Date();
     fetch(`/api/portfolio/?year=${now.getFullYear()}&month=${now.getMonth() + 1}`, {
-      headers: { Authorization: 'Bearer ' + token }
+      credentials: 'same-origin'
     })
       .then(r => r.ok ? r.json() : [])
       .then(memberData => {

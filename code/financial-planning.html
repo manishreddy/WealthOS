@@ -566,7 +566,7 @@ function switchTab(tabId) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-    if (!WealthAPI.auth.requireAuth()) return;
+    if (!(await WealthAPI.auth.requireAuth())) return;
 
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);

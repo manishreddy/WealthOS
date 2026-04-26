@@ -418,8 +418,8 @@ body {
         const MAX_HISTORY = 10;
 
         // ── Page load ──────────────────────────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', function () {
-            WealthAPI.auth.requireAuth();
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!(await WealthAPI.auth.requireAuth())) return;
             // Theme is applied by sidebar.js before DOMContentLoaded fires
         });
 

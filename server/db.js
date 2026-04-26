@@ -23,10 +23,21 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      family_name TEXT NOT NULL,
+      password_hash TEXT NOT NULL DEFAULT '',
+      family_name TEXT NOT NULL DEFAULT 'My Family',
+      replit_user_id TEXT UNIQUE,
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
+  `);
+
+  await query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS replit_user_id TEXT UNIQUE
+  `);
+
+  await query(`
+    ALTER TABLE users
+    ALTER COLUMN password_hash SET DEFAULT ''
   `);
 
   await query(`

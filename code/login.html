@@ -15,7 +15,6 @@
             align-items: stretch;
         }
 
-        /* ── Split Layout ── */
         .auth-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -23,7 +22,6 @@
             min-height: 100vh;
         }
 
-        /* ── Left — Dark branding panel ── */
         .auth-brand {
             background: var(--card-dark-bg);
             padding: 56px 60px;
@@ -34,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Subtle accent blobs */
         .auth-brand::before {
             content: '';
             position: absolute;
@@ -140,7 +137,6 @@
         }
         .feature-text strong { color: #fff; font-weight: 600; }
 
-        /* Mini preview card */
         .preview-card {
             background: var(--card-dark-surface);
             border-radius: 16px;
@@ -192,7 +188,6 @@
             z-index: 1;
         }
 
-        /* ── Right — Form panel ── */
         .auth-form-side {
             background: var(--bg);
             display: flex;
@@ -222,168 +217,52 @@
             color: var(--text-secondary);
         }
 
-        /* Alert messages */
-        .auth-alert {
-            padding: 13px 16px;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-        .auth-alert.show { display: flex; }
-        .auth-alert.success {
-            background: rgba(93,200,64,0.1);
-            border: 1px solid rgba(93,200,64,0.2);
-            color: #3A9C20;
-        }
-        .auth-alert.error {
-            background: rgba(255,59,59,0.08);
-            border: 1px solid rgba(255,59,59,0.18);
-            color: var(--negative);
-        }
-
-        /* Form fields */
-        .auth-form { display: flex; flex-direction: column; gap: 14px; }
-
-        .field-group { display: flex; flex-direction: column; gap: 6px; }
-        .field-label {
-            font-size: 0.8125rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: -0.01em;
-        }
-        .field-input {
+        .login-btn {
             width: 100%;
-            height: 48px;
-            padding: 0 16px;
-            background: var(--card-light-bg);
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: var(--font);
-            font-size: 0.9375rem;
-            color: var(--text-primary);
-            outline: none;
-            transition: border-color 150ms;
-            box-shadow: var(--shadow-sm);
-        }
-        .field-input::placeholder { color: var(--text-tertiary); }
-        .field-input:focus { border-color: var(--text-primary); }
-        .field-input.error { border-color: var(--negative); }
-
-        .field-error {
-            font-size: 0.8125rem;
-            color: var(--negative);
-            display: none;
-        }
-        .field-error.show { display: block; }
-
-        /* Options row */
-        .auth-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 2px;
-        }
-        .remember-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .remember-check {
-            width: 16px;
-            height: 16px;
-            border: 1.5px solid var(--border-strong);
-            border-radius: 4px;
-            accent-color: var(--text-primary);
-            cursor: pointer;
-        }
-        .remember-text {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-        .forgot-link {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-decoration: none;
-            letter-spacing: -0.01em;
-            transition: color 130ms;
-        }
-        .forgot-link:hover { color: var(--text-primary); }
-
-        /* Submit button */
-        .auth-submit {
-            width: 100%;
-            height: 48px;
+            height: 52px;
             background: var(--text-primary);
             color: var(--bg);
             border: none;
             border-radius: 10px;
             font-family: var(--font);
-            font-size: 0.9375rem;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
             transition: opacity 150ms;
             letter-spacing: -0.01em;
-            margin-top: 6px;
-            position: relative;
-        }
-        .auth-submit:hover { opacity: 0.88; }
-        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .auth-submit.loading { color: transparent; }
-        .auth-submit.loading::after {
-            content: '';
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* Divider */
-        .auth-divider {
-            text-align: center;
-            position: relative;
-            color: var(--text-tertiary);
-            font-size: 0.8125rem;
-            margin: 20px 0;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            height: 1px;
-            width: 44%;
-            background: var(--border);
-        }
-        .auth-divider::before { left: 0; }
-        .auth-divider::after { right: 0; }
-
-        /* Footer links */
-        .auth-footer-link {
-            text-align: center;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-        .auth-footer-link a {
-            color: var(--text-primary);
-            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             text-decoration: none;
-            letter-spacing: -0.01em;
+            margin-bottom: 16px;
         }
-        .auth-footer-link a:hover { text-decoration: underline; }
+        .login-btn:hover { opacity: 0.88; }
+
+        .provider-list {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+        .provider-badge {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            background: var(--card-light-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
+        }
+
+        .auth-sub-text {
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            margin-top: 20px;
+            line-height: 1.6;
+        }
 
         .auth-security {
             display: flex;
@@ -395,119 +274,10 @@
             color: var(--text-tertiary);
         }
 
-        /* ── Reset Password Modal ── */
-        .reset-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .reset-overlay.show { display: flex; }
-        .reset-modal {
-            background: var(--card-light-bg);
-            border: 1.5px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            width: 100%;
-            max-width: 420px;
-            margin: 16px;
-            box-shadow: var(--shadow-lg);
-            animation: dsFadeIn 0.25s var(--ease) both;
-        }
-        .reset-modal h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            color: var(--text-primary);
-            margin-bottom: 6px;
-        }
-        .reset-modal p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-        .reset-field { margin-bottom: 14px; }
-        .reset-field label {
-            display: block;
-            font-size: 0.8125rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-        .reset-field input {
-            width: 100%;
-            height: 44px;
-            padding: 0 14px;
-            background: var(--input-bg);
-            border: 1.5px solid var(--input-border);
-            border-radius: 9px;
-            font-family: var(--font);
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            outline: none;
-            transition: border-color 150ms;
-        }
-        .reset-field input:focus { border-color: var(--text-primary); }
-        .reset-field input.error { border-color: var(--negative); }
-        .reset-msg {
-            font-size: 0.8125rem;
-            margin-bottom: 14px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            display: none;
-        }
-        .reset-msg.show { display: block; }
-        .reset-msg.success { background: rgba(93,200,64,0.1); color: #3A9C20; border: 1px solid rgba(93,200,64,0.2); }
-        .reset-msg.error { background: rgba(255,59,59,0.08); color: var(--negative); border: 1px solid rgba(255,59,59,0.18); }
-        .reset-actions { display: flex; gap: 10px; margin-top: 8px; }
-        .reset-submit {
-            flex: 1;
-            height: 44px;
-            background: var(--text-primary);
-            color: var(--bg);
-            border: none;
-            border-radius: 9px;
-            font-family: var(--font);
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 150ms;
-        }
-        .reset-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .reset-cancel {
-            height: 44px;
-            padding: 0 18px;
-            background: transparent;
-            border: 1.5px solid var(--border);
-            border-radius: 9px;
-            font-family: var(--font);
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 150ms;
-        }
-        .reset-cancel:hover { background: var(--hover-bg); }
-
-        /* Mobile logo bar — hidden on desktop */
         .mobile-logo-bar {
             display: none;
         }
-        .mobile-logo-bar .brand-name {
-            color: var(--text-primary);
-        }
-        .mobile-logo-bar .brand-name em {
-            color: var(--accent);
-        }
-        .mobile-logo-bar .brand-mark {
-            background: var(--accent);
-        }
 
-        /* Responsive */
         @media (max-width: 900px) {
             .auth-container { grid-template-columns: 1fr; }
             .auth-brand { display: none; }
@@ -527,6 +297,9 @@
                 border-bottom: 1px solid var(--border);
                 flex-shrink: 0;
             }
+            .mobile-logo-bar .brand-name { color: var(--text-primary); }
+            .mobile-logo-bar .brand-name em { color: var(--accent); }
+            .mobile-logo-bar .brand-mark { background: var(--accent); }
             .auth-form-wrap {
                 width: 100%;
                 max-width: 100%;
@@ -537,10 +310,7 @@
             .mobile-logo-bar { padding: 16px 20px; }
             .auth-form-wrap { padding: 24px 20px 56px; }
             .auth-form-title { font-size: 1.5rem; }
-            /* 16px prevents iOS from auto-zooming into inputs */
-            .field-input { font-size: 1rem; height: 52px; }
-            .auth-submit { height: 52px; font-size: 1rem; }
-            .auth-options { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .login-btn { height: 56px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -595,10 +365,9 @@
         <div class="brand-footer">© 2025 WealthOS. Built for Indian families.</div>
     </div>
 
-    <!-- Right — Form -->
+    <!-- Right — Sign In -->
     <div class="auth-form-side">
 
-        <!-- Mobile-only logo bar (brand panel is hidden on phones) -->
         <div class="mobile-logo-bar">
             <a href="/" class="brand-logo-link">
                 <div class="brand-mark">
@@ -617,182 +386,39 @@
                 <p class="auth-form-sub">Sign in to your WealthOS account</p>
             </div>
 
-            <div id="successMessage" class="auth-alert success"></div>
-            <div id="formError" class="auth-alert error"></div>
+            <a href="/api/login" class="login-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Continue to sign in
+            </a>
 
-            <form id="loginForm" class="auth-form" autocomplete="on">
-                <div class="field-group">
-                    <label class="field-label" for="email">Email address</label>
-                    <input type="email" id="email" class="field-input" placeholder="you@example.com" autocomplete="email" required>
-                    <div id="emailError" class="field-error"></div>
-                </div>
+            <div class="provider-list">
+                <span class="provider-badge">Google</span>
+                <span class="provider-badge">GitHub</span>
+                <span class="provider-badge">Apple</span>
+                <span class="provider-badge">Email</span>
+            </div>
 
-                <div class="field-group">
-                    <label class="field-label" for="password">Password</label>
-                    <input type="password" id="password" class="field-input" placeholder="Your password" autocomplete="current-password" required>
-                    <div id="passwordError" class="field-error"></div>
-                </div>
+            <div class="auth-sub-text">
+                New to WealthOS? Signing in will create your account automatically.
+            </div>
 
-                <div class="auth-options">
-                    <label class="remember-label">
-                        <input type="checkbox" id="rememberMe" class="remember-check">
-                        <span class="remember-text">Remember me</span>
-                    </label>
-                    <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
-                </div>
-
-                <button type="submit" id="loginBtn" class="auth-submit">Sign in</button>
-
-                <div class="auth-security">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    256-bit encryption. Your data is private.
-                </div>
-            </form>
-
-            <div class="auth-divider">or</div>
-
-            <div class="auth-footer-link">
-                Don't have an account? <a href="signup.html">Create one</a>
+            <div class="auth-security">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Secured via Replit Auth. Your data stays private.
             </div>
         </div>
     </div>
 </div>
 
-<!-- Reset Password Modal -->
-<div class="reset-overlay" id="resetOverlay">
-    <div class="reset-modal">
-        <h3>Reset password</h3>
-        <p>Enter your email and choose a new password.</p>
-        <div class="reset-msg" id="resetMsg"></div>
-        <div class="reset-field">
-            <label>Email address</label>
-            <input type="email" id="resetEmail" placeholder="your@email.com" autocomplete="email">
-        </div>
-        <div class="reset-field">
-            <label>New password</label>
-            <input type="password" id="resetNewPwd" placeholder="Minimum 8 characters">
-        </div>
-        <div class="reset-field">
-            <label>Confirm new password</label>
-            <input type="password" id="resetConfirmPwd" placeholder="Repeat new password">
-        </div>
-        <div class="reset-actions">
-            <button class="reset-cancel" id="resetCancel">Cancel</button>
-            <button class="reset-submit" id="resetSubmit">Reset password</button>
-        </div>
-    </div>
-</div>
-
-<script src="/api.js"></script>
-<script src="auth.js"></script>
 <script>
-    // Check if already logged in
-    if (WealthAPI && WealthAPI.auth.isLoggedIn()) {
-      window.location.href = '/dashboard.html';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('loginForm') || document.querySelector('form');
-      if (!form) return;
-
-      const emailInput = document.getElementById('email') || form.querySelector('[type="email"]');
-      const passwordInput = document.getElementById('password') || form.querySelector('[type="password"]');
-      const emailError = document.getElementById('emailError');
-      const passwordError = document.getElementById('passwordError');
-      const formErrorEl = document.getElementById('formError');
-      const successMsg = document.getElementById('successMessage');
-
-      function showFieldError(el, msg) { if (el) { el.textContent = msg; el.classList.add('show'); } }
-      function clearFieldError(el) { if (el) { el.textContent = ''; el.classList.remove('show'); } }
-      function showFormError(msg) { if (formErrorEl) { formErrorEl.textContent = msg; formErrorEl.classList.add('show'); } }
-      function clearFormError() { if (formErrorEl) formErrorEl.classList.remove('show'); }
-
-      if (emailInput) emailInput.addEventListener('input', () => clearFieldError(emailError));
-      if (passwordInput) passwordInput.addEventListener('input', () => clearFieldError(passwordError));
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        clearFormError();
-        clearFieldError(emailError);
-        clearFieldError(passwordError);
-
-        const email = emailInput ? emailInput.value.trim() : '';
-        const password = passwordInput ? passwordInput.value : '';
-
-        if (!email) { showFieldError(emailError, 'Email is required'); return; }
-        if (!password) { showFieldError(passwordError, 'Password is required'); return; }
-
-        const btn = document.getElementById('loginBtn');
-        if (btn) { btn.disabled = true; btn.classList.add('loading'); }
-
-        try {
-          const result = await WealthAPI.auth.login(email, password);
-          if (result.success) {
-            if (successMsg) { successMsg.textContent = 'Signed in! Redirecting…'; successMsg.classList.add('show'); }
-            setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
-          } else {
-            showFormError(result.error || 'Invalid email or password');
-            if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
-          }
-        } catch (err) {
-          showFormError('Something went wrong. Please try again.');
-          if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+        if (res.ok) {
+          window.location.href = '/dashboard.html';
         }
-      });
-
-      // Forgot password
-      const forgotLink = document.getElementById('forgotLink');
-      const resetOverlay = document.getElementById('resetOverlay');
-      const resetCancel = document.getElementById('resetCancel');
-      const resetSubmit = document.getElementById('resetSubmit');
-      const resetMsg = document.getElementById('resetMsg');
-
-      if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); if (resetOverlay) resetOverlay.classList.add('show'); });
-      if (resetCancel) resetCancel.addEventListener('click', () => { if (resetOverlay) resetOverlay.classList.remove('show'); });
-      if (resetOverlay) resetOverlay.addEventListener('click', (e) => { if (e.target === resetOverlay) resetOverlay.classList.remove('show'); });
-
-      if (resetSubmit) {
-        resetSubmit.addEventListener('click', async () => {
-          const email = document.getElementById('resetEmail')?.value.trim();
-          const newPwd = document.getElementById('resetNewPwd')?.value;
-          const confirmPwd = document.getElementById('resetConfirmPwd')?.value;
-
-          if (resetMsg) { resetMsg.className = 'reset-msg'; resetMsg.textContent = ''; }
-
-          if (!email || !newPwd || !confirmPwd) {
-            if (resetMsg) { resetMsg.textContent = 'All fields are required.'; resetMsg.className = 'reset-msg error show'; }
-            return;
-          }
-          if (newPwd.length < 8) {
-            if (resetMsg) { resetMsg.textContent = 'Password must be at least 8 characters.'; resetMsg.className = 'reset-msg error show'; }
-            return;
-          }
-          if (newPwd !== confirmPwd) {
-            if (resetMsg) { resetMsg.textContent = 'Passwords do not match.'; resetMsg.className = 'reset-msg error show'; }
-            return;
-          }
-
-          resetSubmit.disabled = true;
-          try {
-            const res = await fetch('/api/auth/reset-password', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, newPassword: newPwd })
-            });
-            const data = await res.json();
-            if (res.ok) {
-              if (resetMsg) { resetMsg.textContent = 'Password reset! You can now sign in.'; resetMsg.className = 'reset-msg success show'; }
-              setTimeout(() => { if (resetOverlay) resetOverlay.classList.remove('show'); }, 2000);
-            } else {
-              if (resetMsg) { resetMsg.textContent = data.error || 'Reset failed. Check your email.'; resetMsg.className = 'reset-msg error show'; }
-            }
-          } catch {
-            if (resetMsg) { resetMsg.textContent = 'Network error. Try again.'; resetMsg.className = 'reset-msg error show'; }
-          }
-          resetSubmit.disabled = false;
-        });
-      }
-    });
+      } catch (e) {}
+    })();
 </script>
 </body>
 </html>

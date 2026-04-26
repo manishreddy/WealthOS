@@ -1387,7 +1387,7 @@ body {
 
         // ─── Page init ───────────────────────────────────────────────────────────
         async function init() {
-            WealthAPI.auth.requireAuth();
+            if (!(await WealthAPI.auth.requireAuth())) return;
 
             // Load theme
             const savedTheme = localStorage.getItem('theme') || 'light';

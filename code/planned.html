@@ -977,19 +977,16 @@ function fmtCr(n) {
 // ── Load all data ─────────────────────────────────────────────────────────────
 async function loadAll() {
     try {
-        const token = localStorage.getItem('wealthos_jwt');
-        if (!token) { window.location.href = 'login.html'; return; }
-
         try { familyMembers = await WealthAPI.family.getMembers(); } catch { familyMembers = []; }
-        try { goalsData = await fetch('/api/goals', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json()); } catch { goalsData = []; }
+        try { goalsData = await fetch('/api/goals', { credentials: 'same-origin' }).then(r => r.json()); } catch { goalsData = []; }
 
-        const cfg = await fetch('/api/projections/config', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const cfg = await fetch('/api/projections/config', { credentials: 'same-origin' }).then(r => r.json());
         currentConfig = cfg;
         renderConfigGrids(cfg);
         renderMonthlyPlanTable(cfg);
         renderGoalEmiSection(goalsData);
 
-        const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const rows = await fetch('/api/projections/yearly', { credentials: 'same-origin' }).then(r => r.json());
         renderYearlyExpenseTable(rows, goalsData);
         renderSavingsRateTable(rows, goalsData);
     } catch (e) {
@@ -1000,15 +997,15 @@ async function loadAll() {
 async function saveConfig(silent) {
     try {
         const cfg = getConfigFromForm();
-        const token = localStorage.getItem('wealthos_jwt');
         const res = await fetch('/api/projections/config', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify(cfg)
         });
         if (!res.ok) throw new Error(await res.text());
         currentConfig = await res.json();
-        const rows = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const rows = await fetch('/api/projections/yearly', { credentials: 'same-origin' }).then(r => r.json());
         renderYearlyExpenseTable(rows, goalsData);
         renderSavingsRateTable(rows, goalsData);
         setAutoSaveStatus('saved');
@@ -1023,10 +1020,10 @@ async function saveConfig(silent) {
 async function resetConfig() {
     if (!confirm('Reset to default configuration?')) return;
     try {
-        const token = localStorage.getItem('wealthos_jwt');
         await fetch('/api/projections/config', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({})
         });
         location.reload();
@@ -1058,10 +1055,10 @@ async function runAiParse() {
     btn.disabled = true;
 
     try {
-        const token = localStorage.getItem('wealthos_jwt');
         const res = await fetch('/api/projections/ai-parse', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ text })
         });
         const data = await res.json();
@@ -1143,12 +1140,12 @@ async function applyAiConfig() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-(function init() {
+(async function init() {
     try {
+        if (!(await WealthAPI.auth.requireAuth())) return;
     } catch {}
+    loadAll();
 })();
-
-loadAll();
 </script>
 </body>
 </html>

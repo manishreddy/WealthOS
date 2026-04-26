@@ -1015,8 +1015,8 @@
 
         // ── Main init ─────────────────────────────────────────────────────────
         async function initDashboard() {
-            WealthAPI.auth.requireAuth();
-            const user = WealthAPI.auth.getCachedUser();
+            if (!(await WealthAPI.auth.requireAuth())) return;
+            const user = await WealthAPI.auth.getUser();
             if (user) {
                 const familyName = user.familyName || '';
                 const displayName = familyName && familyName !== 'My Family' ? familyName : (user.email || '').split('@')[0];

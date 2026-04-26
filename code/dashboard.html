@@ -1092,8 +1092,8 @@
         // ── Main init ─────────────────────────────────────────────────────────
         let _dashFirstName = '';
         async function initDashboard() {
-            WealthAPI.auth.requireAuth();
-            const user = WealthAPI.auth.getCachedUser();
+            if (!(await WealthAPI.auth.requireAuth())) return;
+            const user = await WealthAPI.auth.getUser();
             if (user) {
                 const fullName = user.name || user.fullName || '';
                 const firstName = fullName ? fullName.split(' ')[0] : '';

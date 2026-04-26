@@ -470,15 +470,12 @@ class AIImport {
 
     try {
       const prompt = this.config.buildPrompt();
-      let body, headers;
-      headers = { 'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '') };
+      let body;
 
       if (activePanel === 'screenshot' && this._imgFile) {
-        // Read as base64
         const base64 = await this._fileToBase64(this._imgFile);
         const mediaType = this._imgFile.type || 'image/png';
         body = JSON.stringify({ prompt, imageBase64: base64, imageMediaType: mediaType });
-        headers['Content-Type'] = 'application/json';
       } else if (activePanel === 'file' && this._csvFile) {
         let fileText;
         const isExcel = /\.xlsx$/i.test(this._csvFile.name);
@@ -488,7 +485,7 @@ class AIImport {
           form.append('file', this._csvFile);
           const convResp = await fetch('/api/import/excel-to-text', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '') },
+            credentials: 'same-origin',
             body: form
           });
           if (!convResp.ok) throw new Error('Failed to convert Excel file');
@@ -499,16 +496,13 @@ class AIImport {
           fileText = await this._csvFile.text();
         }
         body = JSON.stringify({ prompt: prompt + '\n\nData:\n' + fileText.substring(0, 8000) });
-        headers['Content-Type'] = 'application/json';
       } else {
-        // Paste
         const text = m.querySelector('.ai-imp-paste-input').value.trim();
         if (!text) { status.textContent = 'Please enter some data first.'; status.style.color = 'var(--error,#ef4444)'; parseBtn.disabled = false; return; }
         body = JSON.stringify({ prompt: prompt + '\n\nData:\n' + text.substring(0, 6000) });
-        headers['Content-Type'] = 'application/json';
       }
 
-      const resp = await fetch('/api/ai-parse', { method: 'POST', headers, body });
+      const resp = await fetch('/api/ai-parse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body });
       if (!resp.ok) throw new Error('API error ' + resp.status);
       const result = await resp.json();
       const raw = (result.result || '').trim();

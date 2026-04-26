@@ -4,91 +4,78 @@
 const WealthAPI = (() => {
   const BASE = '/api';
 
-  function getToken() {
-    return localStorage.getItem('wealthos_jwt');
-  }
-
-  function setToken(token) {
-    localStorage.setItem('wealthos_jwt', token);
-  }
-
-  function clearToken() {
-    localStorage.removeItem('wealthos_jwt');
-    localStorage.removeItem('wealthos_user_cache');
-  }
-
   function headers() {
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getToken()}`
+      'Content-Type': 'application/json'
     };
   }
 
   async function request(method, path, body) {
     try {
-      const opts = { method, headers: headers() };
+      const opts = { method, headers: headers(), credentials: 'same-origin' };
       if (body) opts.body = JSON.stringify(body);
       const res = await fetch(BASE + path, opts);
       if (res.status === 401) {
-        clearToken();
-        window.location.href = '/login.html';
+        window.location.href = '/api/login';
         return null;
       }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       return data;
     } catch (err) {
-      console.error(`API ${method} ${path}:`, err.message);
+      if (err.message && err.message.includes('Failed to fetch')) {
+        console.error(`API ${method} ${path}: network error`);
+      } else {
+        console.error(`API ${method} ${path}:`, err.message);
+      }
       throw err;
     }
   }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   const auth = {
-    async login(email, password) {
-      const data = await request('POST', '/auth/login', { email, password });
-      if (data?.token) {
-        setToken(data.token);
-        localStorage.setItem('wealthos_user_cache', JSON.stringify(data.user));
-      }
-      return data;
-    },
-
-    async signup(email, password, familyName, userName) {
-      const data = await request('POST', '/auth/signup', { email, password, familyName, userName });
-      if (data?.token) {
-        setToken(data.token);
-        localStorage.setItem('wealthos_user_cache', JSON.stringify(data.user));
-      }
-      return data;
+    login() {
+      window.location.href = '/api/login';
     },
 
     logout() {
-      clearToken();
-      window.location.href = '/login.html';
+      window.location.href = '/api/logout';
     },
 
     async me() {
-      return request('GET', '/auth/me');
+      return request('GET', '/auth/user');
     },
 
-    isLoggedIn() {
-      return !!getToken();
-    },
-
-    getCachedUser() {
+    async isLoggedIn() {
       try {
-        return JSON.parse(localStorage.getItem('wealthos_user_cache'));
-      } catch { return null; }
+        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+        return res.ok;
+      } catch {
+        return false;
+      }
     },
 
-    // Call this at top of every protected page
-    requireAuth() {
-      if (!getToken()) {
-        window.location.href = '/login.html';
+    async getUser() {
+      try {
+        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    },
+
+    async requireAuth() {
+      const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+      if (!res.ok) {
+        window.location.href = '/api/login';
         return false;
       }
       return true;
+    },
+
+    getCachedUser() {
+      return null;
     }
   };
 
@@ -107,7 +94,6 @@ const WealthAPI = (() => {
     },
 
     async addMember(member) {
-      // member: { name, age, role, riskProfile }
       return request('POST', '/family/members', member);
     },
 
@@ -131,7 +117,6 @@ const WealthAPI = (() => {
     },
 
     async save(year, month, memberId, data) {
-      // data: { income, expenditure, investments, incomeBreakup, expenseBreakup, investmentBreakup }
       return request('PUT', `/monthly/${year}/${month}/${memberId}`, data);
     },
 
@@ -152,7 +137,6 @@ const WealthAPI = (() => {
     },
 
     async add(memberId, item) {
-      // item: { name, assetClass, subCategory, amount, frequency, startMonth }
       return request('POST', `/savings/${memberId}`, item);
     },
 
@@ -165,7 +149,6 @@ const WealthAPI = (() => {
     },
 
     async updateTargets(memberId, targets) {
-      // targets: { equityPct, debtPct, goldPct, othersPct, useAgeBased }
       return request('PUT', `/savings/${memberId}/targets`, targets);
     }
   };
@@ -185,7 +168,6 @@ const WealthAPI = (() => {
     },
 
     async add(memberId, asset) {
-      // asset: { assetType, name, assetClass, purchaseValue, currentValue, units, notes, year, month }
       return request('POST', `/portfolio/${memberId}`, asset);
     },
 
@@ -207,12 +189,11 @@ const WealthAPI = (() => {
     },
 
     async parseZerodha(file) {
-      const token = getToken();
       const form = new FormData();
       form.append('file', file);
       const res = await fetch(BASE + '/portfolio/parse-zerodha', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        credentials: 'same-origin',
         body: form
       });
       const data = await res.json();
@@ -228,7 +209,6 @@ const WealthAPI = (() => {
     },
 
     async add(goal) {
-      // goal: { name, goalType, targetAmount, currentAmount, monthlyContribution, targetDate, assignedMembers, notes }
       return request('POST', '/goals', goal);
     },
 
@@ -323,12 +303,8 @@ const WealthAPI = (() => {
     planning,
     setup,
     wealthbot,
-    // Helpers exposed globally
     formatCurrency,
     getCurrentYearMonth,
-    getCurrentTaxYear,
-    getToken,
-    setToken,
-    clearToken
+    getCurrentTaxYear
   };
 })();

@@ -2776,7 +2776,7 @@ body {
         // PAGE INIT
         // ===========================
         document.addEventListener('DOMContentLoaded', async () => {
-            WealthAPI.auth.requireAuth();
+            if (!(await WealthAPI.auth.requireAuth())) return;
 
             // Load family members
             try {
@@ -3530,9 +3530,9 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                 const resp = await fetch('/api/ai-parse', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '')
+                        'Content-Type': 'application/json'
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify(body)
                 });
 

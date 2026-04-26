@@ -7,541 +7,164 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="css/animations.css">
     <style>
         body {
             background: var(--bg);
             display: flex;
             min-height: 100vh;
-            align-items: stretch;
+            align-items: center;
+            justify-content: center;
         }
-
-        .auth-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .wrap {
             width: 100%;
-            min-height: 100vh;
+            max-width: 440px;
+            padding: 40px 24px;
+            text-align: center;
+            animation: dsFadeIn 0.35s var(--ease) both;
         }
-
-        /* ── Left — Dark branding panel ── */
-        .auth-brand {
-            background: var(--card-dark-bg);
-            padding: 56px 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
-        .auth-brand::before {
-            content: '';
-            position: absolute;
-            width: 400px; height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(143,230,44,0.08) 0%, transparent 70%);
-            top: -100px; right: -100px;
-            pointer-events: none;
-        }
-        .auth-brand::after {
-            content: '';
-            position: absolute;
-            width: 300px; height: 300px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59,115,255,0.06) 0%, transparent 70%);
-            bottom: 80px; left: -60px;
-            pointer-events: none;
-        }
-
         .brand-logo-link {
-            display: flex; align-items: center; gap: 10px;
-            text-decoration: none; position: relative; z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            margin-bottom: 40px;
         }
         .brand-mark {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: var(--accent); display: flex;
-            align-items: center; justify-content: center; flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .brand-name { font-size: 1.125rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; }
+        .brand-name {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.04em;
+        }
         .brand-name em { font-style: normal; color: var(--accent); }
-
-        .brand-body {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; padding: 48px 0; position: relative; z-index: 1;
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
-        .brand-headline {
-            font-size: 2.5rem; font-weight: 800; color: #fff;
-            letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px;
+        .page-sub {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            line-height: 1.55;
         }
-        .brand-headline em { font-style: normal; color: var(--accent); }
-        .brand-sub {
-            font-size: 1rem; color: var(--on-dark-secondary);
-            line-height: 1.65; margin-bottom: 48px; max-width: 380px;
+        .login-btn {
+            width: 100%;
+            height: 52px;
+            background: var(--text-primary);
+            color: var(--bg);
+            border: none;
+            border-radius: 10px;
+            font-family: var(--font);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 150ms;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            margin-bottom: 16px;
         }
-
-        .feature-list { display: flex; flex-direction: column; gap: 16px; }
-        .feature-item { display: flex; align-items: center; gap: 14px; }
-        .feature-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-        .feature-text { font-size: 0.9375rem; color: var(--on-dark-secondary); }
-        .feature-text strong { color: #fff; font-weight: 600; }
-
-        .stat-row-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 48px; }
-        .stat-mini-card {
-            background: var(--card-dark-surface); border: 1px solid var(--border-on-dark);
-            border-radius: 14px; padding: 18px 20px;
+        .login-btn:hover { opacity: 0.88; }
+        .provider-list {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            margin-bottom: 24px;
         }
-        .stat-mini-label {
-            font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.07em; color: var(--on-dark-secondary); margin-bottom: 6px;
+        .provider-badge {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            background: var(--card-light-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
         }
-        .stat-mini-value {
-            font-size: 1.375rem; font-weight: 800; color: #fff;
-            letter-spacing: -0.04em; font-feature-settings: 'tnum' 1;
+        .auth-security {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
         }
-        .stat-mini-change { font-size: 0.75rem; color: var(--accent); font-weight: 600; margin-top: 4px; }
-
-        .brand-footer {
-            font-size: 0.8125rem; color: var(--on-dark-tertiary, rgba(255,255,255,0.28));
-            position: relative; z-index: 1;
+        .already-link {
+            display: block;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 24px;
         }
-
-        /* ── Right — Form panel ── */
-        .auth-form-side {
-            background: var(--bg);
-            display: flex; align-items: flex-start; justify-content: center;
-            padding: 48px 56px; overflow-y: auto;
+        .already-link a {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
         }
-
-        .auth-form-wrap {
-            width: 100%; max-width: 420px; padding-top: 12px;
-            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
-        }
-
-        .auth-form-header { margin-bottom: 28px; }
-        .auth-form-eyebrow {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px;
-        }
-        .auth-form-title {
-            font-size: 1.875rem; font-weight: 800; letter-spacing: -0.04em;
-            color: var(--text-primary); margin-bottom: 6px;
-        }
-        .auth-form-sub { font-size: 0.9375rem; color: var(--text-secondary); }
-
-        /* Step dots */
-        .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
-        .step-pip {
-            width: 28px; height: 4px; border-radius: 9999px;
-            background: var(--border); transition: background 200ms;
-        }
-        .step-pip + .step-pip { margin-left: 4px; }
-        .step-pip.done { background: var(--accent); }
-
-        .form-section-head {
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.06em; color: var(--text-tertiary);
-            margin-bottom: 12px; margin-top: 4px;
-        }
-
-        .auth-form { display: flex; flex-direction: column; gap: 0; }
-        .form-section { margin-bottom: 20px; }
-
-        .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .field-group:last-child { margin-bottom: 0; }
-        .field-label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); letter-spacing: -0.01em; }
-        .field-input {
-            width: 100%; height: 46px; padding: 0 14px;
-            background: var(--card-light-bg); border: 1.5px solid var(--border);
-            border-radius: 10px; font-family: var(--font); font-size: 0.9375rem;
-            color: var(--text-primary); outline: none; transition: border-color 150ms;
-            box-shadow: var(--shadow-sm);
-        }
-        .field-input::placeholder { color: var(--text-tertiary); }
-        .field-input:focus { border-color: var(--text-primary); }
-        .field-input.error { border-color: var(--negative); }
-        .field-input.success { border-color: var(--positive); }
-
-        .field-error { font-size: 0.8125rem; color: var(--negative); display: none; }
-        .field-error.show { display: block; }
-
-        /* Password strength */
-        .password-strength { margin-top: 8px; }
-        .strength-bar-container { height: 4px; background: var(--border); border-radius: 9999px; overflow: hidden; margin-bottom: 6px; }
-        .strength-bar { height: 100%; border-radius: 9999px; width: 0%; transition: width 300ms, background 300ms; }
-        .strength-bar.weak  { width: 33%; background: var(--negative); }
-        .strength-bar.medium { width: 66%; background: var(--warning, #F59E0B); }
-        .strength-bar.strong { width: 100%; background: var(--positive); }
-        .strength-text { font-size: 0.75rem; font-weight: 500; margin-bottom: 6px; }
-        .strength-text.weak   { color: var(--negative); }
-        .strength-text.medium { color: var(--warning, #F59E0B); }
-        .strength-text.strong { color: var(--positive); }
-        .password-requirements { display: flex; flex-wrap: wrap; gap: 8px; }
-        .requirement {
-            font-size: 0.75rem; color: var(--text-tertiary);
-            background: var(--hover-bg); border-radius: 6px; padding: 3px 8px; transition: all 150ms;
-        }
-        .requirement.met { background: rgba(93,200,64,0.1); color: var(--positive); }
-
-        .character-count { font-size: 0.75rem; color: var(--text-tertiary); text-align: right; margin-top: 4px; }
-
-        /* Terms */
-        .terms-label {
-            display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
-            padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 10px;
-            background: var(--card-light-bg); box-shadow: var(--shadow-sm); transition: border-color 150ms;
-        }
-        .terms-label:hover { border-color: var(--border-strong); }
-        .terms-check { width: 18px; height: 18px; accent-color: var(--text-primary); cursor: pointer; flex-shrink: 0; margin-top: 1px; }
-        .terms-text { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
-        .terms-text a { color: var(--text-primary); font-weight: 600; text-decoration: none; }
-        .terms-text a:hover { text-decoration: underline; }
-
-        /* Submit */
-        .auth-submit {
-            width: 100%; height: 48px; background: var(--text-primary); color: var(--bg);
-            border: none; border-radius: 10px; font-family: var(--font); font-size: 0.9375rem;
-            font-weight: 700; cursor: pointer; transition: opacity 150ms;
-            letter-spacing: -0.01em; margin-top: 20px; position: relative;
-        }
-        .auth-submit:hover { opacity: 0.88; }
-        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .auth-submit.loading { color: transparent; }
-        .auth-submit.loading::after {
-            content: ''; position: absolute; width: 18px; height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white;
-            border-radius: 50%; animation: wos-spin 0.7s linear infinite;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-        }
-
-        .auth-divider {
-            text-align: center; position: relative; color: var(--text-tertiary);
-            font-size: 0.8125rem; margin: 20px 0;
-        }
-        .auth-divider::before, .auth-divider::after {
-            content: ''; position: absolute; top: 50%; height: 1px; width: 44%; background: var(--border);
-        }
-        .auth-divider::before { left: 0; }
-        .auth-divider::after { right: 0; }
-
-        .auth-footer-link { text-align: center; font-size: 0.875rem; color: var(--text-secondary); }
-        .auth-footer-link a { color: var(--text-primary); font-weight: 600; text-decoration: none; }
-        .auth-footer-link a:hover { text-decoration: underline; }
-
-        /* Mobile */
-        .mobile-logo-bar { display: none; }
-        .mobile-logo-bar .brand-name { color: var(--text-primary); }
-        .mobile-logo-bar .brand-name em { color: var(--accent); }
-        .mobile-logo-bar .brand-mark { background: var(--accent); }
-
-        @media (max-width: 900px) {
-            .auth-container { grid-template-columns: 1fr; }
-            .auth-brand { display: none; }
-            .auth-form-side { padding: 0; align-items: flex-start; flex-direction: column; min-height: 100dvh; overflow-y: auto; }
-            .mobile-logo-bar {
-                display: flex; align-items: center; gap: 10px;
-                padding: 20px 24px; width: 100%; border-bottom: 1px solid var(--border); flex-shrink: 0;
-            }
-            .auth-form-wrap { width: 100%; max-width: 100%; padding: 32px 24px 64px; padding-top: 12px; }
-        }
-        @media (max-width: 480px) {
-            .mobile-logo-bar { padding: 16px 20px; }
-            .auth-form-wrap { padding: 20px 20px 64px; }
-            .auth-form-title { font-size: 1.5rem; }
-            .field-input { font-size: 1rem; height: 52px; }
-            .auth-submit { height: 52px; font-size: 1rem; }
-        }
+        .already-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-<div class="auth-container">
-
-    <!-- Left — Branding -->
-    <div class="auth-brand">
-        <a href="/" class="brand-logo-link">
-            <div class="brand-mark">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                    <polyline points="17 6 23 6 23 12"/>
-                </svg>
-            </div>
-            <span class="brand-name">Wealth<em>OS</em></span>
-        </a>
-
-        <div class="brand-body">
-            <h1 class="brand-headline">Track your wealth,<br><em>your way.</em></h1>
-            <p class="brand-sub">A single place to understand where your money is, where it's going, and how to make it grow — for you and your family.</p>
-
-            <div class="feature-list">
-                <div class="feature-item">
-                    <div class="feature-dot"></div>
-                    <div class="feature-text"><strong>Net Worth at a glance</strong> — all accounts, investments, and assets in one view</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-dot"></div>
-                    <div class="feature-text"><strong>Monthly tracker</strong> — income, expenses, and savings rate automatically calculated</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-dot"></div>
-                    <div class="feature-text"><strong>Family or solo</strong> — set up individual tracking or manage the whole household</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-dot"></div>
-                    <div class="feature-text"><strong>Private & secure</strong> — end-to-end encrypted, yours alone</div>
-                </div>
-            </div>
-
-            <div class="stat-row-group">
-                <div class="stat-mini-card">
-                    <div class="stat-mini-label">Net Worth</div>
-                    <div class="stat-mini-value">₹84.2L</div>
-                    <div class="stat-mini-change">↑ 12.4% YTD</div>
-                </div>
-                <div class="stat-mini-card">
-                    <div class="stat-mini-label">Monthly Savings</div>
-                    <div class="stat-mini-value">₹32K</div>
-                    <div class="stat-mini-change">68% of goal</div>
-                </div>
-            </div>
+<div class="wrap">
+    <a href="/" class="brand-logo-link">
+        <div class="brand-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+            </svg>
         </div>
+        <span class="brand-name">Wealth<em>OS</em></span>
+    </a>
 
-        <div class="brand-footer">© 2025 WealthOS. Built for Indian families.</div>
+    <h1 class="page-title">Create your account</h1>
+    <p class="page-sub">Sign in with your preferred provider — if you don't have an account yet, one will be created automatically.</p>
+
+    <a href="/api/login" class="login-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Get started — sign in
+    </a>
+
+    <div class="provider-list">
+        <span class="provider-badge">Google</span>
+        <span class="provider-badge">GitHub</span>
+        <span class="provider-badge">Apple</span>
+        <span class="provider-badge">Email</span>
     </div>
 
-    <!-- Right — Signup Form -->
-    <div class="auth-form-side">
+    <div class="auth-security">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secured via Replit Auth. No password stored by WealthOS.
+    </div>
 
-        <div class="mobile-logo-bar">
-            <a href="/" class="brand-logo-link">
-                <div class="brand-mark">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                        <polyline points="17 6 23 6 23 12"/>
-                    </svg>
-                </div>
-                <span class="brand-name">Wealth<em>OS</em></span>
-            </a>
-        </div>
-
-        <div class="auth-form-wrap">
-            <div class="auth-form-header">
-                <div class="auth-form-eyebrow">Step 1 of 3</div>
-                <h1 class="auth-form-title">Create your account</h1>
-                <p class="auth-form-sub">Takes about 2 minutes. No credit card needed.</p>
-            </div>
-
-            <div class="step-indicator">
-                <div class="step-pip done"></div>
-                <div class="step-pip"></div>
-                <div class="step-pip"></div>
-            </div>
-
-            <form id="signupForm" class="auth-form" autocomplete="on">
-
-                <!-- Your details -->
-                <div class="form-section">
-                    <div class="form-section-head">Your details</div>
-                    <div class="field-group">
-                        <label class="field-label" for="userName">Your name</label>
-                        <input type="text" id="userName" class="field-input" placeholder="e.g. Rahul" autocomplete="given-name" required>
-                        <div id="userNameError" class="field-error"></div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="email">Email address</label>
-                        <input type="email" id="email" class="field-input" placeholder="you@example.com" autocomplete="email" required>
-                        <div id="emailError" class="field-error"></div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label" for="password">Password</label>
-                        <input type="password" id="password" class="field-input" placeholder="Minimum 8 characters" autocomplete="new-password" required maxlength="128">
-                        <div id="passwordError" class="field-error"></div>
-                        <div class="character-count"><span id="passwordCount">0</span>/128</div>
-                        <div class="password-strength">
-                            <div class="strength-bar-container">
-                                <div id="strengthBar" class="strength-bar"></div>
-                            </div>
-                            <div id="strengthText" class="strength-text"></div>
-                            <div class="password-requirements">
-                                <div id="req-length" class="requirement">8+ characters</div>
-                                <div id="req-uppercase" class="requirement">Uppercase letter</div>
-                                <div id="req-number" class="requirement">Number</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agreement -->
-                <div class="form-section">
-                    <div class="form-section-head">Agreement</div>
-                    <label class="terms-label">
-                        <input type="checkbox" id="agreeTerms" class="terms-check" required>
-                        <span class="terms-text">
-                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. My data will be securely encrypted and stored.
-                        </span>
-                    </label>
-                </div>
-
-                <button type="submit" id="signupBtn" class="auth-submit">Create account &amp; continue →</button>
-            </form>
-
-            <div class="auth-divider">or</div>
-
-            <div class="auth-footer-link">
-                Already have an account? <a href="login.html">Sign in</a>
-            </div>
-        </div>
+    <div class="already-link">
+        Already have an account? <a href="login.html">Sign in</a>
     </div>
 </div>
 
-<script src="/api.js"></script>
-<script src="auth.js"></script>
 <script>
-    if (WealthAPI && WealthAPI.auth.isLoggedIn()) {
-      window.location.href = '/dashboard.html';
-    }
-
-    function calculatePasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (password.length >= 12) strength++;
-        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^a-zA-Z0-9]/.test(password)) strength++;
-        return Math.min(strength, 3);
-    }
-
-    function checkPasswordRequirements(password) {
-        return {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            number: /[0-9]/.test(password)
-        };
-    }
-
-    function isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function addSuccessValidation(input, errorElement) {
-        input.addEventListener('blur', () => {
-            if (input.value.trim() && !input.classList.contains('error')) {
-                input.classList.add('success');
-            } else {
-                input.classList.remove('success');
-            }
-        });
-        input.addEventListener('input', () => {
-            input.classList.remove('error', 'success');
-            if (errorElement) errorElement.classList.remove('show');
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const signupForm = document.getElementById('signupForm');
-        const userNameInput = document.getElementById('userName');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const agreeTermsCheckbox = document.getElementById('agreeTerms');
-        const signupBtn = document.getElementById('signupBtn');
-        const strengthBar = document.getElementById('strengthBar');
-        const strengthText = document.getElementById('strengthText');
-        const passwordCount = document.getElementById('passwordCount');
-        const userNameError = document.getElementById('userNameError');
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-
-        if (passwordInput) {
-            passwordInput.addEventListener('input', () => {
-                const password = passwordInput.value;
-                if (passwordCount) passwordCount.textContent = password.length;
-                const strength = calculatePasswordStrength(password);
-                const requirements = checkPasswordRequirements(password);
-                if (strengthBar) strengthBar.className = 'strength-bar';
-                if (strengthText) strengthText.className = 'strength-text';
-                if (strength >= 3) {
-                    if (strengthBar) strengthBar.classList.add('strong');
-                    if (strengthText) { strengthText.classList.add('strong'); strengthText.innerHTML = '● Strong password'; }
-                } else if (strength >= 2) {
-                    if (strengthBar) strengthBar.classList.add('medium');
-                    if (strengthText) { strengthText.classList.add('medium'); strengthText.innerHTML = '● Medium password'; }
-                } else if (strength >= 1) {
-                    if (strengthBar) strengthBar.classList.add('weak');
-                    if (strengthText) { strengthText.classList.add('weak'); strengthText.innerHTML = '● Weak password'; }
-                } else {
-                    if (strengthText) strengthText.innerHTML = '';
-                }
-                const reqLength = document.getElementById('req-length');
-                const reqUpper = document.getElementById('req-uppercase');
-                const reqNumber = document.getElementById('req-number');
-                if (reqLength) reqLength.classList.toggle('met', requirements.length);
-                if (reqUpper) reqUpper.classList.toggle('met', requirements.uppercase);
-                if (reqNumber) reqNumber.classList.toggle('met', requirements.number);
-                passwordInput.classList.remove('error');
-                if (passwordError) passwordError.classList.remove('show');
-            });
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+        if (res.ok) {
+          window.location.href = '/dashboard.html';
         }
-
-        if (userNameInput && userNameError) addSuccessValidation(userNameInput, userNameError);
-        if (emailInput && emailError) addSuccessValidation(emailInput, emailError);
-
-        if (!signupForm) return;
-
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            [userNameInput, emailInput, passwordInput].filter(Boolean).forEach(i => i.classList.remove('error', 'success'));
-            [userNameError, emailError, passwordError].filter(Boolean).forEach(e => e.classList.remove('show'));
-
-            const userName = userNameInput ? userNameInput.value.trim() : '';
-            const email = emailInput ? emailInput.value.trim() : '';
-            const password = passwordInput ? passwordInput.value : '';
-            const agreeTerms = agreeTermsCheckbox ? agreeTermsCheckbox.checked : false;
-
-            let hasError = false;
-            if (!userName) {
-                if (userNameInput) userNameInput.classList.add('error');
-                if (userNameError) { userNameError.textContent = 'Your name is required'; userNameError.classList.add('show'); }
-                hasError = true;
-            }
-            if (!email) {
-                if (emailInput) emailInput.classList.add('error');
-                if (emailError) { emailError.textContent = 'Email is required'; emailError.classList.add('show'); }
-                hasError = true;
-            } else if (!isValidEmail(email)) {
-                if (emailInput) emailInput.classList.add('error');
-                if (emailError) { emailError.textContent = 'Enter a valid email address'; emailError.classList.add('show'); }
-                hasError = true;
-            }
-            if (!password) {
-                if (passwordInput) passwordInput.classList.add('error');
-                if (passwordError) { passwordError.textContent = 'Password is required'; passwordError.classList.add('show'); }
-                hasError = true;
-            } else if (password.length < 8) {
-                if (passwordInput) passwordInput.classList.add('error');
-                if (passwordError) { passwordError.textContent = 'Password must be at least 8 characters'; passwordError.classList.add('show'); }
-                hasError = true;
-            }
-            if (!agreeTerms) { alert('Please agree to the Terms of Service to continue.'); hasError = true; }
-            if (hasError) return;
-
-            if (signupBtn) { signupBtn.disabled = true; signupBtn.classList.add('loading'); }
-
-            try {
-                await WealthAPI.auth.signup(email, password, '', userName);
-                if (signupBtn) signupBtn.textContent = 'Account created!';
-                setTimeout(() => { window.location.href = '/family-setup.html'; }, 900);
-            } catch (err) {
-                const msg = err.message || 'Signup failed. Please try again.';
-                if (msg.toLowerCase().includes('email')) {
-                    if (emailInput) emailInput.classList.add('error');
-                    if (emailError) { emailError.textContent = msg; emailError.classList.add('show'); }
-                } else if (msg.toLowerCase().includes('password')) {
-                    if (passwordInput) passwordInput.classList.add('error');
-                    if (passwordError) { passwordError.textContent = msg; passwordError.classList.add('show'); }
-                } else {
-                    alert(msg);
-                }
-                if (signupBtn) { signupBtn.disabled = false; signupBtn.classList.remove('loading'); signupBtn.textContent = 'Create account & continue →'; }
-            }
-        });
-    });
+      } catch (e) {}
+    })();
 </script>
 </body>
 </html>

@@ -2529,7 +2529,7 @@ body {
 
         document.addEventListener('DOMContentLoaded', async () => {
             // 1. Auth guard
-            WealthAPI.auth.requireAuth();
+            if (!(await WealthAPI.auth.requireAuth())) return;
 
             // 2. User menu (handled by sidebar.js)
 

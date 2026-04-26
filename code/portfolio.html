@@ -1880,7 +1880,7 @@ body {
 
         // ── Init ───────────────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', async () => {
-            WealthAPI.auth.requireAuth();
+            if (!(await WealthAPI.auth.requireAuth())) return;
 
             updateMonthLabel();
             await loadPageData();

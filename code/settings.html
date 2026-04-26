@@ -1683,7 +1683,7 @@ body {
             try {
                 const res = await fetch(`/api/family/members/${memberId}/resend-invite`, {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('wealthos_jwt') }
+                    credentials: 'same-origin'
                 });
                 const data = await res.json();
                 if (!res.ok) { showToast(data.error || 'Could not resend invite', 'error'); return; }
@@ -1883,7 +1883,7 @@ body {
                 console.error('Error loading family data:', err);
             }
 
-            const user = WealthAPI.auth.getCachedUser();
+            const user = await WealthAPI.auth.getUser();
             if (user) {
                 const emailInput = document.getElementById('profileEmail');
                 if (emailInput) emailInput.value = user.email || '';
@@ -2127,7 +2127,7 @@ body {
         // ── Page Initialisation ───────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', async () => {
             // Auth guard
-            WealthAPI.auth.requireAuth();
+            if (!(await WealthAPI.auth.requireAuth())) return;
 
             // Load all settings sections
             await loadProfileSettings();
@@ -2194,7 +2194,7 @@ body {
             try {
                 const resp = await fetch('/api/import/parse', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '') },
+                    credentials: 'same-origin',
                     body: formData
                 });
                 if (!resp.ok) {
@@ -2362,9 +2362,9 @@ body {
                 const resp = await fetch('/api/import/save', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + (localStorage.getItem('wealthos_jwt') || '')
+                        'Content-Type': 'application/json'
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify(dataToSave)
                 });
                 if (!resp.ok) {

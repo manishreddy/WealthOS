@@ -322,14 +322,13 @@ async function loadMonthlyDetail(fy) {
     const plannedMonthlySavings = plannedMonthlyIncome - plannedMonthlyExpense;
 
     try {
-        const token = localStorage.getItem('wealthos_jwt');
         const months = fyToMonths(fy);
         tbody.innerHTML = '';
         let hasAny = false;
 
         for (let i = 0; i < months.length; i++) {
             const { year, month } = months[i];
-            const res = await fetch(`/api/monthly/${year}/${month}`, { headers: { Authorization: 'Bearer ' + token } });
+            const res = await fetch(`/api/monthly/${year}/${month}`, { credentials: 'same-origin' });
             const members = res.ok ? await res.json() : [];
 
             const totalIncome = members.reduce((s, m) => s + (m.income || 0), 0);
@@ -384,16 +383,13 @@ function buildFYRows(projections, actuals) {
 
 async function loadAll() {
     try {
-        const token = localStorage.getItem('wealthos_jwt');
-        if (!token) { window.location.href = 'login.html'; return; }
-
         // Load projections
-        const projRes = await fetch('/api/projections/yearly', { headers: { Authorization: 'Bearer ' + token } });
+        const projRes = await fetch('/api/projections/yearly', { credentials: 'same-origin' });
         allProjections = projRes.ok ? await projRes.json() : [];
 
         // Load actuals (FY2024 to current FY2026)
         const currentFY = 2026;
-        const actualsRes = await fetch(`/api/projections/actuals?startFY=2024&endFY=${currentFY}`, { headers: { Authorization: 'Bearer ' + token } });
+        const actualsRes = await fetch(`/api/projections/actuals?startFY=2024&endFY=${currentFY}`, { credentials: 'same-origin' });
         allActuals = actualsRes.ok ? await actualsRes.json() : [];
 
         const fyRows = buildFYRows(allProjections, allActuals);
@@ -429,14 +425,12 @@ function toggleTheme() {
     localStorage.setItem('theme', next);
 }
 
-(function() {
+(async function() {
     const theme = localStorage.getItem('wealthos_theme') || localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
-    try {
-    } catch {}
+    if (!(await WealthAPI.auth.requireAuth())) return;
+    loadAll();
 })();
-
-loadAll();
 </script>
 </body>
 </html>

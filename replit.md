@@ -5,7 +5,7 @@ A family financial planning web app built for Indian families.
 ## Tech Stack
 - **Backend**: Node.js + Express (`server/server.js`), PostgreSQL via `pg` Pool (`server/db.js`)
 - **Frontend**: Vanilla HTML/CSS/JS in `code/` directory served as static files
-- **Auth**: JWT-based, token stored in `localStorage` as `wealthos_jwt`
+- **Auth**: Replit Auth (OpenID Connect via passport + openid-client v5), session-based (PostgreSQL-backed sessions)
 - **AI**: Claude API via `/api/wealthbot/chat` endpoint
 - **Port**: 5000
 
@@ -14,7 +14,8 @@ A family financial planning web app built for Indian families.
 - `server/db.js` — PostgreSQL pool (`DATABASE_URL` env var)
 - `code/` — All HTML pages, JS modules, and CSS
 - `code/sidebar.js` — Shared sidebar component injected via `<aside id="sidebar-root"></aside>` on every inner page
-- `code/api.js` — Frontend API client (`WealthAPI` global)
+- `code/api.js` — Frontend API client (`WealthAPI` global, no JWT — uses session cookies)
+- `server/replit_auth.js` — Replit Auth OIDC setup, passport config, session management, user sync
 - `code/design-system.css` — CSS design tokens (no responsive rules)
 - `code/dark-overrides.css` — Dark mode variable overrides
 
@@ -53,12 +54,22 @@ A family financial planning web app built for Indian families.
 
 ## Environment
 - `DATABASE_URL` — PostgreSQL connection string (set in Replit secrets)
-- `JWT_SECRET` — JWT signing secret
+- `SESSION_SECRET` — Express session signing secret (set in Replit secrets)
+- `REPL_ID` — Replit OIDC client ID (runtime-managed, set automatically by Replit)
+- `REPLIT_DEV_DOMAIN` — Dev domain for OIDC redirect URI (runtime-managed)
 - `ANTHROPIC_API_KEY` — Claude API key for WealthBot
+
+## Auth Flow
+- Login: redirect to `/api/login` → Replit OIDC → `/api/auth/callback` → user sync → dashboard
+- Logout: `/api/logout` (destroys session)
+- Session: stored in PostgreSQL `sessions` table via connect-pg-simple
+- User sync: on first Replit login, matches by `replit_user_id`, falls back to email match, then creates new user
+- Family invite: token stored in session before OIDC redirect, completed after return to `/invite.html?from_auth=1`
 
 ## Completed Tasks
 - Task #6: Security vulnerabilities fixed (xlsx → exceljs)
 - Task #7: Login/signup mobile responsive
+- Task #38: Migrated auth to Replit Auth (OpenID Connect) — session-based, Google/GitHub/Apple/email support
 - Task #8: Homepage scroll animations
 - Task #12: Full inner-app mobile responsive (sidebar drawer + all page grids)
 
