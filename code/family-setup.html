@@ -175,13 +175,30 @@
         .add-member-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .add-member-actions { display: flex; gap: 8px; }
 
+        .add-member-btns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+        }
         .btn-add-member {
-            width: 100%; padding: 13px; background: transparent;
+            padding: 13px; background: transparent;
             border: 2px dashed #e5e7eb; border-radius: 10px;
             font-size: 0.9375rem; font-weight: 600; color: #0066ff;
             cursor: pointer; transition: all 0.25s ease; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .btn-add-member:hover { border-color: #0066ff; background: rgba(0,102,255,0.04); }
+        .btn-add-member.invite { color: #7c3aed; }
+        .btn-add-member.invite:hover { border-color: #7c3aed; background: rgba(124,58,237,0.04); }
+
+        .invite-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.75rem; font-weight: 600; color: #7c3aed;
+            background: rgba(124,58,237,0.08); border-radius: 6px;
+            padding: 2px 8px; margin-left: 4px;
+        }
+
+        @media (max-width: 480px) {
+            .add-member-btns { grid-template-columns: 1fr; }
+        }
 
         /* Benefit callout */
         .benefit-box {
@@ -326,7 +343,36 @@
                     </div>
                 </div>
 
-                <button class="btn-add-member" id="showAddMemberBtn" onclick="showAddMemberForm()">+ Add a family member</button>
+                <div class="add-member-form" id="inviteMemberForm">
+                    <div style="font-size:0.8125rem;color:#7c3aed;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                        <span>✉</span> Invite by email
+                    </div>
+                    <div style="font-size:0.8125rem;color:#9ca3af;margin-bottom:12px;">An invite link will be emailed when you save your family setup.</div>
+                    <div class="add-member-row">
+                        <input type="text" class="form-input" id="inviteNameInput" placeholder="Name (e.g. Priya)">
+                        <select class="form-select" id="inviteRelInput">
+                            <option value="">Relationship</option>
+                            <option value="spouse">Spouse / Partner</option>
+                            <option value="child">Child</option>
+                            <option value="parent">Parent</option>
+                            <option value="sibling">Sibling</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <input type="email" class="form-input" id="inviteEmailInput" placeholder="Email address (e.g. priya@email.com)">
+                        <div id="inviteEmailError" style="font-size:0.8125rem;color:#ef4444;margin-top:4px;display:none;"></div>
+                    </div>
+                    <div class="add-member-actions">
+                        <button class="btn btn-primary" style="flex:1;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="confirmInviteMember()">Add member</button>
+                        <button class="btn btn-secondary" style="flex:0 0 auto;padding:10px 16px;" onclick="hideInviteForm()">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="add-member-btns" id="addMemberBtns">
+                    <button class="btn-add-member" id="showAddMemberBtn" onclick="showAddMemberForm()">+ Add manually</button>
+                    <button class="btn-add-member invite" id="showInviteBtn" onclick="showInviteForm()">✉ Invite by email</button>
+                </div>
 
                 <div class="btn-group">
                     <button class="btn btn-secondary" onclick="goToStep('A')">← Back</button>
@@ -401,8 +447,8 @@
             <div class="member-row">
                 <div class="member-avatar">${m.name.charAt(0).toUpperCase()}</div>
                 <div class="member-details">
-                    <div class="member-name">${m.name}</div>
-                    <div class="member-rel">${capitalize(m.relation)}</div>
+                    <div class="member-name">${m.name}${m.email ? '<span class="invite-badge">✉ invited</span>' : ''}</div>
+                    <div class="member-rel">${capitalize(m.relation)}${m.email ? ' · ' + m.email : ''}</div>
                 </div>
                 <button class="btn-remove-member" onclick="removeMember(${i})">Remove</button>
             </div>
@@ -414,16 +460,34 @@
     }
 
     function showAddMemberForm() {
+        hideInviteForm(true);
         document.getElementById('addMemberForm').classList.add('visible');
-        document.getElementById('showAddMemberBtn').style.display = 'none';
+        document.getElementById('addMemberBtns').style.display = 'none';
         document.getElementById('memberNameInput').focus();
     }
 
-    function hideAddMemberForm() {
+    function hideAddMemberForm(silent) {
         document.getElementById('addMemberForm').classList.remove('visible');
-        document.getElementById('showAddMemberBtn').style.display = 'block';
         document.getElementById('memberNameInput').value = '';
         document.getElementById('memberRelInput').value = '';
+        if (!silent) document.getElementById('addMemberBtns').style.display = 'grid';
+    }
+
+    function showInviteForm() {
+        hideAddMemberForm(true);
+        document.getElementById('inviteMemberForm').classList.add('visible');
+        document.getElementById('addMemberBtns').style.display = 'none';
+        document.getElementById('inviteEmailError').style.display = 'none';
+        document.getElementById('inviteNameInput').focus();
+    }
+
+    function hideInviteForm(silent) {
+        document.getElementById('inviteMemberForm').classList.remove('visible');
+        document.getElementById('inviteNameInput').value = '';
+        document.getElementById('inviteRelInput').value = '';
+        document.getElementById('inviteEmailInput').value = '';
+        document.getElementById('inviteEmailError').style.display = 'none';
+        if (!silent) document.getElementById('addMemberBtns').style.display = 'grid';
     }
 
     function confirmAddMember() {
@@ -434,6 +498,21 @@
         pendingMembers.push({ name, relation });
         renderMembers();
         hideAddMemberForm();
+    }
+
+    function confirmInviteMember() {
+        const name = document.getElementById('inviteNameInput').value.trim();
+        const relation = document.getElementById('inviteRelInput').value;
+        const email = document.getElementById('inviteEmailInput').value.trim();
+        const errEl = document.getElementById('inviteEmailError');
+        errEl.style.display = 'none';
+        if (!name) { document.getElementById('inviteNameInput').focus(); return; }
+        if (!relation) { document.getElementById('inviteRelInput').focus(); return; }
+        if (!email) { errEl.textContent = 'Please enter an email address.'; errEl.style.display = 'block'; document.getElementById('inviteEmailInput').focus(); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; document.getElementById('inviteEmailInput').focus(); return; }
+        pendingMembers.push({ name, relation, email });
+        renderMembers();
+        hideInviteForm();
     }
 
     window.removeMember = function(i) {
@@ -463,7 +542,7 @@
 
             for (const m of pendingMembers) {
                 try {
-                    await WealthAPI.family.addMember({ name: m.name, role: m.relation });
+                    await WealthAPI.family.addMember({ name: m.name, role: m.relation, email: m.email || '' });
                 } catch (e) {
                     console.warn('Member add failed:', e.message);
                 }
