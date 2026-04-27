@@ -64,7 +64,7 @@ async function setupAuth(app) {
   passport.use('oidc', new Strategy({ client }, async (tokenSet, userinfo, done) => {
     try {
       const claims = tokenSet.claims();
-      return done(null, { claims });
+      return done(null, { claims, userinfo: userinfo || {} });
     } catch (err) {
       return done(err);
     }
@@ -101,11 +101,13 @@ function registerAuthRoutes(app) {
 
         try {
           const claims = user.claims;
+          const userinfo = user.userinfo || {};
           const replitUserId = claims.sub;
           const email = (claims.email || '').toLowerCase().trim();
           const firstName = claims.first_name || '';
           const lastName = claims.last_name || '';
-          const displayName = [firstName, lastName].filter(Boolean).join(' ') || email || replitUserId;
+          const fullName = userinfo.name || [firstName, lastName].filter(Boolean).join(' ') || null;
+          const displayName = fullName || email || replitUserId;
 
           let appUser = null;
 
@@ -115,6 +117,13 @@ function registerAuthRoutes(app) {
           );
           if (byReplitId.rows.length > 0) {
             appUser = byReplitId.rows[0];
+            if (fullName) {
+              await query(
+                'UPDATE users SET full_name = $1 WHERE id = $2',
+                [fullName, appUser.id]
+              );
+              appUser.full_name = fullName;
+            }
           }
 
           if (!appUser && email) {
@@ -125,9 +134,10 @@ function registerAuthRoutes(app) {
             if (byEmail.rows.length > 0) {
               appUser = byEmail.rows[0];
               await query(
-                'UPDATE users SET replit_user_id = $1 WHERE id = $2',
-                [replitUserId, appUser.id]
+                'UPDATE users SET replit_user_id = $1, full_name = COALESCE(full_name, $2) WHERE id = $3',
+                [replitUserId, fullName || null, appUser.id]
               );
+              if (fullName && !appUser.full_name) appUser.full_name = fullName;
             }
           }
 
@@ -138,11 +148,11 @@ function registerAuthRoutes(app) {
             let newUserId;
             if (existingEmail.rows.length > 0) {
               newUserId = existingEmail.rows[0].id;
-              await query('UPDATE users SET replit_user_id = $1 WHERE id = $2', [replitUserId, newUserId]);
+              await query('UPDATE users SET replit_user_id = $1, full_name = COALESCE(full_name, $2) WHERE id = $3', [replitUserId, fullName || null, newUserId]);
             } else {
               const newUser = await query(
-                'INSERT INTO users (email, password_hash, family_name, replit_user_id) VALUES ($1, $2, $3, $4) RETURNING *',
-                [userEmail, '', familyName, replitUserId]
+                'INSERT INTO users (email, password_hash, family_name, replit_user_id, full_name) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                [userEmail, '', familyName, replitUserId, fullName || null]
               );
               newUserId = newUser.rows[0].id;
             }
@@ -194,13 +204,14 @@ function registerAuthRoutes(app) {
     if (!req.isAuthenticated() || !req.session?.appUserId) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-    query('SELECT id, email, family_name, created_at FROM users WHERE id = $1', [req.session.appUserId])
+    query('SELECT id, email, family_name, full_name, created_at FROM users WHERE id = $1', [req.session.appUserId])
       .then(result => {
         const user = result.rows[0];
         if (!user) return res.status(404).json({ error: 'User not found' });
         return res.json({
           id: user.id,
           email: user.email,
+          name: user.full_name || null,
           familyName: user.family_name,
           createdAt: user.created_at
         });

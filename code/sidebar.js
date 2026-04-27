@@ -642,7 +642,7 @@
       const familyName = user.familyName || '';
       const displayName = familyName && familyName !== 'My Family'
         ? familyName
-        : (user.email || '').split('@')[0];
+        : fullName || (user.email || '').split('@')[0];
       name    = displayName || user.email || '';
       email   = user.email  || '';
       initial = name  ? name.charAt(0).toUpperCase()

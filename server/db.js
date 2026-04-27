@@ -37,6 +37,11 @@ async function initDb() {
 
   await query(`
     ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS full_name TEXT
+  `);
+
+  await query(`
+    ALTER TABLE users
     ALTER COLUMN password_hash SET DEFAULT ''
   `);
 
