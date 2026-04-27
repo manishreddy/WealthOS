@@ -5,6 +5,7 @@ const passport = require('passport');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { pool, query } = require('./db');
+const { sendWelcomeEmail } = require('./email');
 
 function getCallbackUrl() {
   const domain = process.env.REPLIT_DEV_DOMAIN || process.env.REPLIT_DEPLOYMENT_DOMAIN;
@@ -166,6 +167,14 @@ function registerAuthRoutes(app) {
                 [appUser.id, displayName, 'primary', 'moderate', 0]
               ).catch(() => {});
             }
+
+            const appDomain = process.env.REPLIT_DEPLOYMENT_DOMAIN || process.env.REPLIT_DEV_DOMAIN;
+            const baseUrl = appDomain ? `https://${appDomain}` : `http://localhost:${process.env.PORT || 5000}`;
+            sendWelcomeEmail({
+              toEmail: appUser.email,
+              displayName: fullName || displayName || null,
+              baseUrl
+            }).catch(err => console.error('Welcome email error:', err));
           }
 
           const pendingInvite = req.session.pendingInviteToken;
