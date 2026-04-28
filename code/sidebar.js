@@ -55,12 +55,10 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
       transition: background 180ms, border-color 180ms;
       z-index: 100;
     }
-    .wos-sidebar::-webkit-scrollbar { width: 0; }
 
     /* Logo */
     .wos-logo {
@@ -100,7 +98,11 @@
       flex-direction: column;
       flex: 1;
       gap: 1px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
     }
+    .wos-nav::-webkit-scrollbar { width: 0; }
     .wos-nav-divider {
       height: 1px;
       background: var(--sidebar-border, rgba(0,0,0,0.07));
@@ -152,12 +154,13 @@
       text-overflow: ellipsis;
     }
 
-    /* Bottom area */
+    /* Bottom area — always pinned, never pushed off screen */
     .wos-sidebar-bottom {
       margin-top: 16px;
       display: flex;
       flex-direction: column;
       gap: 2px;
+      flex-shrink: 0;
     }
 
 
