@@ -2335,6 +2335,15 @@ body {
             const ttEl = document.getElementById('totalTracked'); if (ttEl) ttEl.textContent = fmtCurrency(income);
 
             updateGauge(investRate, income);
+            updateNoDataBanner(income, expenditure, investments);
+        }
+
+        function updateNoDataBanner(income, expenditure, investments) {
+            const hasData = (income || 0) > 0 || (expenditure || 0) > 0 || (investments || 0) > 0;
+            const banner  = document.getElementById('noDataBanner');
+            const delBtn  = document.getElementById('deleteMonthBtn');
+            if (banner) banner.style.display = hasData ? 'none' : 'block';
+            if (delBtn) delBtn.style.display  = hasData ? ''     : 'none';
         }
 
         function updateGauge(investRate, income) {
