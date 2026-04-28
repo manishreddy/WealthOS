@@ -1147,10 +1147,15 @@ body {
         .qf-section.open .qf-chevron { transform: rotate(180deg); }
         .qf-section-body { display: none; padding: 0 24px 14px; }
         .qf-section.open .qf-section-body { display: block; }
-        .qf-row { display: grid; grid-template-columns: 1fr 120px; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
+        .qf-row { display: grid; grid-template-columns: 1fr 72px 120px; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
         .qf-row:last-child { border-bottom: none; }
+        .qf-row-header { display: grid; grid-template-columns: 1fr 72px 120px; gap: 8px; padding: 4px 0 6px; }
+        .qf-row-header span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+        .qf-row-header span:last-child, .qf-row-header span:nth-child(2) { text-align: center; }
         .qf-name-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; color: var(--text-primary); font-family: var(--font); transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
         .qf-name-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-year-input { padding: 7px 6px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 600; color: #8FE62C; font-family: var(--font); text-align: center; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-year-input:focus { outline: none; border-color: #8FE62C; }
         .qf-amount-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); font-family: var(--font); text-align: right; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
         .qf-amount-input:focus { outline: none; border-color: var(--accent-primary); }
         .qf-overwrite-warn { display: none; align-items: center; gap: 8px; margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(255,149,0,0.1); border: 1px solid rgba(255,149,0,0.3); font-size: 0.8125rem; color: #b45309; }
@@ -2572,12 +2577,16 @@ Rules:
         function renderQfRows() {
             const container = document.getElementById('qfRows_goals');
             if (!container) return;
-            container.innerHTML = QF_GOALS_DATA.map(function(item, idx) {
-                return '<div class="qf-row">' +
-                    '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_goals_' + idx + '">' +
-                    '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN') + '" id="qf_goals_' + idx + '" oninput="_updateQfTotals()">' +
-                    '</div>';
-            }).join('');
+            container.innerHTML =
+                '<div class="qf-row-header"><span>Goal</span><span>Target Year</span><span style="text-align:right;">Amount</span></div>' +
+                QF_GOALS_DATA.map(function(item, idx) {
+                    const year = item.targetDate ? item.targetDate.substring(0, 4) : String(new Date().getFullYear() + 5);
+                    return '<div class="qf-row">' +
+                        '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_goals_' + idx + '">' +
+                        '<input class="qf-year-input" type="number" min="2024" max="2080" value="' + year + '" id="qf_year_goals_' + idx + '">' +
+                        '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN') + '" id="qf_goals_' + idx + '" oninput="_updateQfTotals()">' +
+                        '</div>';
+                }).join('');
             _updateQfTotals();
         }
         function _updateQfTotals() {
@@ -2605,9 +2614,13 @@ Rules:
                     const name         = (nameInp ? nameInp.value.trim() : def.name) || def.name;
                     const targetAmount = amtInp ? _parseQfAmt(amtInp.value) : Math.round(def.amount * _qfMult);
                     const monthlyContribution = Math.round(def.monthlyContribution * _qfMult);
+                    const yearInp  = document.getElementById('qf_year_goals_' + idx);
+                    const yearVal  = yearInp ? (parseInt(yearInp.value, 10) || parseInt(def.targetDate, 10)) : parseInt(def.targetDate, 10);
+                    const defMonth = def.targetDate ? def.targetDate.substring(5, 7) : '03';
+                    const targetDate = yearVal + '-' + defMonth;
                     const payload = {
                         name, goalType: def.goalType, targetAmount, currentAmount: 0, monthlyContribution,
-                        targetDate: def.targetDate, assignedMembers: [], notes: '',
+                        targetDate, assignedMembers: [], notes: '',
                         fundingType: def.fundingType, inflationRate: def.inflationRate,
                         downPaymentPct: def.downPaymentPct || 0, loanDurationYrs: def.loanDurationYrs || 0,
                         loanRoi: def.loanRoi || 8, isMilestone: def.isMilestone, baseYear,
