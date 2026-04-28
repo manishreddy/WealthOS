@@ -2895,8 +2895,7 @@ Rules:
         // ===================================
         // QUICK PRE-FILL
         // ===================================
-        // Defaults at 1×. On apply, main inputs are set from the actual sum
-        // of modal rows so user edits are always reflected in the tracker.
+        // Breakup-level defaults at 1× (exactly as specified).
         const QF_DEFAULTS = {
             income: [
                 { name: 'Salary', amount: 100000 }
@@ -2916,6 +2915,12 @@ Rules:
                 { name: 'PPF',           amount: 5000  }
             ]
         };
+
+        // Display-level main-input defaults at 1× (per spec).
+        // Expenditure main shows ₹60,000 (breakup sums to 59,000 — intentional buffer).
+        // Investments main shows ₹30,000 (breakup sums to 25,000 — intentional buffer).
+        // Scaled by _qfMultiplier on apply.
+        const QF_MAIN_TOTALS = { income: 100000, expenditure: 60000, investments: 30000 };
 
 
         let _qfMultiplier = 1;
@@ -3015,18 +3020,16 @@ Rules:
             _suppressSave = true;
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 const items = [];
-                let mainTotal = 0;
                 QF_DEFAULTS[cat].forEach((def, idx) => {
                     const nameInp = document.getElementById('qf_name_' + cat + '_' + idx);
                     const amtInp  = document.getElementById('qf_' + cat + '_' + idx);
                     const name    = nameInp ? nameInp.value.trim() : def.name;
                     const amount  = amtInp  ? _parseQfAmt(amtInp.value) : 0;
-                    if (name) {
-                        items.push({ name, amount });
-                        mainTotal += amount;
-                    }
+                    if (name) items.push({ name, amount });
                 });
-                // Main input = actual sum of modal rows so user edits are always reflected.
+                // Main input: spec-defined display value (income 1,00,000 / expenditure
+                // 60,000 / investments 30,000 at 1×), scaled by multiplier.
+                const mainTotal = Math.round(QF_MAIN_TOTALS[cat] * _qfMultiplier);
                 document.getElementById(mapKeys[cat]).value = '₹' + mainTotal.toLocaleString('en-IN');
                 renderBreakup(cat, items);
             });
