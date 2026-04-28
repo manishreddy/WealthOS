@@ -2996,11 +2996,20 @@ Rules:
 
         function _updateQfTotals() {
             ['income', 'expenditure', 'investments'].forEach(cat => {
-                let total = 0;
-                QF_DEFAULTS[cat].forEach((_, idx) => {
+                let rowSum = 0;
+                QF_DEFAULTS[cat].forEach((def, idx) => {
                     const inp = document.getElementById('qf_' + cat + '_' + idx);
-                    if (inp) total += _parseQfAmt(inp.value);
+                    if (inp) rowSum += _parseQfAmt(inp.value);
                 });
+                // Expected row sum when rows are still at their default scaled values.
+                const defaultRowSum = QF_DEFAULTS[cat].reduce(
+                    (s, d) => s + Math.round(d.amount * _qfMultiplier), 0
+                );
+                // Per spec: show the buffered display value (QF_MAIN_TOTALS) when rows are
+                // untouched; show actual row sum once the user has edited any amount.
+                const total = (rowSum === defaultRowSum)
+                    ? Math.round(QF_MAIN_TOTALS[cat] * _qfMultiplier)
+                    : rowSum;
                 const fmt = '₹' + total.toLocaleString('en-IN');
                 const badge = document.getElementById('qfTotal_' + cat);
                 if (badge) badge.textContent = fmt;
@@ -3020,16 +3029,25 @@ Rules:
             _suppressSave = true;
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 const items = [];
+                let rowSum = 0;
                 QF_DEFAULTS[cat].forEach((def, idx) => {
                     const nameInp = document.getElementById('qf_name_' + cat + '_' + idx);
                     const amtInp  = document.getElementById('qf_' + cat + '_' + idx);
                     const name    = nameInp ? nameInp.value.trim() : def.name;
                     const amount  = amtInp  ? _parseQfAmt(amtInp.value) : 0;
-                    if (name) items.push({ name, amount });
+                    if (name) {
+                        items.push({ name, amount });
+                        rowSum += amount;
+                    }
                 });
-                // Main input: spec-defined display value (income 1,00,000 / expenditure
-                // 60,000 / investments 30,000 at 1×), scaled by multiplier.
-                const mainTotal = Math.round(QF_MAIN_TOTALS[cat] * _qfMultiplier);
+                // Mirror _updateQfTotals: use buffered display value at defaults,
+                // actual row sum when the user has edited any amount.
+                const defaultRowSum = QF_DEFAULTS[cat].reduce(
+                    (s, d) => s + Math.round(d.amount * _qfMultiplier), 0
+                );
+                const mainTotal = (rowSum === defaultRowSum)
+                    ? Math.round(QF_MAIN_TOTALS[cat] * _qfMultiplier)
+                    : rowSum;
                 document.getElementById(mapKeys[cat]).value = '₹' + mainTotal.toLocaleString('en-IN');
                 renderBreakup(cat, items);
             });
