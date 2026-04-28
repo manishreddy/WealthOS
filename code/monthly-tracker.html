@@ -1377,7 +1377,7 @@ body {
         .qf-multiplier-bar {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
             padding: 16px 24px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -1389,29 +1389,61 @@ body {
             letter-spacing: 0.06em;
             color: var(--text-tertiary);
             white-space: nowrap;
-            margin-right: 4px;
         }
-        .qf-mult-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-        .qf-mult-pill {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            font-family: var(--font);
-            border: 1.5px solid var(--border-color);
-            background: transparent;
-            color: var(--text-secondary);
+        .qf-salary-slider-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .qf-salary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .qf-salary-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #8FE62C;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.01em;
+        }
+        .qf-salary-ends {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+        }
+        .qf-salary-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            outline: none;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
-        .qf-mult-pill:hover {
-            border-color: #8FE62C;
-            color: var(--text-primary);
-        }
-        .qf-mult-pill.active {
+        .qf-salary-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
             background: #8FE62C;
-            border-color: #8FE62C;
-            color: #111111;
+            cursor: pointer;
+            border: 2.5px solid #111111;
+            box-shadow: 0 0 0 3px rgba(143,230,44,0.18);
+            transition: box-shadow 0.15s;
+        }
+        .qf-salary-range::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 0 5px rgba(143,230,44,0.28);
+        }
+        .qf-salary-range::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #8FE62C;
+            cursor: pointer;
+            border: 2.5px solid #111111;
         }
         .qf-sections { padding: 8px 0; }
         .qf-section {
@@ -2921,7 +2953,7 @@ Rules:
         // Investments main shows ₹30,000 (breakup sums to 25,000 — intentional buffer).
         // Scaled by _qfMultiplier on apply.
         const QF_MAIN_TOTALS = { income: 100000, expenditure: 60000, investments: 30000 };
-
+        const QF_BASE_SALARY  = 100000;
 
         let _qfMultiplier = 1;
 
@@ -2939,9 +2971,10 @@ Rules:
             if (warn) warn.style.display = hasData ? 'flex' : 'none';
 
             _qfMultiplier = 1;
-            document.querySelectorAll('.qf-mult-pill').forEach(p => {
-                p.classList.toggle('active', parseFloat(p.dataset.mult) === 1);
-            });
+            const slider = document.getElementById('qfSalarySlider');
+            if (slider) slider.value = QF_BASE_SALARY;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + QF_BASE_SALARY.toLocaleString('en-IN');
 
             ['income', 'expenditure', 'investments'].forEach(sec => {
                 const el = document.getElementById('qfSec_' + sec);
@@ -2961,15 +2994,16 @@ Rules:
             if (el) el.classList.toggle('open');
         }
 
-        function qfSetMultiplier(x) {
-            _qfMultiplier = x;
-            document.querySelectorAll('.qf-mult-pill').forEach(p => {
-                p.classList.toggle('active', parseFloat(p.dataset.mult) === x);
-            });
+        function qfSetSalary(val) {
+            const salary = parseInt(val, 10) || QF_BASE_SALARY;
+            _qfMultiplier = salary / QF_BASE_SALARY;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + salary.toLocaleString('en-IN');
+            // Update all row inputs proportionally from their 1× base amounts.
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 QF_DEFAULTS[cat].forEach((item, idx) => {
                     const inp = document.getElementById('qf_' + cat + '_' + idx);
-                    if (inp) inp.value = '₹' + Math.round(item.amount * x).toLocaleString('en-IN');
+                    if (inp) inp.value = '₹' + Math.round(item.amount * _qfMultiplier).toLocaleString('en-IN');
                 });
             });
             _updateQfTotals();
@@ -3073,16 +3107,19 @@ Rules:
             </div>
 
             <div class="qf-modal-body">
-                <!-- Multiplier bar -->
+                <!-- Salary slider -->
                 <div class="qf-multiplier-bar">
-                    <span class="qf-mult-label">Scale</span>
-                    <div class="qf-mult-pills">
-                        <button class="qf-mult-pill active" data-mult="1"   onclick="qfSetMultiplier(1)">1×</button>
-                        <button class="qf-mult-pill"        data-mult="1.5" onclick="qfSetMultiplier(1.5)">1.5×</button>
-                        <button class="qf-mult-pill"        data-mult="2"   onclick="qfSetMultiplier(2)">2×</button>
-                        <button class="qf-mult-pill"        data-mult="3"   onclick="qfSetMultiplier(3)">3×</button>
+                    <span class="qf-mult-label">Salary</span>
+                    <div class="qf-salary-slider-wrap">
+                        <div class="qf-salary-row">
+                            <span class="qf-salary-ends">₹25,000</span>
+                            <span class="qf-salary-value" id="qfSalaryDisplay">₹1,00,000</span>
+                            <span class="qf-salary-ends">₹5,00,000</span>
+                        </div>
+                        <input class="qf-salary-range" type="range" id="qfSalarySlider"
+                               min="25000" max="500000" step="5000" value="100000"
+                               oninput="qfSetSalary(this.value)">
                     </div>
-                    <span style="font-size:0.72rem;color:var(--text-tertiary);margin-left:auto;">Medium ≈ 2×, High ≈ 3×</span>
                 </div>
 
                 <!-- Overwrite warning -->
