@@ -2915,6 +2915,11 @@ Rules:
             ]
         };
 
+        // Buffered main-input totals at 1× (may exceed exact breakup sum).
+        // Expenditure: breakup = 59,000 → display 60,000 (rounded buffer).
+        // Investments: breakup = 25,000 → display 30,000 (savings buffer).
+        const QF_MAIN_TOTALS = { income: 100000, expenditure: 60000, investments: 30000 };
+
         let _qfMultiplier = 1;
 
         function openQuickFill() {
@@ -3012,18 +3017,17 @@ Rules:
             _suppressSave = true;
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 const items = [];
-                let total = 0;
                 QF_DEFAULTS[cat].forEach((def, idx) => {
                     const nameInp = document.getElementById('qf_name_' + cat + '_' + idx);
                     const amtInp  = document.getElementById('qf_' + cat + '_' + idx);
                     const name    = nameInp ? nameInp.value.trim() : def.name;
                     const amount  = amtInp  ? _parseQfAmt(amtInp.value) : 0;
-                    if (name) {
-                        items.push({ name, amount });
-                        total += amount;
-                    }
+                    if (name) items.push({ name, amount });
                 });
-                document.getElementById(mapKeys[cat]).value = '₹' + total.toLocaleString('en-IN');
+
+                // Use the buffered/rounded main total (may exceed breakup sum intentionally).
+                const mainTotal = Math.round((QF_MAIN_TOTALS[cat] || 0) * _qfMultiplier);
+                document.getElementById(mapKeys[cat]).value = '₹' + mainTotal.toLocaleString('en-IN');
                 renderBreakup(cat, items);
             });
             _suppressSave = false;
