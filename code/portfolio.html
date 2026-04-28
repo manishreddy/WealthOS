@@ -1236,6 +1236,52 @@ body {
             font-family: var(--font);
         }
         .p-modal-overlay.open { display: flex; }
+
+        /* ── Quick Fill ── */
+        .qf-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:1100; display:none; align-items:center; justify-content:center; padding:20px; font-family:var(--font); }
+        .qf-box { background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:20px; width:90%; max-width:520px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.4); overflow:hidden; }
+        .qf-hdr { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--border-color); flex-shrink:0; }
+        .qf-title { font-size:1.0625rem; font-weight:700; color:var(--text-primary); }
+        .qf-close-btn { width:30px; height:30px; border-radius:8px; border:1px solid var(--border-color); background:transparent; color:var(--text-tertiary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+        .qf-close-btn:hover { background:var(--hover-bg); color:var(--text-primary); }
+        .qf-body { overflow-y:auto; flex:1; }
+        .qf-slider-bar { display:flex; align-items:center; gap:14px; padding:16px 24px; background:var(--bg-secondary); border-bottom:1px solid var(--border-color); }
+        .qf-slider-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-tertiary); white-space:nowrap; }
+        .qf-slider-wrap { flex:1; display:flex; flex-direction:column; gap:7px; }
+        .qf-slider-row { display:flex; align-items:center; justify-content:space-between; }
+        .qf-slider-val { font-size:1rem; font-weight:700; color:#8FE62C; font-variant-numeric:tabular-nums; }
+        .qf-slider-end { font-size:0.7rem; color:var(--text-tertiary); }
+        .qf-slider-inp { -webkit-appearance:none; appearance:none; width:100%; height:4px; background:var(--border-color); border-radius:2px; outline:none; cursor:pointer; }
+        .qf-slider-inp::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#8FE62C; cursor:pointer; border:2.5px solid var(--bg); box-shadow:0 0 0 3px rgba(143,230,44,0.2); }
+        .qf-slider-inp::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#8FE62C; cursor:pointer; border:2.5px solid var(--bg); }
+        .qf-warn { display:none; align-items:center; gap:8px; margin:12px 24px 0; padding:10px 14px; border-radius:10px; background:rgba(255,149,0,0.1); border:1px solid rgba(255,149,0,0.3); font-size:0.8125rem; color:#b45309; }
+        [data-theme="dark"] .qf-warn { color:#fbbf24; }
+        .qf-sections { padding:8px 0; }
+        .qf-section { border-bottom:1px solid var(--border-color); }
+        .qf-section-hdr { display:flex; justify-content:space-between; align-items:center; padding:14px 24px; cursor:pointer; user-select:none; }
+        .qf-section-hdr:hover { background:var(--hover-bg); }
+        .qf-section-title { font-size:0.875rem; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+        .qf-section-badge { font-size:0.75rem; font-weight:700; color:var(--text-tertiary); background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:20px; padding:2px 10px; }
+        .qf-chevron { font-size:0.75rem; color:var(--text-tertiary); transition:transform 0.2s; }
+        .qf-section.open .qf-chevron { transform:rotate(180deg); }
+        .qf-section-body { display:none; padding:0 24px 14px; }
+        .qf-section.open .qf-section-body { display:block; }
+        .qf-row { display:grid; grid-template-columns:1fr 120px; gap:8px; align-items:center; padding:5px 0; border-bottom:1px solid var(--border-color); }
+        .qf-row:last-child { border-bottom:none; }
+        .qf-name-inp { padding:7px 10px; border-radius:7px; border:1px solid var(--border-color); background:var(--bg-secondary); font-size:0.8125rem; color:var(--text-primary); font-family:var(--font); width:100%; box-sizing:border-box; }
+        .qf-name-inp:focus { outline:none; border-color:#8FE62C; }
+        .qf-amt-inp { padding:7px 10px; border-radius:7px; border:1px solid var(--border-color); background:var(--bg-secondary); font-size:0.8125rem; font-weight:700; color:var(--text-primary); font-family:var(--font); text-align:right; width:100%; box-sizing:border-box; }
+        .qf-amt-inp:focus { outline:none; border-color:#8FE62C; }
+        .qf-footer { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 24px; border-top:1px solid var(--border-color); background:var(--bg-secondary); }
+        .qf-ft-item { text-align:center; }
+        .qf-ft-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-tertiary); margin-bottom:3px; }
+        .qf-ft-val { font-size:0.9375rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+        .qf-foot { display:flex; gap:10px; justify-content:flex-end; align-items:center; padding:16px 24px; border-top:1px solid var(--border-color); flex-shrink:0; }
+        .qf-apply-btn { padding:10px 22px; border-radius:10px; font-size:0.875rem; font-weight:700; font-family:var(--font); background:#8FE62C; color:#111; border:none; cursor:pointer; transition:opacity 0.15s; }
+        .qf-apply-btn:hover { opacity:0.88; }
+        .qf-apply-btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .qf-toast { position:fixed; bottom:28px; right:28px; padding:12px 18px; border-radius:12px; font-size:0.875rem; font-weight:600; font-family:var(--font); color:#111; z-index:9999; pointer-events:none; opacity:1; transition:opacity 0.4s; }
+
         .p-modal {
             background: var(--bg-elevated);
             border: 1px solid var(--border-color);
@@ -1411,6 +1457,7 @@ body {
             <div class="page-header">
                 <h1 class="page-title">Portfolio</h1>
                 <div class="filter-controls">
+                    <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with sample Indian portfolio">⚡ Quick Fill</button>
                     <button class="action-btn secondary" onclick="openPortfolioImport()">Import via AI</button>
                     <button class="action-btn secondary" onclick="openZerodhaUpload()">Upload Holdings</button>
                     <input type="file" id="zerodhaFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="onZerodhaFileSelected(event)">
@@ -2698,5 +2745,226 @@ Rules:
     </script>
     <script src="/js/ai-import.js"></script>
     <script src="sidebar.js"></script>
+
+    <!-- ⚡ Quick Fill Modal -->
+    <div class="qf-overlay" id="qfOverlay" onclick="if(event.target===this)closeQuickFill()">
+        <div class="qf-box">
+            <div class="qf-hdr">
+                <span class="qf-title">⚡ Quick Fill — Sample Portfolio</span>
+                <button class="qf-close-btn" onclick="closeQuickFill()">×</button>
+            </div>
+            <div class="qf-body">
+                <div class="qf-slider-bar">
+                    <span class="qf-slider-label">Portfolio Value</span>
+                    <div class="qf-slider-wrap">
+                        <div class="qf-slider-row">
+                            <span class="qf-slider-end">₹1L</span>
+                            <span class="qf-slider-val" id="qfPortfolioDisplay">₹10,00,000</span>
+                            <span class="qf-slider-end">₹2Cr</span>
+                        </div>
+                        <input class="qf-slider-inp" type="range" id="qfPortfolioSlider"
+                               min="100000" max="20000000" step="100000" value="1000000"
+                               oninput="qfSetPortfolioValue(this.value)">
+                    </div>
+                </div>
+                <div class="qf-warn" id="qfOverwriteWarn">
+                    <span>⚠️</span>
+                    <span>You already have assets. Sample assets will be added alongside them.</span>
+                </div>
+                <div class="qf-sections">
+                    <div class="qf-section open" id="qfSec_equity">
+                        <div class="qf-section-hdr" onclick="qfToggleSec('equity')">
+                            <div class="qf-section-title"><span>📈</span> Equity</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-badge" id="qfTotal_equity">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body"><div id="qfRows_equity"></div></div>
+                    </div>
+                    <div class="qf-section open" id="qfSec_debt">
+                        <div class="qf-section-hdr" onclick="qfToggleSec('debt')">
+                            <div class="qf-section-title"><span>🏦</span> Debt</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-badge" id="qfTotal_debt">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body"><div id="qfRows_debt"></div></div>
+                    </div>
+                    <div class="qf-section open" id="qfSec_others">
+                        <div class="qf-section-hdr" onclick="qfToggleSec('others')">
+                            <div class="qf-section-title"><span>🪙</span> Others</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-badge" id="qfTotal_others">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body"><div id="qfRows_others"></div></div>
+                    </div>
+                </div>
+                <div class="qf-footer">
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Equity</div>
+                        <div class="qf-ft-val" id="qfFt_equity">—</div>
+                    </div>
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Debt</div>
+                        <div class="qf-ft-val" id="qfFt_debt">—</div>
+                    </div>
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Others</div>
+                        <div class="qf-ft-val" id="qfFt_others">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="qf-foot">
+                <button class="action-btn secondary" onclick="closeQuickFill()">Cancel</button>
+                <button class="qf-apply-btn" id="btnQfApply" onclick="applyQuickFill()">Apply Portfolio ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Quick Fill ──────────────────────────────────────────────────────────────
+        const QF_BASE_PV = 1000000;
+        let _qfPVMult = 1;
+        const QF_PF_SECTIONS = [
+            {
+                key: 'equity', items: [
+                    { name: 'Nifty 50 Index ETF',        assetType: 'MutualFund', assetClass: 'Equity', value: 200000 },
+                    { name: 'HDFC Mid Cap Opportunities', assetType: 'MutualFund', assetClass: 'Equity', value: 150000 },
+                    { name: 'Axis Small Cap Fund',        assetType: 'MutualFund', assetClass: 'Equity', value: 75000  },
+                ]
+            },
+            {
+                key: 'debt', items: [
+                    { name: 'SBI Fixed Deposit', assetType: 'FD',  assetClass: 'Debt', value: 200000 },
+                    { name: 'PPF Account',        assetType: 'PPF', assetClass: 'Debt', value: 150000 },
+                ]
+            },
+            {
+                key: 'others', items: [
+                    { name: 'Sovereign Gold Bond', assetType: 'Gold',  assetClass: 'Gold',   value: 50000  },
+                    { name: 'Cash & Savings',       assetType: 'Other', assetClass: 'Hybrid', value: 100000 },
+                ]
+            },
+        ];
+
+        function openQuickFill() {
+            const totalExisting = allPortfolioData.reduce((s, mp) => s + (mp.assets || []).length, 0);
+            const warn = document.getElementById('qfOverwriteWarn');
+            if (warn) warn.style.display = totalExisting > 0 ? 'flex' : 'none';
+            _qfPVMult = 1;
+            const slider = document.getElementById('qfPortfolioSlider');
+            if (slider) slider.value = QF_BASE_PV;
+            const disp = document.getElementById('qfPortfolioDisplay');
+            if (disp) disp.textContent = '₹' + QF_BASE_PV.toLocaleString('en-IN');
+            QF_PF_SECTIONS.forEach(function(sec) {
+                const el = document.getElementById('qfSec_' + sec.key);
+                if (el) el.classList.add('open');
+            });
+            renderQfPfRows();
+            document.getElementById('qfOverlay').style.display = 'flex';
+        }
+        function closeQuickFill() { document.getElementById('qfOverlay').style.display = 'none'; }
+        function qfToggleSec(key) { const el = document.getElementById('qfSec_' + key); if (el) el.classList.toggle('open'); }
+        function qfSetPortfolioValue(val) {
+            const v = parseInt(val, 10) || QF_BASE_PV;
+            _qfPVMult = v / QF_BASE_PV;
+            const disp = document.getElementById('qfPortfolioDisplay');
+            if (disp) disp.textContent = '₹' + v.toLocaleString('en-IN');
+            QF_PF_SECTIONS.forEach(function(sec) {
+                sec.items.forEach(function(item, idx) {
+                    const inp = document.getElementById('qf_' + sec.key + '_' + idx);
+                    if (inp) inp.value = '₹' + Math.round(item.value * _qfPVMult).toLocaleString('en-IN');
+                });
+            });
+            _qfPfUpdateTotals();
+        }
+        function _qfParseAmt(val) { return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0; }
+        function renderQfPfRows() {
+            QF_PF_SECTIONS.forEach(function(sec) {
+                const container = document.getElementById('qfRows_' + sec.key);
+                if (!container) return;
+                container.innerHTML = sec.items.map(function(item, idx) {
+                    return '<div class="qf-row">' +
+                        '<input class="qf-name-inp" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_' + sec.key + '_' + idx + '">' +
+                        '<input class="qf-amt-inp" type="text" value="₹' + Math.round(item.value * _qfPVMult).toLocaleString('en-IN') + '" id="qf_' + sec.key + '_' + idx + '" oninput="_qfPfUpdateTotals()">' +
+                        '</div>';
+                }).join('');
+            });
+            _qfPfUpdateTotals();
+        }
+        function _qfPfUpdateTotals() {
+            QF_PF_SECTIONS.forEach(function(sec) {
+                let total = 0;
+                sec.items.forEach(function(item, idx) {
+                    const inp = document.getElementById('qf_' + sec.key + '_' + idx);
+                    if (inp) total += _qfParseAmt(inp.value);
+                });
+                const fmt = '₹' + total.toLocaleString('en-IN');
+                const badge = document.getElementById('qfTotal_' + sec.key);
+                if (badge) badge.textContent = fmt;
+                const ft = document.getElementById('qfFt_' + sec.key);
+                if (ft) ft.textContent = fmt;
+            });
+        }
+        async function applyQuickFill() {
+            const btn = document.getElementById('btnQfApply');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+            const memberId = (currentMemberFilter && currentMemberFilter !== 'all')
+                ? currentMemberFilter
+                : (allMembers.length > 0 ? allMembers[0].id : null);
+            if (!memberId) {
+                alert('No family member found. Please add a member first.');
+                if (btn) { btn.disabled = false; btn.textContent = 'Apply Portfolio ✓'; }
+                return;
+            }
+            let saved = 0;
+            try {
+                for (const sec of QF_PF_SECTIONS) {
+                    for (let idx = 0; idx < sec.items.length; idx++) {
+                        const def = sec.items[idx];
+                        const nameInp = document.getElementById('qf_name_' + sec.key + '_' + idx);
+                        const amtInp  = document.getElementById('qf_' + sec.key + '_' + idx);
+                        const name    = (nameInp ? nameInp.value.trim() : def.name) || def.name;
+                        const cv      = amtInp ? _qfParseAmt(amtInp.value) : Math.round(def.value * _qfPVMult);
+                        if (cv <= 0) continue;
+                        await WealthAPI.portfolio.add(memberId, {
+                            assetType: def.assetType,
+                            name,
+                            assetClass: def.assetClass,
+                            purchaseValue: cv,
+                            currentValue: cv,
+                            year: currentYear,
+                            month: currentMonth,
+                        });
+                        saved++;
+                    }
+                }
+                closeQuickFill();
+                await loadPageData();
+                _qfShowToast('Quick Fill applied — ' + saved + ' assets added ✓');
+            } catch (err) {
+                console.error('Quick Fill failed:', err);
+                _qfShowToast('Quick Fill failed: ' + (err.message || err), true);
+                if (btn) { btn.disabled = false; btn.textContent = 'Apply Portfolio ✓'; }
+            }
+        }
+        function _qfShowToast(msg, isError) {
+            const t = document.createElement('div');
+            t.className = 'qf-toast';
+            t.textContent = msg;
+            t.style.background = isError ? '#ef4444' : '#8FE62C';
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2800);
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('qfOverlay').style.display !== 'none') {
+                closeQuickFill();
+            }
+        });
+    </script>
 </body>
 </html>
