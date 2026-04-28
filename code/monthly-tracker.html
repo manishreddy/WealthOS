@@ -1361,6 +1361,201 @@ body {
             .mss-item:last-child { border-bottom: none; }
             .mss-sub { display: none; }
         }
+
+        /* ── Quick Pre-fill Modal ─────────────────────────── */
+        .qf-modal-content {
+            max-width: 520px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .qf-modal-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .qf-multiplier-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .qf-mult-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+            margin-right: 4px;
+        }
+        .qf-mult-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+        .qf-mult-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            font-family: var(--font);
+            border: 1.5px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .qf-mult-pill:hover {
+            border-color: #8FE62C;
+            color: var(--text-primary);
+        }
+        .qf-mult-pill.active {
+            background: #8FE62C;
+            border-color: #8FE62C;
+            color: #111111;
+        }
+        .qf-sections { padding: 8px 0; }
+        .qf-section {
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .qf-section:last-child { border-bottom: none; }
+        .qf-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.12s ease;
+        }
+        .qf-section-header:hover { background: var(--hover-bg); }
+        .qf-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .qf-section-title-icon { font-size: 1rem; }
+        .qf-section-total-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            font-family: var(--font);
+        }
+        .qf-chevron {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            transition: transform 0.2s ease;
+        }
+        .qf-section.open .qf-chevron { transform: rotate(180deg); }
+        .qf-section-body {
+            display: none;
+            padding: 0 24px 14px;
+        }
+        .qf-section.open .qf-section-body { display: block; }
+        .qf-row {
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            gap: 8px;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .qf-row:last-child { border-bottom: none; }
+        .qf-name-input {
+            padding: 7px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            font-family: var(--font);
+            transition: border-color 0.15s;
+        }
+        .qf-name-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-amount-input {
+            padding: 7px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font);
+            text-align: right;
+            transition: border-color 0.15s;
+        }
+        .qf-amount-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-section-subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 7px 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .qf-section-subtotal-label { color: var(--text-secondary); }
+        .qf-section-subtotal-value { color: var(--text-primary); font-family: var(--font); }
+        .qf-overwrite-warn {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 24px 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,149,0,0.1);
+            border: 1px solid rgba(255,149,0,0.3);
+            font-size: 0.8125rem;
+            color: #b45309;
+        }
+        [data-theme="dark"] .qf-overwrite-warn { color: #fbbf24; }
+        .qf-footer-totals {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 14px 24px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+        .qf-ft-item { text-align: center; }
+        .qf-ft-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-tertiary);
+            margin-bottom: 3px;
+        }
+        .qf-ft-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            font-family: var(--font);
+            color: var(--text-primary);
+        }
+        .btn-qf-apply {
+            padding: 9px 22px;
+            border-radius: 10px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: #8FE62C;
+            color: #111111;
+            font-family: var(--font);
+            transition: all 0.15s ease;
+            letter-spacing: -0.01em;
+        }
+        .btn-qf-apply:hover { opacity: 0.88; transform: translateY(-1px); }
+        @media (max-width: 520px) {
+            .qf-modal-content { max-width: 98vw; }
+            .qf-multiplier-bar { flex-wrap: wrap; }
+            .qf-footer-totals { grid-template-columns: 1fr; gap: 6px; }
+            .qf-ft-item { display: flex; justify-content: space-between; align-items: center; }
+        }
     </style>
     <link rel="stylesheet" href="controls.css">
 </head>
@@ -1398,6 +1593,7 @@ body {
                 </div>
                 <div class="page-btns">
                     <button class="action-btn secondary" id="copyLastMonthBtn" style="display:none" onclick="copyFromLastMonth()">Copy Last Month</button>
+                    <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with example values">⚡ Quick Fill</button>
                     <button class="action-btn secondary" onclick="openMonthlyImport()">AI Import</button>
                     <button class="action-btn danger" id="deleteMonthBtn" style="display:none" onclick="deleteMonthData()" title="Delete month data">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg>
@@ -2676,8 +2872,276 @@ Rules:
             }
             _monthlyImporter.open();
         }
+
+        // ===================================
+        // TOAST (local helper)
+        // ===================================
+        function showToast(msg, isError) {
+            let el = document.getElementById('wosToastMsg');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'wosToastMsg';
+                el.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:10px;font-size:0.875rem;font-weight:600;font-family:var(--font);z-index:99999;pointer-events:none;transition:opacity 0.3s;';
+                document.body.appendChild(el);
+            }
+            el.textContent = msg;
+            el.style.background = isError ? '#ef4444' : '#8FE62C';
+            el.style.color = isError ? '#fff' : '#111';
+            el.style.opacity = '1';
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => { el.style.opacity = '0'; }, 2800);
+        }
+
+        // ===================================
+        // QUICK PRE-FILL
+        // ===================================
+        const QF_DEFAULTS = {
+            income: [
+                { name: 'Salary', amount: 100000 }
+            ],
+            expenditure: [
+                { name: 'Rent',          amount: 30000 },
+                { name: 'Groceries',     amount: 15000 },
+                { name: 'Utilities',     amount: 5000  },
+                { name: 'Transport',     amount: 3000  },
+                { name: 'Shopping',      amount: 2000  },
+                { name: 'Maid',          amount: 2000  },
+                { name: 'Entertainment', amount: 2000  }
+            ],
+            investments: [
+                { name: 'Fixed Deposit', amount: 10000 },
+                { name: 'Mutual Funds',  amount: 10000 },
+                { name: 'PPF',           amount: 5000  }
+            ]
+        };
+
+        let _qfMultiplier = 1;
+
+        function openQuickFill() {
+            if (currentMemberId === null) {
+                alert('Switch to an individual member tab to use Quick Fill.');
+                return;
+            }
+            const hasData =
+                parseCurrency(document.getElementById('incomeInput').value) > 0 ||
+                parseCurrency(document.getElementById('expenditureInput').value) > 0 ||
+                parseCurrency(document.getElementById('investmentsInput').value) > 0;
+
+            const warn = document.getElementById('qfOverwriteWarn');
+            if (warn) warn.style.display = hasData ? 'flex' : 'none';
+
+            _qfMultiplier = 1;
+            document.querySelectorAll('.qf-mult-pill').forEach(p => {
+                p.classList.toggle('active', parseFloat(p.dataset.mult) === 1);
+            });
+
+            ['income', 'expenditure', 'investments'].forEach(sec => {
+                const el = document.getElementById('qfSec_' + sec);
+                if (el) el.classList.add('open');
+            });
+
+            renderQfRows();
+            document.getElementById('qfOverlay').style.display = 'flex';
+        }
+
+        function closeQuickFill() {
+            document.getElementById('qfOverlay').style.display = 'none';
+        }
+
+        function qfToggleSection(cat) {
+            const el = document.getElementById('qfSec_' + cat);
+            if (el) el.classList.toggle('open');
+        }
+
+        function qfSetMultiplier(x) {
+            _qfMultiplier = x;
+            document.querySelectorAll('.qf-mult-pill').forEach(p => {
+                p.classList.toggle('active', parseFloat(p.dataset.mult) === x);
+            });
+            ['income', 'expenditure', 'investments'].forEach(cat => {
+                QF_DEFAULTS[cat].forEach((item, idx) => {
+                    const inp = document.getElementById('qf_' + cat + '_' + idx);
+                    if (inp) inp.value = '₹' + Math.round(item.amount * x).toLocaleString('en-IN');
+                });
+            });
+            _updateQfTotals();
+        }
+
+        function renderQfRows() {
+            ['income', 'expenditure', 'investments'].forEach(cat => {
+                const container = document.getElementById('qfRows_' + cat);
+                if (!container) return;
+                container.innerHTML = QF_DEFAULTS[cat].map((item, idx) =>
+                    '<div class="qf-row">' +
+                    '<input class="qf-name-input" type="text" value="' + escapeHtml(item.name) + '" id="qf_name_' + cat + '_' + idx + '">' +
+                    '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMultiplier).toLocaleString('en-IN') + '"' +
+                    ' id="qf_' + cat + '_' + idx + '" oninput="_updateQfTotals()">' +
+                    '</div>'
+                ).join('');
+            });
+            _updateQfTotals();
+        }
+
+        function _parseQfAmt(val) {
+            return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0;
+        }
+
+        function _updateQfTotals() {
+            ['income', 'expenditure', 'investments'].forEach(cat => {
+                let total = 0;
+                QF_DEFAULTS[cat].forEach((_, idx) => {
+                    const inp = document.getElementById('qf_' + cat + '_' + idx);
+                    if (inp) total += _parseQfAmt(inp.value);
+                });
+                const fmt = '₹' + total.toLocaleString('en-IN');
+                const badge = document.getElementById('qfTotal_' + cat);
+                if (badge) badge.textContent = fmt;
+                const ft = document.getElementById('qfFt' + cat.charAt(0).toUpperCase() + cat.slice(1));
+                if (ft) ft.textContent = fmt;
+            });
+        }
+
+        function applyQuickFill() {
+            if (currentMemberId === null) {
+                alert('Switch to an individual member tab to use Quick Fill.');
+                return;
+            }
+
+            const mapKeys = { income: 'incomeInput', expenditure: 'expenditureInput', investments: 'investmentsInput' };
+
+            _suppressSave = true;
+            ['income', 'expenditure', 'investments'].forEach(cat => {
+                const items = [];
+                let total = 0;
+                QF_DEFAULTS[cat].forEach((def, idx) => {
+                    const nameInp = document.getElementById('qf_name_' + cat + '_' + idx);
+                    const amtInp  = document.getElementById('qf_' + cat + '_' + idx);
+                    const name    = nameInp ? nameInp.value.trim() : def.name;
+                    const amount  = amtInp  ? _parseQfAmt(amtInp.value) : 0;
+                    if (name) {
+                        items.push({ name, amount });
+                        total += amount;
+                    }
+                });
+                document.getElementById(mapKeys[cat]).value = '₹' + total.toLocaleString('en-IN');
+                renderBreakup(cat, items);
+            });
+            _suppressSave = false;
+
+            calculateNet();
+            ['income', 'expenditure', 'investments'].forEach(cat => scheduleBreakupSave(cat));
+            scheduleFieldSave();
+
+            closeQuickFill();
+            showToast('Quick Fill applied ✓');
+        }
     </script>
     <script src="/js/ai-import.js"></script>
     <script src="sidebar.js"></script>
+
+    <!-- ── Quick Pre-fill Modal ─────────────────────────────────── -->
+    <div class="modal-overlay" id="qfOverlay" style="display:none" onclick="if(event.target===this)closeQuickFill()">
+        <div class="modal-content qf-modal-content">
+            <div class="modal-header">
+                <span class="modal-title">⚡ Quick Fill</span>
+                <button class="modal-close" onclick="closeQuickFill()">×</button>
+            </div>
+
+            <div class="qf-modal-body">
+                <!-- Multiplier bar -->
+                <div class="qf-multiplier-bar">
+                    <span class="qf-mult-label">Scale</span>
+                    <div class="qf-mult-pills">
+                        <button class="qf-mult-pill active" data-mult="1"   onclick="qfSetMultiplier(1)">1×</button>
+                        <button class="qf-mult-pill"        data-mult="1.5" onclick="qfSetMultiplier(1.5)">1.5×</button>
+                        <button class="qf-mult-pill"        data-mult="2"   onclick="qfSetMultiplier(2)">2×</button>
+                        <button class="qf-mult-pill"        data-mult="3"   onclick="qfSetMultiplier(3)">3×</button>
+                    </div>
+                    <span style="font-size:0.72rem;color:var(--text-tertiary);margin-left:auto;">Medium ≈ 2×, High ≈ 3×</span>
+                </div>
+
+                <!-- Overwrite warning -->
+                <div class="qf-overwrite-warn" id="qfOverwriteWarn">
+                    <span>⚠️</span>
+                    <span>This will replace your existing data for this month.</span>
+                </div>
+
+                <!-- Sections -->
+                <div class="qf-sections">
+                    <!-- Income -->
+                    <div class="qf-section open" id="qfSec_income">
+                        <div class="qf-section-header" onclick="qfToggleSection('income')">
+                            <div class="qf-section-title">
+                                <span class="qf-section-title-icon">💰</span>
+                                Income
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_income">₹1,00,000</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body">
+                            <div id="qfRows_income"></div>
+                        </div>
+                    </div>
+
+                    <!-- Expenditure -->
+                    <div class="qf-section open" id="qfSec_expenditure">
+                        <div class="qf-section-header" onclick="qfToggleSection('expenditure')">
+                            <div class="qf-section-title">
+                                <span class="qf-section-title-icon">💸</span>
+                                Expenditure
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_expenditure">₹59,000</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body">
+                            <div id="qfRows_expenditure"></div>
+                        </div>
+                    </div>
+
+                    <!-- Savings & Investments -->
+                    <div class="qf-section open" id="qfSec_investments">
+                        <div class="qf-section-header" onclick="qfToggleSection('investments')">
+                            <div class="qf-section-title">
+                                <span class="qf-section-title-icon">📈</span>
+                                Savings &amp; Investments
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_investments">₹25,000</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body">
+                            <div id="qfRows_investments"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer totals summary -->
+                <div class="qf-footer-totals">
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Income</div>
+                        <div class="qf-ft-value" id="qfFtIncome">₹1,00,000</div>
+                    </div>
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Expenditure</div>
+                        <div class="qf-ft-value" id="qfFtExpenditure">₹59,000</div>
+                    </div>
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Investments</div>
+                        <div class="qf-ft-value" id="qfFtInvestments">₹25,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="action-btn secondary" onclick="closeQuickFill()">Cancel</button>
+                <button class="btn-qf-apply" onclick="applyQuickFill()">Apply to Tracker</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
