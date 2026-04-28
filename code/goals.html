@@ -1116,6 +1116,58 @@ body {
             .modal-body { padding: 20px; }
             .modal-header { padding: 20px 20px 16px; }
         }
+
+        /* ── Quick Fill Modal ──────────────────────────────────────────────────── */
+        .qf-modal-box { background: var(--bg-elevated); border-radius: 20px; width: 90%; max-width: 520px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid var(--border-color); overflow: hidden; }
+        .qf-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .qf-modal-title { font-family: var(--font); font-size: 1.125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+        .qf-modal-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-secondary); font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background 0.15s; }
+        .qf-modal-close:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .qf-modal-body { overflow-y: auto; flex: 1; }
+        .qf-modal-foot { display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+        .qf-multiplier-bar { display: flex; align-items: center; gap: 14px; padding: 16px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .qf-mult-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); white-space: nowrap; }
+        .qf-salary-slider-wrap { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+        .qf-salary-row { display: flex; align-items: center; justify-content: space-between; }
+        .qf-salary-value { font-size: 1rem; font-weight: 700; color: var(--accent-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+        .qf-salary-ends { font-size: 0.7rem; color: var(--text-tertiary); }
+        .qf-salary-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; outline: none; cursor: pointer; }
+        .qf-salary-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); box-shadow: 0 0 0 3px rgba(0,102,255,0.18); transition: box-shadow 0.15s; }
+        .qf-salary-range::-webkit-slider-thumb:hover { box-shadow: 0 0 0 5px rgba(0,102,255,0.28); }
+        .qf-salary-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); }
+        .qf-sections { padding: 8px 0; }
+        .qf-section { border-bottom: 1px solid var(--border-color); }
+        .qf-section:last-child { border-bottom: none; }
+        .qf-section-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; cursor: pointer; user-select: none; transition: background 0.12s ease; }
+        .qf-section-header:hover { background: var(--hover-bg); }
+        .qf-section-title { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+        .qf-section-title-icon { font-size: 1rem; }
+        .qf-section-total-badge { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font); }
+        .qf-chevron { font-size: 0.75rem; color: var(--text-tertiary); transition: transform 0.2s ease; }
+        .qf-section.open .qf-chevron { transform: rotate(180deg); }
+        .qf-section-body { display: none; padding: 0 24px 14px; }
+        .qf-section.open .qf-section-body { display: block; }
+        .qf-row { display: grid; grid-template-columns: 1fr 120px; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
+        .qf-row:last-child { border-bottom: none; }
+        .qf-name-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; color: var(--text-primary); font-family: var(--font); transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-name-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-amount-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); font-family: var(--font); text-align: right; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-amount-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-overwrite-warn { display: none; align-items: center; gap: 8px; margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(255,149,0,0.1); border: 1px solid rgba(255,149,0,0.3); font-size: 0.8125rem; color: #b45309; }
+        [data-theme="dark"] .qf-overwrite-warn { color: #fbbf24; }
+        .qf-footer-totals { display: grid; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
+        .qf-ft-item { text-align: center; }
+        .qf-ft-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-bottom: 3px; }
+        .qf-ft-value { font-size: 0.875rem; font-weight: 700; font-family: var(--font); color: var(--text-primary); }
+        .btn-qf-apply { padding: 9px 22px; border-radius: 10px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; border: none; background: var(--accent-primary); color: #ffffff; font-family: var(--font); transition: all 0.15s ease; letter-spacing: -0.01em; }
+        .btn-qf-apply:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-qf-apply:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        @media (max-width: 520px) {
+            .qf-modal-box { max-width: 98vw; }
+            .qf-multiplier-bar { flex-wrap: wrap; }
+            .qf-footer-totals { grid-template-columns: 1fr !important; gap: 6px; }
+            .qf-ft-item { display: flex; justify-content: space-between; align-items: center; }
+        }
     </style>
     <link rel="stylesheet" href="controls.css">
 </head>
@@ -1132,6 +1184,7 @@ body {
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div class="top-actions">
+                        <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with example Indian goals">⚡ Quick Fill</button>
                         <button class="action-btn secondary" onclick="openGoalsImport()" style="display:flex;align-items:center;gap:6px;">✨ Import via AI</button>
                         <button class="action-btn primary" id="addGoalBtn" onclick="openModal()">
                             ➕ Add Goal
@@ -2477,7 +2530,159 @@ Rules:
                 }
             }).open();
         }
+
+        // ── Quick Fill ──────────────────────────────────────────────────────────────
+        const QF_BASE_INCOME = 1200000;
+        let _qfMult = 1;
+        const QF_GOALS_DATA = [
+            { name: 'Retirement Fund',   amount: 30000000, goalType: 'Retirement', targetDate: '2045-03', monthlyContribution: 30000, fundingType: 'Savings', isMilestone: true,  inflationRate: 6, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: "Child's Education", amount: 3000000,  goalType: 'Education',  targetDate: '2038-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 8, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: 'Home Purchase',     amount: 8000000,  goalType: 'House',      targetDate: '2030-03', monthlyContribution: 0,     fundingType: 'EMI',     isMilestone: false, inflationRate: 5, downPaymentPct: 20, loanDurationYrs: 20, loanRoi: 8.5 },
+            { name: 'Car',               amount: 1000000,  goalType: 'Vehicle',    targetDate: '2027-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 5, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: 'Emergency Fund',    amount: 600000,   goalType: 'Emergency',  targetDate: '2026-03', monthlyContribution: 25000, fundingType: 'Savings', isMilestone: true,  inflationRate: 0, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+        ];
+
+        function openQuickFill() {
+            const warn = document.getElementById('qfOverwriteWarn');
+            if (warn) warn.style.display = (typeof allGoals !== 'undefined' && allGoals.length > 0) ? 'flex' : 'none';
+            _qfMult = 1;
+            const slider = document.getElementById('qfSalarySlider');
+            if (slider) slider.value = QF_BASE_INCOME;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + QF_BASE_INCOME.toLocaleString('en-IN');
+            const sec = document.getElementById('qfSec_goals');
+            if (sec) sec.classList.add('open');
+            renderQfRows();
+            document.getElementById('qfOverlay').style.display = 'flex';
+        }
+        function closeQuickFill() { document.getElementById('qfOverlay').style.display = 'none'; }
+        function qfToggleSection(cat) { const el = document.getElementById('qfSec_' + cat); if (el) el.classList.toggle('open'); }
+        function qfSetSalary(val) {
+            const v = parseInt(val, 10) || QF_BASE_INCOME;
+            _qfMult = v / QF_BASE_INCOME;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + v.toLocaleString('en-IN');
+            QF_GOALS_DATA.forEach(function(item, idx) {
+                const inp = document.getElementById('qf_goals_' + idx);
+                if (inp) inp.value = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
+            });
+            _updateQfTotals();
+        }
+        function _parseQfAmt(val) { return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0; }
+        function renderQfRows() {
+            const container = document.getElementById('qfRows_goals');
+            if (!container) return;
+            container.innerHTML = QF_GOALS_DATA.map(function(item, idx) {
+                return '<div class="qf-row">' +
+                    '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_goals_' + idx + '">' +
+                    '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN') + '" id="qf_goals_' + idx + '" oninput="_updateQfTotals()">' +
+                    '</div>';
+            }).join('');
+            _updateQfTotals();
+        }
+        function _updateQfTotals() {
+            let total = 0;
+            QF_GOALS_DATA.forEach(function(def, idx) {
+                const inp = document.getElementById('qf_goals_' + idx);
+                if (inp) total += _parseQfAmt(inp.value);
+            });
+            const fmt = '₹' + total.toLocaleString('en-IN');
+            const badge = document.getElementById('qfTotal_goals');
+            if (badge) badge.textContent = fmt;
+            const ft = document.getElementById('qfFtGoals');
+            if (ft) ft.textContent = fmt;
+        }
+        async function applyQuickFill() {
+            const btn = document.getElementById('btnQfApply');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+            let saved = 0;
+            const baseYear = new Date().getFullYear();
+            try {
+                for (let idx = 0; idx < QF_GOALS_DATA.length; idx++) {
+                    const def = QF_GOALS_DATA[idx];
+                    const nameInp = document.getElementById('qf_name_goals_' + idx);
+                    const amtInp  = document.getElementById('qf_goals_' + idx);
+                    const name         = (nameInp ? nameInp.value.trim() : def.name) || def.name;
+                    const targetAmount = amtInp ? _parseQfAmt(amtInp.value) : Math.round(def.amount * _qfMult);
+                    const monthlyContribution = Math.round(def.monthlyContribution * _qfMult);
+                    const payload = {
+                        name, goalType: def.goalType, targetAmount, currentAmount: 0, monthlyContribution,
+                        targetDate: def.targetDate, assignedMembers: [], notes: '',
+                        fundingType: def.fundingType, inflationRate: def.inflationRate,
+                        downPaymentPct: def.downPaymentPct || 0, loanDurationYrs: def.loanDurationYrs || 0,
+                        loanRoi: def.loanRoi || 8, isMilestone: def.isMilestone, baseYear,
+                    };
+                    const created = await WealthAPI.goals.add(payload);
+                    allGoals.push(created);
+                    saved++;
+                }
+                renderGoals();
+                updateSummary();
+                closeQuickFill();
+                showToast('Quick Fill applied — ' + saved + ' goals added ✓', 'success');
+            } catch (err) {
+                console.error('Quick Fill failed:', err);
+                showToast('Quick Fill failed: ' + (err.message || err), 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Apply Goals ✓'; }
+            }
+        }
     </script>
     <script src="sidebar.js"></script>
+
+    <!-- ⚡ Quick Fill Modal -->
+    <div class="modal-overlay" id="qfOverlay" style="display:none;" onclick="if(event.target===this)closeQuickFill()">
+        <div class="qf-modal-box">
+            <div class="qf-modal-hdr">
+                <span class="qf-modal-title">⚡ Quick Fill — Sample Goals</span>
+                <button class="qf-modal-close" onclick="closeQuickFill()">×</button>
+            </div>
+            <div class="qf-modal-body">
+                <div class="qf-multiplier-bar">
+                    <span class="qf-mult-label">Annual Income</span>
+                    <div class="qf-salary-slider-wrap">
+                        <div class="qf-salary-row">
+                            <span class="qf-salary-ends">₹5L</span>
+                            <span class="qf-salary-value" id="qfSalaryDisplay">₹12,00,000</span>
+                            <span class="qf-salary-ends">₹1Cr</span>
+                        </div>
+                        <input class="qf-salary-range" type="range" id="qfSalarySlider"
+                               min="500000" max="10000000" step="100000" value="1200000"
+                               oninput="qfSetSalary(this.value)">
+                    </div>
+                </div>
+                <div class="qf-overwrite-warn" id="qfOverwriteWarn">
+                    <span>⚠️</span>
+                    <span>You already have goals. New sample goals will be added alongside them.</span>
+                </div>
+                <div class="qf-sections">
+                    <div class="qf-section open" id="qfSec_goals">
+                        <div class="qf-section-header" onclick="qfToggleSection('goals')">
+                            <div class="qf-section-title">
+                                <span class="qf-section-title-icon">🎯</span> Life Goals
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_goals">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body">
+                            <div id="qfRows_goals"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="qf-footer-totals" style="grid-template-columns:1fr;">
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Total Target</div>
+                        <div class="qf-ft-value" id="qfFtGoals">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="qf-modal-foot">
+                <button class="btn btn-sm btn-secondary" onclick="closeQuickFill()">Cancel</button>
+                <button class="btn-qf-apply" id="btnQfApply" onclick="applyQuickFill()">Apply Goals ✓</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

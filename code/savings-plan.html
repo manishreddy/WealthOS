@@ -1208,6 +1208,58 @@ body {
             font-size: 0.9375rem;
         }
 
+        /* ── Quick Fill Modal ──────────────────────────────────────────────────── */
+        .qf-modal-box { background: var(--bg-elevated); border-radius: 20px; width: 90%; max-width: 520px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid var(--border-color); overflow: hidden; }
+        .qf-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .qf-modal-title { font-family: var(--font); font-size: 1.125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+        .qf-modal-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-secondary); font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background 0.15s; }
+        .qf-modal-close:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .qf-modal-body { overflow-y: auto; flex: 1; }
+        .qf-modal-foot { display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+        .qf-multiplier-bar { display: flex; align-items: center; gap: 14px; padding: 16px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .qf-mult-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); white-space: nowrap; }
+        .qf-salary-slider-wrap { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+        .qf-salary-row { display: flex; align-items: center; justify-content: space-between; }
+        .qf-salary-value { font-size: 1rem; font-weight: 700; color: var(--accent-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+        .qf-salary-ends { font-size: 0.7rem; color: var(--text-tertiary); }
+        .qf-salary-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; outline: none; cursor: pointer; }
+        .qf-salary-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); box-shadow: 0 0 0 3px rgba(0,102,255,0.18); transition: box-shadow 0.15s; }
+        .qf-salary-range::-webkit-slider-thumb:hover { box-shadow: 0 0 0 5px rgba(0,102,255,0.28); }
+        .qf-salary-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); }
+        .qf-sections { padding: 8px 0; }
+        .qf-section { border-bottom: 1px solid var(--border-color); }
+        .qf-section:last-child { border-bottom: none; }
+        .qf-section-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; cursor: pointer; user-select: none; transition: background 0.12s ease; }
+        .qf-section-header:hover { background: var(--hover-bg); }
+        .qf-section-title { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+        .qf-section-title-icon { font-size: 1rem; }
+        .qf-section-total-badge { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font); }
+        .qf-chevron { font-size: 0.75rem; color: var(--text-tertiary); transition: transform 0.2s ease; }
+        .qf-section.open .qf-chevron { transform: rotate(180deg); }
+        .qf-section-body { display: none; padding: 0 24px 14px; }
+        .qf-section.open .qf-section-body { display: block; }
+        .qf-row { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
+        .qf-row:last-child { border-bottom: none; }
+        .qf-name-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; color: var(--text-primary); font-family: var(--font); transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-name-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-amount-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); font-family: var(--font); text-align: right; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-amount-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-overwrite-warn { display: none; align-items: center; gap: 8px; margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(255,149,0,0.1); border: 1px solid rgba(255,149,0,0.3); font-size: 0.8125rem; color: #b45309; }
+        [data-theme="dark"] .qf-overwrite-warn { color: #fbbf24; }
+        .qf-footer-totals { display: grid; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
+        .qf-ft-item { text-align: center; }
+        .qf-ft-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-bottom: 3px; }
+        .qf-ft-value { font-size: 0.875rem; font-weight: 700; font-family: var(--font); color: var(--text-primary); }
+        .btn-qf-apply { padding: 9px 22px; border-radius: 10px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; border: none; background: var(--accent-primary); color: #ffffff; font-family: var(--font); transition: all 0.15s ease; letter-spacing: -0.01em; }
+        .btn-qf-apply:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-qf-apply:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        @media (max-width: 520px) {
+            .qf-modal-box { max-width: 98vw; }
+            .qf-multiplier-bar { flex-wrap: wrap; }
+            .qf-footer-totals { grid-template-columns: 1fr !important; gap: 6px; }
+            .qf-ft-item { display: flex; justify-content: space-between; align-items: center; }
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -2550,6 +2602,7 @@ body {
                         <button id="deleteAllInvBtn" class="btn-icon-delete" style="display:none;" onclick="deleteAllInvestments()" title="Delete all investments for this member">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/></svg>
                         </button>
+                        <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with example Indian investments">⚡ Quick Fill</button>
                         <button class="action-btn secondary" onclick="openImportModal()">Import via AI</button>
                         <button class="action-btn primary" onclick="openInvModal()">+ Add Investment</button>
                     </div>
@@ -3851,6 +3904,187 @@ I invest ₹5000/month in HDFC Midcap MF (Mid Cap), ₹3000 in Nifty 50 ETF, and
             </div>
         </div>
     </div>
+
+    <script>
+        // ── Quick Fill ──────────────────────────────────────────────────────────────
+        const QF_BASE_INV = 25000;
+        let _qfMult = 1;
+        const QF_INV_SECTIONS = [
+            {
+                key: 'equity', icon: '📈', label: 'Equity SIPs',
+                items: [
+                    { name: 'Nifty 50 Index ETF',          instrumentType: 'ETF',        assetClass: 'Equity', subCategory: 'Nifty 50 ETF', indexType: 'Index',  fundHouse: 'Nippon', platform: 'Zerodha', amount: 5000, frequency: 'monthly' },
+                    { name: 'HDFC Mid Cap Opportunities',  instrumentType: 'Mutual Fund', assetClass: 'Equity', subCategory: 'Mid Cap MF',   indexType: 'Active', fundHouse: 'HDFC',   platform: 'Groww',   amount: 5000, frequency: 'monthly' },
+                    { name: 'Axis Small Cap Fund',         instrumentType: 'Mutual Fund', assetClass: 'Equity', subCategory: 'Small Cap MF', indexType: 'Active', fundHouse: 'Axis',   platform: 'Groww',   amount: 3000, frequency: 'monthly' },
+                ]
+            },
+            {
+                key: 'debt', icon: '🏦', label: 'Debt & Savings',
+                items: [
+                    { name: 'PPF Account',   instrumentType: 'Bond/FD', assetClass: 'Debt', subCategory: 'PPF',           indexType: '', fundHouse: 'SBI',      platform: 'SBI Net Banking',  amount: 5000, frequency: 'monthly' },
+                    { name: 'Fixed Deposit', instrumentType: 'Bond/FD', assetClass: 'Debt', subCategory: 'Fixed Deposit', indexType: '', fundHouse: 'HDFC Bank', platform: 'HDFC Net Banking', amount: 5000, frequency: 'monthly' },
+                    { name: 'NPS Tier-1',    instrumentType: 'Bond/FD', assetClass: 'Debt', subCategory: 'NPS',           indexType: '', fundHouse: 'NSDL',      platform: 'eNPS',             amount: 2000, frequency: 'monthly' },
+                ]
+            },
+        ];
+
+        function openQuickFill() {
+            if (!currentMemberId) { showToast('Select a member tab to use Quick Fill.', true); return; }
+            const warn = document.getElementById('qfOverwriteWarn');
+            if (warn) warn.style.display = (typeof currentInvestments !== 'undefined' && currentInvestments && currentInvestments.length > 0) ? 'flex' : 'none';
+            _qfMult = 1;
+            const slider = document.getElementById('qfSalarySlider');
+            if (slider) slider.value = QF_BASE_INV;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + QF_BASE_INV.toLocaleString('en-IN');
+            QF_INV_SECTIONS.forEach(function(sec) {
+                const el = document.getElementById('qfSec_' + sec.key);
+                if (el) el.classList.add('open');
+            });
+            renderQfRows();
+            document.getElementById('qfOverlay').style.display = 'flex';
+        }
+        function closeQuickFill() { document.getElementById('qfOverlay').style.display = 'none'; }
+        function qfToggleSection(cat) { const el = document.getElementById('qfSec_' + cat); if (el) el.classList.toggle('open'); }
+        function qfSetSalary(val) {
+            const v = parseInt(val, 10) || QF_BASE_INV;
+            _qfMult = v / QF_BASE_INV;
+            const disp = document.getElementById('qfSalaryDisplay');
+            if (disp) disp.textContent = '₹' + v.toLocaleString('en-IN');
+            QF_INV_SECTIONS.forEach(function(sec) {
+                sec.items.forEach(function(item, idx) {
+                    const inp = document.getElementById('qf_' + sec.key + '_' + idx);
+                    if (inp) inp.value = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
+                });
+            });
+            _updateQfTotals();
+        }
+        function _parseQfAmtInv(val) { return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0; }
+        function renderQfRows() {
+            QF_INV_SECTIONS.forEach(function(sec) {
+                const container = document.getElementById('qfRows_' + sec.key);
+                if (!container) return;
+                container.innerHTML = sec.items.map(function(item, idx) {
+                    return '<div class="qf-row">' +
+                        '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_' + sec.key + '_' + idx + '">' +
+                        '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN') + '" id="qf_' + sec.key + '_' + idx + '" oninput="_updateQfTotals()">' +
+                        '</div>';
+                }).join('');
+            });
+            _updateQfTotals();
+        }
+        function _updateQfTotals() {
+            QF_INV_SECTIONS.forEach(function(sec) {
+                let total = 0;
+                sec.items.forEach(function(item, idx) {
+                    const inp = document.getElementById('qf_' + sec.key + '_' + idx);
+                    if (inp) total += _parseQfAmtInv(inp.value);
+                });
+                const badge = document.getElementById('qfTotal_' + sec.key);
+                if (badge) badge.textContent = '₹' + total.toLocaleString('en-IN');
+                const ft = document.getElementById('qfFt_' + sec.key);
+                if (ft) ft.textContent = '₹' + total.toLocaleString('en-IN');
+            });
+        }
+        async function applyQuickFill() {
+            if (!currentMemberId) { showToast('Select a member tab to use Quick Fill.', true); return; }
+            const btn = document.getElementById('btnQfApply');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+            let saved = 0;
+            const startMonth = new Date().toISOString().slice(0, 7);
+            try {
+                for (const sec of QF_INV_SECTIONS) {
+                    for (let idx = 0; idx < sec.items.length; idx++) {
+                        const def = sec.items[idx];
+                        const nameInp = document.getElementById('qf_name_' + sec.key + '_' + idx);
+                        const amtInp  = document.getElementById('qf_' + sec.key + '_' + idx);
+                        const name   = (nameInp ? nameInp.value.trim() : def.name) || def.name;
+                        const amount = amtInp ? _parseQfAmtInv(amtInp.value) : Math.round(def.amount * _qfMult);
+                        if (amount <= 0) continue;
+                        await WealthAPI.savings.add(currentMemberId, {
+                            name, instrumentType: def.instrumentType, assetClass: def.assetClass,
+                            subCategory: def.subCategory, indexType: def.indexType,
+                            fundHouse: def.fundHouse, platform: def.platform,
+                            amount, frequency: def.frequency, startMonth, notes: '',
+                        });
+                        saved++;
+                    }
+                }
+                await loadMemberData(currentMemberId);
+                closeQuickFill();
+                showToast('Quick Fill applied — ' + saved + ' investments added ✓');
+            } catch (err) {
+                showToast('Quick Fill failed: ' + (err.message || err), true);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Apply Investments ✓'; }
+            }
+        }
+    </script>
     <script src="sidebar.js"></script>
+
+    <!-- ⚡ Quick Fill Modal -->
+    <div id="qfOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeQuickFill()">
+        <div class="qf-modal-box">
+            <div class="qf-modal-hdr">
+                <span class="qf-modal-title">⚡ Quick Fill — Sample Investments</span>
+                <button class="qf-modal-close" onclick="closeQuickFill()">×</button>
+            </div>
+            <div class="qf-modal-body">
+                <div class="qf-multiplier-bar">
+                    <span class="qf-mult-label">Monthly Investment</span>
+                    <div class="qf-salary-slider-wrap">
+                        <div class="qf-salary-row">
+                            <span class="qf-salary-ends">₹5K</span>
+                            <span class="qf-salary-value" id="qfSalaryDisplay">₹25,000</span>
+                            <span class="qf-salary-ends">₹2L</span>
+                        </div>
+                        <input class="qf-salary-range" type="range" id="qfSalarySlider"
+                               min="5000" max="200000" step="1000" value="25000"
+                               oninput="qfSetSalary(this.value)">
+                    </div>
+                </div>
+                <div class="qf-overwrite-warn" id="qfOverwriteWarn">
+                    <span>⚠️</span>
+                    <span>This member already has investments. New sample items will be added alongside them.</span>
+                </div>
+                <div class="qf-sections">
+                    <div class="qf-section open" id="qfSec_equity">
+                        <div class="qf-section-header" onclick="qfToggleSection('equity')">
+                            <div class="qf-section-title"><span class="qf-section-title-icon">📈</span> Equity SIPs</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_equity">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body"><div id="qfRows_equity"></div></div>
+                    </div>
+                    <div class="qf-section open" id="qfSec_debt">
+                        <div class="qf-section-header" onclick="qfToggleSection('debt')">
+                            <div class="qf-section-title"><span class="qf-section-title-icon">🏦</span> Debt & Savings</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="qf-section-total-badge" id="qfTotal_debt">—</span>
+                                <span class="qf-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="qf-section-body"><div id="qfRows_debt"></div></div>
+                    </div>
+                </div>
+                <div class="qf-footer-totals" style="grid-template-columns:repeat(2,1fr);">
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Equity</div>
+                        <div class="qf-ft-value" id="qfFt_equity">—</div>
+                    </div>
+                    <div class="qf-ft-item">
+                        <div class="qf-ft-label">Debt</div>
+                        <div class="qf-ft-value" id="qfFt_debt">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="qf-modal-foot">
+                <button class="action-btn secondary" onclick="closeQuickFill()">Cancel</button>
+                <button class="btn-qf-apply" id="btnQfApply" onclick="applyQuickFill()">Apply Investments ✓</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
