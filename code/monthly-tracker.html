@@ -2895,32 +2895,34 @@ Rules:
         // ===================================
         // QUICK PRE-FILL
         // ===================================
-        // Defaults at 1×. Expenditure includes a Miscellaneous buffer row so
-        // the section sums to exactly ₹60,000 (not 59,000). Investments includes
-        // an Emergency Fund row so the section sums to exactly ₹30,000 (not 25,000).
-        // This ensures main inputs match breakup totals — no mismatch warnings —
-        // while user edits to any row are correctly reflected on apply.
+        // Defaults at 1× — exactly as specified.
+        // Expenditure breakup sums to ₹59,000; Investments to ₹25,000.
+        // Main inputs use the rounded/buffered values in QF_MAIN_TOTALS below.
         const QF_DEFAULTS = {
             income: [
                 { name: 'Salary', amount: 100000 }
             ],
             expenditure: [
-                { name: 'Rent',            amount: 30000 },
-                { name: 'Groceries',       amount: 15000 },
-                { name: 'Utilities',       amount: 5000  },
-                { name: 'Transport',       amount: 3000  },
-                { name: 'Shopping',        amount: 2000  },
-                { name: 'Maid',            amount: 2000  },
-                { name: 'Entertainment',   amount: 2000  },
-                { name: 'Miscellaneous',   amount: 1000  }
+                { name: 'Rent',          amount: 30000 },
+                { name: 'Groceries',     amount: 15000 },
+                { name: 'Utilities',     amount: 5000  },
+                { name: 'Transport',     amount: 3000  },
+                { name: 'Shopping',      amount: 2000  },
+                { name: 'Maid',          amount: 2000  },
+                { name: 'Entertainment', amount: 2000  }
             ],
             investments: [
-                { name: 'Fixed Deposit',   amount: 10000 },
-                { name: 'Mutual Funds',    amount: 10000 },
-                { name: 'PPF',             amount: 5000  },
-                { name: 'Emergency Fund',  amount: 5000  }
+                { name: 'Fixed Deposit', amount: 10000 },
+                { name: 'Mutual Funds',  amount: 10000 },
+                { name: 'PPF',           amount: 5000  }
             ]
         };
+
+        // Rounded/buffered main-input totals at 1×.
+        // Expenditure: 59,000 breakup → 60,000 on main input (rounded buffer).
+        // Investments: 25,000 breakup → 30,000 on main input (savings buffer).
+        // Scale these by _qfMultiplier on apply; user can adjust rows independently.
+        const QF_MAIN_TOTALS = { income: 100000, expenditure: 60000, investments: 30000 };
 
         let _qfMultiplier = 1;
 
@@ -3019,19 +3021,17 @@ Rules:
             _suppressSave = true;
             ['income', 'expenditure', 'investments'].forEach(cat => {
                 const items = [];
-                let mainTotal = 0;
                 QF_DEFAULTS[cat].forEach((def, idx) => {
                     const nameInp = document.getElementById('qf_name_' + cat + '_' + idx);
                     const amtInp  = document.getElementById('qf_' + cat + '_' + idx);
                     const name    = nameInp ? nameInp.value.trim() : def.name;
                     const amount  = amtInp  ? _parseQfAmt(amtInp.value) : 0;
-                    if (name) {
-                        items.push({ name, amount });
-                        mainTotal += amount;
-                    }
+                    if (name) items.push({ name, amount });
                 });
 
-                // Main input = actual sum of modal rows (respects user edits, no mismatch).
+                // Main input uses the rounded/buffered total (60k for expenditure,
+                // 30k for investments at 1×), scaled by the current multiplier.
+                const mainTotal = Math.round(QF_MAIN_TOTALS[cat] * _qfMultiplier);
                 document.getElementById(mapKeys[cat]).value = '₹' + mainTotal.toLocaleString('en-IN');
                 renderBreakup(cat, items);
             });
