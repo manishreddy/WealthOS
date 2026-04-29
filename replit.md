@@ -35,7 +35,7 @@ A family financial planning web app built for Indian families.
 - `savings-plan.html` — Monthly investments, EMIs, emergency fund
 - `portfolio.html` — Portfolio view with asset management
 - `goals.html` — Financial goals with SIP tracking
-- `planned.html` — Planned vs actual income/expense tables
+- `planned.html` — Life Plan: Assumptions, Budget, Projections, EMI Schedule tabs (member-driven config schema)
 - `financial-planning.html` — Retirement, tax planning, goal simulation
 - `proj-vs-actuals.html` — Projected vs actual comparisons
 - `wealthbot.html` — Claude-powered AI financial advisor chat

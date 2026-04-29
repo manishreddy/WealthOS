@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WealthOS - Future Projections</title>
+    <title>WealthOS - Life Plan</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="dark-overrides.css">
@@ -13,13 +13,11 @@
 body { font-family: var(--font); background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
         .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
-        /* Main */
         .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
         .page-title { font-family: var(--font); font-size: 2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; margin-bottom: 8px; }
         .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); }
 
-        /* Sub-tabs */
         .sub-tabs { display: flex; gap: 8px; margin-bottom: 28px; border-bottom: 1px solid var(--border-color); padding-bottom: 0; }
         .sub-tab { padding: 10px 20px; font-size: 0.9375rem; font-weight: 600; color: var(--text-secondary); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.2s; letter-spacing: -0.01em; font-family: var(--font); }
         .sub-tab:hover { color: var(--text-primary); }
@@ -28,7 +26,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
-        /* Table styles */
         .table-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
         .table-card-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .table-card-title { font-family: var(--font); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
@@ -47,11 +44,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .negative { color: var(--error) !important; }
         .positive { color: var(--success) !important; }
 
-        /* Monthly plan editable */
         .plan-input { width: 90px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: var(--font); text-align: right; }
         .plan-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-elevated); }
 
-        /* Collapsible sections */
         .collapsible-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
         .collapsible-header { padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.15s; }
         .collapsible-header:hover { background: var(--hover-bg); }
@@ -65,13 +60,30 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .collapsible-body.collapsed { display: none; }
         .collapsible-divider { height: 1px; background: var(--border-color); margin: 0 0 20px; }
 
-        /* Config panel fields */
         .config-section-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 10px; }
         .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
         .config-field { display: flex; flex-direction: column; gap: 4px; }
         .config-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
         .config-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: var(--font); }
         .config-input:focus { outline: none; border-color: var(--accent-primary); }
+
+        /* Assumptions Tab */
+        .assumptions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .assumption-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; }
+        .assumption-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .assumption-card-title { font-family: var(--font); font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+        .assumption-card-subtitle { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 2px; }
+        .assumption-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .assumption-field { display: flex; flex-direction: column; gap: 5px; }
+        .assumption-label { font-size: 0.7rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .assumption-input { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: var(--font); transition: border-color 0.15s; }
+        .assumption-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-elevated); }
+        .assumption-input.fetching { color: var(--text-tertiary); font-style: italic; }
+        .autosave-pill { font-size: 0.75rem; color: var(--text-tertiary); background: var(--bg-secondary); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .autosave-pill.saving { color: var(--text-tertiary); }
+        .autosave-pill.saved { color: var(--success); border-color: rgba(0,200,5,0.3); background: rgba(0,200,5,0.06); }
+        .autosave-pill.error { color: var(--error); border-color: rgba(255,59,48,0.3); }
+        .global-card-actions { display: flex; gap: 8px; align-items: center; }
 
         /* EMI Schedule */
         .emi-schedule-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -81,7 +93,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .emi-input { width: 80px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8125rem; font-family: var(--font); text-align: right; }
         .emi-input:focus { outline: none; border-color: var(--accent-primary); }
 
-        /* Goal EMI sub-section */
         .emi-subsection-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; }
         .goal-emi-table { width: 100%; border-collapse: collapse; }
         .goal-emi-table th { background: var(--bg-secondary); padding: 7px 10px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; text-align: left; border-bottom: 1px solid var(--border-color); }
@@ -105,19 +116,15 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .toast.success { background: var(--success); color: white; }
         .toast.error { background: var(--error); color: white; }
 
-        /* Rate badge */
         .rate-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
         .rate-high { background: rgba(0,200,5,0.15); color: var(--success); }
         .rate-mid { background: rgba(251,146,60,0.15); color: var(--warning); }
         .rate-low { background: rgba(255,59,48,0.15); color: var(--error); }
 
-        /* Sticky header for long tables */
         .sticky-table thead th { position: sticky; top: 0; z-index: 2; }
 
-        /* FY notes */
         .fy-note { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px; }
 
-        /* AI Import Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 20px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; }
@@ -142,7 +149,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* EMI new-goal annotation */
         .emi-new-badge {
             display: inline-block;
             margin-left: 5px;
@@ -156,13 +162,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             white-space: nowrap;
             vertical-align: middle;
         }
-        /* Rent-stopped indicator */
         .rent-stopped { color: var(--text-tertiary); font-style: italic; font-size: 0.75rem; }
 
-        /* Auto-save status */
         .autosave-status { font-size: 0.8125rem; color: var(--text-tertiary); }
 
-        /* ── Quick Fill Modal ──────────────────────────────────────────────────── */
+        /* ── Quick Fill Modal ── */
         .qf-modal-box { background: var(--bg-elevated); border-radius: 20px; width: 90%; max-width: 520px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid var(--border-color); overflow: hidden; }
         .qf-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .qf-modal-title { font-family: var(--font); font-size: 1.125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
@@ -214,7 +218,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             .qf-ft-item { display: flex; justify-content: space-between; align-items: center; }
         }
 
-        /* ── Responsive ── */
         @media (max-width: 1024px) {
             .main-content { padding: 28px 24px; }
         }
@@ -228,12 +231,13 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             .collapsible-header { padding: 14px 16px; }
             .collapsible-body { padding: 0 16px 16px; }
             .config-grid { grid-template-columns: 1fr 1fr; }
+            .assumptions-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 480px) {
             .main-content { padding: 16px 12px; }
             .page-title { font-size: 1.5rem; }
             .config-grid { grid-template-columns: 1fr; }
-            .collapsible-actions { flex-wrap: wrap; gap: 6px; }
+            .assumption-fields { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -244,87 +248,77 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
     <main class="main-content">
         <div class="top-bar">
             <div>
-                <div class="page-title">Future Projections</div>
+                <div class="page-title">Life Plan</div>
                 <div class="page-subtitle">Financial projections and planned expenses by FY</div>
             </div>
-            <div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <span id="autoSaveStatus" class="autosave-pill">Auto-save on</span>
                 <button class="btn btn-sm btn-secondary" onclick="openQuickFill()" title="Pre-fill your financial plan with example values">⚡ Quick Fill</button>
             </div>
         </div>
 
         <div class="sub-tabs">
-            <button class="sub-tab active" onclick="showTab('savings-rate', this)">Savings</button>
-            <button class="sub-tab" onclick="showTab('yearly-expenses', this)">Yearly View</button>
-            <button class="sub-tab" onclick="showTab('monthly-plans', this)">Monthly Plans</button>
-            <button class="sub-tab" onclick="showTab('configuration', this)">Configuration</button>
+            <button class="sub-tab active" onclick="showTab('assumptions', this)">Assumptions</button>
+            <button class="sub-tab" onclick="showTab('budget', this)">Budget</button>
+            <button class="sub-tab" onclick="showTab('projections', this)">Projections</button>
+            <button class="sub-tab" onclick="showTab('emi-schedule', this)">EMI Schedule</button>
         </div>
 
-        <!-- Tab 1: Savings -->
-        <div id="tab-savings-rate" class="tab-panel active">
-            <div class="fy-note">All amounts in Lakhs (L). Savings = Total Income − Total Expenses. Savings Rate = Savings / Total Income. Goal SIP uses 10% step-up from today's required SIP.</div>
-            <div class="table-card">
-                <div class="table-card-header">
-                    <div class="table-card-title">Savings</div>
-                </div>
-                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
-                    <table class="sticky-table">
-                        <thead>
-                            <tr id="savingsRateHeader">
-                                <th style="text-align:left;">FY</th>
-                                <th style="text-align:left;">Year</th>
-                                <th>Total Income (L)</th>
-                                <th>Person 1</th>
-                                <th>Person 2</th>
-                                <th>Other</th>
-                                <th>Total Expenses</th>
-                                <th>Savings</th>
-                                <th>Savings Rate</th>
-                                <th>Goal SIP/mo</th>
-                                <th>Loan EMI/mo</th>
-                                <th>Monthly Income</th>
-                                <th>Monthly Expense</th>
-                                <th>Monthly Savings</th>
-                            </tr>
-                        </thead>
-                        <tbody id="savingsRateBody"></tbody>
-                    </table>
+        <!-- Tab 1: Assumptions -->
+        <div id="tab-assumptions" class="tab-panel active">
+            <div class="assumptions-grid">
+                <!-- Global assumptions card -->
+                <div class="assumption-card">
+                    <div class="assumption-card-header">
+                        <div>
+                            <div class="assumption-card-title">Global Assumptions</div>
+                            <div class="assumption-card-subtitle">Inflation rates and projection period</div>
+                        </div>
+                        <div class="global-card-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="openAiImport()">AI Import</button>
+                            <button class="btn btn-sm btn-secondary" onclick="resetConfig()">Reset</button>
+                        </div>
+                    </div>
+                    <div class="assumption-fields">
+                        <div class="assumption-field">
+                            <label class="assumption-label">Expense Inflation %</label>
+                            <input class="assumption-input" type="number" id="cfg_expenseInflationRate" step="0.1" min="0" max="50" placeholder="6.0" oninput="scheduleAutoSave()">
+                        </div>
+                        <div class="assumption-field">
+                            <label class="assumption-label">Rent Inflation %</label>
+                            <input class="assumption-input" type="number" id="cfg_rentInflationRate" step="0.1" min="0" max="50" placeholder="10.0" oninput="scheduleAutoSave()">
+                        </div>
+                        <div class="assumption-field">
+                            <label class="assumption-label">Leisure Inflation %</label>
+                            <input class="assumption-input" type="number" id="cfg_leisureInflationRate" step="0.1" min="0" max="50" placeholder="8.0" oninput="scheduleAutoSave()">
+                        </div>
+                        <div class="assumption-field">
+                            <label class="assumption-label">Projection End Year</label>
+                            <input class="assumption-input" type="number" id="cfg_projectionEndFY" step="1" min="2025" max="2120" placeholder="2080" oninput="scheduleAutoSave()">
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
+                        <div class="assumption-label" style="margin-bottom:12px;">Other Income</div>
+                        <div class="assumption-fields">
+                            <div class="assumption-field">
+                                <label class="assumption-label">Other Income FY (L)</label>
+                                <input class="assumption-input" type="number" id="cfg_otherIncomeFY" step="0.1" min="0" placeholder="4.0" oninput="scheduleAutoSave()">
+                            </div>
+                            <div class="assumption-field">
+                                <label class="assumption-label">Other Growth %</label>
+                                <input class="assumption-input" type="number" id="cfg_otherGrowthRate" step="0.1" min="0" max="100" placeholder="5.0" oninput="scheduleAutoSave()">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Per-member cards rendered dynamically -->
+            <div id="memberAssumptionCards" class="assumptions-grid"></div>
         </div>
 
-        <!-- Tab 2: Yearly View of Expenses -->
-        <div id="tab-yearly-expenses" class="tab-panel">
-            <div class="fy-note">All amounts in Lakhs (L). Projections based on configured inflation rates. FY = Indian Financial Year (April–March). Down Pmt = one-time down payment lump sum (included in Total). Goal SIP = monthly step-up SIP commitments (informational, not in Total).</div>
-            <div class="table-card">
-                <div class="table-card-header">
-                    <div class="table-card-title">Yearly Expense Projection</div>
-                </div>
-                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
-                    <table class="sticky-table">
-                        <thead>
-                            <tr>
-                                <th style="text-align:left;">FY</th>
-                                <th style="text-align:left;">Year</th>
-                                <th>Total (L)</th>
-                                <th>Loan EMIs</th>
-                                <th>Down Pmt</th>
-                                <th>Goal SIP/mo</th>
-                                <th>Rent</th>
-                                <th>Household</th>
-                                <th>Leisure</th>
-                                <th>Kids</th>
-                                <th>Other</th>
-                                <th>Monthly (L)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="yearlyExpenseBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 3: Monthly Plans -->
-        <div id="tab-monthly-plans" class="tab-panel">
+        <!-- Tab 2: Budget (Monthly Plans) -->
+        <div id="tab-budget" class="tab-panel">
             <div class="table-card">
                 <div class="table-card-header">
                     <div class="table-card-title">Monthly Expense Breakdown — Base Year (FY<span id="baseYearLabel">2024</span>)</div>
@@ -346,60 +340,51 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
             </div>
         </div>
 
-        <!-- Tab 4: Configuration -->
-        <div id="tab-configuration" class="tab-panel">
-
-            <!-- Section 1: Plan Configuration (collapsible) -->
-            <div class="collapsible-card">
-                <div class="collapsible-header" id="configSectionHeader" onclick="toggleSection('configSectionBody', 'configSectionHeader')">
-                    <div class="collapsible-header-left">
-                        <div>
-                            <div class="collapsible-title">Plan Configuration</div>
-                            <div class="collapsible-subtitle">Income, growth rates, inflation, and projection settings</div>
-                        </div>
-                    </div>
-                    <div class="collapsible-actions">
-                        <span id="autoSaveStatus" class="autosave-status">Auto-save on</span>
-                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); openAiImport()">AI Import</button>
-                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); resetConfig()">Reset</button>
-                        <span class="collapsible-chevron">▼</span>
-                    </div>
+        <!-- Tab 3: Projections (merged Savings + Yearly View) -->
+        <div id="tab-projections" class="tab-panel">
+            <div class="fy-note">All amounts in Lakhs (L). Savings = Total Income − Total Expenses. Savings Rate = Savings / Total Income. Goal SIP uses 10% step-up from today's required SIP. FY = Indian Financial Year (April–March).</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">Income, Expenses &amp; Savings Projections</div>
                 </div>
-                <div class="collapsible-body" id="configSectionBody">
-                    <div class="collapsible-divider"></div>
-                    <div class="config-section-label" id="incomeLabel">Income</div>
-                    <div class="config-grid" id="configGridIncome"></div>
-
-                    <div class="config-section-label">Growth &amp; Retirement</div>
-                    <div class="config-grid" id="configGridGrowth"></div>
-
-                    <div class="config-section-label">Inflation &amp; Projection</div>
-                    <div class="config-grid" id="configGridInflation"></div>
+                <div class="table-wrapper" style="max-height:70vh; overflow-y:auto;">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr id="projectionsHeader">
+                                <th style="text-align:left;">FY</th>
+                                <th style="text-align:left;">Year</th>
+                                <th>Total Income (L)</th>
+                                <th>Other</th>
+                                <th>Total Expenses</th>
+                                <th>Loan EMIs</th>
+                                <th>Down Pmt</th>
+                                <th>Rent</th>
+                                <th>Savings</th>
+                                <th>Savings Rate</th>
+                                <th>Goal SIP/mo</th>
+                                <th>Loan EMI/mo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectionsBody"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Section 2: EMI Schedule (collapsible) -->
-            <div class="collapsible-card">
-                <div class="collapsible-header" id="emiSectionHeader" onclick="toggleSection('emiSectionBody', 'emiSectionHeader')">
-                    <div class="collapsible-header-left">
-                        <div>
-                            <div class="collapsible-title">EMI Schedule</div>
-                            <div class="collapsible-subtitle">Loan EMIs from goals + manual entries</div>
-                        </div>
-                    </div>
-                    <div class="collapsible-actions">
-                        <span class="collapsible-chevron">▼</span>
-                    </div>
+        <!-- Tab 4: EMI Schedule -->
+        <div id="tab-emi-schedule" class="tab-panel">
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-title">EMI Schedule</div>
+                    <div style="font-size:0.8125rem;color:var(--text-tertiary);">Loan EMIs from goals + manual entries</div>
                 </div>
-                <div class="collapsible-body" id="emiSectionBody">
-                    <div class="collapsible-divider"></div>
-
+                <div style="padding:24px;">
                     <div class="emi-subsection-label">From Goals</div>
                     <div id="goalEmiSection">
                         <div class="goal-emi-empty">No EMI-funded goals found. Add a goal with funding type "EMI/Loan" to see it here.</div>
                     </div>
 
-                    <div class="emi-subsection-label" style="margin-top:20px;">Manual Entries</div>
+                    <div class="emi-subsection-label" style="margin-top:24px;">Manual Entries</div>
                     <table class="emi-schedule-table">
                         <thead>
                             <tr>
@@ -416,8 +401,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
                     </div>
                 </div>
             </div>
-
-        </div><!-- end tab-configuration -->
+        </div>
     </main>
 </div>
 
@@ -427,20 +411,19 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
         <div class="modal-header">
             <div>
                 <h2>AI Import — Financial Plan</h2>
-                <p>Paste salary, expense, or retirement plan details. AI will extract config values.</p>
+                <p>Paste expense or retirement plan details. AI will extract config values.</p>
             </div>
             <button class="modal-close" onclick="closeAiImport()">✕</button>
         </div>
         <div class="modal-body">
             <textarea class="ai-textarea" id="aiImportText" placeholder="Example:
-Manish salary FY2025: 46L, growing at 12% per year, retiring in 2045
-Raghavi salary FY2025: 24L, growing at 10% per year, retiring in 2060
 Monthly rent: 70,000
 Monthly food: 20,000
 Utilities: 15,000
 Travel domestic: 20,000
 Inflation: 6% general, 10% rent, 8% leisure
-Projection till FY2080"></textarea>
+Projection till FY2080
+Other income: 4L, growing at 5%"></textarea>
             <div class="ai-hint">Tip: Copy-paste from a spreadsheet, type freeform, or describe your financial situation.</div>
             <div id="aiPreviewBox" style="display:none;" class="ai-preview">
                 <div class="ai-preview-title">Extracted Values (preview)</div>
@@ -461,7 +444,7 @@ Projection till FY2080"></textarea>
 <script src="sidebar.js"></script>
 <script src="auth.js"></script>
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
 let familyMembers = [];
 let currentConfig = null;
 let parsedAiConfig = null;
@@ -484,50 +467,186 @@ function showToast(msg, isError) {
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ── Collapsible sections ──────────────────────────────────────────────────────
-function toggleSection(bodyId, headerId) {
-    const body = document.getElementById(bodyId);
-    const header = document.getElementById(headerId);
-    if (!body || !header) return;
-    body.classList.toggle('collapsed');
-    header.classList.toggle('collapsed');
-}
-
-// ── Member name helpers ───────────────────────────────────────────────────────
+// ── Member helpers ────────────────────────────────────────────────────────────
 function getActiveMembers() {
     return (familyMembers || []).filter(m => m.is_active !== 0);
 }
-function getMemberName(index) {
-    const m = getActiveMembers()[index];
-    return m ? m.name : (index === 0 ? 'Person 1' : 'Person 2');
+
+// ── Auto-save status ──────────────────────────────────────────────────────────
+function setAutoSaveStatus(state) {
+    const el = document.getElementById('autoSaveStatus');
+    if (!el) return;
+    el.className = 'autosave-pill ' + state;
+    if (state === 'saving') el.textContent = 'Saving…';
+    else if (state === 'saved') el.textContent = '✓ Saved';
+    else if (state === 'error') el.textContent = '⚠ Save failed';
+    else { el.textContent = 'Auto-save on'; el.className = 'autosave-pill'; }
 }
 
-// ── Config field definitions (dynamic labels) ─────────────────────────────────
-function getIncomeFields() {
-    const n1 = getMemberName(0), n2 = getMemberName(1);
-    return [
-        { key: 'manishIncomeFY2025', label: `${n1} Income FY2025 (L)`, type: 'number', step: '0.1' },
-        { key: 'raghaviIncomeFY2025', label: `${n2} Income FY2025 (L)`, type: 'number', step: '0.1' },
-        { key: 'otherIncomeFY2025', label: 'Other Income FY2025 (L)', type: 'number', step: '0.1' },
-    ];
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    setAutoSaveStatus('saving');
+    autoSaveTimer = setTimeout(() => saveConfig(true), 800);
 }
-function getGrowthFields() {
-    const n1 = getMemberName(0), n2 = getMemberName(1);
-    return [
-        { key: 'manishGrowthRate', label: `${n1} Salary Growth (%)`, type: 'percent' },
-        { key: 'raghaviGrowthRate', label: `${n2} Salary Growth (%)`, type: 'percent' },
-        { key: 'otherGrowthRate', label: 'Other Income Growth (%)', type: 'percent' },
-        { key: 'manishRetireFY', label: `${n1} Retire FY`, type: 'number', step: '1' },
-        { key: 'raghaviRetireFY', label: `${n2} Retire FY`, type: 'number', step: '1' },
-    ];
+
+// ── Render Assumptions Tab ────────────────────────────────────────────────────
+function renderAssumptionsGlobal(cfg) {
+    const expInf = cfg.expenseInflationRate != null ? (cfg.expenseInflationRate * 100).toFixed(1) : '';
+    const rentInf = cfg.rentInflationRate != null ? (cfg.rentInflationRate * 100).toFixed(1) : '';
+    const leisInf = cfg.leisureInflationRate != null ? (cfg.leisureInflationRate * 100).toFixed(1) : '';
+    const endFY = cfg.projectionEndFY || '';
+    const otherInc = cfg.otherIncomeFY != null ? cfg.otherIncomeFY : '';
+    const otherGrow = cfg.otherGrowthRate != null ? (cfg.otherGrowthRate * 100).toFixed(1) : '';
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    set('cfg_expenseInflationRate', expInf);
+    set('cfg_rentInflationRate', rentInf);
+    set('cfg_leisureInflationRate', leisInf);
+    set('cfg_projectionEndFY', endFY);
+    set('cfg_otherIncomeFY', otherInc);
+    set('cfg_otherGrowthRate', otherGrow);
 }
-function getInflationFields() {
-    return [
-        { key: 'expenseInflationRate', label: 'Expense Inflation (%)', type: 'percent' },
-        { key: 'rentInflationRate', label: 'Rent Inflation (%)', type: 'percent' },
-        { key: 'leisureInflationRate', label: 'Leisure Inflation (%)', type: 'percent' },
-        { key: 'projectionEndFY', label: 'Projection End FY', type: 'number', step: '1' },
-    ];
+
+function renderMemberCards(cfg) {
+    const container = document.getElementById('memberAssumptionCards');
+    container.innerHTML = '';
+    const members = getActiveMembers();
+    const membersMap = cfg.members || {};
+
+    members.forEach(m => {
+        const data = membersMap[String(m.id)] || {};
+        const incomeFY = data.incomeFY != null ? data.incomeFY : '';
+        const growthRate = data.growthRate != null ? (data.growthRate * 100).toFixed(1) : '';
+        const retireFY = data.retireFY || '';
+
+        const card = document.createElement('div');
+        card.className = 'assumption-card';
+        card.innerHTML = `
+            <div class="assumption-card-header">
+                <div>
+                    <div class="assumption-card-title">${escHtml(m.name)}</div>
+                    <div class="assumption-card-subtitle">Income-earning member</div>
+                </div>
+            </div>
+            <div class="assumption-fields">
+                <div class="assumption-field" style="grid-column:1/-1;">
+                    <label class="assumption-label">Current Post-Tax Salary / mo (₹)</label>
+                    <input class="assumption-input fetching" type="number" id="cfg_member_${m.id}_salaryMo"
+                        placeholder="Fetching…" step="1000" min="0" oninput="onMemberSalaryChange(${m.id})">
+                </div>
+                <div class="assumption-field">
+                    <label class="assumption-label">Annual Salary Growth %</label>
+                    <input class="assumption-input" type="number" id="cfg_member_${m.id}_growthRate"
+                        value="${growthRate}" step="0.1" min="0" max="100" oninput="scheduleAutoSave()">
+                </div>
+                <div class="assumption-field">
+                    <label class="assumption-label">Retirement Year</label>
+                    <input class="assumption-input" type="number" id="cfg_member_${m.id}_retireFY"
+                        value="${retireFY}" step="1" min="2025" max="2120" oninput="scheduleAutoSave()">
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+
+        if (incomeFY) {
+            const salEl = document.getElementById(`cfg_member_${m.id}_salaryMo`);
+            if (salEl) {
+                salEl.value = Math.round(incomeFY * 100000 / 12);
+                salEl.classList.remove('fetching');
+                salEl.placeholder = '';
+            }
+        }
+
+        fetchMemberSalary(m.id);
+    });
+}
+
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function fetchMemberSalary(memberId) {
+    const el = document.getElementById(`cfg_member_${memberId}_salaryMo`);
+    if (!el) return;
+    try {
+        const now = new Date();
+        let year = now.getFullYear();
+        let month = now.getMonth() + 1;
+
+        let data = await tryFetchMonthly(memberId, year, month);
+        if (!data || !data.income) {
+            if (month === 1) { year -= 1; month = 12; }
+            else month -= 1;
+            data = await tryFetchMonthly(memberId, year, month);
+        }
+
+        el.classList.remove('fetching');
+        el.placeholder = '';
+        if (data && data.income && parseFloat(data.income) > 0) {
+            if (!el.value || parseFloat(el.value) === 0) {
+                el.value = Math.round(parseFloat(data.income));
+            }
+        } else {
+            if (!el.value) el.placeholder = '—';
+        }
+    } catch {
+        el.classList.remove('fetching');
+        if (!el.value) el.placeholder = '—';
+    }
+}
+
+async function tryFetchMonthly(memberId, year, month) {
+    try {
+        const res = await fetch(`/api/monthly/${year}/${month}/${memberId}`, { credentials: 'same-origin' });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch { return null; }
+}
+
+function onMemberSalaryChange(memberId) {
+    scheduleAutoSave();
+}
+
+// ── Read config from form ─────────────────────────────────────────────────────
+function getConfigFromForm() {
+    const cfg = { ...(currentConfig || {}) };
+
+    const pct = id => { const el = document.getElementById(id); return el ? parseFloat(el.value) / 100 : null; };
+    const num = id => { const el = document.getElementById(id); return el ? parseFloat(el.value) : null; };
+
+    cfg.expenseInflationRate = pct('cfg_expenseInflationRate') ?? cfg.expenseInflationRate;
+    cfg.rentInflationRate = pct('cfg_rentInflationRate') ?? cfg.rentInflationRate;
+    cfg.leisureInflationRate = pct('cfg_leisureInflationRate') ?? cfg.leisureInflationRate;
+    const endFY = num('cfg_projectionEndFY');
+    if (endFY) cfg.projectionEndFY = endFY;
+    const otherInc = num('cfg_otherIncomeFY');
+    if (otherInc != null) cfg.otherIncomeFY = otherInc;
+    const otherGrow = pct('cfg_otherGrowthRate');
+    if (otherGrow != null) cfg.otherGrowthRate = otherGrow;
+
+    const members = getActiveMembers();
+    const membersMap = { ...(cfg.members || {}) };
+    members.forEach(m => {
+        const salEl = document.getElementById(`cfg_member_${m.id}_salaryMo`);
+        const growEl = document.getElementById(`cfg_member_${m.id}_growthRate`);
+        const retireEl = document.getElementById(`cfg_member_${m.id}_retireFY`);
+        const existing = membersMap[String(m.id)] || {};
+        const salaryMo = salEl ? parseFloat(salEl.value) : null;
+        const incomeFY = salaryMo ? parseFloat((salaryMo * 12 / 100000).toFixed(2)) : (existing.incomeFY || 0);
+        const growthRate = growEl ? parseFloat(growEl.value) / 100 : (existing.growthRate || 0.12);
+        const retireFY = retireEl ? parseInt(retireEl.value) || existing.retireFY : existing.retireFY;
+        membersMap[String(m.id)] = { incomeFY, growthRate, retireFY };
+    });
+    cfg.members = membersMap;
+
+    const me = { ...(cfg.monthlyExpenses || {}) };
+    MONTHLY_EXPENSE_ROWS.forEach(row => {
+        const inp = document.getElementById('me_' + row.key);
+        if (inp) me[row.key] = parseFloat(inp.value) || 0;
+    });
+    cfg.monthlyExpenses = me;
+    cfg.emiSchedule = getEmiScheduleFromForm();
+    return cfg;
 }
 
 // ── Monthly expense rows ───────────────────────────────────────────────────────
@@ -551,65 +670,6 @@ const MONTHLY_EXPENSE_ROWS = [
     { category: 'Other', sub: 'Insurance (Medical, Car, Health)', key: 'insurance' },
     { category: 'Other', sub: 'Misc', key: 'misc' },
 ];
-
-// ── Auto-save status ──────────────────────────────────────────────────────────
-function setAutoSaveStatus(state) {
-    const el = document.getElementById('autoSaveStatus');
-    if (!el) return;
-    if (state === 'saving') { el.textContent = 'Saving…'; el.style.color = 'var(--text-tertiary)'; }
-    else if (state === 'saved') { el.textContent = '✓ Saved'; el.style.color = 'var(--success)'; }
-    else if (state === 'error') { el.textContent = '⚠ Save failed'; el.style.color = 'var(--error)'; }
-    else { el.textContent = 'Auto-save on'; el.style.color = 'var(--text-tertiary)'; }
-}
-
-function scheduleAutoSave() {
-    clearTimeout(autoSaveTimer);
-    setAutoSaveStatus('saving');
-    autoSaveTimer = setTimeout(() => saveConfig(true), 800);
-}
-
-// ── Render config grids ───────────────────────────────────────────────────────
-function renderFieldGroup(containerId, fields, cfg) {
-    const grid = document.getElementById(containerId);
-    grid.innerHTML = '';
-    fields.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'config-field';
-        const lbl = document.createElement('label');
-        lbl.className = 'config-label';
-        lbl.textContent = f.label;
-        const inp = document.createElement('input');
-        inp.className = 'config-input';
-        inp.type = 'number';
-        inp.id = 'cfg_' + f.key;
-        if (f.type === 'percent') {
-            inp.step = '0.1';
-            inp.value = parseFloat((cfg[f.key] * 100).toFixed(1));
-        } else {
-            inp.step = f.step || '1';
-            inp.value = cfg[f.key];
-        }
-        inp.oninput = () => scheduleAutoSave();
-        div.appendChild(lbl);
-        div.appendChild(inp);
-        grid.appendChild(div);
-    });
-}
-
-function renderConfigGrids(cfg) {
-    // Update member name labels in savings rate header
-    const n1 = getMemberName(0), n2 = getMemberName(1);
-    const hdrRow = document.getElementById('savingsRateHeader');
-    if (hdrRow) {
-        hdrRow.children[3].textContent = n1;
-        hdrRow.children[4].textContent = n2;
-    }
-
-    renderFieldGroup('configGridIncome', getIncomeFields(), cfg);
-    renderFieldGroup('configGridGrowth', getGrowthFields(), cfg);
-    renderFieldGroup('configGridInflation', getInflationFields(), cfg);
-    renderEmiSchedule(cfg.emiSchedule || []);
-}
 
 // ── EMI Schedule ──────────────────────────────────────────────────────────────
 function renderEmiSchedule(schedule) {
@@ -657,7 +717,7 @@ function getEmiScheduleFromForm() {
     return rows;
 }
 
-// ── Goal EMI section in Config tab ────────────────────────────────────────────
+// ── Goal EMI section ──────────────────────────────────────────────────────────
 function renderGoalEmiSection(goals) {
     const container = document.getElementById('goalEmiSection');
     const emiGoals = (goals || []).filter(g => g.fundingType === 'EMI' && g.loanDurationYrs > 0 && g.targetDate);
@@ -669,20 +729,12 @@ function renderGoalEmiSection(goals) {
     }
 
     let html = '';
-
     if (emiGoals.length > 0) {
         html += `<table class="goal-emi-table">
             <thead><tr>
-                <th>Goal</th>
-                <th>Type</th>
-                <th>Purchase Date</th>
-                <th>Down Payment</th>
-                <th>EMI Start FY</th>
-                <th>EMI End FY</th>
-                <th>Yearly EMI (L)</th>
-                <th>Monthly EMI</th>
-            </tr></thead>
-            <tbody>`;
+                <th>Goal</th><th>Type</th><th>Purchase Date</th><th>Down Payment</th>
+                <th>EMI Start FY</th><th>EMI End FY</th><th>Yearly EMI (L)</th><th>Monthly EMI</th>
+            </tr></thead><tbody>`;
         emiGoals.forEach(g => {
             const dt = g.targetDate ? new Date(g.targetDate) : null;
             const yr = dt ? dt.getFullYear() : '—';
@@ -696,10 +748,8 @@ function renderGoalEmiSection(goals) {
                 <td><span class="badge-emi">EMI</span></td>
                 <td>${dt ? dt.toLocaleDateString('en-IN', {month:'short', year:'numeric'}) : '—'}</td>
                 <td style="color:var(--warning);font-weight:600;">${downPmt}</td>
-                <td>FY${startFY}</td>
-                <td>FY${endFY}</td>
-                <td>${yearlyL}</td>
-                <td>₹${monthly}</td>
+                <td>FY${startFY}</td><td>FY${endFY}</td>
+                <td>${yearlyL}</td><td>₹${monthly}</td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -709,14 +759,8 @@ function renderGoalEmiSection(goals) {
         if (emiGoals.length > 0) html += '<div style="height:16px;"></div>';
         html += `<table class="goal-emi-table">
             <thead><tr>
-                <th>Goal</th>
-                <th>Type</th>
-                <th>Target Date</th>
-                <th>Step-Up SIP</th>
-                <th>Current SIP</th>
-                <th>Status</th>
-            </tr></thead>
-            <tbody>`;
+                <th>Goal</th><th>Type</th><th>Target Date</th><th>Step-Up SIP</th><th>Current SIP</th><th>Status</th>
+            </tr></thead><tbody>`;
         sipGoals.forEach(g => {
             const dt = g.targetDate ? new Date(g.targetDate) : null;
             const stepUpSip = g.stepUpSip ? '₹' + Math.round(g.stepUpSip).toLocaleString('en-IN') : '—';
@@ -735,28 +779,7 @@ function renderGoalEmiSection(goals) {
         });
         html += '</tbody></table>';
     }
-
     container.innerHTML = html;
-}
-
-// ── Read config from form ─────────────────────────────────────────────────────
-function getConfigFromForm() {
-    const cfg = { ...(currentConfig || {}) };
-    const allFields = [...getIncomeFields(), ...getGrowthFields(), ...getInflationFields()];
-    allFields.forEach(f => {
-        const inp = document.getElementById('cfg_' + f.key);
-        if (!inp) return;
-        cfg[f.key] = f.type === 'percent' ? parseFloat(inp.value) / 100 : parseFloat(inp.value);
-    });
-    // Monthly expenses
-    const me = { ...(cfg.monthlyExpenses || {}) };
-    MONTHLY_EXPENSE_ROWS.forEach(row => {
-        const inp = document.getElementById('me_' + row.key);
-        if (inp) me[row.key] = parseFloat(inp.value) || 0;
-    });
-    cfg.monthlyExpenses = me;
-    cfg.emiSchedule = getEmiScheduleFromForm();
-    return cfg;
 }
 
 // ── Monthly Plan Table ────────────────────────────────────────────────────────
@@ -844,7 +867,6 @@ function recalcTotals() {
 // ── Goal-based EMI helpers ─────────────────────────────────────────────────────
 function r2(n) { return Math.round(n * 100) / 100; }
 
-// Returns map of fy → down payment in Lakhs (one-time lump sum in purchase year)
 function buildDownPaymentByFy(goals) {
     const byFy = {};
     goals.filter(g => g.fundingType === 'EMI' && g.downPaymentAmount > 0 && g.targetDate).forEach(goal => {
@@ -857,7 +879,6 @@ function buildDownPaymentByFy(goals) {
     return byFy;
 }
 
-// Returns map of fy → { total: L, newGoals: [name, ...] }
 function buildGoalEmiByFy(goals) {
     const byFy = {};
     goals.filter(g => g.fundingType === 'EMI' && g.loanDurationYrs > 0 && g.targetDate).forEach(goal => {
@@ -875,7 +896,6 @@ function buildGoalEmiByFy(goals) {
     return byFy;
 }
 
-// Returns map of fy → { totalMonthly: number } for savings-type goals (step-up SIP)
 function buildGoalSipByFy(goals) {
     const now = new Date();
     const currentFY = now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear();
@@ -895,7 +915,6 @@ function buildGoalSipByFy(goals) {
     return byFy;
 }
 
-// Returns the FY from which rent stops (when the house goal's EMI begins)
 function findRentStopFy(goals) {
     const houseGoals = goals
         .filter(g => !g.isAchieved && g.goalType === 'House' && g.targetDate)
@@ -906,115 +925,100 @@ function findRentStopFy(goals) {
     return dt.getMonth() >= 3 ? dt.getFullYear() + 1 : dt.getFullYear();
 }
 
-// ── Yearly Expense Table ──────────────────────────────────────────────────────
-function renderYearlyExpenseTable(rows, goals) {
-    const goalEmiByFy = buildGoalEmiByFy(goals || []);
+// ── Projections Table (merged Savings + Yearly View) ─────────────────────────
+function renderProjectionsTable(rows, goals) {
+    if (!rows || rows.length === 0) return;
+
     const goalSipByFy = buildGoalSipByFy(goals || []);
+    const goalEmiByFy = buildGoalEmiByFy(goals || []);
     const downPmtByFy = buildDownPaymentByFy(goals || []);
     const hasGoalEmis = Object.keys(goalEmiByFy).length > 0;
     const rentStopFy = findRentStopFy(goals || []);
 
-    const tbody = document.getElementById('yearlyExpenseBody');
+    // Build member list from first row
+    const memberList = rows[0].memberList || [];
+
+    // Update header with member name columns
+    const header = document.getElementById('projectionsHeader');
+    if (header) {
+        let headerHtml = `
+            <th style="text-align:left;">FY</th>
+            <th style="text-align:left;">Year</th>
+            <th>Total Income (L)</th>`;
+        memberList.forEach(m => {
+            headerHtml += `<th>${escHtml(m.name)}</th>`;
+        });
+        headerHtml += `
+            <th>Other</th>
+            <th>Total Expenses</th>
+            <th>Loan EMIs</th>
+            <th>Down Pmt</th>
+            <th>Rent</th>
+            <th>Savings</th>
+            <th>Savings Rate</th>
+            <th>Goal SIP/mo</th>
+            <th>Loan EMI/mo</th>`;
+        header.innerHTML = headerHtml;
+    }
+
+    const tbody = document.getElementById('projectionsBody');
     tbody.innerHTML = '';
     rows.forEach(row => {
-        // Loan EMIs: use goal-derived if available, else fall back to config schedule
         const goalEmi = goalEmiByFy[row.fy];
         const emiYearly = hasGoalEmis ? (goalEmi ? r2(goalEmi.total) : 0) : row.emiYearly;
         const newEmiGoals = goalEmi ? goalEmi.newGoals : [];
-
-        // Down payment lump sum for this FY (one-time, included in total)
         const downPmtYearly = downPmtByFy[row.fy] || 0;
-
-        // Goal SIP for this FY (monthly, from non-EMI goals) — informational only, not in total
         const sipEntry = goalSipByFy[row.fy];
         const goalSipMonthly = sipEntry ? sipEntry.totalMonthly : 0;
-
-        // Rent: zero out once house goal begins
         const rentYearly = rentStopFy && row.fy >= rentStopFy ? 0 : row.rentYearly;
-
         const nonEmi = r2(rentYearly + row.householdYearly + row.leisureYearly + row.kidsYearly + row.otherExp);
         const totalExpenses = r2(emiYearly + downPmtYearly + nonEmi);
-
-        const tr = document.createElement('tr');
-        if (row.isRetirementYear) tr.className = 'highlight-row';
+        const netSavings = r2(row.totalIncome - totalExpenses);
+        const savingsRate = row.totalIncome > 0 ? Math.round((netSavings / row.totalIncome) * 100) : 0;
+        const rateClass = savingsRate >= 50 ? 'rate-high' : savingsRate >= 30 ? 'rate-mid' : 'rate-low';
+        const netClass = netSavings < 0 ? 'negative' : 'positive';
 
         const emiDisplay = emiYearly > 0 ? emiYearly.toFixed(1) : '—';
         const emiAnnotation = newEmiGoals.length > 0
             ? newEmiGoals.map(n => `<span class="emi-new-badge">+${n}</span>`).join(' ')
             : '';
-
         const downPmtDisplay = downPmtYearly > 0
             ? `<span style="color:var(--warning);font-weight:700;">${downPmtYearly.toFixed(1)}</span>`
             : '<span style="color:var(--text-tertiary)">—</span>';
-
         const rentDisplay = rentStopFy && row.fy >= rentStopFy
             ? '<span class="rent-stopped">—</span>'
             : rentYearly.toFixed(1);
-
         const sipDisplay = goalSipMonthly > 0
             ? `<span style="color:var(--accent-primary);font-weight:700;">${fmtCr(goalSipMonthly)}</span>`
             : '<span style="color:var(--text-tertiary)">—</span>';
-
-        tr.innerHTML = `
-            <td>FY${row.fy}</td>
-            <td>${row.years}</td>
-            <td>${totalExpenses.toFixed(1)}</td>
-            <td>${emiDisplay}${emiAnnotation}</td>
-            <td>${downPmtDisplay}</td>
-            <td>${sipDisplay}</td>
-            <td>${rentDisplay}</td>
-            <td>${row.householdYearly.toFixed(1)}</td>
-            <td>${row.leisureYearly.toFixed(1)}</td>
-            <td>${row.kidsYearly > 0 ? row.kidsYearly.toFixed(1) : '—'}</td>
-            <td>${row.otherExp.toFixed(1)}</td>
-            <td>${(nonEmi / 12).toFixed(1)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// ── Savings Table ─────────────────────────────────────────────────────────────
-function renderSavingsRateTable(rows, goals) {
-    const goalSipByFy  = buildGoalSipByFy(goals || []);
-    const goalEmiByFy  = buildGoalEmiByFy(goals || []);
-
-    const tbody = document.getElementById('savingsRateBody');
-    tbody.innerHTML = '';
-    rows.forEach(row => {
-        const rateClass = row.savingsRate >= 50 ? 'rate-high' : row.savingsRate >= 30 ? 'rate-mid' : 'rate-low';
-        const tr = document.createElement('tr');
-        if (row.isRetirementYear) tr.className = 'highlight-row';
-        const netClass = row.netSavings < 0 ? 'negative' : 'positive';
-
-        // Goal SIP for this FY (monthly, ₹)
-        const sipEntry = goalSipByFy[row.fy];
-        const goalSipMonthly = sipEntry ? sipEntry.totalMonthly : 0;
-        const sipDisplay = goalSipMonthly > 0
-            ? `<span style="color:var(--accent-primary);font-weight:700;">${fmtCr(goalSipMonthly)}</span>`
-            : '<span style="color:var(--text-tertiary)">—</span>';
-
-        // Loan EMI for this FY (monthly, ₹) — convert from yearly lakhs
-        const emiEntry = goalEmiByFy[row.fy];
-        const loanEmiMonthly = emiEntry ? Math.round(emiEntry.total * 100000 / 12) : 0;
-        const emiDisplay = loanEmiMonthly > 0
+        const loanEmiMonthly = goalEmi ? Math.round(goalEmi.total * 100000 / 12) : 0;
+        const loanEmiDisplay = loanEmiMonthly > 0
             ? `<span style="color:var(--warning);font-weight:700;">${fmtCr(loanEmiMonthly)}</span>`
             : '<span style="color:var(--text-tertiary)">—</span>';
+
+        const tr = document.createElement('tr');
+        if (row.isRetirementYear) tr.className = 'highlight-row';
+
+        let memberCells = '';
+        memberList.forEach(m => {
+            const inc = (row.memberIncomes || {})[String(m.id)] || 0;
+            memberCells += `<td>${inc > 0 ? inc.toFixed(1) : '—'}</td>`;
+        });
 
         tr.innerHTML = `
             <td>FY${row.fy}</td>
             <td>${row.years}</td>
             <td>${row.totalIncome.toFixed(1)}</td>
-            <td>${row.manish > 0 ? row.manish.toFixed(1) : '—'}</td>
-            <td>${row.raghavi > 0 ? row.raghavi.toFixed(1) : '—'}</td>
+            ${memberCells}
             <td>${row.other > 0 ? row.other.toFixed(1) : '—'}</td>
-            <td>${row.totalExpenses.toFixed(0)}</td>
-            <td class="${netClass}">${row.netSavings.toFixed(0)}</td>
-            <td><span class="rate-badge ${rateClass}">${row.savingsRate}%</span></td>
+            <td>${totalExpenses.toFixed(1)}</td>
+            <td>${emiDisplay}${emiAnnotation}</td>
+            <td>${downPmtDisplay}</td>
+            <td>${rentDisplay}</td>
+            <td class="${netClass}">${netSavings.toFixed(1)}</td>
+            <td><span class="rate-badge ${rateClass}">${savingsRate}%</span></td>
             <td>${sipDisplay}</td>
-            <td>${emiDisplay}</td>
-            <td>${row.monthlyIncome.toFixed(1)}</td>
-            <td>${row.monthlyExpense.toFixed(1)}</td>
-            <td class="${row.monthlySavings < 0 ? 'negative' : 'positive'}">${row.monthlySavings.toFixed(1)}</td>
+            <td>${loanEmiDisplay}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -1035,15 +1039,17 @@ async function loadAll() {
         try { familyMembers = await WealthAPI.family.getMembers(); } catch { familyMembers = []; }
         try { goalsData = await fetch('/api/goals', { credentials: 'same-origin' }).then(r => r.json()); } catch { goalsData = []; }
 
-        const cfg = await fetch('/api/projections/config', { credentials: 'same-origin' }).then(r => r.json());
-        currentConfig = cfg;
-        renderConfigGrids(cfg);
-        renderMonthlyPlanTable(cfg);
+        const cfgData = await fetch('/api/projections/config', { credentials: 'same-origin' }).then(r => r.json());
+        currentConfig = cfgData;
+
+        renderAssumptionsGlobal(cfgData);
+        renderMemberCards(cfgData);
+        renderMonthlyPlanTable(cfgData);
         renderGoalEmiSection(goalsData);
+        renderEmiSchedule(cfgData.emiSchedule || []);
 
         const rows = await fetch('/api/projections/yearly', { credentials: 'same-origin' }).then(r => r.json());
-        renderYearlyExpenseTable(rows, goalsData);
-        renderSavingsRateTable(rows, goalsData);
+        renderProjectionsTable(rows, goalsData);
     } catch (e) {
         showToast('Failed to load data: ' + e.message, true);
     }
@@ -1052,6 +1058,7 @@ async function loadAll() {
 async function saveConfig(silent) {
     try {
         const cfg = getConfigFromForm();
+        delete cfg._members;
         const res = await fetch('/api/projections/config', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -1061,8 +1068,7 @@ async function saveConfig(silent) {
         if (!res.ok) throw new Error(await res.text());
         currentConfig = await res.json();
         const rows = await fetch('/api/projections/yearly', { credentials: 'same-origin' }).then(r => r.json());
-        renderYearlyExpenseTable(rows, goalsData);
-        renderSavingsRateTable(rows, goalsData);
+        renderProjectionsTable(rows, goalsData);
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus('idle'), 2000);
         if (!silent) showToast('Configuration saved!');
@@ -1118,7 +1124,6 @@ async function runAiParse() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Parse failed');
-
         parsedAiConfig = data;
         showAiPreview(data);
         document.getElementById('aiParseBtn').style.display = 'none';
@@ -1132,15 +1137,9 @@ async function runAiParse() {
 }
 
 function showAiPreview(cfg) {
-    const n1 = getMemberName(0), n2 = getMemberName(1);
     const labels = {
-        manishIncomeFY2025: `${n1} Income FY2025 (L)`,
-        raghaviIncomeFY2025: `${n2} Income FY2025 (L)`,
-        otherIncomeFY2025: 'Other Income (L)',
-        manishGrowthRate: `${n1} Growth Rate`,
-        raghaviGrowthRate: `${n2} Growth Rate`,
-        manishRetireFY: `${n1} Retire FY`,
-        raghaviRetireFY: `${n2} Retire FY`,
+        otherIncomeFY: 'Other Income FY (L)',
+        otherGrowthRate: 'Other Growth Rate',
         expenseInflationRate: 'Expense Inflation',
         rentInflationRate: 'Rent Inflation',
         leisureInflationRate: 'Leisure Inflation',
@@ -1149,20 +1148,17 @@ function showAiPreview(cfg) {
 
     const grid = document.getElementById('aiPreviewGrid');
     grid.innerHTML = '';
-
-    const showKeys = Object.keys(labels);
-    showKeys.forEach(key => {
+    Object.keys(labels).forEach(key => {
         if (cfg[key] === undefined) return;
         const div = document.createElement('div');
         div.className = 'ai-preview-item';
         let val = cfg[key];
         if (key.includes('Rate') && typeof val === 'number' && val < 1) val = (val * 100).toFixed(1) + '%';
-        else if (key.includes('FY')) val = 'FY' + val;
+        else if (key.includes('FY') || key.includes('End')) val = 'FY' + val;
         else if (typeof val === 'number') val = val.toFixed ? val.toFixed(1) : val;
         div.innerHTML = `<span class="ai-preview-key">${labels[key]}</span><span class="ai-preview-val">${val}</span>`;
         grid.appendChild(div);
     });
-
     if (cfg.monthlyExpenses) {
         const expKeys = ['rent', 'food', 'utilities', 'travelInternational'];
         expKeys.forEach(k => {
@@ -1173,23 +1169,20 @@ function showAiPreview(cfg) {
             grid.appendChild(div);
         });
     }
-
     document.getElementById('aiPreviewBox').style.display = 'block';
 }
 
 async function applyAiConfig() {
     if (!parsedAiConfig) return;
-
     const merged = { ...(currentConfig || {}), ...parsedAiConfig };
     if (parsedAiConfig.monthlyExpenses) {
         merged.monthlyExpenses = { ...(currentConfig?.monthlyExpenses || {}), ...parsedAiConfig.monthlyExpenses };
     }
-
     currentConfig = merged;
-    renderConfigGrids(merged);
+    renderAssumptionsGlobal(merged);
+    renderMemberCards(merged);
     renderMonthlyPlanTable(merged);
     closeAiImport();
-
     await saveConfig(false);
     showToast('AI config applied and saved!');
 }
@@ -1203,19 +1196,10 @@ async function applyAiConfig() {
 })();
 
 // ── Quick Fill ──────────────────────────────────────────────────────────────
-const QF_BASE_SALARY = 1200000; // ₹12L annual = ₹1L/mo
+const QF_BASE_SALARY = 1200000;
 let _qfMult = 1;
 
-// Income rows write to cfg_ inputs (value in Lakhs); expense rows write to me_* inputs (value in ₹)
-const QF_PLAN_SECTIONS = [
-    {
-        key: 'income', icon: '💰', label: 'Salary & Income',
-        items: [
-            { name: 'Person 1 Annual Income',  cfgKey: 'manishIncomeFY2025',  amountLakhs: 12, isConfig: true },
-            { name: 'Person 2 Annual Income',  cfgKey: 'raghaviIncomeFY2025', amountLakhs: 8,  isConfig: true },
-            { name: 'Other Income (annual)',   cfgKey: 'otherIncomeFY2025',   amountLakhs: 2,  isConfig: true },
-        ]
-    },
+const QF_EXPENSE_SECTIONS = [
     {
         key: 'housing', icon: '🏠', label: 'Housing & Daily Living',
         items: [
@@ -1246,72 +1230,99 @@ const QF_PLAN_SECTIONS = [
     },
 ];
 
+function buildQfIncomeSectionItems() {
+    const members = getActiveMembers();
+    const items = [];
+    members.forEach((m, i) => {
+        const defaultLakhs = i === 0 ? 12 : 8;
+        items.push({ name: m.name + ' Annual Income', memberId: m.id, amountLakhs: defaultLakhs, isConfig: true });
+    });
+    items.push({ name: 'Other Income (annual)', cfgKey: 'otherIncomeFY', amountLakhs: 2, isConfig: true, isOther: true });
+    return items;
+}
+
 function openQuickFill() {
-    const hasExpenses = typeof MONTHLY_EXPENSE_ROWS !== 'undefined' && MONTHLY_EXPENSE_ROWS.some(function(row) {
+    const hasExpenses = MONTHLY_EXPENSE_ROWS.some(function(row) {
         const el = document.getElementById('me_' + row.key);
         return el && parseFloat(el.value) > 0;
     });
-    const hasIncome = QF_PLAN_SECTIONS[0].items.some(function(item) {
-        const el = document.getElementById('cfg_' + item.cfgKey);
-        return el && parseFloat(el.value) > 0;
-    });
-    const hasData = hasExpenses || hasIncome;
     const warn = document.getElementById('qfOverwriteWarn');
-    if (warn) warn.style.display = hasData ? 'flex' : 'none';
+    if (warn) warn.style.display = hasExpenses ? 'flex' : 'none';
     _qfMult = 1;
     const slider = document.getElementById('qfSalarySlider');
     if (slider) slider.value = QF_BASE_SALARY;
     const disp = document.getElementById('qfSalaryDisplay');
     if (disp) disp.textContent = '₹' + QF_BASE_SALARY.toLocaleString('en-IN');
-    QF_PLAN_SECTIONS.forEach(function(sec) {
+
+    renderQfIncomeRows();
+    QF_EXPENSE_SECTIONS.forEach(function(sec) {
         const el = document.getElementById('qfSec_' + sec.key);
         if (el) el.classList.add('open');
     });
-    renderQfRows();
+    renderQfExpenseRows();
     document.getElementById('qfOverlay').style.display = 'flex';
+    _updateQfTotals();
 }
+
 function closeQuickFill() { document.getElementById('qfOverlay').style.display = 'none'; }
+
 function qfToggleSection(cat) { const el = document.getElementById('qfSec_' + cat); if (el) el.classList.toggle('open'); }
+
+function renderQfIncomeRows() {
+    const container = document.getElementById('qfRows_income');
+    if (!container) return;
+    const items = buildQfIncomeSectionItems();
+    container.innerHTML = items.map(function(item, idx) {
+        const dispVal = (item.amountLakhs * _qfMult).toFixed(1) + ' L';
+        return '<div class="qf-row">' +
+            '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" readonly>' +
+            '<input class="qf-amount-input" type="text" value="' + dispVal + '" id="qf_income_' + idx + '" oninput="_updateQfTotals()">' +
+            '</div>';
+    }).join('');
+}
+
 function qfSetSalary(val) {
     const v = parseInt(val, 10) || QF_BASE_SALARY;
     _qfMult = v / QF_BASE_SALARY;
     const disp = document.getElementById('qfSalaryDisplay');
     if (disp) disp.textContent = '₹' + v.toLocaleString('en-IN');
-    QF_PLAN_SECTIONS.forEach(function(sec) {
+
+    const items = buildQfIncomeSectionItems();
+    items.forEach(function(item, idx) {
+        const inp = document.getElementById('qf_income_' + idx);
+        if (inp) inp.value = (item.amountLakhs * _qfMult).toFixed(1) + ' L';
+    });
+
+    QF_EXPENSE_SECTIONS.forEach(function(sec) {
         sec.items.forEach(function(item, idx) {
             const inp = document.getElementById('qf_' + sec.key + '_' + idx);
-            if (!inp) return;
-            if (item.isConfig) {
-                inp.value = (item.amountLakhs * _qfMult).toFixed(1) + ' L';
-            } else {
-                inp.value = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
-            }
+            if (inp) inp.value = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
         });
     });
     _updateQfTotals();
 }
+
 function _parseQfAmt(val) { return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0; }
 function _parseQfLakhs(val) { return parseFloat((val || '').replace(/[^0-9.]/g, '')) || 0; }
-function renderQfRows() {
-    QF_PLAN_SECTIONS.forEach(function(sec) {
+
+function renderQfExpenseRows() {
+    QF_EXPENSE_SECTIONS.forEach(function(sec) {
         const container = document.getElementById('qfRows_' + sec.key);
         if (!container) return;
         container.innerHTML = sec.items.map(function(item, idx) {
-            const dispVal = item.isConfig
-                ? (item.amountLakhs * _qfMult).toFixed(1) + ' L'
-                : '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
+            const dispVal = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
             return '<div class="qf-row">' +
                 '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" readonly>' +
                 '<input class="qf-amount-input" type="text" value="' + dispVal + '" id="qf_' + sec.key + '_' + idx + '" oninput="_updateQfTotals()">' +
                 '</div>';
         }).join('');
     });
-    _updateQfTotals();
 }
+
 function _updateQfTotals() {
-    // Income section: sum in Lakhs
+    const incItems = buildQfIncomeSectionItems();
     let incTotal = 0;
-    QF_PLAN_SECTIONS[0].items.forEach(function(item, idx) {
+    incItems.forEach(function(item, idx) {
         const inp = document.getElementById('qf_income_' + idx);
         if (inp) incTotal += _parseQfLakhs(inp.value);
     });
@@ -1320,35 +1331,39 @@ function _updateQfTotals() {
     const incFt = document.getElementById('qfFt_income');
     if (incFt) incFt.textContent = incTotal.toFixed(1) + ' L/yr';
 
-    // Expense sections
-    ['housing', 'events', 'protection'].forEach(function(secKey) {
-        const sec = QF_PLAN_SECTIONS.find(function(s) { return s.key === secKey; });
-        if (!sec) return;
+    QF_EXPENSE_SECTIONS.forEach(function(sec) {
         let total = 0;
         sec.items.forEach(function(item, idx) {
-            const inp = document.getElementById('qf_' + secKey + '_' + idx);
+            const inp = document.getElementById('qf_' + sec.key + '_' + idx);
             if (inp) total += _parseQfAmt(inp.value);
         });
-        const badge = document.getElementById('qfTotal_' + secKey);
+        const badge = document.getElementById('qfTotal_' + sec.key);
         if (badge) badge.textContent = '₹' + total.toLocaleString('en-IN');
-        const ft = document.getElementById('qfFt_' + secKey);
+        const ft = document.getElementById('qfFt_' + sec.key);
         if (ft) ft.textContent = '₹' + total.toLocaleString('en-IN');
     });
 }
+
 function applyQuickFill() {
-    // Apply income config fields
-    QF_PLAN_SECTIONS[0].items.forEach(function(item, idx) {
+    const incItems = buildQfIncomeSectionItems();
+    const membersMap = { ...(currentConfig && currentConfig.members ? currentConfig.members : {}) };
+    incItems.forEach(function(item, idx) {
         const inp = document.getElementById('qf_income_' + idx);
         const lakhs = inp ? _parseQfLakhs(inp.value) : item.amountLakhs * _qfMult;
-        const cfgInp = document.getElementById('cfg_' + item.cfgKey);
-        if (cfgInp) cfgInp.value = lakhs.toFixed(1);
+        if (item.memberId) {
+            const existing = membersMap[String(item.memberId)] || {};
+            membersMap[String(item.memberId)] = { ...existing, incomeFY: lakhs };
+            const salEl = document.getElementById('cfg_member_' + item.memberId + '_salaryMo');
+            if (salEl) salEl.value = Math.round(lakhs * 100000 / 12);
+        } else if (item.isOther) {
+            const el = document.getElementById('cfg_otherIncomeFY');
+            if (el) el.value = lakhs.toFixed(1);
+        }
     });
-    // Apply expense fields
-    ['housing', 'events', 'protection'].forEach(function(secKey) {
-        const sec = QF_PLAN_SECTIONS.find(function(s) { return s.key === secKey; });
-        if (!sec) return;
+
+    QF_EXPENSE_SECTIONS.forEach(function(sec) {
         sec.items.forEach(function(item, idx) {
-            const amtInp = document.getElementById('qf_' + secKey + '_' + idx);
+            const amtInp = document.getElementById('qf_' + sec.key + '_' + idx);
             const amount = amtInp ? _parseQfAmt(amtInp.value) : Math.round(item.amount * _qfMult);
             const target = document.getElementById('me_' + item.key);
             if (target) {
@@ -1357,10 +1372,11 @@ function applyQuickFill() {
             }
         });
     });
+
     if (typeof recalcTotals === 'function') recalcTotals();
-    if (typeof scheduleAutoSave === 'function') scheduleAutoSave();
+    scheduleAutoSave();
     closeQuickFill();
-    showToast('Quick Fill applied — financial plan updated ✓');
+    showToast('Quick Fill applied — financial plan updated');
 }
 </script>
 
@@ -1387,9 +1403,10 @@ function applyQuickFill() {
             </div>
             <div class="qf-overwrite-warn" id="qfOverwriteWarn">
                 <span>⚠️</span>
-                <span>Existing income and expense values will be replaced.</span>
+                <span>Existing expense values will be replaced.</span>
             </div>
             <div class="qf-sections">
+                <!-- Income section - rendered dynamically -->
                 <div class="qf-section open" id="qfSec_income">
                     <div class="qf-section-header" onclick="qfToggleSection('income')">
                         <div class="qf-section-title"><span class="qf-section-title-icon">💰</span> Salary &amp; Income</div>

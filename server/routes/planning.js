@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { query } = require('../db');
-const { getConfig, computeYearlyProjections } = require('../utils/projections-calc');
+const { getConfig, migrateOldConfig, computeYearlyProjections } = require('../utils/projections-calc');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const router = express.Router();
@@ -360,8 +360,9 @@ router.get('/comprehensive', async (req, res) => {
     );
     const goals = goalsRes.rows;
 
-    const projConfig = await getConfig(userId);
-    const yearlyProj = computeYearlyProjections(projConfig);
+    const projConfigRaw = await getConfig(userId);
+    const projConfig = migrateOldConfig(projConfigRaw, members);
+    const yearlyProj = computeYearlyProjections(projConfig, members);
     const projByFY = {};
     yearlyProj.forEach(p => { projByFY[p.fy] = p; });
 
@@ -407,8 +408,8 @@ router.get('/comprehensive', async (req, res) => {
       const returnRate = rateMap[riskProfile] || 0.12;
       const age = member.age || 30;
 
-      const nameKey = (member.name || '').toLowerCase().replace(/\s+/g, '') + 'RetireFY';
-      const retireFY = projConfig[nameKey] || (currentFY + Math.max(60 - age, 1));
+      const memberCfg = (projConfig.members || {})[String(member.id)] || {};
+      const retireFY = memberCfg.retireFY || (currentFY + Math.max(60 - age, 1));
       const yearsToRetire = Math.max(retireFY - currentFY, 1);
 
       const currentCorpus = portfolioByMember[member.id] || 0;

@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { query } = require('../db');
-const { getConfig, computeYearlyProjections, DEFAULT_CONFIG, round2 } = require('../utils/projections-calc');
+const { getConfig, migrateOldConfig, computeYearlyProjections, DEFAULT_CONFIG, round2 } = require('../utils/projections-calc');
 const Anthropic = require('@anthropic-ai/sdk');
 const router = express.Router();
 
@@ -15,9 +15,20 @@ function fyToMonths(fy) {
   return months;
 }
 
+async function getActiveMembers(userId) {
+  const res = await query(
+    'SELECT id, name FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order, id',
+    [userId]
+  );
+  return res.rows;
+}
+
 router.get('/config', async (req, res) => {
   try {
-    res.json(await getConfig(req.userId));
+    const members = await getActiveMembers(req.userId);
+    const cfg = await getConfig(req.userId);
+    const migrated = migrateOldConfig(cfg, members);
+    res.json({ ...migrated, _members: members });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -28,12 +39,14 @@ router.put('/config', async (req, res) => {
   try {
     const current = await getConfig(req.userId);
     const updated = { ...current, ...req.body };
+    delete updated._members;
     await query(`
       INSERT INTO financial_plan (user_id, config, updated_at)
       VALUES ($1, $2, NOW())
       ON CONFLICT (user_id) DO UPDATE SET config = EXCLUDED.config, updated_at = NOW()
     `, [req.userId, JSON.stringify(updated)]);
-    res.json(updated);
+    const members = await getActiveMembers(req.userId);
+    res.json({ ...updated, _members: members });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -42,8 +55,10 @@ router.put('/config', async (req, res) => {
 
 router.get('/yearly', async (req, res) => {
   try {
+    const members = await getActiveMembers(req.userId);
     const cfg = await getConfig(req.userId);
-    res.json(computeYearlyProjections(cfg));
+    const migrated = migrateOldConfig(cfg, members);
+    res.json(computeYearlyProjections(migrated, members));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -98,13 +113,8 @@ router.post('/ai-parse', async (req, res) => {
     if (!text || !text.trim()) return res.status(400).json({ error: 'text is required' });
 
     const defaultKeys = JSON.stringify({
-      manishIncomeFY2025: 'annual income for person 1 in Lakhs for FY2025',
-      raghaviIncomeFY2025: 'annual income for person 2 in Lakhs for FY2025',
-      otherIncomeFY2025: 'other income in Lakhs',
-      manishGrowthRate: 'salary growth rate for person 1 as decimal e.g. 0.12 for 12%',
-      raghaviGrowthRate: 'salary growth rate for person 2 as decimal',
-      manishRetireFY: 'retirement FY year for person 1 e.g. 2045',
-      raghaviRetireFY: 'retirement FY year for person 2',
+      otherIncomeFY: 'other income in Lakhs for the current FY',
+      otherGrowthRate: 'other income growth rate as decimal e.g. 0.05 for 5%',
       expenseInflationRate: 'general expense inflation as decimal',
       rentInflationRate: 'rent inflation as decimal',
       leisureInflationRate: 'leisure inflation as decimal',

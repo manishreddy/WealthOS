@@ -4,14 +4,9 @@ const { query } = require('../db');
 
 const DEFAULT_CONFIG = {
   baseFY: 2024,
-  manishIncomeFY2025: 46,
-  raghaviIncomeFY2025: 24,
-  otherIncomeFY2025: 4,
-  manishGrowthRate: 0.12,
-  raghaviGrowthRate: 0.12,
+  members: {},
+  otherIncomeFY: 4,
   otherGrowthRate: 0.05,
-  manishRetireFY: 2045,
-  raghaviRetireFY: 2065,
   emiSchedule: [
     { fromFY: 2024, toFY: 2025, yearlyLakhs: 6.3 },
     { fromFY: 2026, toFY: 2029, yearlyLakhs: 12.4 },
@@ -59,25 +54,73 @@ async function getConfig(userId) {
   }
 }
 
-function computeYearlyProjections(cfg) {
+function migrateOldConfig(cfg, members) {
+  if (cfg.members && Object.keys(cfg.members).length > 0) return cfg;
+  if (!cfg.manishIncomeFY2025 && !cfg.raghaviIncomeFY2025) return cfg;
+
+  const newCfg = { ...cfg, members: {} };
+  if (members && members[0]) {
+    newCfg.members[String(members[0].id)] = {
+      incomeFY: cfg.manishIncomeFY2025 || 46,
+      growthRate: cfg.manishGrowthRate != null ? cfg.manishGrowthRate : 0.12,
+      retireFY: cfg.manishRetireFY || 2045,
+      preFY2025Income: 0
+    };
+  }
+  if (members && members[1]) {
+    newCfg.members[String(members[1].id)] = {
+      incomeFY: cfg.raghaviIncomeFY2025 || 24,
+      growthRate: cfg.raghaviGrowthRate != null ? cfg.raghaviGrowthRate : 0.12,
+      retireFY: cfg.raghaviRetireFY || 2065,
+      preFY2025Income: 21
+    };
+  }
+  newCfg.otherIncomeFY = cfg.otherIncomeFY2025 != null ? cfg.otherIncomeFY2025 : (cfg.otherIncomeFY || 4);
+  newCfg.otherGrowthRate = cfg.otherGrowthRate != null ? cfg.otherGrowthRate : 0.05;
+  newCfg.preFY2025OtherIncome = 5;
+  return newCfg;
+}
+
+function computeYearlyProjections(cfg, members) {
   const rows = [];
   const baseFY = cfg.baseFY || 2024;
   const endFY = cfg.projectionEndFY || 2065;
 
-  const manishBase = cfg.manishIncomeFY2025 || 46;
-  const raghaviBase = cfg.raghaviIncomeFY2025 || 24;
-  const otherBase = cfg.otherIncomeFY2025 || 4;
-  const manishGrow = cfg.manishGrowthRate ?? 0.12;
-  const raghaviGrow = cfg.raghaviGrowthRate ?? 0.12;
-  const otherGrow = cfg.otherGrowthRate ?? 0.05;
-  const manishRetire = cfg.manishRetireFY || 2045;
-  const raghaviRetire = cfg.raghaviRetireFY || 2065;
+  const memberEntries = [];
+  const membersMap = cfg.members || {};
+  if (members && members.length > 0) {
+    members.forEach(m => {
+      const data = membersMap[String(m.id)] || {};
+      memberEntries.push({
+        id: m.id,
+        name: m.name,
+        incomeFY: data.incomeFY || 0,
+        growthRate: data.growthRate != null ? data.growthRate : 0.12,
+        retireFY: data.retireFY || 2060,
+        preFY2025Income: data.preFY2025Income
+      });
+    });
+  } else {
+    Object.entries(membersMap).forEach(([id, data]) => {
+      memberEntries.push({
+        id,
+        name: 'Member ' + id,
+        incomeFY: data.incomeFY || 0,
+        growthRate: data.growthRate != null ? data.growthRate : 0.12,
+        retireFY: data.retireFY || 2060,
+        preFY2025Income: data.preFY2025Income
+      });
+    });
+  }
+
+  const otherBase = cfg.otherIncomeFY != null ? cfg.otherIncomeFY : 4;
+  const otherGrow = cfg.otherGrowthRate != null ? cfg.otherGrowthRate : 0.05;
 
   const emiSchedule = cfg.emiSchedule || DEFAULT_CONFIG.emiSchedule;
   const me = cfg.monthlyExpenses || DEFAULT_CONFIG.monthlyExpenses;
-  const expInflation = cfg.expenseInflationRate ?? 0.06;
-  const rentInflation = cfg.rentInflationRate ?? 0.10;
-  const leisureInflation = cfg.leisureInflationRate ?? 0.08;
+  const expInflation = cfg.expenseInflationRate != null ? cfg.expenseInflationRate : 0.06;
+  const rentInflation = cfg.rentInflationRate != null ? cfg.rentInflationRate : 0.10;
+  const leisureInflation = cfg.leisureInflationRate != null ? cfg.leisureInflationRate : 0.08;
 
   const baseRent = me.rent || 0;
   const baseHousehold = (me.utilities||0)+(me.food||0)+(me.commute||0)+(me.shopping||0)+(me.travelFamily||0)+(me.events||0)+(me.giftsFnF||0);
@@ -85,21 +128,38 @@ function computeYearlyProjections(cfg) {
   const baseKids = (me.kidsEducation||0);
   const baseOther = (me.medical||0)+(me.insurance||0)+(me.misc||0);
 
+  const firstRetireFY = memberEntries.length > 0
+    ? Math.min(...memberEntries.map(m => m.retireFY))
+    : 9999;
+  const lastRetireFY = memberEntries.length > 0
+    ? Math.max(...memberEntries.map(m => m.retireFY))
+    : 9999;
+
   for (let fy = baseFY; fy <= endFY; fy++) {
     const years = fy - baseFY;
+    const yrs = fy - 2025;
 
-    let manish, raghavi, other;
+    const memberIncomes = {};
+    let totalMemberIncome = 0;
     if (fy < 2025) {
-      manish = 0;
-      raghavi = 21;
-      other = 5;
+      memberEntries.forEach(m => {
+        const inc = m.preFY2025Income != null ? m.preFY2025Income : 0;
+        memberIncomes[String(m.id)] = inc;
+        totalMemberIncome = round2(totalMemberIncome + inc);
+      });
     } else {
-      const yrs = fy - 2025;
-      manish = fy >= manishRetire ? 0 : round2(manishBase * Math.pow(1 + manishGrow, yrs));
-      raghavi = fy >= raghaviRetire ? 0 : round2(raghaviBase * Math.pow(1 + raghaviGrow, yrs));
-      other = fy >= manishRetire && fy >= raghaviRetire ? 0 : round2(otherBase * Math.pow(1 + otherGrow, yrs));
+      memberEntries.forEach(m => {
+        const inc = fy >= m.retireFY ? 0 : round2(m.incomeFY * Math.pow(1 + m.growthRate, yrs));
+        memberIncomes[String(m.id)] = inc;
+        totalMemberIncome = round2(totalMemberIncome + inc);
+      });
     }
-    const totalIncome = round2(manish + raghavi + other);
+
+    const allRetired = memberEntries.length > 0 && memberEntries.every(m => fy >= m.retireFY);
+    const other = fy < 2025
+      ? (cfg.preFY2025OtherIncome != null ? cfg.preFY2025OtherIncome : 0)
+      : (allRetired ? 0 : round2(otherBase * Math.pow(1 + otherGrow, yrs)));
+    const totalIncome = round2(totalMemberIncome + other);
 
     let emiYearly = 0;
     for (const slot of emiSchedule) {
@@ -128,8 +188,7 @@ function computeYearlyProjections(cfg) {
       fy,
       years,
       totalIncome,
-      manish,
-      raghavi,
+      memberIncomes,
       other,
       emiYearly: round2(emiYearly),
       rentYearly,
@@ -143,10 +202,11 @@ function computeYearlyProjections(cfg) {
       monthlyIncome,
       monthlyExpense,
       monthlySavings,
-      isRetirementYear: fy === manishRetire
+      isRetirementYear: fy === firstRetireFY,
+      memberList: memberEntries.map(m => ({ id: m.id, name: m.name }))
     });
   }
   return rows;
 }
 
-module.exports = { DEFAULT_CONFIG, round2, getConfig, computeYearlyProjections };
+module.exports = { DEFAULT_CONFIG, round2, getConfig, migrateOldConfig, computeYearlyProjections };
