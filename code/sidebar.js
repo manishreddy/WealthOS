@@ -30,7 +30,7 @@
     { divider: true },
     { href: 'portfolio.html',          icon: ICONS.portfolio,   label: 'Portfolio' },
     { href: 'goals.html',              icon: ICONS.goals,       label: 'Goals' },
-    { href: 'planned.html',            icon: ICONS.planned,     label: 'Planned' },
+    { href: 'planned.html',            icon: ICONS.planned,     label: 'Future Projections' },
     { href: 'financial-planning.html', icon: ICONS.planning,    label: 'Financial Planning' },
     { href: 'proj-vs-actuals.html',    icon: ICONS.projections, label: 'Proj vs Actuals' },
     { divider: true },
