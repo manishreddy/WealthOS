@@ -198,6 +198,47 @@ body {
             transform: translateY(-1px);
         }
         .goal-card.achieved { opacity: 0.65; }
+        .goal-card.paused { opacity: 0.5; filter: grayscale(0.4); }
+
+        /* Active/Inactive mini toggle */
+        .gc-active-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        .gc-active-toggle-track {
+            width: 32px;
+            height: 18px;
+            border-radius: 9px;
+            background: var(--border-color, rgba(0,0,0,0.12));
+            position: relative;
+            transition: background 0.22s;
+            flex-shrink: 0;
+        }
+        .gc-active-toggle-track.on { background: #8FE62C; }
+        .gc-active-toggle-knob {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.22);
+        }
+        .gc-active-toggle-track.on .gc-active-toggle-knob { transform: translateX(14px); }
+        .gc-active-toggle-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+            min-width: 36px;
+        }
+        .gc-active-toggle-track.on + .gc-active-toggle-label { color: #5a9a10; }
 
         /* Card Header */
         .gc-header {
@@ -1491,9 +1532,11 @@ body {
             emptyBanner.style.display = 'none';
             container.innerHTML = '';
 
-            // Sort: active goals by nearest targetDate first, no-date last; achieved always at the end
+            // Sort: active → paused → achieved; within each group, nearest date first
+            const sortOrder = g => g.isAchieved ? 2 : (g.isActive === false ? 1 : 0);
             const sorted = [...allGoals].sort((a, b) => {
-                if (a.isAchieved !== b.isAchieved) return a.isAchieved ? 1 : -1;
+                const oa = sortOrder(a), ob = sortOrder(b);
+                if (oa !== ob) return oa - ob;
                 if (!a.targetDate && !b.targetDate) return 0;
                 if (!a.targetDate) return 1;
                 if (!b.targetDate) return -1;
@@ -1526,7 +1569,8 @@ body {
         // ─── Build a single goal card ────────────────────────────────────────────
         function createGoalCard(goal) {
             const card = document.createElement('div');
-            card.className = 'goal-card' + (goal.isAchieved ? ' achieved' : '') + (goal.isMilestone ? ' milestone' : '');
+            const isPaused = !goal.isActive && !goal.isAchieved;
+            card.className = 'goal-card' + (goal.isAchieved ? ' achieved' : '') + (goal.isMilestone ? ' milestone' : '') + (isPaused ? ' paused' : '');
             card.dataset.goalId = goal.id;
 
             const icon = GOAL_TYPE_ICONS[goal.goalType] || '🎯';
@@ -1753,6 +1797,7 @@ body {
             if (memberStr) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(memberStr)}</span>`);
             if (goal.notes) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(goal.notes.substring(0,40))}${goal.notes.length>40?'…':''}</span>`);
 
+            const isActiveNow = goal.isActive !== false;
             card.innerHTML = `
                 <div class="gc-header">
                     <div class="gc-icon" style="background:${gradient};">${icon}</div>
@@ -1764,6 +1809,13 @@ body {
                         <div class="gc-meta">${metaParts.join('')}</div>
                     </div>
                     ${yearBadge}
+                    ${!goal.isAchieved ? `
+                    <div class="gc-active-toggle" onclick="toggleGoalActive(${goal.id}, event)" title="${isActiveNow ? 'Pause this goal' : 'Activate this goal'}">
+                        <div class="gc-active-toggle-track${isActiveNow ? ' on' : ''}">
+                            <div class="gc-active-toggle-knob"></div>
+                        </div>
+                        <span class="gc-active-toggle-label">${isActiveNow ? 'Active' : 'Paused'}</span>
+                    </div>` : ''}
                     <div class="gc-menu-wrap">
                         <button class="gc-menu-btn" onclick="toggleGoalMenu(${goal.id}, event)" title="Actions">•••</button>
                         <div class="gc-dropdown" id="gc-dd-${goal.id}">
@@ -1786,17 +1838,18 @@ body {
         // ─── Summary stats ───────────────────────────────────────────────────────
         function updateSummary() {
             const total = allGoals.length;
-            const activeGoals = allGoals.filter(g => !g.isAchieved);
+            // Only count active (non-paused, non-achieved) goals in planning metrics
+            const activeGoals = allGoals.filter(g => !g.isAchieved && g.isActive !== false);
             const onTrackCount = activeGoals.filter(g => g.isOnTrack).length;
             const offTrackCount = activeGoals.filter(g => !g.isOnTrack).length;
             const sipGap = activeGoals
                 .filter(g => !g.isOnTrack)
                 .reduce((sum, g) => sum + Math.max((g.requiredMonthlySip || 0) - (g.monthlyContribution || 0), 0), 0);
-            const totalMonthly = allGoals.reduce((sum, g) => {
+            const totalMonthly = activeGoals.reduce((sum, g) => {
                 if (g.fundingType === 'EMI') return sum + (parseFloat(g.monthlyEmi) || 0);
                 return sum + (parseFloat(g.monthlyContribution) || 0);
             }, 0);
-            const totalTarget = allGoals.reduce((sum, g) => sum + (parseFloat(g.targetAmount) || 0), 0);
+            const totalTarget = activeGoals.reduce((sum, g) => sum + (parseFloat(g.targetAmount) || 0), 0);
 
             document.getElementById('totalGoalsCount').textContent = total;
             document.getElementById('onTrackCount').textContent = `${onTrackCount} On Track`;
@@ -2083,6 +2136,22 @@ body {
             } catch (err) {
                 console.error('Failed to delete goal:', err);
                 alert('Failed to delete goal. Please try again.');
+            }
+        }
+
+        // ─── Toggle active / paused ──────────────────────────────────────────────
+        async function toggleGoalActive(id, event) {
+            if (event) event.stopPropagation();
+            try {
+                const updated = await WealthAPI.goals.toggleActive(id);
+                const idx = allGoals.findIndex(g => g.id === id);
+                if (idx !== -1) allGoals[idx] = updated;
+                renderGoals();
+                updateSummary();
+                const label = updated.isActive ? 'Goal activated — now included in your financial plan.' : 'Goal paused — excluded from financial planning.';
+                if (window.showToast) showToast(label, 'success');
+            } catch (err) {
+                console.error('Failed to toggle goal active state:', err);
             }
         }
 

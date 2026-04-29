@@ -218,6 +218,10 @@ const WealthAPI = (() => {
 
     async remove(id) {
       return request('DELETE', `/goals/${id}`);
+    },
+
+    async toggleActive(id) {
+      return request('PATCH', `/goals/${id}/toggle-active`);
     }
   };
 

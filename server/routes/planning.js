@@ -355,7 +355,7 @@ router.get('/comprehensive', async (req, res) => {
     sipRowsRes.rows.forEach(r => { sipByMember[r.member_id] = parseFloat(r.total) || 0; });
 
     const goalsRes = await query(
-      'SELECT * FROM goals WHERE user_id = $1 AND is_achieved = 0 ORDER BY target_date ASC',
+      'SELECT * FROM goals WHERE user_id = $1 AND is_achieved = 0 AND is_active = 1 ORDER BY target_date ASC',
       [userId]
     );
     const goals = goalsRes.rows;

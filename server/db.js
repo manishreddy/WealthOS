@@ -209,6 +209,14 @@ async function initDb() {
     )
   `);
 
+  // Migration: add is_active to goals
+  await query(`
+    ALTER TABLE goals ADD COLUMN IF NOT EXISTS is_active INTEGER DEFAULT 1
+  `);
+  await query(`
+    UPDATE goals SET is_active = 1 WHERE is_active IS NULL
+  `);
+
   console.log('Database initialized successfully');
 }
 

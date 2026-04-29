@@ -93,6 +93,7 @@ function enrichGoal(goal) {
     assignedMembers: JSON.parse(goal.assigned_members || '[]'),
     notes: goal.notes,
     isAchieved: goal.is_achieved === 1,
+    isActive: goal.is_active !== 0,
     isMilestone,
     createdAt: goal.created_at,
     monthsRemaining: months,
@@ -280,6 +281,32 @@ router.delete('/:id', async (req, res) => {
     return res.status(200).json({ success: true, message: 'Goal deleted successfully' });
   } catch (err) {
     console.error('DELETE /goals/:id error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.patch('/:id/toggle-active', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+
+    const existingRes = await query(
+      'SELECT * FROM goals WHERE id = $1 AND user_id = $2',
+      [id, req.userId]
+    );
+    if (!existingRes.rows[0]) return res.status(404).json({ error: 'Goal not found' });
+
+    const current = existingRes.rows[0].is_active;
+    const newVal = current === 0 ? 1 : 0;
+
+    await query(
+      'UPDATE goals SET is_active = $1 WHERE id = $2 AND user_id = $3',
+      [newVal, id, req.userId]
+    );
+
+    const updatedRes = await query('SELECT * FROM goals WHERE id = $1', [id]);
+    return res.status(200).json(enrichGoal(updatedRes.rows[0]));
+  } catch (err) {
+    console.error('PATCH /goals/:id/toggle-active error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
