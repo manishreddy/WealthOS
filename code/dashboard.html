@@ -686,8 +686,8 @@
                 { label: 'Monthly Expenses',  raw: totalExpenses,    fmtd: fmt(totalExpenses),            key: false, spark: sd.expenses || [],    href: 'monthly-tracker.html', hint: 'Add expenses' },
                 { label: 'Savings Rate',      raw: savingsRate,      fmtd: Math.round(savingsRate) + '%', key: true,  spark: sd.savingsRate || [], href: 'monthly-tracker.html', hint: 'Track spending' },
                 { label: 'Net Worth',         raw: netWorth,         fmtd: fmt(netWorth),                 key: true,  spark: sd.netWorth || [],    href: 'portfolio.html',       hint: 'Add assets' },
-                { label: 'Monthly Savings',   raw: monthlySavings,   fmtd: fmt(monthlySavings),           key: false, spark: sd.savings || [],     href: 'monthly-tracker.html', hint: 'Track spending' },
-                { label: 'Total Investments', raw: totalInvestments, fmtd: fmt(totalInvestments),         key: false, spark: sd.investments || [], href: 'savings-plan.html',    hint: 'Log investments' },
+                { label: 'Monthly Savings',   raw: monthlySavings,   fmtd: totalIncome > 0 ? Math.round(monthlySavings / totalIncome * 100) + '%' : '0%',   key: false, spark: sd.savings || [],     href: 'monthly-tracker.html', hint: 'Track spending' },
+                { label: 'Total Investments', raw: totalInvestments, fmtd: totalIncome > 0 ? Math.round(totalInvestments / totalIncome * 100) + '%' : '0%', key: false, spark: sd.investments || [], href: 'savings-plan.html',    hint: 'Log investments' },
             ];
 
             const container = document.getElementById('metricCards');

@@ -2321,8 +2321,13 @@ body {
             document.getElementById('summaryIncome').textContent = fmtCurrency(income);
             const summaryExpenditure = document.getElementById('summaryExpenditure');
             const summaryInvestments = document.getElementById('summaryInvestments');
+            const summaryNetChange   = document.getElementById('summaryNetChange');
             if (summaryExpenditure) summaryExpenditure.textContent = fmtCurrency(expenditure);
-            if (summaryInvestments) summaryInvestments.textContent = fmtCurrency(investments);
+            // Show savings+investments as % of income (main value), ₹ amount as sub-text
+            const savingsAndInv = Math.max(0, income - expenditure);
+            const savingsAndInvPct = income > 0 ? Math.round(savingsAndInv / income * 100) : 0;
+            if (summaryInvestments) summaryInvestments.textContent = (income > 0 ? savingsAndInvPct : 0) + '%';
+            if (summaryNetChange) summaryNetChange.textContent = income > 0 ? fmtCurrency(savingsAndInv) : '';
 
             // Remaining = income − expenditure − investments (can be negative)
             document.getElementById('summaryNet').textContent = netStr;
