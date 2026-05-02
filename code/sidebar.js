@@ -424,16 +424,29 @@
         position: fixed !important;
         top: 0;
         left: 0;
+        /* iOS Safari: 100vh includes browser chrome; use dvh or fill-available */
         height: 100vh;
+        height: -webkit-fill-available;
+        height: 100dvh;
         width: 260px !important;
         min-width: 0 !important;
         transform: translateX(-100%);
         transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), background 180ms;
         z-index: 400;
         box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+        /* Allow full sidebar scroll as last-resort fallback on very small screens */
+        overflow-y: auto;
       }
       .wos-sidebar.open {
         transform: translateX(0);
+      }
+      /* On mobile, pin the bottom section so it always anchors above the browser chrome */
+      .wos-sidebar-bottom {
+        position: sticky;
+        bottom: 0;
+        background: var(--bg-sidebar, #F5F5F5);
+        padding-bottom: env(safe-area-inset-bottom, 8px);
+        margin-top: auto;
       }
 
       /* Show overlay when open */
