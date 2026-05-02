@@ -399,7 +399,7 @@ body {
         }
         .gc-split-dp   { background: var(--accent-primary); opacity: 0.6; border-radius: 5px 0 0 5px; min-width: 4px; transition: width 0.5s ease; }
         .gc-split-loan { background: var(--accent-primary); opacity: 0.25; border-radius: 0 5px 5px 0; flex: 1; }
-        .gc-split-info { display: flex; justify-content: space-between; font-size: 0.75rem; }
+        .gc-split-info { display: flex; justify-content: space-between; font-size: 0.75rem; flex-wrap: wrap; gap: 4px; }
         .gc-split-info .dp-label   { color: var(--text-secondary); font-weight: 600; }
         .gc-split-info .loan-label { color: var(--text-secondary); font-weight: 600; }
 
@@ -530,6 +530,16 @@ body {
 
         .timeline-scroll {
             overflow-x: hidden;
+            position: relative;
+        }
+        .timeline-scroll-fade {
+            pointer-events: none;
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, transparent, var(--bg-elevated));
+            z-index: 2;
+            display: none;
         }
         .timeline-inner {
             position: relative;
@@ -691,6 +701,7 @@ body {
         }
         .emi-table {
             width: 100%;
+            min-width: 480px;
             border-collapse: collapse;
         }
         .emi-table th {
@@ -1145,17 +1156,93 @@ body {
                 min-width: 44px;
                 min-height: 44px;
             }
+            .gc-active-toggle {
+                min-height: 44px;
+                padding: 4px 0;
+            }
+            .goals-subtab-btn {
+                min-height: 44px;
+                padding: 8px 14px;
+            }
+            .modal-btn {
+                min-height: 44px;
+                padding: 12px 20px;
+            }
+            .qf-modal-close {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .top-bar > div {
+                width: 100%;
+            }
+            .top-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+                width: 100%;
+            }
+            .top-actions .action-btn {
+                padding: 10px 14px;
+                font-size: 0.8125rem;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 480px) {
             .page-title { font-size: 1.5rem; }
-            .summary-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .summary-value { font-size: 1.5rem; }
             .gc-metrics { grid-template-columns: repeat(2, 1fr); }
             .gc-metrics.six { grid-template-columns: repeat(2, 1fr); }
             .modal { width: 95%; }
             .modal-body { padding: 20px; }
             .modal-header { padding: 20px 20px 16px; }
+            .modal-footer { padding: 16px 20px; flex-wrap: wrap; }
+
+            /* Two-line goal card header on small screens */
+            .gc-header {
+                flex-wrap: wrap;
+                gap: 10px 12px;
+            }
+            .gc-info {
+                flex: 1 1 0;
+                min-width: 0;
+                order: 1;
+            }
+            .gc-icon {
+                order: 0;
+                flex-shrink: 0;
+            }
+            .gc-year-badge {
+                order: 2;
+                flex: 0 0 auto;
+            }
+            .gc-active-toggle {
+                order: 3;
+                flex: 0 0 auto;
+            }
+            .gc-menu-wrap {
+                order: 4;
+                flex: 0 0 auto;
+            }
+            .gc-icon + .gc-info {
+                width: calc(100% - 60px);
+            }
+
+            /* Timeline horizontal scroll on mobile */
+            .timeline-scroll {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .timeline-scroll-fade { display: block; }
+            .timeline-inner { overflow: visible; }
+        }
+
+        @media (max-width: 360px) {
+            .summary-grid { grid-template-columns: 1fr; }
         }
 
         /* ── Quick Fill Modal ──────────────────────────────────────────────────── */
@@ -1213,6 +1300,14 @@ body {
             .qf-multiplier-bar { flex-wrap: wrap; }
             .qf-footer-totals { grid-template-columns: 1fr !important; gap: 6px; }
             .qf-ft-item { display: flex; justify-content: space-between; align-items: center; }
+        }
+        @media (max-width: 420px) {
+            .qf-row, .qf-row-header {
+                grid-template-columns: 1fr 56px 96px;
+                gap: 6px;
+            }
+            .qf-section-body { padding: 0 14px 14px; }
+            .qf-section-header { padding: 14px 16px; }
         }
     </style>
     <link rel="stylesheet" href="controls.css">
@@ -2304,10 +2399,12 @@ body {
             const minYear = Math.floor(nowYear);
             const maxYear = new Date(sorted[sorted.length - 1].targetDate).getFullYear() + 1;
             const totalYears = Math.max(maxYear - minYear + 1, 4);
-            // Fit all years into the available container width — no horizontal scroll
+            // On mobile, use a minimum width so pins don't overlap; on desktop fit to container
             const stripEl = document.querySelector('.goals-timeline-strip');
+            const isMobile = window.innerWidth <= 600;
             const availW = stripEl ? stripEl.clientWidth : (window.innerWidth - 332);
-            const totalW = Math.max(availW, 400);
+            const mobileMinW = Math.max(sorted.length * 180, totalYears * 70, 560);
+            const totalW = isMobile ? Math.max(availW, mobileMinW) : Math.max(availW, 400);
 
             const toLeft = (year, month) => {
                 const exact = year + (month || 0) / 12;
@@ -2372,13 +2469,16 @@ body {
             });
 
             container.innerHTML = `
-                <div class="timeline-scroll">
-                    <div class="timeline-inner" style="width:${totalW}px;height:${innerH}px;">
-                        <div class="timeline-axis-line"></div>
-                        ${nowLineHtml}
-                        ${yearMarkHtml}
-                        ${pinHtmlArr.join('')}
+                <div style="position:relative;">
+                    <div class="timeline-scroll">
+                        <div class="timeline-inner" style="width:${totalW}px;height:${innerH}px;">
+                            <div class="timeline-axis-line"></div>
+                            ${nowLineHtml}
+                            ${yearMarkHtml}
+                            ${pinHtmlArr.join('')}
+                        </div>
                     </div>
+                    <div class="timeline-scroll-fade"></div>
                 </div>`;
         }
 

@@ -35,6 +35,7 @@ A family financial planning web app built for Indian families.
 - `savings-plan.html` — Monthly investments, EMIs, emergency fund
 - `portfolio.html` — Portfolio view with asset management
 - `goals.html` — Financial goals with SIP tracking
+- `fire.html` — FIRE Calculator (public + authenticated); all 5 FIRE variants (Lean, Traditional, Fat, Barista, Coast); auto-fills from Monthly Tracker & Portfolio when logged in; all assumptions configurable via sliders; what-if scenarios + insights
 - `planned.html` — Life Plan: Assumptions, Budget, Projections, EMI Schedule tabs (member-driven config schema)
 - `financial-planning.html` — Retirement, tax planning, goal simulation
 - `proj-vs-actuals.html` — Projected vs actual comparisons
@@ -72,6 +73,8 @@ A family financial planning web app built for Indian families.
 - Task #38: Migrated auth to Replit Auth (OpenID Connect) — session-based, Google/GitHub/Apple/email support
 - Task #8: Homepage scroll animations
 - Task #12: Full inner-app mobile responsive (sidebar drawer + all page grids)
+- Task #57: Goals tab mobile responsiveness (top-action wrap, EMI splitting, timeline scroll, touch targets)
+- Task (FIRE): FIRE Calculator — `code/fire.html` with all 5 FIRE variants, sidebar nav entry, homepage feature card + nav link
 
 ## Notes
 - 2 moderate npm vulnerabilities remain (exceljs → uuid@8.x transitive dep), accepted risk
