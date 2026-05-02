@@ -8,7 +8,10 @@ const { readWorkbookFromBuffer, readCsvFromBuffer, sheetToArrayOfArrays, getShee
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({
+  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+});
 
 async function sheetsToJson(workbook) {
   const result = {};

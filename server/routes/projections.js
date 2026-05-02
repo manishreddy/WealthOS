@@ -6,7 +6,10 @@ const { getConfig, migrateOldConfig, computeYearlyProjections, DEFAULT_CONFIG, r
 const Anthropic = require('@anthropic-ai/sdk');
 const router = express.Router();
 
-const client = new Anthropic();
+const client = new Anthropic({
+  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+});
 
 function fyToMonths(fy) {
   const months = [];
