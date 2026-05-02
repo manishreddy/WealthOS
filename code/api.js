@@ -294,7 +294,9 @@ const WealthAPI = (() => {
 
   function getCurrentYearMonth() {
     const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+    // Default to last completed month (previous month), not the current in-progress month
+    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return { year: prev.getFullYear(), month: prev.getMonth() + 1 };
   }
 
   return {

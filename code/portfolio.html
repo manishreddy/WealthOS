@@ -1875,8 +1875,10 @@ body {
 
         const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         const _now = new Date();
-        let currentYear = _now.getFullYear();
-        let currentMonth = _now.getMonth() + 1; // 1-indexed
+        // Default to last completed month (previous month)
+        const _prev = new Date(_now.getFullYear(), _now.getMonth() - 1, 1);
+        let currentYear = _prev.getFullYear();
+        let currentMonth = _prev.getMonth() + 1; // 1-indexed, last completed month
 
         function updateMonthLabel() {
             document.getElementById('portfolioCurrentMonth').textContent = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
