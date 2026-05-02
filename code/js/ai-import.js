@@ -477,8 +477,38 @@ class AIImport {
         const mediaType = this._imgFile.type || 'image/png';
         body = JSON.stringify({ prompt, imageBase64: base64, imageMediaType: mediaType });
       } else if (activePanel === 'file' && this._csvFile) {
-        let fileText;
         const isExcel = /\.xlsx$/i.test(this._csvFile.name);
+
+        // ── Try direct broker-format parser first (no AI, no quota cost) ───
+        if (isExcel && this.config.directParser) {
+          status.textContent = '⏳ Detecting file format…';
+          try {
+            const directForm = new FormData();
+            directForm.append('file', this._csvFile);
+            const dResp = await fetch(this.config.directParser, {
+              method: 'POST', credentials: 'same-origin', body: directForm
+            });
+            if (dResp.ok) {
+              const dData = await dResp.json();
+              if (dData.recognized && Array.isArray(dData.data) && dData.data.length > 0) {
+                this._data = dData.data;
+                const count = dData.data.length;
+                status.textContent = `✓ ${dData.broker || 'Broker'} format detected — ${count} holding${count !== 1 ? 's' : ''} imported directly.`;
+                status.style.color = 'var(--success, #00C805)';
+                const previewEl = m.querySelector('.ai-imp-preview');
+                previewEl.innerHTML = this.config.renderPreview(this._data);
+                previewEl.style.display = 'block';
+                this._renderMemberAssign(previewEl);
+                m.querySelector('.ai-imp-btn-confirm').style.display = 'inline-block';
+                parseBtn.disabled = false;
+                return;
+              }
+            }
+          } catch (_) { /* fall through to AI */ }
+          status.textContent = '⏳ Converting Excel to text…';
+        }
+
+        let fileText;
         if (isExcel) {
           status.textContent = '⏳ Converting Excel to text…';
           const form = new FormData();

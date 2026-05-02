@@ -2665,6 +2665,7 @@ SBI FD                            ₹1,00,000   FD
 — or paste directly from Zerodha/Groww export —`,
 
                     members: allMembers || [],
+                    directParser: '/api/import/parse-holdings',
 
                     buildPrompt: () => {
                         const memberNames = (allMembers || []).map(m => m.name).join(', ') || 'family members';

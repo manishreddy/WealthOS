@@ -387,4 +387,109 @@ router.post('/save', async (req, res) => {
   }
 });
 
+// ── Direct broker-format parser (no AI needed) ──────────────────────────────
+// Equity cols (1-based): 2=Symbol 3=ISIN 4=Sector 5=QtyAvail 6=QtyDiscrep
+//   7=QtyLongTerm(subset of avail) 8=QtyPledgedMgn 9=QtyPledgedLoan
+//   10=AvgPrice 11=PrevClosingPrice 12=UnrealPnL 13=UnrealPnLPct
+// MF cols:             2=Name   3=ISIN 4=InstrType 5=QtyAvail 6=QtyDiscrep
+//   7=QtyPledgedMgn 8=QtyPledgedLoan 9=AvgPrice 10=PrevClosingPrice …
+// Total = QtyAvail + QtyPledgedMgn + QtyPledgedLoan  (QtyLongTerm is a tax
+// sub-label of QtyAvail, not additional shares)
+router.post('/parse-holdings', upload.single('file'), async (req, res) => {
+  if (!req.session || !req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  try {
+    if (!/\.xlsx$/i.test(req.file.originalname)) return res.json({ recognized: false });
+
+    const wb = await readWorkbookFromBuffer(req.file.buffer);
+    const sheetNames = getSheetNames(wb);
+    const hasEquity = sheetNames.includes('Equity');
+    const hasMF     = sheetNames.includes('Mutual Funds');
+    if (!hasEquity && !hasMF) return res.json({ recognized: false });
+
+    // Confirm Zerodha header signature
+    const sigSheet = getSheet(wb, hasEquity ? 'Equity' : 'Mutual Funds');
+    const sigRow   = sigSheet.getRow(23);
+    let sigStr = '';
+    sigRow.eachCell(c => { sigStr += String(c.value || '') + '|'; });
+    if (!sigStr.includes('Symbol') || !sigStr.includes('Quantity Available')) {
+      return res.json({ recognized: false });
+    }
+
+    const n  = v => { if (v && typeof v === 'object') v = v.result !== undefined ? v.result : v.text; return Number(v) || 0; };
+    const cv = (row, i) => { let v = row.getCell(i).value; if (v && typeof v === 'object') v = v.result !== undefined ? v.result : v.text; return v; };
+
+    const assets = [];
+
+    if (hasEquity) {
+      const ws = getSheet(wb, 'Equity');
+      ws.eachRow((row, rn) => {
+        if (rn < 24) return;
+        const symbol  = String(cv(row, 2) || '').trim();
+        if (!symbol) return;
+        const sector   = String(cv(row, 4) || '').toUpperCase();
+        const qtyAvail = n(cv(row, 5));
+        const qtyMgn   = n(cv(row, 8));
+        const qtyLoan  = n(cv(row, 9));
+        const avgPrice = n(cv(row, 10));
+        const ltp      = n(cv(row, 11));
+        const totalQty = qtyAvail + qtyMgn + qtyLoan;
+        if (totalQty === 0) return;
+        const currentValue  = ltp > 0      ? Math.round(totalQty * ltp      * 100) / 100
+                            : avgPrice > 0 ? Math.round(totalQty * avgPrice  * 100) / 100 : 0;
+        const purchaseValue = avgPrice > 0  ? Math.round(totalQty * avgPrice  * 100) / 100 : 0;
+        if (currentValue === 0 && purchaseValue === 0) return;
+
+        const symUp = symbol.toUpperCase();
+        let assetType = 'Stocks', assetClass = 'Equity';
+        if (symUp.endsWith('-GB') || /^SGB[A-Z]/.test(symUp)) { assetType = 'Gold'; assetClass = 'Gold'; }
+        else if (sector === 'ETF' && symUp.includes('GOLD'))  { assetType = 'Gold'; assetClass = 'Gold'; }
+        else if (symUp.includes('LIQUIDBEES'))                 { assetClass = 'Cash'; }
+        else if (sector === 'DEBT')                            { assetClass = 'Debt'; }
+
+        assets.push({ name: symbol, assetType, assetClass,
+          currentValue, purchaseValue, units: Math.round(totalQty * 1000) / 1000 });
+      });
+    }
+
+    if (hasMF) {
+      const ws = getSheet(wb, 'Mutual Funds');
+      ws.eachRow((row, rn) => {
+        if (rn < 24) return;
+        const name     = String(cv(row, 2) || '').trim();
+        if (!name) return;
+        const instrType = String(cv(row, 4) || '');
+        const qtyAvail  = n(cv(row, 5));
+        const qtyMgn    = n(cv(row, 7));
+        const qtyLoan   = n(cv(row, 8));
+        const avgPrice  = n(cv(row, 9));
+        const ltp       = n(cv(row, 10));
+        const totalQty  = qtyAvail + qtyMgn + qtyLoan;
+        if (totalQty === 0) return;
+        const currentValue  = ltp > 0      ? Math.round(totalQty * ltp      * 100) / 100
+                            : avgPrice > 0 ? Math.round(totalQty * avgPrice  * 100) / 100 : 0;
+        const purchaseValue = avgPrice > 0  ? Math.round(totalQty * avgPrice  * 100) / 100 : 0;
+        if (currentValue === 0 && purchaseValue === 0) return;
+
+        const iType = instrType.toLowerCase();
+        let assetClass = 'Equity';
+        if      (iType.startsWith('hybrid')) assetClass = 'Hybrid';
+        else if (iType.startsWith('debt'))   assetClass = 'Debt';
+        else if (name.toLowerCase().includes('gold')) assetClass = 'Gold';
+
+        const assetType = assetClass === 'Gold' ? 'Gold' : 'Mutual Funds';
+        assets.push({ name, assetType, assetClass,
+          currentValue, purchaseValue, units: Math.round(totalQty * 1000) / 1000 });
+      });
+    }
+
+    console.log(`[parse-holdings] Zerodha: ${assets.length} holdings parsed`);
+    return res.json({ recognized: true, broker: 'Zerodha', data: assets });
+  } catch (err) {
+    console.error('parse-holdings error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
