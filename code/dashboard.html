@@ -247,6 +247,18 @@
         .gauge-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1s ease; }
         .gauge-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
         .gauge-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+        /* Gauge empty state */
+        .gauge-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 10px; text-align: center; padding: 0 16px; }
+        .gauge-empty-icon { font-size: 2.25rem; opacity: 0.4; }
+        .gauge-empty-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.45; }
+        .gauge-empty-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; border: 1px solid var(--accent-dark, #5FA518); padding: 5px 14px; border-radius: 20px; margin-top: 2px; display: inline-block; }
+        [data-theme="dark"] .gauge-empty-link { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
+        /* Section empty state */
+        .section-empty { padding: 32px 0 16px; text-align: center; }
+        .section-empty-icon { font-size: 2rem; opacity: 0.35; margin-bottom: 8px; }
+        .section-empty-text { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px; }
+        .section-empty-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; }
+        [data-theme="dark"] .section-empty-link { color: var(--accent, #8FE62C); }
 
         /* ── Goals ───────────────────────────────────────────────────────── */
         .goals-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -507,9 +519,11 @@
                         <span class="section-toggle-icon">▼</span>
                     </div>
                     <div class="section-content expanded">
-                        <div class="income-expense-bars" id="incomeExpenseBars">
-                            <div class="ie-row"><div class="ie-label">Income</div><div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar" style="width:0%;"></div></div><div class="ie-value" id="incomeBarValue">—</div></div>
-                            <div class="ie-row"><div class="ie-label">Expenses</div><div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar" style="width:0%;"></div></div><div class="ie-value" id="expenseBarValue">—</div></div>
+                        <div id="incomeExpenseBarsWrap">
+                            <div class="income-expense-bars" id="incomeExpenseBars">
+                                <div class="ie-row"><div class="ie-label">Income</div><div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar" style="width:0%;"></div></div><div class="ie-value" id="incomeBarValue">—</div></div>
+                                <div class="ie-row"><div class="ie-label">Expenses</div><div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar" style="width:0%;"></div></div><div class="ie-value" id="expenseBarValue">—</div></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -566,6 +580,42 @@
     <script>
         function fmt(v) { return WealthAPI.formatCurrency(v || 0); }
 
+        function renderGauge(totalIncome, savingsRate) {
+            const gaugeCard = document.getElementById('savingsGauge');
+            if (!gaugeCard) return;
+            gaugeCard.classList.remove('loading');
+            if (!totalIncome || totalIncome <= 0) {
+                gaugeCard.querySelector('.gauge-container').innerHTML = `
+                    <div class="gauge-empty">
+                        <div class="gauge-empty-icon">🎯</div>
+                        <div class="gauge-empty-text">Add income to see your savings rate</div>
+                        <a href="monthly-tracker.html" class="gauge-empty-link">Track this month →</a>
+                    </div>`;
+                return;
+            }
+            gaugeCard.querySelector('.gauge-container').innerHTML = `
+                <svg class="gauge-svg" viewBox="0 0 160 160">
+                    <circle class="gauge-bg" cx="80" cy="80" r="62"/>
+                    <circle class="gauge-progress" cx="80" cy="80" r="62"
+                        style="stroke-dasharray:0 389.55;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center;"/>
+                </svg>
+                <div style="position:absolute;text-align:center;">
+                    <div class="gauge-value" id="gaugeValue">0%</div>
+                    <div class="gauge-label">saved</div>
+                </div>`;
+            const r = 62, circumference = 2 * Math.PI * r;
+            const filled = (Math.max(0, Math.min(100, savingsRate)) / 100) * circumference * 0.75;
+            const gauge = gaugeCard.querySelector('.gauge-progress');
+            if (gauge) {
+                gauge.style.strokeDasharray = `${filled} ${circumference}`;
+                gauge.style.strokeDashoffset = '0';
+                gauge.style.transform = 'rotate(-90deg)';
+                gauge.style.transformOrigin = 'center';
+            }
+            const gaugeVal = document.getElementById('gaugeValue');
+            if (gaugeVal) gaugeVal.textContent = Math.round(savingsRate) + '%';
+        }
+
         function updateGauge(pct) {
             const r = 62, circumference = 2 * Math.PI * r;
             const filled = (pct / 100) * circumference * 0.75;
@@ -576,7 +626,8 @@
                 gauge.style.transform = 'rotate(-90deg)';
                 gauge.style.transformOrigin = 'center';
             }
-            document.getElementById('gaugeValue').textContent = Math.round(pct) + '%';
+            const gaugeVal = document.getElementById('gaugeValue');
+            if (gaugeVal) gaugeVal.textContent = Math.round(pct) + '%';
             const gaugeCard = document.getElementById('savingsGauge');
             if (gaugeCard) gaugeCard.classList.remove('loading');
         }
@@ -782,6 +833,27 @@
         }
 
         function renderIncomeExpenseBars(totalIncome, totalExpenses) {
+            const barsWrap = document.getElementById('incomeExpenseBarsWrap');
+            if (!totalIncome && !totalExpenses) {
+                if (barsWrap) barsWrap.innerHTML = `<div class="section-empty">
+                    <div class="section-empty-icon">📊</div>
+                    <div class="section-empty-text">Add income & expenses to see the breakdown</div>
+                    <a href="monthly-tracker.html" class="section-empty-link">Go to Monthly Tracker →</a>
+                </div>`;
+                return;
+            }
+            if (barsWrap) barsWrap.innerHTML = `<div class="income-expense-bars" id="incomeExpenseBars">
+                <div class="ie-row">
+                    <div class="ie-label">Income</div>
+                    <div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar"></div></div>
+                    <div class="ie-value" id="incomeBarValue"></div>
+                </div>
+                <div class="ie-row">
+                    <div class="ie-label">Expenses</div>
+                    <div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar"></div></div>
+                    <div class="ie-value" id="expenseBarValue"></div>
+                </div>
+            </div>`;
             const maxVal = Math.max(totalIncome, totalExpenses, 1);
             const ib = document.getElementById('incomeBar'), eb = document.getElementById('expenseBar');
             const iv = document.getElementById('incomeBarValue'), ev = document.getElementById('expenseBarValue');
@@ -956,13 +1028,15 @@
             const heroCard = document.getElementById('heroCard');
             if (!heroCard) return;
             heroCard.classList.remove('loading');
-            const isEmpty = netWorth === 0 && totalIncome === 0;
             const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
             const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
             const now = new Date();
             const monthLabel = now.toLocaleString('en-IN', { month: 'long' });
+            const hasIncome = totalIncome > 0;
+            const hasNetWorth = netWorth > 0;
 
-            if (isEmpty) {
+            if (!hasIncome && !hasNetWorth) {
+                // Full empty state — welcome
                 heroCard.innerHTML = `
                     <div class="hero-empty">
                         <div class="hero-empty-illu">${heroWelcomeIllu()}</div>
@@ -976,7 +1050,35 @@
                             </div>
                         </div>
                     </div>`;
+            } else if (hasIncome && !hasNetWorth) {
+                // Has monthly data but no portfolio — feature income/savings, prompt for portfolio
+                heroCard.innerHTML = `
+                    <div class="hero-filled">
+                        <div class="hero-metric-main">
+                            <div class="hero-metric-label">Monthly Income</div>
+                            <div class="hero-metric-value">${fmt(totalIncome)}</div>
+                            <div class="hero-metric-change" style="color:var(--accent,#8FE62C);">↑ ${savingsRate}% savings rate</div>
+                            <svg class="hero-bg-illu" viewBox="0 0 200 110" fill="none" preserveAspectRatio="xMaxYMax meet">
+                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8" stroke="#8FE62C" stroke-width="2" stroke-linecap="round" fill="none"/>
+                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8 L190 110 L10 110 Z" fill="#8FE62C"/>
+                            </svg>
+                        </div>
+                        <div class="hero-metric-divider"></div>
+                        <div class="hero-metric-secondary">
+                            <div>
+                                <div class="hero-secondary-label">Monthly Savings</div>
+                                <div class="hero-secondary-value">${fmt(savings)}</div>
+                                <div class="hero-secondary-sub">${savingsRate}% of income</div>
+                            </div>
+                            <div>
+                                <div class="hero-secondary-label">Net Worth</div>
+                                <div class="hero-secondary-value" style="opacity:0.45;font-size:1.1rem;">Not tracked</div>
+                                <a href="portfolio.html" style="font-size:0.75rem;color:var(--accent,#8FE62C);text-decoration:none;font-weight:700;letter-spacing:-0.01em;">Add portfolio →</a>
+                            </div>
+                        </div>
+                    </div>`;
             } else {
+                // Has net worth — full filled state
                 heroCard.innerHTML = `
                     <div class="hero-filled">
                         <div class="hero-metric-main">
@@ -1066,7 +1168,7 @@
                 renderAllocation(computeAllocationFromAssets(assetList));
             }
             const savingsRate = income > 0 ? Math.max(0, (1 - expenses / income) * 100) : 0;
-            updateGauge(savingsRate);
+            renderGauge(income, savingsRate);
             renderIncomeExpenseBars(income, expenses);
             renderActivity(memberMonthData);
         }
@@ -1126,7 +1228,7 @@
 
             renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData);
             const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
-            updateGauge(savingsRate);
+            renderGauge(totalIncome, savingsRate);
             renderIncomeExpenseBars(totalIncome, totalExpenses);
             renderGoals(goals);
             renderAllocation(byAssetClass);
