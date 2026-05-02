@@ -13,6 +13,34 @@ const anthropic = new Anthropic({
   baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
 });
 
+function extractFirstJSON(raw) {
+  const text = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+  const trimmed = text.trim();
+  if (trimmed[0] === '[' || trimmed[0] === '{') {
+    try { return JSON.parse(trimmed); } catch {}
+  }
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch !== '[' && ch !== '{') continue;
+    let depth = 0, inStr = false, esc = false;
+    for (let j = i; j < text.length; j++) {
+      const c = text[j];
+      if (esc)                 { esc = false; continue; }
+      if (c === '\\' && inStr) { esc = true;  continue; }
+      if (c === '"')           { inStr = !inStr; continue; }
+      if (inStr)               { continue; }
+      if (c === '[' || c === '{') depth++;
+      else if (c === ']' || c === '}') {
+        depth--;
+        if (depth === 0) {
+          try { return JSON.parse(text.slice(i, j + 1)); } catch { break; }
+        }
+      }
+    }
+  }
+  return null;
+}
+
 async function sheetsToJson(workbook) {
   const result = {};
   for (const name of getSheetNames(workbook)) {
@@ -131,10 +159,9 @@ ${sheetDesc.substring(0, 8000)}`;
     });
 
     const raw = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI could not parse the spreadsheet');
-
-    const parsed = JSON.parse(jsonMatch[0]);
+    console.log('[import/parse] raw AI response (first 600 chars):', raw.substring(0, 600));
+    const parsed = extractFirstJSON(raw);
+    if (!parsed) throw new Error('AI could not extract structured data from the spreadsheet. Please ensure the file contains recognisable financial data.');
 
     const memberMap = {};
     for (const m of members) {

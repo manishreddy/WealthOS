@@ -507,15 +507,10 @@ class AIImport {
       const result = await resp.json();
       const raw = (result.result || '').trim();
 
-      // Extract JSON — strip markdown code fences first
-      const cleanRaw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
-      const match = cleanRaw.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-      if (!match) throw new Error('No structured data found in the response. Please add more detail to your input.');
-      try {
-        this._data = JSON.parse(match[0]);
-      } catch (_) {
-        throw new Error('AI returned an incomplete response. Please try again or simplify your input.');
-      }
+      // Extract the first complete balanced JSON structure from the response
+      const extracted = AIImport._extractJSON(raw);
+      if (extracted === null) throw new Error('No structured data found in the response. Please add more detail to your input.');
+      this._data = extracted;
 
       status.textContent = '✓ Data extracted — review below and confirm.';
       status.style.color = 'var(--success, #00C805)';
@@ -644,6 +639,39 @@ class AIImport {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  // ── Robust JSON extractor ────────────────────────────────────────────────
+  // Strips code fences, then walks character-by-character tracking bracket
+  // depth so prose like "found [3] items" doesn't confuse the extraction.
+  static _extractJSON(raw) {
+    const text = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+    // Fast path: the whole trimmed string might already be valid JSON
+    const trimmed = text.trim();
+    if (trimmed[0] === '[' || trimmed[0] === '{') {
+      try { return JSON.parse(trimmed); } catch {}
+    }
+    // Walk forward looking for the first balanced JSON structure
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch !== '[' && ch !== '{') continue;
+      let depth = 0, inStr = false, esc = false;
+      for (let j = i; j < text.length; j++) {
+        const c = text[j];
+        if (esc)              { esc = false; continue; }
+        if (c === '\\' && inStr) { esc = true;  continue; }
+        if (c === '"')           { inStr = !inStr; continue; }
+        if (inStr)               { continue; }
+        if (c === '[' || c === '{') depth++;
+        else if (c === ']' || c === '}') {
+          depth--;
+          if (depth === 0) {
+            try { return JSON.parse(text.slice(i, j + 1)); } catch { break; }
+          }
+        }
+      }
+    }
+    return null;
   }
 
   // ── Shared preview helpers ───────────────────────────────────────────────

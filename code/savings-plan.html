@@ -3541,6 +3541,34 @@ Extract all individual investments into a JSON array. Each item should have thes
 Return ONLY a valid JSON array, no explanation or markdown. Example:
 [{"name":"HDFC Midcap Opportunities","instrumentType":"Mutual Fund","assetClass":"Equity","subCategory":"Mid Cap MF","indexType":"Active","fundHouse":"HDFC","platform":"Groww","amount":5000,"frequency":"monthly","notes":"Direct plan"}]`;
 
+        function extractFirstJSON(raw) {
+            const text = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+            const trimmed = text.trim();
+            if (trimmed[0] === '[' || trimmed[0] === '{') {
+                try { return JSON.parse(trimmed); } catch {}
+            }
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (ch !== '[' && ch !== '{') continue;
+                let depth = 0, inStr = false, esc = false;
+                for (let j = i; j < text.length; j++) {
+                    const c = text[j];
+                    if (esc)                  { esc = false; continue; }
+                    if (c === '\\' && inStr)  { esc = true;  continue; }
+                    if (c === '"')            { inStr = !inStr; continue; }
+                    if (inStr)                { continue; }
+                    if (c === '[' || c === '{') depth++;
+                    else if (c === ']' || c === '}') {
+                        depth--;
+                        if (depth === 0) {
+                            try { return JSON.parse(text.slice(i, j + 1)); } catch { break; }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         async function runAIImport() {
             const statusEl = document.getElementById('importStatusMsg');
             const previewEl = document.getElementById('importPreview');
@@ -3593,11 +3621,8 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                 const data = await resp.json();
                 const raw = (data.result || '').trim();
 
-                const cleanRaw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
-                const jsonMatch = cleanRaw.match(/\[[\s\S]*\]/);
-                if (!jsonMatch) throw new Error('No investment data found in the response. Please add more detail to your input.');
-                let parsed;
-                try { parsed = JSON.parse(jsonMatch[0]); } catch (_) { throw new Error('AI returned an incomplete response. Please try again or simplify your input.'); }
+                const parsed = extractFirstJSON(raw);
+                if (!parsed) throw new Error('No investment data found. Please add more detail or try different input.');
 
                 if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('No investments found in the provided data');
 

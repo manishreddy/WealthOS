@@ -53,6 +53,7 @@ router.post('/', async (req, res) => {
       .map(b => b.text)
       .join('');
 
+    console.log('[ai-parse] raw response (first 600 chars):', text.substring(0, 600));
     return res.json({ result: text });
   } catch (err) {
     console.error('ai-parse error:', err);
