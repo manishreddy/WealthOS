@@ -450,7 +450,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
                     <div class="ai-header">
                         <div>
                             <div class="section-title">AI Financial Insights</div>
-                            <div class="section-sub">Personalized analysis powered by Claude</div>
+                            <div class="section-sub">Personalized analysis powered by AI</div>
                         </div>
                         <button class="ai-btn" id="aiInsightsBtn" onclick="generateAIInsights()">✨ Generate Insights</button>
                     </div>
@@ -1815,7 +1815,7 @@ function renderPJBarChart(rows, containerId) {
 function openTaxImport() {
     new AIImport({
         title: 'Import Tax Details via AI',
-        description: 'Paste your salary slip, Form 16, or any income/deduction table and Claude will fill in the tax fields for you.',
+        description: 'Paste your salary slip, Form 16, or any income/deduction table and AI will fill in the tax fields for you.',
         placeholder: 'Gross Salary: 18,00,000\nHRA: 3,60,000\n80C (ELSS+PPF): 1,50,000\n80D Health Insurance: 25,000\n80CCD1B NPS: 50,000\nHome Loan Interest: 2,00,000\n...',
         buildPrompt() {
             return `You are a tax data extractor for WealthOS India tax planning.

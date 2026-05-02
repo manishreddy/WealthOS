@@ -3546,7 +3546,7 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
             const previewEl = document.getElementById('importPreview');
             const confirmBtn = document.getElementById('importConfirmBtn');
 
-            statusEl.textContent = '⏳ Parsing with Claude AI…';
+            statusEl.textContent = '⏳ Parsing with AI…';
             previewEl.style.display = 'none';
             confirmBtn.style.display = 'none';
 
@@ -3593,9 +3593,11 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                 const data = await resp.json();
                 const raw = (data.result || '').trim();
 
-                const jsonMatch = raw.match(/\[[\s\S]*\]/);
-                if (!jsonMatch) throw new Error('Could not extract investment data from response');
-                const parsed = JSON.parse(jsonMatch[0]);
+                const cleanRaw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+                const jsonMatch = cleanRaw.match(/\[[\s\S]*\]/);
+                if (!jsonMatch) throw new Error('No investment data found in the response. Please add more detail to your input.');
+                let parsed;
+                try { parsed = JSON.parse(jsonMatch[0]); } catch (_) { throw new Error('AI returned an incomplete response. Please try again or simplify your input.'); }
 
                 if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('No investments found in the provided data');
 
@@ -3837,7 +3839,7 @@ Return ONLY a valid JSON array, no explanation or markdown. Example:
                 <button onclick="closeImportModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);line-height:1;">×</button>
             </div>
             <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:24px;">
-                Paste a CSV, copy a table from Google Sheets, or describe your investments in plain text. Claude AI will extract and populate all fields automatically.
+                Paste a CSV, copy a table from Google Sheets, or describe your investments in plain text. AI will extract and populate all fields automatically.
             </div>
 
             <!-- Tab Switcher -->
@@ -3889,7 +3891,7 @@ I invest ₹5000/month in HDFC Midcap MF (Mid Cap), ₹3000 in Nifty 50 ETF, and
 
             <div style="display:flex;gap:12px;margin-top:16px;align-items:center;">
                 <button class="action-btn primary" onclick="runAIImport()" style="display:flex;align-items:center;gap:8px;">
-                    <span>✨</span> Parse with Claude AI
+                    <span>✨</span> Parse with AI
                 </button>
                 <span id="importStatusMsg" style="font-size:0.875rem;color:var(--text-secondary);"></span>
             </div>

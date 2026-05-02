@@ -1261,7 +1261,7 @@ body {
                                     <div style="position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#0066ff,#00d4ff);color:#fff;font-size:0.625rem;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;">AI Powered</div>
                                     <div class="data-action-icon" style="background:linear-gradient(135deg,rgba(0,102,255,0.15),rgba(0,212,255,0.15));">✨</div>
                                     <div class="data-action-title">Import from Excel / CSV</div>
-                                    <div class="data-action-description">Upload any spreadsheet — Claude AI maps portfolio, goals, income & expenses automatically</div>
+                                    <div class="data-action-description">Upload any spreadsheet — AI maps portfolio, goals, income & expenses automatically</div>
                                 </div>
 
                                 <div class="data-action-card" onclick="downloadBackup()">
@@ -2186,7 +2186,7 @@ body {
             const status = document.getElementById('siStatusMsg');
             btn.disabled = true;
             status.style.color = 'var(--text-secondary)';
-            status.textContent = '⏳ Uploading and analysing with Claude AI… this may take 10–20 seconds.';
+            status.textContent = '⏳ Uploading and analysing with AI… this may take 10–20 seconds.';
 
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -2400,7 +2400,7 @@ body {
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
                 <div>
                     <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text-primary);">✨ Import from Excel / CSV</h2>
-                    <div style="font-size:0.875rem;color:var(--text-secondary);margin-top:4px;">Claude AI reads your spreadsheet and maps data to Portfolio, Goals, Income & Expenses</div>
+                    <div style="font-size:0.875rem;color:var(--text-secondary);margin-top:4px;">AI reads your spreadsheet and maps data to Portfolio, Goals, Income & Expenses</div>
                 </div>
                 <button onclick="closeSpreadsheetImport()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);line-height:1;padding:4px;">×</button>
             </div>
@@ -2438,7 +2438,7 @@ body {
             <!-- Actions -->
             <div style="display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;">
                 <button id="siParseBtn" onclick="runSpreadsheetParse()" style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));color:#fff;font-size:0.9375rem;font-weight:600;cursor:pointer;">
-                    <span>✨</span> Analyse with Claude AI
+                    <span>✨</span> Analyse with AI
                 </button>
                 <span id="siStatusMsg" style="font-size:0.875rem;"></span>
             </div>

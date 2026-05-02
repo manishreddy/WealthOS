@@ -266,7 +266,7 @@ class AIImport {
           <div class="ai-imp-dropzone ai-imp-img-zone">
             <div class="ai-imp-dropzone-icon">🖼️</div>
             <div class="ai-imp-dropzone-title">Click or drag & drop a screenshot</div>
-            <div class="ai-imp-dropzone-hint">Supports PNG, JPG, WEBP — Claude will read it directly</div>
+            <div class="ai-imp-dropzone-hint">Supports PNG, JPG, WEBP — AI will read it directly</div>
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif"
               style="display:none;" class="ai-imp-img-input">
           </div>
@@ -302,7 +302,7 @@ class AIImport {
 
         <!-- Actions -->
         <div class="ai-imp-actions">
-          <button class="ai-imp-btn-parse">✨ Parse with Claude AI</button>
+          <button class="ai-imp-btn-parse">✨ Parse with AI</button>
           <span class="ai-imp-status"></span>
         </div>
 
@@ -436,7 +436,7 @@ class AIImport {
 
     // Update title/desc from current config
     m.querySelector('.ai-imp-title-text').textContent = this.config.title || 'Import with AI';
-    m.querySelector('.ai-imp-desc-text').textContent = this.config.description || 'Paste, screenshot or upload — Claude extracts structured data automatically.';
+    m.querySelector('.ai-imp-desc-text').textContent = this.config.description || 'Paste, screenshot or upload — AI extracts structured data automatically.';
     m.querySelector('.ai-imp-paste-input').placeholder = this.config.placeholder || 'Paste table, CSV rows, or describe your data…';
 
     m.querySelector('.ai-imp-paste-input').value = '';
@@ -463,7 +463,7 @@ class AIImport {
 
     parseBtn.disabled = true;
     status.style.color = 'var(--text-secondary, #666)';
-    status.textContent = '⏳ Parsing with Claude AI…';
+    status.textContent = '⏳ Parsing with AI…';
     m.querySelector('.ai-imp-preview').style.display = 'none';
     m.querySelector('.ai-imp-btn-confirm').style.display = 'none';
     this._data = null;
@@ -491,7 +491,7 @@ class AIImport {
           if (!convResp.ok) throw new Error('Failed to convert Excel file');
           const convData = await convResp.json();
           fileText = convData.text || '';
-          status.textContent = '⏳ Parsing with Claude AI…';
+          status.textContent = '⏳ Parsing with AI…';
         } else {
           fileText = await this._csvFile.text();
         }
@@ -507,10 +507,15 @@ class AIImport {
       const result = await resp.json();
       const raw = (result.result || '').trim();
 
-      // Extract JSON
-      const match = raw.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-      if (!match) throw new Error('Could not extract data from response.');
-      this._data = JSON.parse(match[0]);
+      // Extract JSON — strip markdown code fences first
+      const cleanRaw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+      const match = cleanRaw.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      if (!match) throw new Error('No structured data found in the response. Please add more detail to your input.');
+      try {
+        this._data = JSON.parse(match[0]);
+      } catch (_) {
+        throw new Error('AI returned an incomplete response. Please try again or simplify your input.');
+      }
 
       status.textContent = '✓ Data extracted — review below and confirm.';
       status.style.color = 'var(--success, #00C805)';
