@@ -20,7 +20,7 @@ function fyToMonths(fy) {
 
 async function getActiveMembers(userId) {
   const res = await query(
-    'SELECT id, name FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order, id',
+    'SELECT id, name, age FROM family_members WHERE user_id = $1 AND is_active = 1 ORDER BY display_order, id',
     [userId]
   );
   return res.rows;
@@ -106,6 +106,88 @@ router.get('/actuals', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/budget-defaults', async (req, res) => {
+  try {
+    const now = new Date();
+    const months = [];
+    for (let i = 0; i < 3; i++) {
+      let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
+    }
+
+    let totalExpenditure = 0;
+    let dataMonths = 0;
+
+    for (const { year, month } of months) {
+      const r = await query(
+        'SELECT SUM(expenditure) as exp FROM monthly_data WHERE user_id = $1 AND year = $2 AND month = $3',
+        [req.userId, year, month]
+      );
+      const val = parseFloat(r.rows[0]?.exp) || 0;
+      if (val > 0) { totalExpenditure += val; dataMonths++; }
+    }
+
+    const monthlyAvg = dataMonths > 0 ? Math.round(totalExpenditure / dataMonths) : 0;
+    res.json({ monthlyAvg, dataMonths });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/tracker-baseline', async (req, res) => {
+  try {
+    const members = await getActiveMembers(req.userId);
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const memberData = [];
+
+    for (const member of members) {
+      const latestRes = await query(
+        `SELECT year, month, income, expenditure, expense_breakup
+         FROM monthly_data
+         WHERE user_id = $1 AND member_id = $2 AND (income > 0 OR expenditure > 0)
+         ORDER BY year DESC, month DESC LIMIT 1`,
+        [req.userId, member.id]
+      );
+      const row = latestRes.rows[0];
+      memberData.push({
+        id: member.id,
+        name: member.name,
+        monthlyIncome: row ? parseFloat(row.income) : 0,
+        monthlyExpenditure: row ? parseFloat(row.expenditure) : 0,
+        expenseBreakup: row ? JSON.parse(row.expense_breakup || '[]') : [],
+        dataMonth: row ? MONTHS[row.month - 1] + ' ' + row.year : null,
+      });
+    }
+
+    const goalsRes = await query(
+      `SELECT id, name, funding_type, monthly_contribution, target_date, loan_duration_yrs
+       FROM goals WHERE user_id = $1 AND is_active = 1 AND is_achieved = 0
+       ORDER BY target_date ASC`,
+      [req.userId]
+    );
+
+    const goalExpenses = goalsRes.rows.map(g => {
+      const type = g.funding_type || 'Savings';
+      const targetYear = g.target_date ? new Date(g.target_date).getFullYear() : null;
+      const dur = parseInt(g.loan_duration_yrs) || 0;
+      return {
+        goalId: g.id,
+        name: g.name,
+        type,
+        monthlyAmount: Math.round(parseFloat(g.monthly_contribution) || 0),
+        startYear: targetYear,
+        endYear: type === 'EMI' && targetYear ? targetYear + dur : null,
+      };
+    });
+
+    res.json({ members: memberData, goalExpenses });
+  } catch (err) {
+    console.error('GET /projections/tracker-baseline error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

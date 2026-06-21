@@ -61,7 +61,8 @@ router.get('/retirement/:memberId', async (req, res) => {
       annualReturnRate = 0.12;
     }
 
-    const yearsToRetirement = Math.max(60 - age, 1);
+    const retireAt = member.retirement_age || 60;
+    const yearsToRetirement = Math.max(retireAt - age, 1);
     const r = annualReturnRate;
     const n = yearsToRetirement;
     const annualInvestment = avgMonthlyInvestment * 12;
@@ -340,9 +341,18 @@ router.get('/comprehensive', async (req, res) => {
     );
     const members = membersRes.rows;
 
-    const portfolioRowsRes = await query(
-      'SELECT member_id, SUM(current_value) as total FROM portfolio_assets WHERE user_id = $1 GROUP BY member_id',
+    // Find the most recent month/year with portfolio data for this user
+    const latestSnapshotRes = await query(
+      'SELECT year, month FROM portfolio_assets WHERE user_id = $1 ORDER BY year DESC, month DESC LIMIT 1',
       [userId]
+    );
+    const latestSnapshot = latestSnapshotRes.rows[0];
+    const snapshotYear = latestSnapshot ? latestSnapshot.year : now.getFullYear();
+    const snapshotMonth = latestSnapshot ? latestSnapshot.month : (now.getMonth() + 1);
+
+    const portfolioRowsRes = await query(
+      'SELECT member_id, SUM(current_value) as total FROM portfolio_assets WHERE user_id = $1 AND year = $2 AND month = $3 GROUP BY member_id',
+      [userId, snapshotYear, snapshotMonth]
     );
     const portfolioByMember = {};
     portfolioRowsRes.rows.forEach(r => { portfolioByMember[r.member_id] = parseFloat(r.total) || 0; });
@@ -409,7 +419,14 @@ router.get('/comprehensive', async (req, res) => {
       const age = member.age || 30;
 
       const memberCfg = (projConfig.members || {})[String(member.id)] || {};
-      const retireFY = memberCfg.retireFY || (currentFY + Math.max(60 - age, 1));
+      let retireFY;
+      if (memberCfg.birthYear && memberCfg.retireAge) {
+        retireFY = memberCfg.birthYear + memberCfg.retireAge + 1;
+      } else if (memberCfg.status === 'Retired' || memberCfg.status === 'Not Working') {
+        retireFY = currentFY;
+      } else {
+        retireFY = memberCfg.retireFY || (currentFY + Math.max(60 - age, 1));
+      }
       const yearsToRetire = Math.max(retireFY - currentFY, 1);
 
       const currentCorpus = portfolioByMember[member.id] || 0;
@@ -488,9 +505,26 @@ router.get('/comprehensive', async (req, res) => {
       const yrsFromBase = Math.max(goalTargetYear - goalBaseYear, 0);
       const futureValue = Math.round(ta * Math.pow(1 + inflationRateGoal, yrsFromBase));
       const fundingType = goal.funding_type || 'Savings';
+      const dpPct = parseFloat(goal.down_payment_pct) || (fundingType === 'EMI' ? 20 : 0);
       const downPaymentAmount = fundingType === 'EMI'
-        ? Math.round(futureValue * (parseFloat(goal.down_payment_pct) || 0) / 100)
+        ? Math.round(futureValue * dpPct / 100)
         : 0;
+
+      // Compute ongoing EMI for EMI goals (same formula as enrichGoal in goals.js)
+      let monthlyEmi = 0;
+      let loanEndsFY = null;
+      if (fundingType === 'EMI' && completionFY) {
+        const loanAmount = futureValue - downPaymentAmount;
+        const roiMonthly = (parseFloat(goal.loan_roi) || 8.5) / 100 / 12;
+        const loanMonths = (parseInt(goal.loan_duration_yrs) || 20) * 12;
+        if (loanAmount > 0 && roiMonthly > 0) {
+          const factor = Math.pow(1 + roiMonthly, loanMonths);
+          monthlyEmi = Math.round(loanAmount * roiMonthly * factor / (factor - 1));
+        } else if (loanAmount > 0) {
+          monthlyEmi = Math.round(loanAmount / loanMonths);
+        }
+        loanEndsFY = completionFY + (parseInt(goal.loan_duration_yrs) || 20);
+      }
 
       return {
         id: goal.id,
@@ -512,10 +546,13 @@ router.get('/comprehensive', async (req, res) => {
         notes: goal.notes,
         fundingType,
         isMilestone: goal.is_milestone === 1,
-        downPaymentPct: parseFloat(goal.down_payment_pct) || 0,
+        downPaymentPct: dpPct,
         inflationRate: goal.inflation_rate != null ? parseFloat(goal.inflation_rate) : 8,
         futureValue,
         downPaymentAmount,
+        monthlyEmi,
+        loanEndsFY,
+        loanDurationYrs: parseInt(goal.loan_duration_yrs) || 20,
       };
     });
 
@@ -553,7 +590,9 @@ router.get('/comprehensive', async (req, res) => {
       goals: goalResults,
       timeline,
       yearlyProjections: yearlyProj,
-      config: projConfig
+      config: projConfig,
+      snapshotMonth,
+      snapshotYear
     });
   } catch (err) {
     console.error('GET /planning/comprehensive error:', err);

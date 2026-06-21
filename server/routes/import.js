@@ -5,13 +5,23 @@ const multer = require('multer');
 const Anthropic = require('@anthropic-ai/sdk');
 const { query } = require('../db');
 const { readWorkbookFromBuffer, readCsvFromBuffer, sheetToArrayOfArrays, getSheetNames, getSheet } = require('../utils/excel');
+const { spawnSync } = require('child_process');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
-const anthropic = new Anthropic({
-  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-});
+// Vercel serverless has 4.5MB request body limit
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024 } });
+function makeAnthropicClient() {
+  const opts = {};
+  const key = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (key) opts.apiKey = key;
+  const base = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL || process.env.ANTHROPIC_BASE_URL;
+  if (base) opts.baseURL = base;
+  return new Anthropic(opts);
+}
+const anthropic = makeAnthropicClient();
 
 function extractFirstJSON(raw) {
   const text = raw.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
@@ -489,6 +499,141 @@ router.post('/parse-holdings', upload.single('file'), async (req, res) => {
   } catch (err) {
     console.error('parse-holdings error:', err);
     return res.status(500).json({ error: err.message });
+  }
+});
+
+// ── CAS PDF Parser ───────────────────────────────────────────────────────────
+function extractCasText(buffer, password) {
+  const tmpPath = path.join(os.tmpdir(), `cas_${Date.now()}_${Math.random().toString(36).slice(2)}.pdf`);
+  try {
+    fs.writeFileSync(tmpPath, buffer);
+    const args = ['-upw', password, '-layout', tmpPath, '-'];
+    const result = spawnSync('pdftotext', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+    if (result.error) throw new Error('pdftotext not found. Please install poppler-utils.');
+    if (result.status !== 0) {
+      const stderr = (result.stderr || '').toLowerCase();
+      if (stderr.includes('password') || stderr.includes('incorrect')) throw new Error('Incorrect PDF password.');
+      throw new Error('Failed to read PDF. ' + (result.stderr || '').substring(0, 200));
+    }
+    if (!result.stdout || result.stdout.length < 100) throw new Error('PDF appears to be empty or unreadable.');
+    return result.stdout;
+  } finally {
+    try { fs.unlinkSync(tmpPath); } catch {}
+  }
+}
+
+async function parseCasWithClaude(text) {
+  // Extract reported total portfolio value from the document for validation context
+  const totalValueMatch = text.match(/Total Portfolio Value[^\d]*([\d,]+\.[\d]{2})/);
+  const totalValue = totalValueMatch ? totalValueMatch[1] : 'unknown';
+
+  // Send the ENTIRE CAS text to Claude — no sectioning, no truncation.
+  // Claude reads the full document and extracts all holdings itself.
+  const prompt = `You are parsing a CDSL/NSDL Consolidated Account Statement (CAS).
+The document reports a Total Portfolio Value of ₹${totalValue}. Your extracted holdings must account for this full amount.
+
+=== CAS DOCUMENT STRUCTURE ===
+This CAS contains:
+1. DEMAT ACCOUNT HOLDINGS: Multiple "HOLDING STATEMENT AS ON 30-04-2026" sections, one per broker/DP.
+   Table columns: ISIN | Security Name (multi-line) | Current Bal | Frozen Bal | Pledge Bal | Pledge Setup Bal | Free Bal | Market Price/Face Value | Value (₹)
+   - ISIN is a 12-char code (IN..., INF..., INE..., IN0...)
+   - "Value (₹)" is the current market value — this is currentValue
+   - "Market Price / Face Value" × balance = approximate currentValue
+   - "Current Bal" or "Free Bal" = units
+   - BONDS table: ISIN Name | Coupon | Maturity | Quantity | Face Value per Bond | Market Value per Bond | Value in (₹)
+   - Skip rows where Value = 0.00 or "--" or "Nil Holding"
+   - The same ISIN may appear across multiple brokers — import each as a SEPARATE holding
+
+2. MF FOLIO HOLDINGS (held directly with AMC/RTA, NOT through demat):
+   Section: "MUTUAL FUND UNITS HELD AS ON 30-04-2026"
+   Table columns: Scheme Name | ISIN | Folio No. | Closing Bal (Units) | NAV (₹) | Cumulative Amount Invested (INR) | Valuation (₹) | Unrealised P/L | P/L%
+   - "Valuation (₹)" = currentValue
+   - "Cumulative Amount Invested" = purchaseValue
+   - "Closing Bal" = units
+   - Strip code prefixes from Scheme Name (e.g. "88Y -", "TSDG -", "MCDG -", "788 -")
+   - Same ISIN in different folio numbers = SEPARATE holdings (do NOT merge)
+
+=== OUTPUT ===
+Return ONLY a valid JSON array, nothing else. No markdown, no explanation, no prefix text.
+Each element MUST have:
+{
+  "name": "clean fund or stock name",
+  "isin": "12-char ISIN string",
+  "assetType": "stocks" | "mutual-funds" | "etf" | "gold" | "fd",
+  "assetClass": "Equity" | "Debt" | "Gold" | "Hybrid" | "Cash",
+  "units": number or null,
+  "currentValue": number in INR (plain number, no commas or ₹ symbol),
+  "purchaseValue": number in INR or null,
+  "category": one of: "ELSS" | "Large Cap" | "Mid Cap" | "Small Cap" | "Flexi Cap" | "Index" | "Large & Mid Cap" | "Balanced Advantage" | "Arbitrage" | "Debt" | "Liquid" | "International/FoF" | "Gold ETF" | "SGB" | "Bonds" | "Other"
+}
+
+=== CLASSIFICATION ===
+- SGB / "2.5% SGB" / codes IN002...: assetType=gold, assetClass=Gold, category=SGB
+- Gold ETF (GOLD in name): assetType=etf, assetClass=Gold, category="Gold ETF"
+- Gold fund of fund (GOLD FOF): assetType=mutual-funds, assetClass=Gold, category="Gold ETF"
+- ELSS / Tax Saver fund: assetType=mutual-funds, assetClass=Equity, category=ELSS
+- Nifty/Sensex/Index ETF or fund (non-gold): assetType=etf, assetClass=Equity, category=Index
+- Balanced Advantage / BAF / Dynamic AA: assetClass=Hybrid, category="Balanced Advantage"
+- Arbitrage fund: assetClass=Hybrid, category=Arbitrage
+- Liquid / Money Market / Overnight / Arbitrage: assetClass=Cash or Hybrid per type
+- Debt / Gilt / G-Sec / Bond fund: assetClass=Debt
+- Mid Cap: category="Mid Cap", assetClass=Equity
+- Small Cap: category="Small Cap", assetClass=Equity
+- Large Cap / Bluechip: category="Large Cap", assetClass=Equity
+- Large & Mid Cap / Emerging Bluechip: category="Large & Mid Cap", assetClass=Equity
+- Flexi Cap / Multi Cap: category="Flexi Cap", assetClass=Equity
+- International / FoF / NASDAQ / US Equity / Greater China: category="International/FoF", assetClass=Equity
+- Regular equity shares (INE...): assetType=stocks, assetClass=Equity, category=Other
+- Corporate Bond / SDL / NCD / Debenture (INE...07..., INE...08...): assetType=fd, assetClass=Debt, category=Bonds
+- MF held in demat (INF...): assetType=mutual-funds
+- ETF held in demat (LIQUIDBEES, NIFTYBEES, GOLDBEES etc.): assetType=etf
+- PPFAS / Parag Parikh: category="Flexi Cap"
+- Mirae Asset Emerging Bluechip / Large Midcap: category="Large & Mid Cap"
+
+=== FULL CAS DOCUMENT TEXT ===
+${text}`;
+
+  console.log(`[parse-cas] Sending full CAS text to Claude: ${text.length} chars, ${Math.round(text.length/4)} est. tokens`);
+
+  const message = await anthropic.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 8192,
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  const raw = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  console.log(`[parse-cas] Response: ${raw.length} chars`);
+
+  const parsed = extractFirstJSON(raw);
+  if (!Array.isArray(parsed)) {
+    console.error('[parse-cas] Failed to parse JSON. Raw (first 500):', raw.substring(0, 500));
+    throw new Error('AI could not extract structured holdings from the CAS statement.');
+  }
+
+  const holdings = parsed.filter(h => h.currentValue > 0);
+  const total = holdings.reduce((s, h) => s + h.currentValue, 0);
+  console.log(`[parse-cas] Extracted ${holdings.length} holdings, total ₹${Math.round(total).toLocaleString('en-IN')}`);
+  return holdings;
+}
+
+router.post('/parse-cas', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (!(req.file.originalname || '').toLowerCase().endsWith('.pdf')) {
+      return res.status(400).json({ error: 'Only PDF files are accepted for CAS import.' });
+    }
+
+    const password = (req.body.password || '').trim();
+    if (!password) return res.status(400).json({ error: 'PDF password is required.' });
+
+    const text = extractCasText(req.file.buffer, password);
+    const holdings = await parseCasWithClaude(text);
+
+    console.log(`[parse-cas] Extracted ${holdings.length} holdings`);
+    return res.json({ success: true, data: holdings });
+  } catch (err) {
+    console.error('[parse-cas] error:', err.message);
+    return res.status(err.message.includes('password') ? 400 : 500).json({ error: err.message });
   }
 });
 

@@ -17,7 +17,7 @@ body {
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; overflow: hidden; }
 
         
         .main-content {
@@ -87,13 +87,13 @@ body {
         }
 
         .action-btn.primary {
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            color: #ffffff;
+            background: var(--cta-bg, #8FE62C);
+            color: var(--cta-text, #111);
         }
 
         .action-btn.primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(143, 230, 44, 0.3);
         }
 
         .action-btn.secondary {
@@ -114,15 +114,15 @@ body {
 
         .summary-card {
             background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border: 1px solid var(--border, #E5E8EC);
+            border-radius: var(--card-radius, 14px);
             padding: 16px 18px;
             transition: all 0.3s ease;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04));
         }
 
         .summary-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            box-shadow: 0 4px 16px rgba(15,23,42,0.07);
             transform: translateY(-1px);
         }
 
@@ -152,11 +152,11 @@ body {
 
         /* ── Timeline strip (always visible) ───────────────────────── */
         .goals-timeline-strip {
-            margin: 0 -40px;
             background: var(--bg-elevated);
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 40px 10px;
+            border: 1px solid var(--border, #E5E8EC);
+            border-radius: var(--card-radius, 14px);
+            box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04));
+            padding: 20px 24px 16px;
             flex-shrink: 0;
         }
         .goals-timeline-strip-header {
@@ -187,14 +187,14 @@ body {
 
         .goal-card {
             background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border: 1px solid var(--border, #E5E8EC);
+            border-radius: var(--card-radius, 14px);
             overflow: hidden;
             transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04));
         }
         .goal-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 16px rgba(15,23,42,0.08);
             transform: translateY(-1px);
         }
         .goal-card.achieved { opacity: 0.65; }
@@ -213,7 +213,7 @@ body {
             width: 32px;
             height: 18px;
             border-radius: 9px;
-            background: var(--border-color, rgba(0,0,0,0.12));
+            background: var(--border, #E5E8EC);
             position: relative;
             transition: background 0.22s;
             flex-shrink: 0;
@@ -301,49 +301,58 @@ body {
             letter-spacing: 0;
             white-space: nowrap;
             background: var(--bg-secondary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            color: var(--text-secondary, #64748B);
+            border: 1px solid var(--border, #E5E8EC);
         }
-        .gc-badge.achieved-badge  { background: rgba(0,200,5,0.08); color: var(--success); border-color: rgba(0,200,5,0.18); }
-        .gc-badge.milestone-badge { background: rgba(139,92,246,0.08); color: #7c3aed; border-color: rgba(139,92,246,0.2); }
-        .goal-card.milestone { border-left: 3px solid #7c3aed; }
+        .gc-badge.achieved-badge       { background: rgba(93,200,64,0.12); color: var(--success); border-color: rgba(93,200,64,0.25); }
+        .gc-badge.milestone-badge      { background: #F1F2F4; color: #6B7280; border-color: #D1D5DB; }
+        .gc-badge.needs-attention-badge { background: rgba(245,158,11,0.12); color: #B45309; border-color: rgba(245,158,11,0.35); }
+        .goal-card.milestone { border-left: 3px solid #8FE62C; }
 
         .gc-date-chip {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-tertiary);
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-secondary);
             white-space: nowrap;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border, #E5E8EC);
         }
+        .gc-date-chip.soon    { background: rgba(59,115,255,0.08); color: #3B73FF; border-color: rgba(59,115,255,0.25); }
+        .gc-date-chip.urgent  { background: rgba(255,149,0,0.12);  color: #C2600A; border-color: rgba(255,149,0,0.3); }
 
         .gc-year-badge {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            min-width: 54px;
-            padding: 6px 10px;
+            gap: 3px;
+            padding: 8px 12px;
             border-radius: 10px;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             flex-shrink: 0;
+            white-space: nowrap;
         }
+        .gc-year-badge.soon   { border-color: rgba(59,115,255,0.3);  background: rgba(59,115,255,0.05); }
+        .gc-year-badge.urgent { border-color: rgba(255,149,0,0.35);  background: rgba(255,149,0,0.07); }
         .gc-year-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            line-height: 1;
-        }
-        .gc-year-value {
-            font-family: var(--font);
-            font-size: 1.125rem;
-            font-weight: 700;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: var(--text-primary);
-            line-height: 1.1;
+            line-height: 1.2;
+        }
+        .gc-year-badge.soon   .gc-year-label { color: #3B73FF; }
+        .gc-year-badge.urgent .gc-year-label { color: #C2600A; }
+        .gc-year-time {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            line-height: 1;
         }
 
         /* Progress section (Savings) */
@@ -382,10 +391,9 @@ body {
         /* EMI funding split */
         .gc-emi-split { padding: 0 20px 14px; }
         .gc-split-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0;
             color: var(--text-tertiary);
             margin-bottom: 7px;
         }
@@ -420,14 +428,16 @@ body {
         }
         .gc-metric:last-child { border-right: none; }
         .gc-metric-label {
-            font-size: 0.64rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0;
             color: var(--text-tertiary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
         .gc-metric-value {
             font-size: 0.9375rem;
@@ -529,21 +539,34 @@ body {
         .goals-timeline-view { display: block; }
 
         .timeline-scroll {
-            overflow-x: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-strong, #CBD5E1) transparent;
+        }
+        .timeline-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-strong, #CBD5E1);
+            border-radius: 2px;
         }
         .timeline-scroll-fade {
             pointer-events: none;
             position: absolute;
             top: 0; right: 0; bottom: 0;
-            width: 40px;
+            width: 48px;
             background: linear-gradient(to right, transparent, var(--bg-elevated));
             z-index: 2;
             display: none;
         }
         .timeline-inner {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         .timeline-axis-line {
             position: absolute;
@@ -647,6 +670,7 @@ body {
         .goals-subtabs {
             display: flex;
             gap: 4px;
+            margin-top: 24px;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0;
@@ -676,10 +700,10 @@ body {
         .emi-breakdown-section {
             margin-top: 0;
             background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border: 1px solid var(--border, #E5E8EC);
+            border-radius: var(--card-radius, 14px);
             overflow: hidden;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04));
         }
         .emi-section-header {
             padding: 16px 20px 14px;
@@ -707,11 +731,9 @@ body {
         .emi-table th {
             padding: 10px 16px;
             background: var(--bg-secondary);
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
             text-align: left;
             border-bottom: 1px solid var(--border-subtle);
             white-space: nowrap;
@@ -728,7 +750,7 @@ body {
         }
         .emi-table tr:last-child td { border-bottom: none; }
         .emi-table tr.emi-current-year td {
-            background: rgba(0, 102, 255, 0.035);
+            background: rgba(143, 230, 44, 0.06);
         }
         .emi-year-cell {
             font-family: var(--font);
@@ -744,11 +766,12 @@ body {
             padding: 1px 6px;
             border-radius: 4px;
             margin-left: 7px;
-            background: rgba(0, 102, 255, 0.12);
-            color: var(--accent-primary);
+            background: rgba(143, 230, 44, 0.12);
+            color: #5a9a10;
             vertical-align: middle;
             letter-spacing: 0.04em;
         }
+        [data-theme="dark"] .emi-now-tag { color: #8FE62C; }
         .emi-amount-cell { text-align: right; }
         .emi-amount {
             font-weight: 700;
@@ -757,9 +780,11 @@ body {
             letter-spacing: -0.02em;
         }
         .emi-amount.sip   { color: var(--accent-primary); }
-        .emi-amount.loan  { color: var(--warning); }
-        .emi-amount.total { color: var(--text-primary); }
-        .emi-amount.zero  { color: var(--text-tertiary); font-weight: 500; font-family: var(--font); font-size: 0.875rem; }
+        .emi-amount.loan     { color: var(--text-primary); }
+        .emi-amount.total    { color: var(--text-primary); font-weight: 700; }
+        .emi-amount.zero     { color: var(--text-tertiary); font-weight: 500; font-family: var(--font); font-size: 0.875rem; }
+        .emi-amount.shortfall { color: #C2600A; font-weight: 700; }
+        .emi-amount.surplus  { color: #3a8c20; font-weight: 700; }
         .emi-goals-cell {
             vertical-align: top;
             padding-top: 10px !important;
@@ -787,20 +812,22 @@ body {
             white-space: nowrap;
         }
         .emi-goal-tag.sip {
-            color: var(--accent-primary);
-            background: rgba(0, 102, 255, 0.07);
-            border-color: rgba(0, 102, 255, 0.2);
+            color: #5a9a10;
+            background: rgba(143, 230, 44, 0.08);
+            border-color: rgba(143, 230, 44, 0.25);
         }
+        [data-theme="dark"] .emi-goal-tag.sip { color: #8FE62C; }
         .emi-goal-tag.loan {
             color: var(--warning);
             background: rgba(251, 146, 60, 0.08);
             border-color: rgba(251, 146, 60, 0.25);
         }
         .emi-goal-tag.milestone {
-            color: #7c3aed;
-            background: rgba(139, 92, 246, 0.08);
-            border-color: rgba(139, 92, 246, 0.25);
+            color: #5a9a10;
+            background: rgba(143, 230, 44, 0.08);
+            border-color: rgba(143, 230, 44, 0.25);
         }
+        [data-theme="dark"] .emi-goal-tag.milestone { color: #8FE62C; }
         .emi-goal-tag .tag-amount {
             font-weight: 700;
             opacity: 0.9;
@@ -808,11 +835,12 @@ body {
         .emi-more-tag {
             position: relative;
             cursor: pointer;
-            color: var(--accent-primary);
-            border-color: rgba(0, 102, 255, 0.25);
-            background: rgba(0, 102, 255, 0.07);
+            color: #5a9a10;
+            border-color: rgba(143, 230, 44, 0.25);
+            background: rgba(143, 230, 44, 0.07);
             font-weight: 600;
         }
+        [data-theme="dark"] .emi-more-tag { color: #8FE62C; }
         .emi-more-popup {
             display: none;
             position: absolute;
@@ -904,12 +932,10 @@ body {
         }
 
         .section-label {
-            font-size: 0.875rem;
+            font-size: 0.9375rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .form-grid {
@@ -954,33 +980,15 @@ body {
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+            border-color: var(--input-focus-border, #8FE62C);
+            box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(143,230,44,0.15));
         }
 
-        /* Normalize type="month" to match other inputs */
-        input[type="month"].form-input {
-            -webkit-appearance: none;
-            appearance: none;
-            line-height: normal;
-        }
-        input[type="month"].form-input::-webkit-calendar-picker-indicator {
-            opacity: 0.45;
-            cursor: pointer;
-            border-radius: 4px;
-            padding: 2px;
-        }
-        input[type="month"].form-input::-webkit-datetime-edit {
-            font-family: var(--font);
-            font-size: 0.9375rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        input[type="month"].form-input::-webkit-datetime-edit-fields-wrapper {
-            padding: 0;
-        }
-        [data-theme="dark"] input[type="month"].form-input::-webkit-calendar-picker-indicator {
-            filter: invert(0.8);
+        /* Custom month+year picker */
+        .wos-month-picker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
 
         /* Member checkboxes */
@@ -1045,8 +1053,8 @@ body {
         }
 
         .modal-btn.save {
-            background: var(--accent-primary);
-            color: #ffffff;
+            background: var(--cta-bg, #8FE62C);
+            color: var(--cta-text, #111);
         }
 
         .modal-btn.save:hover {
@@ -1137,9 +1145,7 @@ body {
                 gap: 10px;
             }
             .goals-timeline-strip {
-                margin: 0 -16px;
-                padding-left: 16px;
-                padding-right: 16px;
+                padding: 16px 16px 12px;
             }
             .form-grid {
                 grid-template-columns: 1fr;
@@ -1233,12 +1239,7 @@ body {
             }
 
             /* Timeline horizontal scroll on mobile */
-            .timeline-scroll {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
             .timeline-scroll-fade { display: block; }
-            .timeline-inner { overflow: visible; }
         }
 
         @media (max-width: 360px) {
@@ -1260,9 +1261,9 @@ body {
         .qf-salary-value { font-size: 1rem; font-weight: 700; color: var(--accent-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
         .qf-salary-ends { font-size: 0.7rem; color: var(--text-tertiary); }
         .qf-salary-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; outline: none; cursor: pointer; }
-        .qf-salary-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); box-shadow: 0 0 0 3px rgba(0,102,255,0.18); transition: box-shadow 0.15s; }
-        .qf-salary-range::-webkit-slider-thumb:hover { box-shadow: 0 0 0 5px rgba(0,102,255,0.28); }
-        .qf-salary-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary); cursor: pointer; border: 2.5px solid var(--bg-elevated); }
+        .qf-salary-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #8FE62C; cursor: pointer; border: 2.5px solid var(--bg-elevated); box-shadow: 0 0 0 3px rgba(143,230,44,0.2); transition: box-shadow 0.15s; }
+        .qf-salary-range::-webkit-slider-thumb:hover { box-shadow: 0 0 0 5px rgba(143,230,44,0.3); }
+        .qf-salary-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #8FE62C; cursor: pointer; border: 2.5px solid var(--bg-elevated); }
         .qf-sections { padding: 8px 0; }
         .qf-section { border-bottom: 1px solid var(--border-color); }
         .qf-section:last-child { border-bottom: none; }
@@ -1275,24 +1276,28 @@ body {
         .qf-section.open .qf-chevron { transform: rotate(180deg); }
         .qf-section-body { display: none; padding: 0 24px 14px; }
         .qf-section.open .qf-section-body { display: block; }
-        .qf-row { display: grid; grid-template-columns: 1fr 72px 120px; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
+        .qf-row { display: grid; grid-template-columns: 1fr 72px 130px; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
         .qf-row:last-child { border-bottom: none; }
-        .qf-row-header { display: grid; grid-template-columns: 1fr 72px 120px; gap: 8px; padding: 4px 0 6px; }
+        .qf-row-header { display: grid; grid-template-columns: 1fr 72px 130px; gap: 8px; padding: 4px 0 8px; }
         .qf-row-header span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
-        .qf-row-header span:last-child, .qf-row-header span:nth-child(2) { text-align: center; }
+        .qf-row-header span:nth-child(2) { text-align: center; }
+        .qf-row-header span:last-child { text-align: right; }
         .qf-name-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; color: var(--text-primary); font-family: var(--font); transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
         .qf-name-input:focus { outline: none; border-color: var(--accent-primary); }
-        .qf-year-input { padding: 7px 6px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 600; color: #8FE62C; font-family: var(--font); text-align: center; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
-        .qf-year-input:focus { outline: none; border-color: #8FE62C; }
+        .qf-year-input { padding: 7px 6px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); font-family: var(--font); text-align: center; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+        .qf-year-input:focus { outline: none; border-color: var(--accent-primary); }
         .qf-amount-input { padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--bg-secondary); font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); font-family: var(--font); text-align: right; transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
         .qf-amount-input:focus { outline: none; border-color: var(--accent-primary); }
+        .qf-fv-text { font-size: 0.7rem; font-weight: 500; color: var(--text-tertiary); text-align: right; margin-top: 3px; white-space: nowrap; }
+        .qf-inflation-note { font-size: 0.75rem; color: var(--text-tertiary); padding: 10px 0 2px; display: flex; align-items: flex-start; gap: 5px; line-height: 1.4; }
+        .qf-cancel-btn { padding: 9px 18px; border-radius: 10px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border-strong, #CBD5E1); background: transparent; color: var(--text-primary); font-family: var(--font); transition: all 0.15s; }
         .qf-overwrite-warn { display: none; align-items: center; gap: 8px; margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(255,149,0,0.1); border: 1px solid rgba(255,149,0,0.3); font-size: 0.8125rem; color: #b45309; }
         [data-theme="dark"] .qf-overwrite-warn { color: #fbbf24; }
         .qf-footer-totals { display: grid; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
         .qf-ft-item { text-align: center; }
         .qf-ft-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-bottom: 3px; }
         .qf-ft-value { font-size: 0.875rem; font-weight: 700; font-family: var(--font); color: var(--text-primary); }
-        .btn-qf-apply { padding: 9px 22px; border-radius: 10px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; border: none; background: var(--accent-primary); color: #ffffff; font-family: var(--font); transition: all 0.15s ease; letter-spacing: -0.01em; }
+        .btn-qf-apply { padding: 9px 22px; border-radius: 10px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; border: none; background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); font-family: var(--font); transition: all 0.15s ease; letter-spacing: -0.01em; }
         .btn-qf-apply:hover { opacity: 0.88; transform: translateY(-1px); }
         .btn-qf-apply:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         @media (max-width: 520px) {
@@ -1309,6 +1314,202 @@ body {
             .qf-section-body { padding: 0 14px 14px; }
             .qf-section-header { padding: 14px 16px; }
         }
+
+        /* ── Info tooltip ─────────────────────────────────────────── */
+        .info-tip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 0.58rem;
+            color: var(--text-tertiary);
+            cursor: help;
+            position: relative;
+            vertical-align: middle;
+            margin-left: 3px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .info-tip::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: var(--bg-elevated);
+            font-size: 0.72rem;
+            font-weight: 400;
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: pre-line;
+            width: 230px;
+            display: none;
+            z-index: 600;
+            text-align: left;
+            line-height: 1.5;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            pointer-events: none;
+        }
+        .info-tip:hover::after { display: block; }
+
+        /* ── Modal mode toggle ──────────────────────────────────────── */
+        .modal-mode-toggle {
+            display: flex;
+            gap: 3px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 3px;
+            width: fit-content;
+            margin-top: 14px;
+        }
+        .modal-mode-btn {
+            padding: 7px 20px;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+            font-family: var(--font);
+        }
+        .modal-mode-btn.active {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            box-shadow: 0 1px 4px rgba(15,23,42,0.1);
+        }
+
+        /* ── Goal mode pill in form ─────────────────────────────────── */
+        .goal-mode-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .goal-mode-option {
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .goal-mode-option:hover { border-color: var(--accent-primary); background: var(--hover-bg); }
+        .goal-mode-option.selected { border-color: var(--accent-primary); background: rgba(143,230,44,0.06); }
+        .goal-mode-option-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .goal-mode-option-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── Batch goal cards ───────────────────────────────────────── */
+        .bgc {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.15s;
+        }
+        .bgc:last-of-type { margin-bottom: 0; }
+        .bgc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            user-select: none;
+            gap: 8px;
+        }
+        .bgc-header:hover { background: var(--bg-hover, #f1f5f9); }
+        .bgc-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .bgc-summary {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .bgc-chevron {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            transition: transform 0.2s;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .bgc.collapsed .bgc-chevron { transform: rotate(-90deg); }
+        .bgc.collapsed .bgc-body { display: none; }
+        .bgc-body {
+            padding: 20px 20px 8px;
+            border-top: 1px solid var(--border-color);
+        }
+        .bgc-rm-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 0 0 8px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .bgc-rm-btn:hover { color: #ef4444; }
+        .bgc-add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 12px;
+            border: 1.5px dashed var(--border-strong);
+            border-radius: 10px;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: var(--font);
+            transition: all 0.15s;
+        }
+        .bgc-add-btn:hover {
+            border-color: var(--accent-primary, #8FE62C);
+            color: var(--accent-primary, #8FE62C);
+            background: rgba(143,230,44,0.04);
+        }
+
+        /* ── Form label with info icon ─────────────────────────────── */
+        .form-label-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
     <link rel="stylesheet" href="controls.css">
 </head>
@@ -1318,19 +1519,15 @@ body {
 
         <main class="main-content">
 
-            <div class="top-bar">
-                <div class="page-header">
-                    <div class="page-title">Goals Planning</div>
-                    <div class="page-subtitle">Plan, track, and achieve your financial dreams</div>
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Goals Planning</h1>
+                    <p class="page-subtitle">Plan, track, and achieve your financial dreams</p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="top-actions">
-                        <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with example Indian goals">⚡ Quick Fill</button>
-                        <button class="action-btn secondary" onclick="openGoalsImport()" style="display:flex;align-items:center;gap:6px;">✨ Import via AI</button>
-                        <button class="action-btn primary" id="addGoalBtn" onclick="openModal()">
-                            ➕ Add Goal
-                        </button>
-                    </div>
+                <div class="top-actions">
+                    <button class="action-btn secondary" onclick="openQuickFill()" title="Pre-fill with example Indian goals">⚡ Quick Fill</button>
+                    <button class="action-btn secondary" onclick="openGoalsImport()">✨ Import via AI</button>
+                    <button class="action-btn primary" id="addGoalBtn" onclick="openModal()">➕ Add Goal</button>
                 </div>
             </div>
 
@@ -1374,7 +1571,7 @@ body {
             <!-- Sub-tabs -->
             <div class="goals-subtabs">
                 <button class="goals-subtab-btn active" onclick="switchGoalsTab('goals', this)">Goals</button>
-                <button class="goals-subtab-btn" onclick="switchGoalsTab('emi', this)">EMI Breakdown</button>
+                <button class="goals-subtab-btn" onclick="switchGoalsTab('emi', this)">Savings / EMI Timeline</button>
             </div>
 
             <!-- Tab: Goals list -->
@@ -1383,7 +1580,7 @@ body {
                     <div class="guidance-card" style="background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 12px;">
                         <h3 style="margin: 0 0 6px; font-size: 1rem; color: var(--text-primary);">🎯 Define Your Financial Goals</h3>
                         <p style="color: var(--text-secondary); margin: 0 0 12px; font-size: 0.9rem;">Goals give your savings direction. Add goals like buying a house, children's education, retirement, or a vacation.</p>
-                        <button onclick="document.getElementById('addGoalBtn').click()" style="background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">Add Your First Goal</button>
+                        <button onclick="document.getElementById('addGoalBtn').click()" style="background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">Add Your First Goal</button>
                     </div>
                 </div>
 
@@ -1404,120 +1601,175 @@ body {
 
     <!-- Add/Edit Goal Modal -->
     <div class="modal-overlay" id="goalModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title" id="modalTitle">Add New Goal</div>
-                <div class="modal-subtitle">Set a financial goal and track your progress</div>
-            </div>
-
-            <div class="modal-body">
-                <div class="modal-section">
-                    <div class="section-label">Basic Details</div>
-                    <div class="form-grid">
-                        <div class="form-group full">
-                            <label class="form-label">Goal Name *</label>
-                            <input type="text" class="form-input" id="formGoalName" placeholder="e.g., Dream House" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Goal Type *</label>
-                            <select class="form-select" id="formGoalType" onchange="onGoalTypeChange()">
-                                <option value="House">House</option>
-                                <option value="Education">Education</option>
-                                <option value="Vacation">Vacation</option>
-                                <option value="Vehicle">Vehicle</option>
-                                <option value="Retirement">Retirement</option>
-                                <option value="Emergency">Emergency</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Goal Mode</label>
-                            <div style="display:flex;gap:8px;margin-top:4px;">
-                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
-                                    <input type="radio" name="goalMode" value="Spending" id="goalModeSpending" onchange="toggleGoalMode()" checked>
-                                    Spending Goal
-                                </label>
-                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
-                                    <input type="radio" name="goalMode" value="Milestone" id="goalModeMilestone" onchange="toggleGoalMode()">
-                                    Milestone
-                                </label>
-                            </div>
-                            <div id="goalModeHint" style="font-size:0.75rem;color:var(--text-tertiary);margin-top:4px;">Corpus deducted when goal is funded.</div>
-                        </div>
-                        <div class="form-group" id="fieldFundingType">
-                            <label class="form-label">Funding Type</label>
-                            <div style="display:flex;gap:8px;margin-top:4px;">
-                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
-                                    <input type="radio" name="fundingType" value="Savings" id="fundTypeSavings" onchange="toggleFundingFields()" checked>
-                                    Savings (SIP)
-                                </label>
-                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">
-                                    <input type="radio" name="fundingType" value="EMI" id="fundTypeEmi" onchange="toggleFundingFields()">
-                                    EMI (Loan)
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Target Date *</label>
-                            <input type="month" class="form-input" id="formTargetDate" onchange="refreshMemberAges()">
-                            <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">Pick the month &amp; year you want to achieve this goal</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Target Amount (₹) *</label>
-                            <input type="number" class="form-input" id="formTargetAmount" placeholder="1000000" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Amount is in prices of year</label>
-                            <input type="number" class="form-input" id="formBaseYear" placeholder="2026" min="2000" max="2100" step="1">
-                            <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">The year this amount represents — inflation is applied from this year to target date</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Current Amount Saved (₹)</label>
-                            <input type="number" class="form-input" id="formCurrentAmount" placeholder="0" min="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Inflation Rate (%)</label>
-                            <input type="number" class="form-input" id="formInflationRate" placeholder="8" min="0" max="30" step="0.5" value="8">
-                        </div>
-                        <!-- Savings-only field -->
-                        <div class="form-group" id="fieldMonthlyContribution">
-                            <label class="form-label">Monthly Contribution / SIP (₹)</label>
-                            <input type="number" class="form-input" id="formMonthlyContribution" placeholder="5000" min="0" value="0">
-                        </div>
-                        <!-- EMI-only fields -->
-                        <div class="form-group" id="fieldDownPayment" style="display:none;">
-                            <label class="form-label">Down Payment (%)</label>
-                            <input type="number" class="form-input" id="formDownPaymentPct" placeholder="20" min="0" max="100" step="1" value="20">
-                        </div>
-                        <div class="form-group" id="fieldLoanDuration" style="display:none;">
-                            <label class="form-label">Loan Duration (years)</label>
-                            <input type="number" class="form-input" id="formLoanDurationYrs" placeholder="20" min="1" max="30" value="20">
-                        </div>
-                        <div class="form-group" id="fieldLoanRoi" style="display:none;">
-                            <label class="form-label">Loan Interest Rate (%)</label>
-                            <input type="number" class="form-input" id="formLoanRoi" placeholder="8.5" min="0" max="30" step="0.1" value="8.5">
-                        </div>
-                    </div>
+        <div class="modal" style="max-width:700px;">
+            <div class="modal-header" style="padding-bottom:20px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div class="modal-title" id="modalTitle">Add Goal</div>
+                    <button class="qf-modal-close" onclick="closeModal()">×</button>
                 </div>
-
-                <div class="modal-section">
-                    <div class="section-label">Assign to Family Members</div>
-                    <div class="members-list" id="formMembersList">
-                        <div style="color: var(--text-tertiary); font-size: 0.875rem;">Loading members...</div>
-                    </div>
-                </div>
-
-                <div class="modal-section">
-                    <div class="section-label">Notes</div>
-                    <div class="form-group">
-                        <textarea class="form-textarea" id="formNotes" placeholder="Any additional notes about this goal..."></textarea>
-                    </div>
+                <!-- Single / Multiple toggle — hidden when editing -->
+                <div class="modal-mode-toggle" id="modalModeToggle">
+                    <button class="modal-mode-btn active" id="modeSingleBtn" onclick="setModalMode('single')">Single Goal</button>
+                    <button class="modal-mode-btn" id="modeBatchBtn" onclick="setModalMode('batch')">Multiple Goals</button>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
-                <button class="modal-btn save" id="saveGoalBtn" onclick="saveGoal()">Save Goal</button>
+            <!-- ── Single goal panel ─────────────────────────────────── -->
+            <div id="singleGoalPanel">
+                <div class="modal-body">
+                    <div class="modal-section">
+                        <div class="section-label">Basic Details</div>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label class="form-label">Goal Name *</label>
+                                <input type="text" class="form-input" id="formGoalName" placeholder="e.g., Dream House, Child's Education" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Goal Type *</label>
+                                <select class="form-select" id="formGoalType" onchange="onGoalTypeChange()">
+                                    <option value="House">🏠 House</option>
+                                    <option value="Education">🎓 Education</option>
+                                    <option value="Vacation">🏖️ Vacation</option>
+                                    <option value="Vehicle">🚗 Vehicle</option>
+                                    <option value="Retirement">🌅 Retirement</option>
+                                    <option value="Emergency">🛡️ Emergency</option>
+                                    <option value="Other">🎯 Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Date *</label>
+                                <div class="wos-month-picker">
+                                    <select class="form-select" id="formTargetDate_month" onchange="refreshMemberAges()">
+                                        <option value="">Month</option>
+                                        <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+                                        <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+                                        <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+                                        <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                                    </select>
+                                    <select class="form-select" id="formTargetDate_year" onchange="refreshMemberAges()">
+                                        <option value="">Year</option>
+                                    </select>
+                                </div>
+                                <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:4px;display:block;">Month &amp; year you want to achieve this</span>
+                            </div>
+                            <div class="form-group full">
+                                <div class="form-label-row">
+                                    <label class="form-label">Goal Mode</label>
+                                    <span class="info-tip" data-tip="Spending Goal: corpus is deducted from savings when the goal is funded. Best for one-time purchases like a car or house down payment.&#10;&#10;Milestone: corpus is NOT deducted. Your SIP savings build up toward this target. Best for retirement corpus, emergency fund, or child's education.">i</span>
+                                </div>
+                                <div class="goal-mode-options" id="goalModeOptions">
+                                    <div class="goal-mode-option selected" id="optSpending" onclick="selectGoalMode('Spending')">
+                                        <div class="goal-mode-option-title">💸 Spending Goal</div>
+                                        <div class="goal-mode-option-desc">One-time purchase. Corpus is deducted when funded. e.g., Car, House down payment, Vacation.</div>
+                                    </div>
+                                    <div class="goal-mode-option" id="optMilestone" onclick="selectGoalMode('Milestone')">
+                                        <div class="goal-mode-option-title">🏆 Milestone</div>
+                                        <div class="goal-mode-option-desc">Ongoing savings target. Corpus is NOT deducted. e.g., Retirement corpus, Emergency fund, Education.</div>
+                                    </div>
+                                </div>
+                                <!-- hidden radios for compatibility -->
+                                <input type="radio" name="goalMode" value="Spending" id="goalModeSpending" onchange="toggleGoalMode()" checked style="display:none;">
+                                <input type="radio" name="goalMode" value="Milestone" id="goalModeMilestone" onchange="toggleGoalMode()" style="display:none;">
+                            </div>
+                            <div class="form-group" id="fieldFundingType">
+                                <div class="form-label-row">
+                                    <label class="form-label">Funding Type</label>
+                                    <span class="info-tip" data-tip="SIP (Savings): you invest monthly to build a corpus, then make the purchase.&#10;&#10;EMI (Loan): you take a loan at purchase time and repay monthly. WealthOS tracks your down payment savings and EMI commitment.">i</span>
+                                </div>
+                                <div style="display:flex;gap:10px;margin-top:6px;">
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;padding:9px 14px;border:1.5px solid var(--border-color);border-radius:8px;flex:1;transition:all 0.15s;" id="fundLabelSavings">
+                                        <input type="radio" name="fundingType" value="Savings" id="fundTypeSavings" onchange="toggleFundingFields()" checked>
+                                        📈 SIP / Savings
+                                    </label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;padding:9px 14px;border:1.5px solid var(--border-color);border-radius:8px;flex:1;transition:all 0.15s;" id="fundLabelEmi">
+                                        <input type="radio" name="fundingType" value="EMI" id="fundTypeEmi" onchange="toggleFundingFields()">
+                                        🏦 Loan / EMI
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Amount (₹) *</label>
+                                <input type="number" class="form-input" id="formTargetAmount" placeholder="1000000" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label-row">
+                                    <label class="form-label">Amount is in prices of year</label>
+                                    <span class="info-tip" data-tip="Enter the cost in current (or any reference) year's prices. WealthOS applies inflation from this year to your target date to compute the corpus you'll actually need.&#10;&#10;Example: if your goal costs ₹10L today, enter 2026. The future value will be higher.">i</span>
+                                </div>
+                                <input type="number" class="form-input" id="formBaseYear" placeholder="2026" min="2000" max="2100" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Current Amount Saved (₹)</label>
+                                <input type="number" class="form-input" id="formCurrentAmount" placeholder="0" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label-row">
+                                    <label class="form-label">Inflation Rate (%)</label>
+                                    <span class="info-tip" data-tip="Expected annual price rise for this goal category.&#10;&#10;Typical rates:&#10;• Education: 10–12%&#10;• Healthcare: 8–10%&#10;• Real Estate: 5–8%&#10;• General: 6–8%&#10;• Vehicles: 4–6%&#10;• Emergency fund: 0% (use current value)">i</span>
+                                </div>
+                                <input type="number" class="form-input" id="formInflationRate" placeholder="8" min="0" max="30" step="0.5" value="8">
+                            </div>
+                            <!-- Savings-only field -->
+                            <div class="form-group" id="fieldMonthlyContribution">
+                                <div class="form-label-row">
+                                    <label class="form-label">Monthly Contribution / SIP (₹)</label>
+                                    <span class="info-tip" data-tip="How much you're currently investing toward this goal every month. WealthOS will calculate if this is enough to reach your goal on time and show the shortfall.">i</span>
+                                </div>
+                                <input type="number" class="form-input" id="formMonthlyContribution" placeholder="5000" min="0" value="0">
+                            </div>
+                            <!-- EMI-only fields -->
+                            <div class="form-group" id="fieldDownPayment" style="display:none;">
+                                <div class="form-label-row">
+                                    <label class="form-label">Down Payment (%)</label>
+                                    <span class="info-tip" data-tip="Percentage of the total cost you'll pay upfront from savings. The remaining amount will be financed via a loan.&#10;&#10;e.g., 20% down on ₹1Cr = ₹20L saved, ₹80L loan.">i</span>
+                                </div>
+                                <input type="number" class="form-input" id="formDownPaymentPct" placeholder="20" min="0" max="100" step="1" value="20">
+                            </div>
+                            <div class="form-group" id="fieldLoanDuration" style="display:none;">
+                                <label class="form-label">Loan Duration (years)</label>
+                                <input type="number" class="form-input" id="formLoanDurationYrs" placeholder="20" min="1" max="30" value="20">
+                            </div>
+                            <div class="form-group" id="fieldLoanRoi" style="display:none;">
+                                <div class="form-label-row">
+                                    <label class="form-label">Loan Interest Rate (%)</label>
+                                    <span class="info-tip" data-tip="Annual interest rate on the loan. Used to compute your monthly EMI.&#10;&#10;Typical rates (2025):&#10;• Home loan: 8.5–9.5%&#10;• Car loan: 8–12%&#10;• Personal loan: 12–18%">i</span>
+                                </div>
+                                <input type="number" class="form-input" id="formLoanRoi" placeholder="8.5" min="0" max="30" step="0.1" value="8.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="section-label">Assign to Family Members</div>
+                        <div class="members-list" id="formMembersList">
+                            <div style="color: var(--text-tertiary); font-size: 0.875rem;">Loading members...</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="section-label">Notes <span style="font-weight:400;font-size:0.8125rem;color:var(--text-tertiary);">(optional)</span></div>
+                        <div class="form-group">
+                            <textarea class="form-textarea" id="formNotes" placeholder="Any additional notes about this goal…"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                    <button class="modal-btn save" id="saveGoalBtn" onclick="saveGoal()">Save Goal</button>
+                </div>
+            </div>
+
+            <!-- ── Batch goals panel ─────────────────────────────────── -->
+            <div id="batchGoalPanel" style="display:none;">
+                <div class="modal-body" style="padding-top:16px;">
+                    <div id="batchGoalCards"></div>
+                    <button class="bgc-add-btn" onclick="addBatchGoalCard()">＋ Add Another Goal</button>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                    <button class="modal-btn save" id="saveBatchBtn" onclick="saveBatchGoals()">Save All Goals</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1550,16 +1802,32 @@ body {
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="/api.js"></script>
+    <script src="ui.js"></script>
     <script>
         // ─── State ───────────────────────────────────────────────────────────────
-        let allGoals = [];
-        let familyMembers = [];
-        let editingGoalId = null;
-        let simulatingGoalId = null;
+        var allGoals = [];
+        var familyMembers = [];
+        var editingGoalId = null;
+        var simulatingGoalId = null;
+
+        // ─── Goals cache (stale-while-revalidate) ────────────────────────────────
+        // var (not const) so PJAX re-injection doesn't throw on re-declaration
+        var GOALS_CACHE_KEY = 'wealthos_goals_v1';
+        function _loadGoalsCache() {
+            try { const r = localStorage.getItem(GOALS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+        }
+        function _saveGoalsCache() {
+            try { localStorage.setItem(GOALS_CACHE_KEY, JSON.stringify({ goals: allGoals, members: familyMembers })); } catch(e) {}
+        }
+        function _clearGoalsCache() {
+            try { localStorage.removeItem(GOALS_CACHE_KEY); } catch(e) {}
+        }
 
         // ─── Goal type icons ─────────────────────────────────────────────────────
-        const GOAL_TYPE_ICONS = {
+        var GOAL_TYPE_ICONS = {
             'House':      '🏠',
             'Education':  '🎓',
             'Vacation':   '🏖️',
@@ -1569,7 +1837,17 @@ body {
             'Other':      '🎯'
         };
 
-        const GOAL_TYPE_GRADIENTS = {
+        var GOAL_TYPE_CHIP_COLORS = {
+            'House':      { bg: 'rgba(59,115,255,0.08)',  border: 'rgba(59,115,255,0.28)',  text: '#3B73FF' },
+            'Education':  { bg: 'rgba(93,200,64,0.09)',   border: 'rgba(93,200,64,0.3)',    text: '#3a8c20' },
+            'Retirement': { bg: 'rgba(217,119,6,0.09)',   border: 'rgba(217,119,6,0.3)',    text: '#b45309' },
+            'Emergency':  { bg: 'rgba(255,149,0,0.09)',   border: 'rgba(255,149,0,0.3)',    text: '#c2600a' },
+            'Vehicle':    { bg: 'rgba(100,116,139,0.09)', border: 'rgba(100,116,139,0.28)', text: '#475569' },
+            'Vacation':   { bg: 'rgba(6,182,212,0.09)',   border: 'rgba(6,182,212,0.28)',   text: '#0e7490' },
+            'Other':      { bg: 'rgba(171,171,171,0.1)',  border: 'rgba(171,171,171,0.3)',  text: '#6B7280' },
+        };
+
+        var GOAL_TYPE_GRADIENTS = {
             'House':      'var(--bg-secondary)',
             'Education':  'var(--bg-secondary)',
             'Vacation':   'var(--bg-secondary)',
@@ -1581,8 +1859,6 @@ body {
 
         // ─── Page init ───────────────────────────────────────────────────────────
         async function init() {
-            if (!(await WealthAPI.auth.requireAuth())) return;
-
             // Load theme
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -1591,17 +1867,37 @@ body {
                 if (tt) tt.classList.add('active');
             }
 
-            // Load family members and goals in parallel
+            // Render immediately — returning users see cached goals, first-timers see
+            // empty state instead of a hanging spinner while the API loads
+            const cached = _loadGoalsCache();
+            if (cached) {
+                allGoals = cached.goals || [];
+                familyMembers = cached.members || [];
+            }
+            renderGoals();
+            updateSummary();
+
+            // Fetch fresh data (foreground on first visit, silent background refresh on return)
+            let authOk, members, goals;
             try {
-                [familyMembers, allGoals] = await Promise.all([
-                    WealthAPI.family.getMembers(),
-                    WealthAPI.goals.getAll()
+                [authOk, members, goals] = await Promise.all([
+                    WealthAPI.auth.requireAuth(),
+                    WealthAPI.family.getMembers().catch(() => []),
+                    WealthAPI.goals.getAll().catch(() => [])
                 ]);
             } catch (err) {
                 console.error('Failed to load data:', err);
-                familyMembers = [];
-                allGoals = [];
+                if (!cached) {
+                    const container = document.getElementById('goalsContainer');
+                    if (container) container.innerHTML = '<div class="loading-state" style="color:var(--text-secondary);">Unable to load goals. Please refresh.</div>';
+                }
+                return;
             }
+            if (!authOk) return;
+
+            familyMembers = members || [];
+            allGoals = goals || [];
+            _saveGoalsCache();
 
             renderGoals();
             updateSummary();
@@ -1609,6 +1905,7 @@ body {
 
         // ─── Render goal list ────────────────────────────────────────────────────
         function renderGoals() {
+            _saveGoalsCache();
             const container = document.getElementById('goalsContainer');
             const emptyBanner = document.getElementById('emptyStateBanner');
 
@@ -1696,10 +1993,9 @@ body {
             else if (isMilestone)       badge = `<span class="gc-badge milestone-badge">Milestone</span>`;
             else if (isEmi)             badge = `<span class="gc-badge">EMI</span>`;
             else if (goal.isOnTrack)    badge = `<span class="gc-badge">On Track</span>`;
-            else                        badge = `<span class="gc-badge">Needs Attention</span>`;
+            else                        badge = `<span class="gc-badge needs-attention-badge">Needs Attention</span>`;
 
-            // Date chip + year badge
-            let dateChip = '';
+            // Year badge (date chip removed from meta — all info shown in the badge)
             let yearBadge = '';
             if (goal.targetDate) {
                 const [tyear, tmonth] = goal.targetDate.substring(0, 7).split('-');
@@ -1707,15 +2003,18 @@ body {
                     .toLocaleString('en-IN', { month: 'short' });
                 const mr = typeof goal.monthsRemaining === 'number' ? goal.monthsRemaining : null;
                 const cls = mr !== null && mr <= 6 ? 'urgent' : (mr !== null && mr <= 18 ? 'soon' : '');
-                let timeStr = '';
-                if (mr !== null) {
+                let timeRemaining = '';
+                if (goal.isAchieved) {
+                    timeRemaining = 'Achieved';
+                } else if (mr !== null && mr > 0) {
                     const yrs = Math.floor(mr / 12), mos = mr % 12;
-                    timeStr = ' · ' + (yrs > 0 && mos > 0 ? `${yrs}yr ${mos}mo` : yrs > 0 ? `${yrs}yr` : `${mos}mo`);
+                    timeRemaining = (yrs > 0 && mos > 0 ? `${yrs}yr ${mos}mo` : yrs > 0 ? `${yrs}yr` : `${mos}mo`) + ' remaining';
+                } else if (mr !== null && mr === 0) {
+                    timeRemaining = 'This month';
                 }
-                dateChip = `<span class="gc-date-chip ${cls}">📅 ${monthName} ${tyear}${timeStr}</span>`;
                 yearBadge = `<div class="gc-year-badge ${cls}">
-                    <span class="gc-year-label">Target</span>
-                    <span class="gc-year-value">${tyear}</span>
+                    <span class="gc-year-label">Target &nbsp;📅 ${monthName} ${tyear}</span>
+                    ${timeRemaining ? `<span class="gc-year-time">${timeRemaining}</span>` : ''}
                 </div>`;
             }
 
@@ -1752,88 +2051,125 @@ body {
             let middleHtml = '';
             let metricsHtml = '';
 
+            const currentYear = new Date().getFullYear();
+            const goalTargetYear = goal.targetDate ? parseInt(goal.targetDate.substring(0,4)) : currentYear;
+            const isSameYear = goalTargetYear === currentYear;
+
             if (isMilestone) {
+                const mPct = Math.min((goal.currentAmount||0)/(goal.futureValue||1)*100, 100);
+                const mRemaining = Math.max((goal.futureValue||0) - (goal.currentAmount||0), 0);
                 middleHtml = `
                 <div class="gc-progress">
                     <div class="gc-progress-info">
-                        <span class="gc-progress-text">${WealthAPI.formatCurrency(goal.currentAmount||0)} saved · ${WealthAPI.formatCurrency(goal.futureValue||0)} target at date</span>
-                        <span class="gc-progress-pct">${(Math.min((goal.currentAmount||0)/(goal.futureValue||1)*100,100)).toFixed(1)}%</span>
+                        <span class="gc-progress-text">${WealthAPI.formatCurrency(goal.currentAmount||0)} saved · ${WealthAPI.formatCurrency(mRemaining)} remaining · ${WealthAPI.formatCurrency(goal.futureValue||0)} goal target</span>
+                        <span class="gc-progress-pct">${mPct.toFixed(1)}%</span>
                     </div>
                     <div class="gc-bar-track">
-                        <div class="gc-bar-fill" style="width:${Math.min((goal.currentAmount||0)/(goal.futureValue||1)*100,100)}%;background:#7c3aed;"></div>
+                        <div class="gc-bar-fill" style="width:${mPct}%;background:var(--accent-primary);"></div>
                     </div>
                 </div>`;
                 const mSurplus = (goal.monthlyContribution||0) - (goal.requiredMonthlySip||0);
-                const mSipStatus = goal.isAchieved
-                    ? `<span class="gc-metric-value pos">Achieved</span>`
-                    : (goal.monthlyContribution||0) >= (goal.requiredMonthlySip||0)
-                        ? `<span class="gc-metric-value pos">+${WealthAPI.formatCurrency(Math.max(mSurplus,0))}</span><span class="gc-metric-sub">surplus/mo</span>`
-                        : `<span class="gc-metric-value neg">-${WealthAPI.formatCurrency(Math.abs(mSurplus))}</span><span class="gc-metric-sub">gap/mo</span>`;
+                const mShortfall = Math.max(-mSurplus, 0);
+                const mOnTrack = mSurplus >= 0;
+                const mShortfallHtml = goal.isAchieved
+                    ? `<span class="gc-metric-value" style="color:var(--viz-income);">Achieved ✓</span>`
+                    : mOnTrack
+                        ? `<span class="gc-metric-value" style="color:var(--viz-income);">On Track ✓</span>`
+                        : `<span class="gc-metric-value" style="color:var(--viz-expense);">-${WealthAPI.formatCurrency(mShortfall)}</span><span class="gc-metric-sub">per month</span>`;
+                const msipLabel = isSameYear ? 'Savings required / mo' : 'SIP / mo';
+                const msipValue = isSameYear ? (goal.requiredMonthlySip||0) : (goal.stepUpSip||0);
+                const msipSub   = isSameYear ? 'to reach goal on time' : '10% step-up · 12% return';
+                const mCol2Label = isSameYear ? 'Current Amount Saved' : 'Corpus at target date';
+                const mCol2Value = isSameYear ? (goal.currentAmount||0) : (goal.futureValue||0);
+                const mCol2Sub   = isSameYear ? '' : `${goal.inflationRate||8}% inflation · ${goal.baseYear||currentYear}→${goalTargetYear}`;
                 metricsHtml = `
-                <div class="gc-metrics">
+                <div class="gc-metrics" style="grid-template-columns:repeat(5,1fr);">
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
+                        <span class="gc-metric-label">Goal value in ${goal.baseYear || currentYear}</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
                     </div>
-                    <div class="gc-metric hl" style="--hl-bg:rgba(139,92,246,0.08);--hl-border:rgba(139,92,246,0.2);">
-                        <span class="gc-metric-label">Corpus Needed at Target Date</span>
-                        <span class="gc-metric-value" style="color:#7c3aed;font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
-                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
-                    </div>
-                    <div class="gc-metric hl" style="--hl-bg:rgba(139,92,246,0.08);--hl-border:rgba(139,92,246,0.2);">
-                        <span class="gc-metric-label">Step-Up SIP / mo</span>
-                        <span class="gc-metric-value" style="color:#7c3aed;font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.stepUpSip||0)}</span>
-                        <span class="gc-metric-sub">10% annual step-up · 12% return</span>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">${mCol2Label}</span>
+                        <span class="gc-metric-value accent">${WealthAPI.formatCurrency(mCol2Value)}</span>
+                        ${mCol2Sub ? `<span class="gc-metric-sub">${mCol2Sub}</span>` : ''}
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">${(goal.monthlyContribution||0) >= (goal.requiredMonthlySip||0) ? 'SIP Surplus' : 'SIP Gap'}</span>
-                        ${mSipStatus}
+                        <span class="gc-metric-label">${msipLabel}</span>
+                        <span class="gc-metric-value">${WealthAPI.formatCurrency(msipValue)}</span>
+                        <span class="gc-metric-sub">${msipSub}</span>
+                    </div>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">Monthly contribution / SIP</span>
+                        <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.monthlyContribution||0)}</span>
+                        <span class="gc-metric-sub">currently investing</span>
+                    </div>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">${(goal.isAchieved || mOnTrack) ? 'Goal Status' : 'SIP Shortfall'}</span>
+                        ${mShortfallHtml}
                     </div>
                 </div>`;
             } else if (isEmi) {
-                const dpPct   = goal.downPaymentPct || 0;
-                const loanPct = 100 - dpPct;
+                const dpPct      = goal.downPaymentPct || 0;
+                const loanPct    = 100 - dpPct;
+                const dpSaved    = goal.dpSavedSoFar || 0;
+                const dpTotal    = goal.downPaymentAmount || 0;
+                const dpRem      = goal.dpRemaining || 0;
+                const dpProg     = Math.min(goal.dpProgressPct || 0, 100);
+                const dpSip      = goal.downPaymentSip || 0;
+                const dpDone     = dpSaved >= dpTotal && dpTotal > 0;
                 middleHtml = `
                 <div class="gc-emi-split">
-                    <div class="gc-split-label">Funding Breakdown</div>
+                    <div class="gc-split-label">Funding breakdown</div>
                     <div class="gc-split-bar">
                         <div class="gc-split-dp"   style="width:${dpPct}%"></div>
                         <div class="gc-split-loan" style="width:${loanPct}%"></div>
                     </div>
                     <div class="gc-split-info">
-                        <span class="dp-label">↑ Down ${WealthAPI.formatCurrency(goal.downPaymentAmount||0)} (${dpPct}%)</span>
+                        <span class="dp-label">↑ Down ${WealthAPI.formatCurrency(dpTotal)} (${dpPct}%)</span>
                         <span class="loan-label">Loan ${WealthAPI.formatCurrency(goal.loanAmount||0)} (${loanPct}%) ↑</span>
                     </div>
+                </div>
+                <div class="gc-progress" style="padding-top:0;">
+                    <div class="gc-progress-info">
+                        <span class="gc-progress-text">${WealthAPI.formatCurrency(dpSaved)} saved · ${WealthAPI.formatCurrency(dpRem)} remaining · ${WealthAPI.formatCurrency(dpTotal)} down payment</span>
+                        <span class="gc-progress-pct" style="color:${dpDone ? 'var(--viz-income)' : 'var(--text-secondary)'}">${dpProg.toFixed(1)}%</span>
+                    </div>
+                    <div class="gc-bar-track">
+                        <div class="gc-bar-fill${dpDone ? ' on-track' : ''}" style="width:${dpProg}%"></div>
+                    </div>
                 </div>`;
+
+                const dpStatusHtml = dpDone
+                    ? `<span class="gc-metric-value" style="color:var(--viz-income);">Saved ✓</span><span class="gc-metric-sub">down payment complete</span>`
+                    : `<span class="gc-metric-value">${WealthAPI.formatCurrency(dpSip)}</span><span class="gc-metric-sub">/ mo to save by ${goalTargetYear}</span>`;
 
                 metricsHtml = `
                 <div class="gc-metrics six">
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
+                        <span class="gc-metric-label">Goal value in ${goal.baseYear || currentYear}</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Total Future Value</span>
+                        <span class="gc-metric-label">Total future value</span>
                         <span class="gc-metric-value accent">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
-                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
+                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||currentYear}→${goalTargetYear}</span>
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Down Payment</span>
-                        <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.downPaymentAmount||0)}</span>
-                        <span class="gc-metric-sub">Due by ${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
+                        <span class="gc-metric-label">Down payment SIP / mo</span>
+                        ${dpStatusHtml}
                     </div>
                     <div class="gc-metric hl-emi">
-                        <span class="gc-metric-label">EMI / Month</span>
+                        <span class="gc-metric-label">EMI / month</span>
                         <span class="gc-metric-value emi-accent" style="font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.monthlyEmi||0)}</span>
-                        <span class="gc-metric-sub">₹${Math.round((goal.yearlyEmi||0)/100000*10)/10}L/yr</span>
+                        <span class="gc-metric-sub">starts ${goalTargetYear} · ₹${Math.round((goal.yearlyEmi||0)/100000*10)/10}L/yr</span>
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Loan Amount</span>
+                        <span class="gc-metric-label">Loan amount</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.loanAmount||0)}</span>
                         <span class="gc-metric-sub">@ ${goal.loanRoi||8}% p.a.</span>
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Loan Ends</span>
+                        <span class="gc-metric-label">Loan ends</span>
                         <span class="gc-metric-value">FY${goal.loanEndsFy||'—'}</span>
                         <span class="gc-metric-sub">${goal.loanDurationYrs||0}yr tenure</span>
                     </div>
@@ -1841,13 +2177,14 @@ body {
 
             } else {
                 // Savings progress bar
-                const savedStr  = WealthAPI.formatCurrency(goal.currentAmount||0);
-                const targetStr = WealthAPI.formatCurrency(goal.targetAmount||0);
-                const fvStr     = WealthAPI.formatCurrency(goal.futureValue||0);
+                const savedStr     = WealthAPI.formatCurrency(goal.currentAmount||0);
+                const fvStr        = WealthAPI.formatCurrency(goal.futureValue||0);
+                const remainingS   = Math.max((goal.futureValue||0) - (goal.currentAmount||0), 0);
+                const remainingStr = WealthAPI.formatCurrency(remainingS);
                 middleHtml = `
                 <div class="gc-progress">
                     <div class="gc-progress-info">
-                        <span class="gc-progress-text">${savedStr} saved · ${targetStr} in ${goal.baseYear || new Date().getFullYear()} · ${fvStr} at target date</span>
+                        <span class="gc-progress-text">${savedStr} saved · ${remainingStr} remaining · ${fvStr} goal target</span>
                         <span class="gc-progress-pct" style="color:${pctColor}">${progressPct.toFixed(1)}%</span>
                     </div>
                     <div class="gc-bar-track">
@@ -1856,39 +2193,51 @@ body {
                     </div>
                 </div>`;
 
-                const surplus = (goal.monthlyContribution||0) - (goal.requiredMonthlySip||0);
-                const sipStatusHtml = goal.isAchieved
-                    ? `<span class="gc-metric-value pos">Achieved</span>`
-                    : goal.isOnTrack
-                        ? `<span class="gc-metric-value pos">+${WealthAPI.formatCurrency(Math.max(surplus,0))}</span><span class="gc-metric-sub">surplus/mo</span>`
-                        : `<span class="gc-metric-value neg">-${WealthAPI.formatCurrency(Math.abs(surplus))}</span><span class="gc-metric-sub">gap/mo</span>`;
+                const surplus   = (goal.monthlyContribution||0) - (goal.requiredMonthlySip||0);
+                const shortfall = Math.max(-surplus, 0);
+                const isOnTrack = surplus >= 0;
+                const shortfallHtml = goal.isAchieved
+                    ? `<span class="gc-metric-value" style="color:var(--viz-income);">Achieved ✓</span>`
+                    : isOnTrack
+                        ? `<span class="gc-metric-value" style="color:var(--viz-income);">On Track ✓</span>`
+                        : `<span class="gc-metric-value" style="color:var(--viz-expense);">-${WealthAPI.formatCurrency(shortfall)}</span><span class="gc-metric-sub">per month</span>`;
+                const sipLabel = isSameYear ? 'Savings required / mo' : 'SIP / mo';
+                const sipValue = isSameYear ? (goal.requiredMonthlySip||0) : (goal.stepUpSip||0);
+                const sipSub   = isSameYear ? 'to reach goal on time' : '10% step-up · 12% return';
+                const col2Label = isSameYear ? 'Current Amount Saved' : 'Corpus at target date';
+                const col2Value = isSameYear ? (goal.currentAmount||0) : (goal.futureValue||0);
+                const col2Sub   = isSameYear ? '' : `${goal.inflationRate||8}% inflation · ${goal.baseYear||currentYear}→${goalTargetYear}`;
 
                 metricsHtml = `
-                <div class="gc-metrics">
+                <div class="gc-metrics" style="grid-template-columns:repeat(5,1fr);">
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Value in ${goal.baseYear || new Date().getFullYear()}</span>
+                        <span class="gc-metric-label">Goal value in ${goal.baseYear || currentYear}</span>
                         <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.targetAmount||0)}</span>
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">Total Future Value</span>
-                        <span class="gc-metric-value accent">${WealthAPI.formatCurrency(goal.futureValue||0)}</span>
-                        <span class="gc-metric-sub">${goal.inflationRate||8}% inflation · ${goal.baseYear||new Date().getFullYear()}→${goal.targetDate ? new Date(goal.targetDate).getFullYear() : '—'}</span>
-                    </div>
-                    <div class="gc-metric hl">
-                        <span class="gc-metric-label">Step-Up SIP / mo</span>
-                        <span class="gc-metric-value accent" style="font-size:1.0625rem;">${WealthAPI.formatCurrency(goal.stepUpSip||0)}</span>
-                        <span class="gc-metric-sub">10% annual step-up · 12% return</span>
+                        <span class="gc-metric-label">${col2Label}</span>
+                        <span class="gc-metric-value accent">${WealthAPI.formatCurrency(col2Value)}</span>
+                        ${col2Sub ? `<span class="gc-metric-sub">${col2Sub}</span>` : ''}
                     </div>
                     <div class="gc-metric">
-                        <span class="gc-metric-label">${goal.isAchieved ? 'Status' : goal.isOnTrack ? 'SIP Surplus' : 'SIP Gap'}</span>
-                        ${sipStatusHtml}
+                        <span class="gc-metric-label">${sipLabel}</span>
+                        <span class="gc-metric-value">${WealthAPI.formatCurrency(sipValue)}</span>
+                        <span class="gc-metric-sub">${sipSub}</span>
+                    </div>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">Monthly contribution / SIP</span>
+                        <span class="gc-metric-value">${WealthAPI.formatCurrency(goal.monthlyContribution||0)}</span>
+                        <span class="gc-metric-sub">currently investing</span>
+                    </div>
+                    <div class="gc-metric">
+                        <span class="gc-metric-label">${(goal.isAchieved || isOnTrack) ? 'Goal Status' : 'SIP Shortfall'}</span>
+                        ${shortfallHtml}
                     </div>
                 </div>`;
             }
 
             // Build meta parts
             const metaParts = [`<span>${escapeHtml(goal.goalType)}</span>`];
-            if (dateChip) metaParts.push(`<span class="gc-meta-dot"></span>${dateChip}`);
             if (memberStr) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(memberStr)}</span>`);
             if (goal.notes) metaParts.push(`<span class="gc-meta-dot"></span><span>${escapeHtml(goal.notes.substring(0,40))}${goal.notes.length>40?'…':''}</span>`);
 
@@ -1962,7 +2311,11 @@ body {
         // ─── Modal open/close ────────────────────────────────────────────────────
         function openModal() {
             editingGoalId = null;
-            document.getElementById('modalTitle').textContent = 'Add New Goal';
+            document.getElementById('modalTitle').textContent = 'Add Goal';
+            document.getElementById('modalModeToggle').style.display = '';
+            // Reset batch cards so each open starts fresh
+            document.getElementById('batchGoalCards').innerHTML = '';
+            setModalMode('single');
             resetForm();
             populateMembersCheckboxes([]);
             document.getElementById('goalModal').classList.add('active');
@@ -1973,10 +2326,373 @@ body {
             editingGoalId = null;
         }
 
+        // ─── Modal mode: single / batch ───────────────────────────────────────────
+        function setModalMode(mode) {
+            const isSingle = mode === 'single';
+            document.getElementById('singleGoalPanel').style.display = isSingle ? '' : 'none';
+            document.getElementById('batchGoalPanel').style.display  = isSingle ? 'none' : '';
+            document.getElementById('modeSingleBtn').classList.toggle('active', isSingle);
+            document.getElementById('modeBatchBtn').classList.toggle('active', !isSingle);
+            if (!isSingle && document.getElementById('batchGoalCards').children.length === 0) {
+                // Seed first card
+                addBatchGoalCard();
+            }
+        }
+
+        // ─── Batch goal mode ──────────────────────────────────────────────────────
+        var _batchCardId = 0;
+        var GOAL_TYPE_LIST = ['House','Education','Vacation','Vehicle','Retirement','Emergency','Other'];
+
+        function batchCardHtml(rid, cardNum) {
+            const typeOptions = GOAL_TYPE_LIST.map(t =>
+                `<option value="${t}">${GOAL_TYPE_ICONS[t]||'🎯'} ${t}</option>`
+            ).join('');
+            const cy = new Date().getFullYear();
+            return `
+            <div class="bgc" id="bgc_${rid}">
+                <div class="bgc-header" onclick="toggleBatchCard(${rid})">
+                    <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                        <span class="bgc-num">Goal ${cardNum}</span>
+                        <span class="bgc-summary" id="bgc_sum_${rid}">New Goal</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
+                        <button class="bgc-rm-btn" onclick="event.stopPropagation();removeBatchCard(${rid})" title="Remove">×</button>
+                        <span class="bgc-chevron" id="bgc_chev_${rid}">▾</span>
+                    </div>
+                </div>
+                <div class="bgc-body" id="bgc_body_${rid}">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label class="form-label">Goal Name *</label>
+                            <input type="text" class="form-input" id="bg_${rid}_name" placeholder="e.g., Dream House, Child's Education"
+                                oninput="updateBatchSummary(${rid})">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Goal Type *</label>
+                            <select class="form-select" id="bg_${rid}_type" onchange="onBatchTypeChange(${rid})">
+                                ${typeOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Target Date *</label>
+                            <div class="wos-month-picker" id="bg_${rid}_targetDate_wrap">
+                                <select class="form-select" id="bg_${rid}_targetDate_month">
+                                    <option value="">Month</option>
+                                    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+                                    <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+                                    <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+                                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                                </select>
+                                <select class="form-select" id="bg_${rid}_targetDate_year">
+                                    <option value="">Year</option>
+                                </select>
+                            </div>
+                            <span style="font-size:0.75rem;color:var(--text-tertiary);margin-top:4px;display:block;">Month &amp; year you want to achieve this</span>
+                        </div>
+                        <div class="form-group full">
+                            <div class="form-label-row">
+                                <label class="form-label">Goal Mode</label>
+                                <span class="info-tip" data-tip="Spending Goal: corpus is deducted from savings when funded. Best for one-time purchases like a car or house down payment.&#10;&#10;Milestone: corpus is NOT deducted. Your SIP savings build up toward this target. Best for retirement corpus, emergency fund, or child's education.">i</span>
+                            </div>
+                            <div class="goal-mode-options">
+                                <div class="goal-mode-option selected" id="bg_${rid}_optSpending" onclick="selectBatchMode(${rid},'Spending')">
+                                    <div class="goal-mode-option-title">💸 Spending Goal</div>
+                                    <div class="goal-mode-option-desc">One-time purchase. Corpus is deducted when funded. e.g., Car, House down payment, Vacation.</div>
+                                </div>
+                                <div class="goal-mode-option" id="bg_${rid}_optMilestone" onclick="selectBatchMode(${rid},'Milestone')">
+                                    <div class="goal-mode-option-title">🏆 Milestone</div>
+                                    <div class="goal-mode-option-desc">Ongoing savings target. Corpus is NOT deducted. e.g., Retirement corpus, Emergency fund, Education.</div>
+                                </div>
+                            </div>
+                            <input type="radio" name="bg_${rid}_mode" value="Spending" id="bg_${rid}_modeSpending" checked style="display:none;">
+                            <input type="radio" name="bg_${rid}_mode" value="Milestone" id="bg_${rid}_modeMilestone" style="display:none;">
+                        </div>
+                        <div class="form-group" id="bg_${rid}_fieldFunding">
+                            <div class="form-label-row">
+                                <label class="form-label">Funding Type</label>
+                                <span class="info-tip" data-tip="SIP (Savings): invest monthly to build a corpus, then make the purchase.&#10;&#10;EMI (Loan): take a loan at purchase time and repay monthly. WealthOS tracks your down payment savings and EMI commitment.">i</span>
+                            </div>
+                            <div style="display:flex;gap:10px;margin-top:6px;">
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;padding:9px 14px;border:1.5px solid var(--border-color);border-radius:8px;flex:1;transition:all 0.15s;" id="bg_${rid}_fundLabelSavings">
+                                    <input type="radio" name="bg_${rid}_funding" value="Savings" id="bg_${rid}_fundSavings" onchange="toggleBatchFunding(${rid})" checked>
+                                    📈 SIP / Savings
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.875rem;font-weight:500;padding:9px 14px;border:1.5px solid var(--border-color);border-radius:8px;flex:1;transition:all 0.15s;" id="bg_${rid}_fundLabelEmi">
+                                    <input type="radio" name="bg_${rid}_funding" value="EMI" id="bg_${rid}_fundEmi" onchange="toggleBatchFunding(${rid})">
+                                    🏦 Loan / EMI
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Target Amount (₹) *</label>
+                            <input type="number" class="form-input" id="bg_${rid}_amount" placeholder="1000000" min="1">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label">Amount is in prices of year</label>
+                                <span class="info-tip" data-tip="Enter the cost in current (or any reference) year's prices. WealthOS applies inflation from this year to your target date.&#10;&#10;Example: if your goal costs ₹10L today, enter ${cy}. The future value will be higher.">i</span>
+                            </div>
+                            <input type="number" class="form-input" id="bg_${rid}_baseYear" placeholder="${cy}" min="2000" max="2100" value="${cy}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current Amount Saved (₹)</label>
+                            <input type="number" class="form-input" id="bg_${rid}_currentAmount" placeholder="0" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label">Inflation Rate (%)</label>
+                                <span class="info-tip" data-tip="Expected annual price rise for this goal category.&#10;&#10;Typical rates:&#10;• Education: 10–12%&#10;• Healthcare: 8–10%&#10;• Real Estate: 5–8%&#10;• General: 6–8%&#10;• Vehicles: 4–6%">i</span>
+                            </div>
+                            <input type="number" class="form-input" id="bg_${rid}_inflationRate" placeholder="8" min="0" max="30" step="0.5" value="8">
+                        </div>
+                        <div class="form-group" id="bg_${rid}_fieldSip">
+                            <div class="form-label-row">
+                                <label class="form-label">Monthly Contribution / SIP (₹)</label>
+                                <span class="info-tip" data-tip="How much you're currently investing toward this goal every month. WealthOS will calculate if this is enough and show any shortfall.">i</span>
+                            </div>
+                            <input type="number" class="form-input" id="bg_${rid}_sip" placeholder="5000" min="0" value="0">
+                        </div>
+                        <div class="form-group" id="bg_${rid}_fieldDown" style="display:none;">
+                            <div class="form-label-row">
+                                <label class="form-label">Down Payment (%)</label>
+                                <span class="info-tip" data-tip="Percentage of total cost you'll pay upfront from savings. The remaining is financed via a loan.&#10;&#10;e.g., 20% down on ₹1Cr = ₹20L saved, ₹80L loan.">i</span>
+                            </div>
+                            <input type="number" class="form-input" id="bg_${rid}_downPayment" placeholder="20" min="0" max="100" step="1" value="20">
+                        </div>
+                        <div class="form-group" id="bg_${rid}_fieldLoanDur" style="display:none;">
+                            <label class="form-label">Loan Duration (years)</label>
+                            <input type="number" class="form-input" id="bg_${rid}_loanDuration" placeholder="20" min="1" max="30" value="20">
+                        </div>
+                        <div class="form-group" id="bg_${rid}_fieldLoanRoi" style="display:none;">
+                            <div class="form-label-row">
+                                <label class="form-label">Loan Interest Rate (%)</label>
+                                <span class="info-tip" data-tip="Annual interest rate on the loan. Used to compute your monthly EMI.&#10;&#10;Typical rates:&#10;• Home loan: 8.5–9.5%&#10;• Car loan: 8–12%&#10;• Personal loan: 12–18%">i</span>
+                            </div>
+                            <input type="number" class="form-input" id="bg_${rid}_loanInterest" placeholder="8.5" min="0" max="30" step="0.1" value="8.5">
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label">Notes <span style="font-weight:400;font-size:0.8125rem;color:var(--text-tertiary);">(optional)</span></label>
+                            <textarea class="form-textarea" id="bg_${rid}_notes" placeholder="Any additional notes about this goal…" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function addBatchGoalCard() {
+            const rid = ++_batchCardId;
+            // Collapse all currently open cards
+            document.querySelectorAll('.bgc:not(.collapsed)').forEach(c => c.classList.add('collapsed'));
+            const container = document.getElementById('batchGoalCards');
+            const cardNum = container.children.length + 1;
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = batchCardHtml(rid, cardNum);
+            container.appendChild(wrapper.firstElementChild);
+            // Populate year select for this card
+            const cy = new Date().getFullYear();
+            _populateYearSelect('bg_' + rid + '_targetDate_year', cy, cy + 56);
+            // Scroll new card into view
+            const newCard = document.getElementById('bgc_' + rid);
+            newCard && newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function toggleBatchCard(rid) {
+            document.getElementById('bgc_' + rid)?.classList.toggle('collapsed');
+        }
+
+        function removeBatchCard(rid) {
+            const card = document.getElementById('bgc_' + rid);
+            if (card) {
+                card.remove();
+                // Re-number remaining cards
+                document.querySelectorAll('.bgc').forEach((c, i) => {
+                    const numEl = c.querySelector('.bgc-num');
+                    if (numEl) numEl.textContent = 'Goal ' + (i + 1);
+                });
+            }
+        }
+
+        function updateBatchSummary(rid) {
+            const name = document.getElementById('bg_' + rid + '_name')?.value.trim();
+            const sumEl = document.getElementById('bgc_sum_' + rid);
+            if (sumEl) sumEl.textContent = name || 'New Goal';
+        }
+
+        function selectBatchMode(rid, mode) {
+            const isMilestone = mode === 'Milestone';
+            document.getElementById('bg_' + rid + '_optSpending')?.classList.toggle('selected', !isMilestone);
+            document.getElementById('bg_' + rid + '_optMilestone')?.classList.toggle('selected', isMilestone);
+            const radio = document.getElementById('bg_' + rid + (isMilestone ? '_modeMilestone' : '_modeSpending'));
+            if (radio) radio.checked = true;
+            // Milestone goals always use SIP — hide funding toggle
+            const fundingField = document.getElementById('bg_' + rid + '_fieldFunding');
+            if (fundingField) fundingField.style.display = isMilestone ? 'none' : '';
+            if (isMilestone) {
+                const fundSavings = document.getElementById('bg_' + rid + '_fundSavings');
+                if (fundSavings) { fundSavings.checked = true; toggleBatchFunding(rid); }
+            }
+        }
+
+        function onBatchTypeChange(rid) {
+            const type = document.getElementById('bg_' + rid + '_type')?.value;
+            const isMilestone = (type === 'Retirement' || type === 'Emergency');
+            selectBatchMode(rid, isMilestone ? 'Milestone' : 'Spending');
+        }
+
+        function toggleBatchFunding(rid) {
+            const isEmi = document.getElementById('bg_' + rid + '_fundEmi')?.checked;
+            const show = v => v && (v.style.display = '');
+            const hide = v => v && (v.style.display = 'none');
+            isEmi
+                ? (hide(document.getElementById('bg_' + rid + '_fieldSip')),
+                   show(document.getElementById('bg_' + rid + '_fieldDown')),
+                   show(document.getElementById('bg_' + rid + '_fieldLoanDur')),
+                   show(document.getElementById('bg_' + rid + '_fieldLoanRoi')))
+                : (show(document.getElementById('bg_' + rid + '_fieldSip')),
+                   hide(document.getElementById('bg_' + rid + '_fieldDown')),
+                   hide(document.getElementById('bg_' + rid + '_fieldLoanDur')),
+                   hide(document.getElementById('bg_' + rid + '_fieldLoanRoi')));
+        }
+
+        function getBatchGoalData(rid) {
+            const g = id => document.getElementById('bg_' + rid + '_' + id);
+            return {
+                name:          g('name')?.value.trim() || '',
+                type:          g('type')?.value || 'Other',
+                targetDate:    getMonthPickerValue('bg_' + rid + '_targetDate'),
+                isMilestone:   g('modeMilestone')?.checked || false,
+                isEmi:         g('fundEmi')?.checked || false,
+                amount:        parseFloat(g('amount')?.value) || 0,
+                baseYear:      parseInt(g('baseYear')?.value) || new Date().getFullYear(),
+                currentAmount: parseFloat(g('currentAmount')?.value) || 0,
+                inflationRate: parseFloat(g('inflationRate')?.value) || 8,
+                sip:           parseFloat(g('sip')?.value) || 0,
+                downPayment:   parseFloat(g('downPayment')?.value) || 20,
+                loanDuration:  parseInt(g('loanDuration')?.value) || 20,
+                loanInterest:  parseFloat(g('loanInterest')?.value) || 8.5,
+                notes:         g('notes')?.value.trim() || '',
+            };
+        }
+
+        async function saveBatchGoals() {
+            const cards = document.querySelectorAll('#batchGoalCards .bgc');
+            if (cards.length === 0) { showToast('Add at least one goal.', 'error'); return; }
+
+            const goals = [];
+            let hasError = false;
+            cards.forEach(card => {
+                const rid = card.id.replace('bgc_', '');
+                const d = getBatchGoalData(rid);
+                if (!d.name || !d.targetDate || !d.amount) { hasError = true; return; }
+                goals.push({
+                    name:                 d.name,
+                    goalType:             d.type,
+                    targetDate:           d.targetDate,
+                    isMilestone:          d.isMilestone,
+                    fundingType:          d.isEmi ? 'EMI' : 'Savings',
+                    targetAmount:         d.amount,
+                    baseYear:             d.baseYear,
+                    currentAmount:        d.currentAmount,
+                    inflationRate:        d.inflationRate,
+                    monthlyContribution:  d.isEmi ? 0 : d.sip,
+                    downPaymentPct:       d.downPayment,
+                    loanDurationYrs:      d.loanDuration,
+                    loanRoi:              d.loanInterest,
+                    notes:                d.notes,
+                });
+            });
+
+            if (hasError) { showToast('Fill in name, target date, and amount for every goal.', 'error'); return; }
+
+            const btn = document.getElementById('saveBatchBtn');
+            btn.disabled = true; btn.textContent = 'Saving…';
+            let saved = 0;
+            try {
+                for (const g of goals) {
+                    const created = await WealthAPI.goals.add(g);
+                    allGoals.push(created);
+                    saved++;
+                }
+                closeModal();
+                renderGoals();
+                updateSummary();
+                showToast(saved + ' goal' + (saved > 1 ? 's' : '') + ' added ✓', 'success');
+            } catch (err) {
+                showToast('Failed to save: ' + (err.message || err), 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Save All Goals';
+            }
+        }
+
+        // ─── Goal mode card selector ─────────────────────────────────────────────
+        function selectGoalMode(mode) {
+            const isMilestone = mode === 'Milestone';
+            document.getElementById('optSpending').classList.toggle('selected', !isMilestone);
+            document.getElementById('optMilestone').classList.toggle('selected', isMilestone);
+            document.getElementById('goalModeSpending').checked  = !isMilestone;
+            document.getElementById('goalModeMilestone').checked = isMilestone;
+            toggleGoalMode();
+        }
+
+        // ─── Custom month+year picker helpers ────────────────────────────────────
+        const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        function monthPickerHtml(id, onChangeFn) {
+            const cy = new Date().getFullYear();
+            const monthOpts = MONTH_NAMES.map((m, i) =>
+                `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`
+            ).join('');
+            const yearOpts = Array.from({length: 57}, (_, i) => cy + i)
+                .map(y => `<option value="${y}">${y}</option>`).join('');
+            const chg = onChangeFn ? `onchange="${onChangeFn}"` : '';
+            return `<div class="wos-month-picker">
+                <select class="form-select" id="${id}_month" ${chg}>
+                    <option value="">Month</option>${monthOpts}
+                </select>
+                <select class="form-select" id="${id}_year" ${chg}>
+                    <option value="">Year</option>${yearOpts}
+                </select>
+            </div>`;
+        }
+        function getMonthPickerValue(id) {
+            const m = document.getElementById(id + '_month')?.value;
+            const y = document.getElementById(id + '_year')?.value;
+            return (m && y) ? y + '-' + m : '';
+        }
+        function setMonthPickerValue(id, yyyyMm) {
+            if (!yyyyMm) {
+                const mEl = document.getElementById(id + '_month');
+                const yEl = document.getElementById(id + '_year');
+                if (mEl) mEl.value = '';
+                if (yEl) yEl.value = '';
+                return;
+            }
+            const [y, m] = yyyyMm.substring(0, 7).split('-');
+            const mEl = document.getElementById(id + '_month');
+            const yEl = document.getElementById(id + '_year');
+            if (mEl) mEl.value = m;
+            if (yEl) yEl.value = y;
+        }
+
+        function _populateYearSelect(selId, startYear, endYear) {
+            const sel = document.getElementById(selId);
+            if (!sel) return;
+            // Keep placeholder option, rebuild year options
+            while (sel.options.length > 1) sel.remove(1);
+            for (let y = startYear; y <= endYear; y++) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.textContent = y;
+                sel.appendChild(opt);
+            }
+        }
+        function initDatePickers() {
+            const cy = new Date().getFullYear();
+            _populateYearSelect('formTargetDate_year', cy, cy + 56);
+        }
+
         function resetForm() {
             document.getElementById('formGoalName').value = '';
             document.getElementById('formGoalType').value = 'House';
-            document.getElementById('formTargetDate').value = '';
+            setMonthPickerValue('formTargetDate', '');
             document.getElementById('formTargetAmount').value = '';
             document.getElementById('formCurrentAmount').value = '0';
             document.getElementById('formMonthlyContribution').value = '0';
@@ -1992,23 +2708,20 @@ body {
             toggleFundingFields();
         }
 
-        const MILESTONE_GOAL_TYPES = new Set(['Retirement', 'Emergency']);
+        var MILESTONE_GOAL_TYPES = new Set(['Retirement', 'Emergency']);
         function onGoalTypeChange() {
             const type = document.getElementById('formGoalType').value;
-            if (MILESTONE_GOAL_TYPES.has(type)) {
-                document.getElementById('goalModeMilestone').checked = true;
-            } else {
-                document.getElementById('goalModeSpending').checked = true;
-            }
-            toggleGoalMode();
+            selectGoalMode(MILESTONE_GOAL_TYPES.has(type) ? 'Milestone' : 'Spending');
         }
 
         function toggleGoalMode() {
             const isMilestone = document.getElementById('goalModeMilestone').checked;
             document.getElementById('fieldFundingType').style.display = isMilestone ? 'none' : '';
-            document.getElementById('goalModeHint').textContent = isMilestone
-                ? 'Corpus is NOT deducted. SIP savings count toward this corpus target.'
-                : 'Corpus deducted when goal is funded.';
+            // Sync visual card selection
+            const optS = document.getElementById('optSpending');
+            const optM = document.getElementById('optMilestone');
+            if (optS) optS.classList.toggle('selected', !isMilestone);
+            if (optM) optM.classList.toggle('selected', isMilestone);
             if (isMilestone) {
                 document.getElementById('fundTypeSavings').checked = true;
             }
@@ -2038,7 +2751,7 @@ body {
                 container.innerHTML = '<div style="color: var(--text-tertiary); font-size: 0.875rem;">No family members added yet</div>';
                 return;
             }
-            const targetDateVal = document.getElementById('formTargetDate').value; // YYYY-MM
+            const targetDateVal = getMonthPickerValue('formTargetDate');
             const targetYear = targetDateVal ? parseInt(targetDateVal.substring(0,4)) : null;
             const targetMonth = targetDateVal ? parseInt(targetDateVal.substring(5,7)) : null;
 
@@ -2084,7 +2797,7 @@ body {
         async function saveGoal() {
             const name = document.getElementById('formGoalName').value.trim();
             const goalType = document.getElementById('formGoalType').value;
-            const targetDateRaw = document.getElementById('formTargetDate').value.trim();
+            const targetDateRaw = getMonthPickerValue('formTargetDate');
             const targetAmount = parseFloat(document.getElementById('formTargetAmount').value);
             const currentAmount = parseFloat(document.getElementById('formCurrentAmount').value) || 0;
             const monthlyContribution = parseFloat(document.getElementById('formMonthlyContribution').value) || 0;
@@ -2097,11 +2810,11 @@ body {
             const loanRoi = parseFloat(document.getElementById('formLoanRoi').value) || 8;
             const notes = document.getElementById('formNotes').value.trim();
 
-            if (!name) { alert('Please enter a goal name.'); return; }
-            if (!targetAmount || targetAmount <= 0) { alert('Please enter a valid target amount.'); return; }
-            if (!targetDateRaw) { alert('Please select a target date.'); return; }
-            const targetDate = targetDateRaw; // type="month" already returns YYYY-MM
-            if (fundingType === 'EMI' && loanDurationYrs < 1) { alert('Please enter a loan duration of at least 1 year.'); return; }
+            if (!name) { WOS.toast('Please enter a goal name.', 'error'); return; }
+            if (!targetAmount || targetAmount <= 0) { WOS.toast('Please enter a valid target amount.', 'error'); return; }
+            if (!targetDateRaw) { WOS.toast('Please select a target date.', 'error'); return; }
+            const targetDate = targetDateRaw; // YYYY-MM from custom month picker
+            if (fundingType === 'EMI' && loanDurationYrs < 1) { WOS.toast('Please enter a loan duration of at least 1 year.', 'error'); return; }
 
             // Collect assigned members
             const checkedBoxes = document.querySelectorAll('input[name="assignedMembers"]:checked');
@@ -2142,9 +2855,10 @@ body {
                 closeModal();
                 renderGoals();
                 updateSummary();
+                WOS.toast('Goal saved.', 'success');
             } catch (err) {
                 console.error('Failed to save goal:', err);
-                alert('Failed to save goal. Please try again.');
+                WOS.toast('Failed to save goal. Please try again.', 'error');
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = 'Save Goal';
@@ -2158,11 +2872,14 @@ body {
 
             editingGoalId = id;
             document.getElementById('modalTitle').textContent = 'Edit Goal';
+            // Hide mode toggle when editing
+            document.getElementById('modalModeToggle').style.display = 'none';
+            setModalMode('single');
 
             document.getElementById('formGoalName').value = goal.name || '';
             document.getElementById('formGoalType').value = goal.goalType || 'Other';
-            // type="month" uses YYYY-MM format — set directly
-            document.getElementById('formTargetDate').value = goal.targetDate ? goal.targetDate.substring(0, 7) : '';
+            // Populate target date via custom month picker
+            setMonthPickerValue('formTargetDate', goal.targetDate ? goal.targetDate.substring(0, 7) : '');
             document.getElementById('formTargetAmount').value = goal.targetAmount != null ? goal.targetAmount : '';
             document.getElementById('formCurrentAmount').value = goal.currentAmount || 0;
             document.getElementById('formMonthlyContribution').value = goal.monthlyContribution || 0;
@@ -2174,8 +2891,13 @@ body {
             document.getElementById('formNotes').value = goal.notes || '';
 
             const isMilestone = !!goal.isMilestone;
-            document.getElementById('goalModeSpending').checked = !isMilestone;
+            document.getElementById('goalModeSpending').checked  = !isMilestone;
             document.getElementById('goalModeMilestone').checked = isMilestone;
+            // Sync visual mode cards
+            const optS = document.getElementById('optSpending');
+            const optM = document.getElementById('optMilestone');
+            if (optS) optS.classList.toggle('selected', !isMilestone);
+            if (optM) optM.classList.toggle('selected', isMilestone);
             toggleGoalMode();
 
             const isEmi = !isMilestone && goal.fundingType === 'EMI';
@@ -2211,26 +2933,28 @@ body {
                 allGoals.push(created);
                 renderGoals();
                 updateSummary();
-                showToast('Goal cloned — edit to customize', 'success');
+                WOS.toast('Goal cloned — edit to customize', 'success');
                 editGoal(created.id);
             } catch (err) {
                 console.error('Clone goal error:', err);
-                showToast('Failed to clone goal', 'error');
+                WOS.toast('Failed to clone goal', 'error');
             }
         }
 
         // ─── Delete goal ─────────────────────────────────────────────────────────
         async function deleteGoal(id) {
-            if (!confirm('Are you sure you want to delete this goal?')) return;
+            const ok = await WOS.confirm({ title: 'Delete Goal', message: 'Remove this goal permanently? This cannot be undone.', confirmText: 'Delete', danger: true });
+            if (!ok) return;
 
             try {
                 await WealthAPI.goals.remove(id);
                 allGoals = allGoals.filter(g => g.id !== id);
                 renderGoals();
                 updateSummary();
+                WOS.toast('Goal deleted.', 'success');
             } catch (err) {
                 console.error('Failed to delete goal:', err);
-                alert('Failed to delete goal. Please try again.');
+                WOS.toast('Failed to delete goal. Please try again.', 'error');
             }
         }
 
@@ -2244,7 +2968,7 @@ body {
                 renderGoals();
                 updateSummary();
                 const label = updated.isActive ? 'Goal activated — now included in your financial plan.' : 'Goal paused — excluded from financial planning.';
-                if (window.showToast) showToast(label, 'success');
+                WOS.toast(label, 'success');
             } catch (err) {
                 console.error('Failed to toggle goal active state:', err);
             }
@@ -2252,7 +2976,8 @@ body {
 
         // ─── Mark as achieved ────────────────────────────────────────────────────
         async function markAchieved(id) {
-            if (!confirm('Mark this goal as achieved?')) return;
+            const ok = await WOS.confirm({ title: 'Mark as Achieved?', message: 'Congratulations! Mark this goal as achieved and archive it?', confirmText: 'Mark Achieved' });
+            if (!ok) return;
 
             try {
                 const updated = await WealthAPI.goals.update(id, { isAchieved: 1 });
@@ -2260,9 +2985,10 @@ body {
                 if (idx !== -1) allGoals[idx] = updated;
                 renderGoals();
                 updateSummary();
+                WOS.toast('Goal marked as achieved! 🎉', 'success');
             } catch (err) {
                 console.error('Failed to mark goal as achieved:', err);
-                alert('Failed to update goal. Please try again.');
+                WOS.toast('Failed to update goal. Please try again.', 'error');
             }
         }
 
@@ -2371,7 +3097,7 @@ body {
                 renderGoals();
                 updateSummary();
             } catch(e) {
-                alert('Failed to update goal: ' + e.message);
+                WOS.toast('Failed to update goal: ' + e.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Apply Change';
@@ -2450,7 +3176,7 @@ body {
                         <div class="tl-progress-bar"><div class="tl-progress-fill" style="width:${progressPct}%;background:var(--accent-primary);opacity:0.6;"></div></div>
                     </div>`;
 
-                const dotStyle = `style="background:var(--accent-primary);border-color:var(--accent-primary);box-shadow:0 0 0 3px rgba(0,102,255,0.15);"`;
+                const dotStyle = `style="background:#8FE62C;border-color:#8FE62C;box-shadow:0 0 0 3px rgba(143,230,44,0.2);"`;
                 const connStyle = `style="background:var(--border-color);height:${connectorH}px;opacity:0.6;"`;
 
                 if (above) {
@@ -2508,35 +3234,46 @@ body {
 
             const rows = [];
             for (let year = currentYear; year <= maxYear; year++) {
-                // { name, amount } per goal, per column
                 const sipEntries = [], loanEntries = [];
-                let totalSip = 0, totalLoan = 0;
+                let totalSip = 0, totalCurrentSip = 0, totalLoan = 0;
 
                 activeGoals.forEach(g => {
                     const ty = parseInt(g.targetDate.substring(0, 4));
                     if (g.fundingType === 'EMI') {
+                        // Pre-purchase phase: save toward down payment
+                        if (year < ty) {
+                            const dpSip = parseFloat(g.downPaymentSip) || 0;
+                            if (dpSip > 0) {
+                                totalSip += dpSip;
+                                // No user-entered monthly contribution tracked for EMI pre-purchase
+                                sipEntries.push({ name: g.name, amount: dpSip, isMilestone: false, goalType: g.goalType, isDownPayment: true });
+                            }
+                        }
                         // Loan repayment phase: target year through target year + duration - 1
                         const loanEnd = ty + (g.loanDurationYrs || 0) - 1;
                         if (year >= ty && year <= loanEnd) {
                             const emi = parseFloat(g.monthlyEmi) || 0;
                             totalLoan += emi;
-                            loanEntries.push({ name: g.name, amount: emi });
+                            loanEntries.push({ name: g.name, amount: emi, goalType: g.goalType });
                         }
                     } else {
                         // Investment/SIP phase: current year through target year
-                        // Use step-up SIP: starting SIP escalates 10% each year
                         if (year <= ty) {
                             const baseSip = parseFloat(g.stepUpSip) || 0;
                             const yearsElapsed = year - currentYear;
-                            const sipThisYear = Math.round(baseSip * Math.pow(1.10, yearsElapsed));
+                            const sipThisYear = yearsElapsed === 0
+                                ? Math.round(baseSip)
+                                : Math.round(baseSip * Math.pow(1.10, yearsElapsed));
                             totalSip += sipThisYear;
-                            sipEntries.push({ name: g.name, amount: sipThisYear, isMilestone: !!g.isMilestone });
+                            // Current contribution stays flat (what user is actually investing)
+                            totalCurrentSip += parseFloat(g.monthlyContribution) || 0;
+                            sipEntries.push({ name: g.name, amount: sipThisYear, isMilestone: !!g.isMilestone, goalType: g.goalType });
                         }
                     }
                 });
 
                 if (totalSip > 0 || totalLoan > 0) {
-                    rows.push({ year, totalSip, sipEntries, totalLoan, loanEntries });
+                    rows.push({ year, totalSip, totalCurrentSip, sipEntries, totalLoan, loanEntries });
                 }
             }
 
@@ -2551,25 +3288,28 @@ body {
             const tagsHtml = (entries, type) => {
                 if (!entries.length) return '<span style="color:var(--text-tertiary);font-size:0.75rem;">—</span>';
                 const chipHtml = e => {
-                    const chipType = (type === 'sip' && e.isMilestone) ? 'milestone' : type;
-                    return `<span class="emi-goal-tag ${chipType}" title="${escapeHtml(e.name)}">
-                        ${escapeHtml(e.name)}<span class="tag-amount">${WealthAPI.formatCurrency(Math.round(e.amount))}</span>
+                    const goalIcon = GOAL_TYPE_ICONS[e.goalType] || '🎯';
+                    const clr = GOAL_TYPE_CHIP_COLORS[e.goalType] || GOAL_TYPE_CHIP_COLORS['Other'];
+                    const label = e.isDownPayment ? escapeHtml(e.name) + ' (DP)' : escapeHtml(e.name);
+                    const tooltip = escapeHtml(e.name) + (e.isDownPayment ? ' — down payment savings' : '');
+                    return `<span class="emi-goal-tag" style="background:${clr.bg};border-color:${clr.border};color:${clr.text};" title="${tooltip}">
+                        <span style="font-size:0.8rem;line-height:1;">${goalIcon}</span>${label}<span class="tag-amount"> ${WealthAPI.formatCurrency(Math.round(e.amount))} /mo</span>
                     </span>`;
                 };
-                const visible = entries.slice(0, 3);
-                const hidden  = entries.slice(3);
-                const visibleHtml = visible.map(chipHtml).join('');
-                const moreHtml = hidden.length
-                    ? `<span class="emi-goal-tag emi-more-tag" tabindex="0">+${hidden.length} more
-                        <span class="emi-more-popup">${hidden.map(chipHtml).join('')}</span>
-                       </span>`
-                    : '';
-                return `<div class="emi-goal-tags">${visibleHtml}${moreHtml}</div>`;
+                // Show ALL entries — no "+N more" limit
+                return `<div class="emi-goal-tags">${entries.map(chipHtml).join('')}</div>`;
             };
 
             const tableRows = rows.map(r => {
                 const isCurrent = r.year === currentYear;
                 const total = r.totalSip + r.totalLoan;
+                const shortfall = r.totalSip - r.totalCurrentSip;
+                const shortfallClass = shortfall > 0 ? 'shortfall' : shortfall < 0 ? 'surplus' : 'zero';
+                const shortfallFmt = shortfall === 0
+                    ? '<span style="color:var(--text-tertiary);font-size:0.85rem;">—</span>'
+                    : shortfall > 0
+                        ? `<div class="emi-amount shortfall">-${WealthAPI.formatCurrency(Math.round(shortfall))}</div>`
+                        : `<div class="emi-amount surplus">+${WealthAPI.formatCurrency(Math.round(Math.abs(shortfall)))}</div>`;
                 return `
                     <tr${isCurrent ? ' class="emi-current-year"' : ''}>
                         <td class="emi-year-cell">
@@ -2583,8 +3323,12 @@ body {
                             <div class="emi-amount ${r.totalSip > 0 ? 'sip' : 'zero'}">${fmt(r.totalSip)}</div>
                         </td>
                         <td class="emi-amount-cell">
+                            <div class="emi-amount ${r.totalCurrentSip > 0 ? '' : 'zero'}">${fmt(r.totalCurrentSip)}</div>
+                        </td>
+                        <td class="emi-amount-cell">
                             <div class="emi-amount ${r.totalLoan > 0 ? 'loan' : 'zero'}">${fmt(r.totalLoan)}</div>
                         </td>
+                        <td class="emi-amount-cell">${shortfallFmt}</td>
                         <td class="emi-amount-cell">
                             <div class="emi-amount total">${WealthAPI.formatCurrency(Math.round(total))}</div>
                         </td>
@@ -2594,8 +3338,8 @@ body {
             section.innerHTML = `
                 <div class="emi-breakdown-section">
                     <div class="emi-section-header">
-                        <div class="emi-section-title">📊 Year-wise Monthly EMI Breakdown</div>
-                        <div class="emi-section-sub">Step-up SIPs (10% annual) &amp; loan repayments by year</div>
+                        <div class="emi-section-title">📅 Year-wise Savings / EMI Timeline</div>
+                        <div class="emi-section-sub">Monthly SIP contributions &amp; loan EMIs by year</div>
                     </div>
                     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                     <table class="emi-table">
@@ -2603,9 +3347,11 @@ body {
                             <tr>
                                 <th>Year</th>
                                 <th>Goals</th>
-                                <th class="right">SIP / mo <span style="font-weight:500;opacity:0.65;">(step-up)</span></th>
+                                <th class="right">Required Savings / mo</th>
+                                <th class="right">Current Savings / mo</th>
                                 <th class="right">Loan EMI / mo</th>
-                                <th class="right">Total / mo</th>
+                                <th class="right">Shortfall / mo</th>
+                                <th class="right">Total EMI+Savings / mo</th>
                             </tr>
                         </thead>
                         <tbody>${tableRows}</tbody>
@@ -2624,11 +3370,12 @@ body {
 
         // ─── Boot ─────────────────────────────────────────────────────────────────
         init();
+        initDatePickers();
     </script>
-    <script src="/js/ai-import.js"></script>
     <script>
         function openGoalsImport() {
-            new AIImport({
+            function _launchImport() {
+                new AIImport({
                 title: 'Import Goals via AI',
                 description: 'Paste a table, upload a screenshot, or attach a CSV with your goals data.',
                 placeholder: 'Goal Name | Type | Target Amount | Current Amount | Monthly SIP | Target Date\nBuy House | House | 80,00,000 | 10,00,000 | 25,000 | 2030-01-01\n...',
@@ -2703,17 +3450,24 @@ Rules:
                     return saved;
                 }
             }).open();
+            }
+            if (window.AIImport) { _launchImport(); return; }
+            const s = document.createElement('script');
+            s.src = '/js/ai-import.js';
+            s.onload = _launchImport;
+            document.head.appendChild(s);
         }
 
         // ── Quick Fill ──────────────────────────────────────────────────────────────
-        const QF_BASE_INCOME = 1200000;
-        let _qfMult = 1;
-        const QF_GOALS_DATA = [
-            { name: 'Retirement Fund',   amount: 30000000, goalType: 'Retirement', targetDate: '2045-03', monthlyContribution: 30000, fundingType: 'Savings', isMilestone: true,  inflationRate: 6, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
-            { name: "Child's Education", amount: 3000000,  goalType: 'Education',  targetDate: '2038-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 8, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
-            { name: 'Home Purchase',     amount: 8000000,  goalType: 'House',      targetDate: '2030-03', monthlyContribution: 0,     fundingType: 'EMI',     isMilestone: false, inflationRate: 5, downPaymentPct: 20, loanDurationYrs: 20, loanRoi: 8.5 },
-            { name: 'Car',               amount: 1000000,  goalType: 'Vehicle',    targetDate: '2027-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 5, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+        var QF_BASE_INCOME = 1200000;
+        var _qfMult = 1;
+        // Sorted ascending by targetDate
+        var QF_GOALS_DATA = [
             { name: 'Emergency Fund',    amount: 600000,   goalType: 'Emergency',  targetDate: '2026-03', monthlyContribution: 25000, fundingType: 'Savings', isMilestone: true,  inflationRate: 0, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: 'Car',               amount: 1000000,  goalType: 'Vehicle',    targetDate: '2027-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 5, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: 'Home Purchase',     amount: 8000000,  goalType: 'House',      targetDate: '2030-03', monthlyContribution: 0,     fundingType: 'EMI',     isMilestone: false, inflationRate: 5, downPaymentPct: 20, loanDurationYrs: 20, loanRoi: 8.5 },
+            { name: "Child's Education", amount: 3000000,  goalType: 'Education',  targetDate: '2038-03', monthlyContribution: 10000, fundingType: 'Savings', isMilestone: false, inflationRate: 8, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
+            { name: 'Retirement Fund',   amount: 30000000, goalType: 'Retirement', targetDate: '2045-03', monthlyContribution: 30000, fundingType: 'Savings', isMilestone: true,  inflationRate: 6, downPaymentPct: 0,  loanDurationYrs: 0,  loanRoi: 8   },
         ];
 
         function openQuickFill() {
@@ -2724,8 +3478,6 @@ Rules:
             if (slider) slider.value = QF_BASE_INCOME;
             const disp = document.getElementById('qfSalaryDisplay');
             if (disp) disp.textContent = '₹' + QF_BASE_INCOME.toLocaleString('en-IN');
-            const sec = document.getElementById('qfSec_goals');
-            if (sec) sec.classList.add('open');
             renderQfRows();
             document.getElementById('qfOverlay').style.display = 'flex';
         }
@@ -2739,23 +3491,53 @@ Rules:
             QF_GOALS_DATA.forEach(function(item, idx) {
                 const inp = document.getElementById('qf_goals_' + idx);
                 if (inp) inp.value = '₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN');
+                _updateQfFv(idx);
             });
-            _updateQfTotals();
         }
         function _parseQfAmt(val) { return parseInt((val || '').replace(/[^\d]/g, ''), 10) || 0; }
+        function _qfFv(amount, inflationRate, targetYear) {
+            const years = Math.max(0, targetYear - new Date().getFullYear());
+            return Math.round(amount * Math.pow(1 + (inflationRate || 0) / 100, years));
+        }
+        function _fmtQfFv(amount) {
+            if (amount >= 10000000) return '₹' + (amount / 10000000).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+            if (amount >= 100000)   return '₹' + (amount / 100000).toFixed(1).replace(/\.?0+$/, '') + ' L';
+            return '₹' + amount.toLocaleString('en-IN');
+        }
+        function _updateQfFv(idx) {
+            const amtInp  = document.getElementById('qf_goals_' + idx);
+            const yearInp = document.getElementById('qf_year_goals_' + idx);
+            const fvEl    = document.getElementById('qf_fv_goals_' + idx);
+            if (!amtInp || !yearInp || !fvEl) return;
+            const amount = _parseQfAmt(amtInp.value);
+            const year   = parseInt(yearInp.value, 10) || new Date().getFullYear() + 5;
+            const inf    = QF_GOALS_DATA[idx] ? QF_GOALS_DATA[idx].inflationRate : 6;
+            const fv     = _qfFv(amount, inf, year);
+            const currentYear = new Date().getFullYear();
+            const yrs    = Math.max(0, year - currentYear);
+            fvEl.textContent = yrs > 0 ? '↗ ' + _fmtQfFv(fv) + ' needed in ' + year : 'No inflation adjustment';
+            _updateQfTotals();
+        }
         function renderQfRows() {
             const container = document.getElementById('qfRows_goals');
             if (!container) return;
             container.innerHTML =
-                '<div class="qf-row-header"><span>Goal</span><span>Target Year</span><span style="text-align:right;">Amount</span></div>' +
+                '<div class="qf-row-header"><span>Goal</span><span style="text-align:center;">Target Year</span><span style="text-align:right;">Value in Current Year</span></div>' +
                 QF_GOALS_DATA.map(function(item, idx) {
                     const year = item.targetDate ? item.targetDate.substring(0, 4) : String(new Date().getFullYear() + 5);
+                    const baseAmt = Math.round(item.amount * _qfMult);
+                    const fv = _qfFv(baseAmt, item.inflationRate, parseInt(year));
+                    const currentYear = new Date().getFullYear();
+                    const yrs = Math.max(0, parseInt(year) - currentYear);
+                    const fvLabel = yrs > 0 ? '↗ ' + _fmtQfFv(fv) + ' needed in ' + year : 'No inflation adjustment';
                     return '<div class="qf-row">' +
                         '<input class="qf-name-input" type="text" value="' + item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" id="qf_name_goals_' + idx + '">' +
-                        '<input class="qf-year-input" type="number" min="2024" max="2080" value="' + year + '" id="qf_year_goals_' + idx + '">' +
-                        '<input class="qf-amount-input" type="text" value="₹' + Math.round(item.amount * _qfMult).toLocaleString('en-IN') + '" id="qf_goals_' + idx + '" oninput="_updateQfTotals()">' +
+                        '<input class="qf-year-input" type="number" min="2024" max="2080" value="' + year + '" id="qf_year_goals_' + idx + '" oninput="_updateQfFv(' + idx + ')">' +
+                        '<div><input class="qf-amount-input" type="text" value="₹' + baseAmt.toLocaleString('en-IN') + '" id="qf_goals_' + idx + '" oninput="_updateQfFv(' + idx + ')">' +
+                        '<div class="qf-fv-text" id="qf_fv_goals_' + idx + '">' + fvLabel + '</div></div>' +
                         '</div>';
-                }).join('');
+                }).join('') +
+                '<div class="qf-inflation-note">ℹ️ Future values are calculated using each goal\'s inflation rate. The actual amount you\'ll need increases the further away your target year is.</div>';
             _updateQfTotals();
         }
         function _updateQfTotals() {
@@ -2801,10 +3583,10 @@ Rules:
                 renderGoals();
                 updateSummary();
                 closeQuickFill();
-                showToast('Quick Fill applied — ' + saved + ' goals added ✓', 'success');
+                WOS.toast('Quick Fill applied — ' + saved + ' goals added ✓', 'success');
             } catch (err) {
                 console.error('Quick Fill failed:', err);
-                showToast('Quick Fill failed: ' + (err.message || err), 'error');
+                WOS.toast('Quick Fill failed: ' + (err.message || err), 'error');
             } finally {
                 if (btn) { btn.disabled = false; btn.textContent = 'Apply Goals ✓'; }
             }
@@ -2816,7 +3598,7 @@ Rules:
     <div class="modal-overlay" id="qfOverlay" style="display:none;" onclick="if(event.target===this)closeQuickFill()">
         <div class="qf-modal-box">
             <div class="qf-modal-hdr">
-                <span class="qf-modal-title">⚡ Quick Fill — Sample Goals</span>
+                <span class="qf-modal-title">⚡ Quick Fill</span>
                 <button class="qf-modal-close" onclick="closeQuickFill()">×</button>
             </div>
             <div class="qf-modal-body">
@@ -2837,31 +3619,18 @@ Rules:
                     <span>⚠️</span>
                     <span>You already have goals. New sample goals will be added alongside them.</span>
                 </div>
-                <div class="qf-sections">
-                    <div class="qf-section open" id="qfSec_goals">
-                        <div class="qf-section-header" onclick="qfToggleSection('goals')">
-                            <div class="qf-section-title">
-                                <span class="qf-section-title-icon">🎯</span> Life Goals
-                            </div>
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <span class="qf-section-total-badge" id="qfTotal_goals">—</span>
-                                <span class="qf-chevron">▼</span>
-                            </div>
-                        </div>
-                        <div class="qf-section-body">
-                            <div id="qfRows_goals"></div>
-                        </div>
-                    </div>
+                <div style="padding: 0 24px 4px;">
+                    <div id="qfRows_goals"></div>
                 </div>
                 <div class="qf-footer-totals" style="grid-template-columns:1fr;">
                     <div class="qf-ft-item">
-                        <div class="qf-ft-label">Total Target</div>
+                        <div class="qf-ft-label">Total Goal Value (Current Prices)</div>
                         <div class="qf-ft-value" id="qfFtGoals">—</div>
                     </div>
                 </div>
             </div>
             <div class="qf-modal-foot">
-                <button class="btn btn-sm btn-secondary" onclick="closeQuickFill()">Cancel</button>
+                <button class="qf-cancel-btn" onclick="closeQuickFill()">Cancel</button>
                 <button class="btn-qf-apply" id="btnQfApply" onclick="applyQuickFill()">Apply Goals ✓</button>
             </div>
         </div>

@@ -11,316 +11,128 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font); background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease, color 0.3s ease; }
-        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
-        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; overflow: hidden; }
+        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); height: 100%; }
 
-        .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-decoration: none; margin-bottom: 24px; transition: color 0.2s ease; letter-spacing: -0.01em; }
-        .back-link:hover { color: var(--text-primary); }
-
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
         .page-title { font-family: var(--font); font-size: 2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; margin-bottom: 6px; }
         .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); letter-spacing: -0.01em; }
 
-        /* Sub-tab nav */
-        .sub-tabs { display: flex; gap: 2px; background: var(--bg-secondary); border-radius: 12px; padding: 4px; margin-bottom: 28px; width: fit-content; }
-        .sub-tab { padding: 9px 20px; border-radius: 9px; border: none; background: transparent; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: var(--font); letter-spacing: -0.01em; white-space: nowrap; }
-        .sub-tab:hover { background: var(--hover-bg); color: var(--text-primary); }
-        .sub-tab.active { background: var(--bg-elevated); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-
-        /* Tab panels */
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-
-        /* Hero cards */
-        .hero-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
-        .hero-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 22px; box-shadow: var(--card-shadow); transition: all 0.2s ease; }
-        .hero-card:hover { border-color: var(--accent-primary); transform: translateY(-1px); }
-        .hero-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-        .hero-value { font-family: var(--font); font-size: 1.375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 4px; }
-        .hero-sub { font-size: 0.75rem; color: var(--text-tertiary); letter-spacing: -0.01em; }
-
-        /* Waterfall bar */
-        .section-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; box-shadow: var(--card-shadow); margin-bottom: 24px; }
+        /* Section card */
+        .section-card { background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-radius: var(--card-radius, 14px); padding: 28px; box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)); margin-bottom: 24px; }
         .section-title { font-family: var(--font); font-size: 1.125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 4px; }
         .section-sub { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 20px; }
-        .waterfall-bar { display: flex; height: 44px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
-        .wf-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700; color: #fff; transition: width 0.5s ease; overflow: hidden; white-space: nowrap; padding: 0 6px; min-width: 0; }
-        .wf-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; }
-        .wf-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--text-secondary); }
-        .wf-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-
-        /* SIP Affordability */
-        .sip-afford-banner { border-radius: 12px; padding: 16px 20px; margin-bottom: 0; border: 1.5px solid; }
-        .sip-afford-banner.surplus { border-color: rgba(0,200,5,0.25); background: rgba(0,200,5,0.04); }
-        .sip-afford-banner.shortfall { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
-        .sip-afford-summary { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
-        .sip-afford-stat { flex: 1; min-width: 120px; }
-        .sip-afford-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 3px; }
-        .sip-afford-stat-val { font-size: 1.0625rem; font-weight: 700; font-family: var(--font); color: var(--text-primary); }
-        .sip-afford-stat-val.green { color: var(--success); }
-        .sip-afford-stat-val.red { color: var(--error); }
-        .sip-afford-divider { width: 1px; height: 36px; background: var(--border-color); flex-shrink: 0; }
-        .sip-afford-verdict { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; margin-bottom: 14px; }
-        .sip-afford-verdict.surplus { color: var(--success); background: rgba(0,200,5,0.07); }
-        .sip-afford-verdict.shortfall { color: var(--error); background: rgba(239,68,68,0.07); }
-        .sip-afford-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
-        .sip-afford-table th { text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); padding: 5px 8px 8px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        .sip-afford-table th:not(:first-child) { text-align: right; }
-        .sip-afford-table td { padding: 8px 8px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); vertical-align: middle; }
-        .sip-afford-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-        .sip-afford-table tr:last-child td { border-bottom: none; }
-        .sip-afford-gap-pill { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
-        .sip-afford-gap-pill.neg { background: rgba(239,68,68,0.1); color: var(--error); }
-        .sip-afford-gap-pill.pos { background: rgba(0,200,5,0.08); color: var(--success); }
-
-        /* Goals health */
-        .goals-health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .goals-col-title { font-size: 0.8125rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-        .mini-goal-card { border-radius: 10px; padding: 14px 16px; border: 1.5px solid; margin-bottom: 10px; }
-        .mini-goal-card.on-track { border-color: rgba(0,200,5,0.3); background: rgba(0,200,5,0.04); }
-        .mini-goal-card.needs-attention { border-color: rgba(251,146,60,0.4); background: rgba(251,146,60,0.06); }
-        .mini-goal-name { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.01em; }
-        .mini-progress { height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-        .mini-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-        .mini-goal-meta { font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
-
-        /* AI Insights */
-        .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .ai-btn { padding: 10px 22px; background: linear-gradient(135deg, #7c3aed 0%, #0066ff 100%); color: #fff; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 8px; }
-        .ai-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,58,237,0.3); }
-        .ai-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .ai-insights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-        .insight-card { border-radius: 12px; padding: 18px; border: 1px solid var(--border-color); background: var(--bg-secondary); }
-        .insight-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 10px; }
-        .insight-badge.high { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .insight-badge.medium { background: rgba(251,146,60,0.15); color: #fb923c; }
-        .insight-badge.low { background: rgba(0,102,255,0.12); color: var(--accent-primary); }
-        .insight-title { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 8px; }
-        .insight-body { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
-        .insight-action { font-size: 0.8125rem; font-weight: 600; color: var(--accent-primary); padding-top: 10px; border-top: 1px solid var(--border-subtle); }
-        .spinner { width: 28px; height: 28px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Member tabs */
         .member-tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg-secondary); padding: 4px; border-radius: 10px; width: fit-content; flex-wrap: wrap; }
         .member-tab { padding: 7px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: var(--font); letter-spacing: -0.01em; }
         .member-tab:hover { background: var(--hover-bg); color: var(--text-primary); }
-        .member-tab.active { background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: #fff; box-shadow: 0 3px 10px rgba(0,102,255,0.25); }
-
-        /* Retirement stats */
-        .ret-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .ret-stat { padding: 18px 20px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); }
-        .ret-stat-label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-        .ret-stat-value { font-family: var(--font); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 2px; }
-        .ret-stat-sub { font-size: 0.75rem; color: var(--text-tertiary); }
-        .ret-highlight { padding: 20px 24px; background: linear-gradient(135deg, rgba(0,102,255,0.08) 0%, rgba(0,212,255,0.08) 100%); border: 1px solid rgba(0,102,255,0.2); border-radius: 12px; margin-bottom: 24px; }
-        .ret-hl-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-        .ret-hl-value { font-family: var(--font); font-size: 2.25rem; font-weight: 700; background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.03em; margin-bottom: 6px; }
-        .ret-guidance { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
-
-        /* Retirement readiness score donut */
-        .score-section { display: flex; align-items: center; gap: 32px; margin-bottom: 24px; }
-        .score-donut-wrap { flex-shrink: 0; position: relative; width: 140px; height: 140px; max-width: 100%; }
-        .score-donut-wrap svg { width: 140px; height: 140px; max-width: 100%; height: auto; }
-        .score-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .score-number { font-family: var(--font); font-size: 2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1; }
-        .score-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-        .score-label.good { color: var(--success); }
-        .score-label.moderate { color: var(--warning); }
-        .score-label.poor { color: var(--error); }
-        .score-breakdown { flex: 1; }
-        .score-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8125rem; }
-        .score-item-label { color: var(--text-secondary); }
-        .score-item-pts { font-weight: 700; color: var(--text-primary); }
-
-        /* Drawdown SVG */
-        .drawdown-wrap { width: 100%; overflow-x: hidden; }
-        .drawdown-wrap svg { display: block; width: 100%; max-width: 100%; height: auto; }
-
-        /* Milestones */
-        .milestones { display: flex; flex-direction: column; gap: 10px; }
-        .milestone { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 10px; }
-        .milestone-year { font-family: var(--font); font-size: 0.875rem; font-weight: 700; color: var(--accent-primary); min-width: 48px; }
-        .milestone-label { flex: 1; font-size: 0.875rem; color: var(--text-secondary); }
-        .milestone-value { font-family: var(--font); font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
-
-        /* Tax planning form */
-        .tax-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group.full { grid-column: span 2; }
-        .form-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); letter-spacing: -0.01em; }
-        .form-label .limit-badge { font-weight: 500; color: var(--text-tertiary); margin-left: 6px; }
-        .form-input { padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.9375rem; color: var(--text-primary); font-family: var(--font); transition: border-color 0.2s ease; outline: none; }
-        .form-input:focus { border-color: var(--accent-primary); }
-        .form-input::placeholder { color: var(--text-tertiary); }
-        .save-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 20px; height: 36px; background: var(--accent-primary); color: #fff; border: 1px solid var(--accent-primary); border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: filter 0.15s; letter-spacing: -0.01em; white-space: nowrap; }
-        .save-btn:hover { filter: brightness(1.1); transform: none; box-shadow: none; }
-        .save-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .tax-results { display: flex; flex-direction: column; gap: 16px; }
-        .tax-result-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-secondary); border-radius: 10px; gap: 12px; }
-        .tax-result-row.taxable { background: rgba(255,59,48,0.07); border: 1px solid rgba(255,59,48,0.2); }
-        .tax-result-row.highlight { background: rgba(0,200,5,0.08); border: 1px solid rgba(0,200,5,0.2); }
-        .tax-result-label { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
-        .tax-result-value { font-family: var(--font); font-size: 1rem; font-weight: 700; color: var(--text-primary); }
-        .tax-result-badge { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,200,5,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
-        .progress-bar-container { height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-
-        /* Risk badge */
-        .risk-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 18px; }
-        .risk-badge.conservative { background: rgba(20,184,166,0.15); color: var(--chart-teal); }
-        .risk-badge.moderate { background: rgba(0,102,255,0.15); color: var(--accent-primary); }
-        .risk-badge.aggressive { background: rgba(251,146,60,0.15); color: var(--chart-orange); }
-
-        /* Goals Timeline */
-        .timeline-strip { margin: 0 -40px 24px; background: var(--bg-elevated); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 16px 40px 12px; }
-        .timeline-strip-title { font-family: var(--font); font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 2px; }
-        .timeline-strip-sub { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
-        .timeline-container { position: relative; overflow-x: hidden; }
-        .timeline-track { position: relative; height: 112px; width: 100%; }
-        .timeline-axis { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--border-color); transform: translateY(-50%); }
-        .timeline-goal-pill { color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: default; position: absolute; transform: translateX(-50%); }
-        .timeline-goal-pill.row-top { top: 6px; }
-        .timeline-goal-pill.row-bottom { bottom: 6px; top: auto; }
-        .timeline-fy-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-tertiary); margin-bottom: 4px; }
-
-        /* Goal sim cards */
-        .goal-sim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-        .goal-sim-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; box-shadow: var(--card-shadow); }
-        .gsim-name { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 2px; }
-        .gsim-meta { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
-        .gsim-progress { height: 6px; background: var(--border-subtle); border-radius: 4px; overflow: visible; position: relative; margin-bottom: 10px; }
-        .gsim-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end)); }
-        .gsim-fill.on-track { background: linear-gradient(90deg, #00C805, #22c55e); }
-        .gsim-fill.off-track { background: linear-gradient(90deg, #fb923c, #f59e0b); }
-        .gsim-marker { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--text-secondary); border-radius: 1px; transform: translateX(-50%); }
-        .gsim-sip-line { font-size: 0.75rem; padding: 7px 10px; background: var(--bg-elevated); border-radius: 7px; margin-bottom: 8px; color: var(--text-secondary); }
-        .gsim-sip-line.on-track-text { color: var(--success); }
-        .gsim-sip-line.off-track-text { color: var(--warning); }
-        .sim-date-row { display: flex; gap: 8px; align-items: center; }
-        .sim-date-input { flex: 1; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.875rem; background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); }
-        .sim-btn { padding: 8px 14px; border: none; background: var(--accent-primary); color: #fff; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .sim-impact-panel { margin-top: 10px; padding: 12px 14px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color); display: none; }
-        .sim-impact-panel.visible { display: block; }
-        .sim-impact-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; margin-bottom: 6px; }
-        .sim-impact-row:last-child { margin-bottom: 0; }
-        .sim-impact-label { color: var(--text-secondary); }
-        .sim-impact-val { font-weight: 700; color: var(--text-primary); }
-        .sim-impact-val.positive { color: var(--success); }
-        .sim-impact-val.negative { color: var(--error); }
-        .sim-apply-btn { margin-top: 10px; width: 100%; padding: 9px; border: none; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); color: #fff; border-radius: 8px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
+        .member-tab.active { background: var(--text-primary, #0F172A); color: #fff; box-shadow: 0 3px 10px rgba(15,23,42,0.2); }
 
         /* Empty state */
         .empty-state { text-align: center; padding: 60px 20px; }
         .empty-icon { font-size: 3rem; margin-bottom: 16px; }
         .empty-title { font-family: var(--font); font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
         .empty-text { color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.6; max-width: 400px; margin: 0 auto 20px; }
-        .empty-link { display: inline-block; padding: 10px 24px; background: var(--accent-primary); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; }
+        .empty-link { display: inline-block; padding: 10px 24px; background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; }
 
-        /* Portfolio Journey */
-        .pj-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-        .pj-stat { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        /* Purpose banner */
+        .pj-purpose { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; max-width: 780px; }
+
+        /* Portfolio Journey stats */
+        .pj-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .pj-stat { background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-radius: var(--card-radius, 14px); padding: 20px; }
         .pj-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px; }
         .pj-stat-value { font-family: var(--font); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
         .pj-stat-sub { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; }
-        .pj-stat.accent { border-color: var(--accent-primary); background: linear-gradient(135deg, rgba(0,102,255,0.06), rgba(0,212,255,0.04)); }
-        .pj-chart-wrap { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+        .pj-stat.accent { border-color: rgba(143,230,44,0.4); background: rgba(143,230,44,0.05); }
+
+        /* Insights cards */
+        .pj-insights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+        .pj-insight-card { background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-radius: var(--card-radius, 14px); padding: 16px 18px; }
+        .pj-insight-card.good { border-color: rgba(93,200,64,0.35); background: rgba(93,200,64,0.04); }
+        .pj-insight-card.warn { border-color: rgba(255,149,0,0.35); background: rgba(255,149,0,0.04); }
+        .pj-insight-card.bad  { border-color: rgba(255,59,48,0.3);  background: rgba(255,59,48,0.04); }
+        .pj-insight-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px; }
+        .pj-insight-verdict { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.01em; }
+        .pj-insight-verdict.good { color: var(--viz-income, #5DC840); }
+        .pj-insight-verdict.warn { color: var(--viz-expense, #FF9500); }
+        .pj-insight-verdict.bad  { color: var(--negative, #FF3B3B); }
+        .pj-insight-detail { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+
+        /* Charts */
+        .pj-chart-wrap { background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-radius: var(--card-radius, 14px); padding: 24px; margin-bottom: 20px; }
         .pj-chart-title { font-family: var(--font); font-size: 0.8125rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
         .pj-chart-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; color: var(--text-secondary); }
         .pj-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
         /* Return rate config strip */
-        .pj-config-strip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 10px 16px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.8125rem;
-        }
-        .pj-config-label {
-            color: var(--text-secondary);
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .pj-config-input {
-            width: 64px;
-            padding: 5px 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 7px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 0.875rem;
-            font-family: var(--font);
-            text-align: right;
-            font-weight: 700;
-        }
-        .pj-config-input:focus { outline: none; border-color: var(--accent-primary); }
+        .pj-config-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 10px 16px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.8125rem; }
+        .pj-config-label { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+        .pj-config-input { width: 64px; padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 7px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: var(--font); text-align: right; font-weight: 700; }
+        .pj-config-input:focus { outline: none; border-color: var(--input-focus-border, #8FE62C); box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(143,230,44,0.15)); }
         .pj-config-unit { color: var(--text-secondary); font-weight: 600; }
         .pj-config-note { color: var(--text-tertiary); font-size: 0.75rem; margin-left: 4px; }
 
-        .pj-table-wrap { overflow-x: auto; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; }
+        /* Table */
+        .pj-table-wrap { overflow-x: auto; background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-radius: var(--card-radius, 14px); }
         .pj-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
-        .pj-table th { padding: 10px 12px; text-align: right; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .pj-table th { padding: 10px 12px; text-align: right; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         .pj-table th:first-child { text-align: left; }
         .pj-table td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); white-space: nowrap; }
-        .pj-table td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); white-space: normal; max-width: 160px; }
+        .pj-table td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); }
         .pj-table tr:last-child td { border-bottom: none; }
-        .pj-table tr.has-goals td { background: rgba(255,59,48,0.04); }
-        .pj-table tr.has-goals td:first-child { color: var(--error); }
         .pj-td-positive { color: var(--success); font-weight: 600; }
         .pj-td-negative { color: var(--error); font-weight: 600; }
-        .pj-goal-deduction { color: var(--warning); font-weight: 600; background: rgba(255,159,10,0.1); border-radius: 4px; padding: 1px 6px; }
-        .pj-goal-pill { display: inline-block; background: rgba(255,59,48,0.1); color: var(--error); border-radius: 4px; padding: 1px 6px; font-size: 0.7rem; font-weight: 600; margin-left: 4px; }
-        .pj-milestone-cell { text-align: left !important; min-width: 160px; }
-        .pj-milestone-item { margin-bottom: 6px; }
-        .pj-milestone-item:last-child { margin-bottom: 0; }
-        .pj-milestone-name { font-size: 0.78rem; font-weight: 700; color: #7c3aed; white-space: nowrap; }
-        .pj-milestone-target { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 1px; }
-        .pj-milestone-status { display: inline-flex; align-items: center; gap: 3px; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-top: 2px; }
-        .pj-milestone-status.met   { background: rgba(0,200,5,0.08); color: var(--success); }
-        .pj-milestone-status.unmet { background: rgba(239,68,68,0.1); color: var(--error); }
-        .pj-table tr.has-milestone-unmet td { background: rgba(239,68,68,0.05) !important; }
-        .pj-table tr.has-milestone-unmet td:first-child { color: var(--error); }
+        .pj-goal-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+        .pj-goal-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(59,115,255,0.08); color: var(--viz-investment, #3B73FF); border-radius: 5px; padding: 3px 8px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+        .pj-goal-chip .chip-amount { opacity: 0.75; }
+        .pj-info-cell { text-align: left !important; min-width: 140px; }
+        .pj-info-item { margin-bottom: 5px; }
+        .pj-info-item:last-child { margin-bottom: 0; }
+        .pj-info-name { font-size: 0.78rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+        .pj-info-sub  { font-size: 0.72rem; color: var(--text-secondary); margin-top: 1px; }
+        .pj-info-status { font-size: 0.72rem; color: var(--text-secondary); margin-top: 1px; }
+
+        /* Assumptions */
+        .pj-assumptions { font-size: 0.75rem; color: var(--text-tertiary); line-height: 1.6; padding: 12px 16px; }
+
+        /* Setup banner */
+        .setup-banner { background: var(--bg-elevated); border: 1px solid var(--border, #E5E8EC); border-left: 4px solid var(--cta-bg, #8FE62C); border-radius: var(--card-radius, 14px); padding: 20px 24px; margin-bottom: 24px; }
+        .setup-banner-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+        .setup-banner-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+        .setup-banner-title { font-family: var(--font); font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .setup-banner-sub { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
+        .setup-steps { display: flex; flex-wrap: wrap; gap: 10px; }
+        .setup-step { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg-secondary, #F8FAFC); border: 1px solid var(--border, #E5E8EC); border-radius: 8px; text-decoration: none; color: var(--text-primary); transition: border-color 0.2s, background 0.2s; }
+        .setup-step:hover { border-color: var(--cta-bg, #8FE62C); background: rgba(143,230,44,0.05); }
+        .setup-step-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .setup-step-label { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+        .setup-step-desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+        .setup-step-check { color: var(--viz-income, #5DC840); }
+        /* Sample plan notice */
+        .sample-notice { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(143,230,44,0.07); border: 1px solid rgba(143,230,44,0.3); border-radius: 8px; margin-bottom: 20px; font-size: 0.8125rem; color: var(--text-secondary); }
+        .sample-badge { background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); padding: 3px 9px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; flex-shrink: 0; }
 
         @media (max-width: 1200px) {
-            .hero-grid { grid-template-columns: repeat(3, 1fr); }
-            .ret-stats { grid-template-columns: repeat(2, 1fr); }
             .pj-summary { grid-template-columns: repeat(2, 1fr); }
+            .pj-insights { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 900px) {
             .app-container { grid-template-columns: 1fr; }
             .main-content { padding: 24px 20px; }
-            .hero-grid { grid-template-columns: repeat(2, 1fr); }
-            .goals-health-grid { grid-template-columns: 1fr; }
-            .tax-form { grid-template-columns: 1fr; }
-            .form-group.full { grid-column: span 1; }
             .pj-summary { grid-template-columns: repeat(2, 1fr); }
+            .pj-insights { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             .main-content { padding: 20px 16px; overflow-x: hidden; }
-            .top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
-            .sub-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
-            .sub-tab { white-space: nowrap; }
             .member-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
-            .timeline-strip { margin: 0 -16px 24px; padding-left: 16px; padding-right: 16px; }
-            .ret-stats { grid-template-columns: 1fr 1fr; }
-            .score-section { flex-direction: column; }
-            .score-donut-wrap { margin: 0 auto; }
         }
         @media (max-width: 480px) {
             .main-content { padding: 16px 12px; overflow-x: hidden; }
             .page-title { font-size: 1.5rem; }
-            .hero-grid { grid-template-columns: 1fr; }
-            .ret-stats { grid-template-columns: 1fr; }
             .pj-summary { grid-template-columns: 1fr; }
+            .pj-insights { grid-template-columns: 1fr; }
             .pj-config-strip { flex-wrap: wrap; gap: 8px; }
-            .score-donut-wrap { width: 100px; height: 100px; }
-            .score-donut-wrap svg { width: 100px; height: 100px; }
-            .score-number { font-size: 1.5rem; }
-            .drawdown-wrap { overflow-x: hidden; }
         }
     </style>
 </head>
@@ -330,10 +142,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
     <main class="main-content">
 
-        <div class="top-bar">
+        <div class="page-header">
             <div>
-                <div class="page-title">Financial Planning</div>
-                <div class="page-subtitle">Unified retirement, goals, and tax planning for your family</div>
+                <h1 class="page-title">Financial Planning</h1>
+                <p class="page-subtitle">Your personalised retirement and goals roadmap — see how your money grows year by year</p>
             </div>
         </div>
 
@@ -343,7 +155,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
                 <div class="empty-state">
                     <div class="empty-icon">👨‍👩‍👧‍👦</div>
                     <div class="empty-title">No family members found</div>
-                    <div class="empty-text">Add family members in Settings to see personalised retirement projections and tax planning.</div>
+                    <div class="empty-text">Add family members in Settings to see personalised retirement projections.</div>
                     <a href="settings.html" class="empty-link">Go to Settings</a>
                 </div>
             </div>
@@ -351,197 +163,43 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
         <!-- Main content -->
         <div id="planningContent" style="display:none;">
-            <!-- Sub-tabs -->
-            <div class="sub-tabs">
-                <button class="sub-tab active" onclick="switchTab('portfolio')">Portfolio Journey</button>
-                <button class="sub-tab" onclick="switchTab('overview')">Goals</button>
-                <button class="sub-tab" onclick="switchTab('retirement')">Retirement</button>
-                <button class="sub-tab" onclick="switchTab('tax')">Tax Planning</button>
+            <p class="pj-purpose" id="pjPurpose">
+                See how your portfolio grows year by year — accounting for investment returns, ongoing savings contributions, and goal withdrawals. Use this view to spot shortfalls early and understand whether you are on track to retire comfortably.
+            </p>
+
+            <div id="pjMemberTabs" class="member-tabs" style="margin-bottom:24px;"></div>
+
+            <div class="pj-config-strip">
+                <span class="pj-config-label">Assumed Annual Return</span>
+                <input class="pj-config-input" type="number" id="pjReturnRateInput" value="10" min="1" max="30" step="0.5"
+                    oninput="onReturnRateChange(this.value)">
+                <span class="pj-config-unit">% p.a.</span>
+                <span class="pj-config-note">— applied to portfolio growth each year</span>
             </div>
 
-            <!-- ═══ TAB: OVERVIEW ═══ -->
-            <div class="tab-panel" id="panel-overview">
-                <!-- Hero cards -->
-                <div class="hero-grid">
-                    <div class="hero-card">
-                        <div class="hero-label">Total Family Corpus</div>
-                        <div class="hero-value" id="h-corpus">—</div>
-                        <div class="hero-sub">Across all members</div>
-                    </div>
-                    <div class="hero-card">
-                        <div class="hero-label">Monthly Free Savings</div>
-                        <div class="hero-value" id="h-free">—</div>
-                        <div class="hero-sub">After SIPs & goals</div>
-                    </div>
-                    <div class="hero-card">
-                        <div class="hero-label">Goals On Track</div>
-                        <div class="hero-value" id="h-goals">—</div>
-                        <div class="hero-sub" id="h-goals-sub">Loading...</div>
-                    </div>
-                    <div class="hero-card">
-                        <div class="hero-label">Next Retirement</div>
-                        <div class="hero-value" id="h-retire">—</div>
-                        <div class="hero-sub" id="h-retire-sub">—</div>
-                    </div>
-                    <div class="hero-card">
-                        <div class="hero-label">Est. Combined Pension</div>
-                        <div class="hero-value" id="h-pension">—</div>
-                        <div class="hero-sub">4% withdrawal rate</div>
-                    </div>
-                </div>
-
-                <!-- Waterfall bar -->
-                <div class="section-card">
-                    <div class="section-title">Monthly Cash Flow Breakdown</div>
-                    <div class="section-sub">How your monthly income is allocated</div>
-                    <div class="waterfall-bar" id="waterfallBar"></div>
-                    <div class="wf-legend">
-                        <div class="wf-legend-item"><div class="wf-dot" style="background:#ef4444;"></div>Expenses: <strong id="wf-exp">—</strong></div>
-                        <div class="wf-legend-item"><div class="wf-dot" style="background:#fb923c;"></div>Goal SIPs: <strong id="wf-goal">—</strong></div>
-                        <div class="wf-legend-item"><div class="wf-dot" style="background:#0066ff;"></div>Portfolio SIPs: <strong id="wf-sip">—</strong></div>
-                        <div class="wf-legend-item"><div class="wf-dot" style="background:#22c55e;"></div>Free Savings: <strong id="wf-free">—</strong></div>
-                    </div>
-                </div>
-
-                <!-- SIP Affordability -->
-                <div class="section-card" id="sipAffordCard" style="display:none;">
-                    <div class="section-title">SIP Affordability</div>
-                    <div class="section-sub">Can your monthly savings cover all goal SIPs?</div>
-                    <div id="sipAffordContent"></div>
-                </div>
-
-                <!-- Goals health -->
-                <div class="section-card">
-                    <div class="section-title">Goals Health</div>
-                    <div class="section-sub">Track where your goals stand today</div>
-                    <div class="goals-health-grid">
-                        <div>
-                            <div class="goals-col-title">✅ On Track</div>
-                            <div id="onTrackGoals"><div style="color:var(--text-tertiary);font-size:0.875rem;">No goals on track yet</div></div>
-                        </div>
-                        <div>
-                            <div class="goals-col-title">⚠️ Needs Attention</div>
-                            <div id="offTrackGoals"><div style="color:var(--text-tertiary);font-size:0.875rem;">All goals are on track!</div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Financial Timeline -->
-                <div class="timeline-strip">
-                    <div class="timeline-strip-title">Financial Timeline</div>
-                    <div class="timeline-strip-sub">Goal completions and retirement events</div>
-                    <div class="timeline-fy-labels" id="timelineFYLabels"></div>
-                    <div class="timeline-container">
-                        <div class="timeline-track" id="timelineTrack">
-                            <div class="timeline-axis"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Goal sim cards -->
-                <div class="section-card" style="padding:20px 24px;">
-                    <div class="section-title">Goal Simulator</div>
-                    <div class="section-sub">Move target dates and see corpus impact instantly</div>
-                    <div class="goal-sim-grid" id="goalSimGrid"></div>
-                </div>
-
-                <!-- AI Insights -->
-                <div class="section-card">
-                    <div class="ai-header">
-                        <div>
-                            <div class="section-title">AI Financial Insights</div>
-                            <div class="section-sub">Personalized analysis powered by AI</div>
-                        </div>
-                        <button class="ai-btn" id="aiInsightsBtn" onclick="generateAIInsights()">✨ Generate Insights</button>
-                    </div>
-                    <div id="aiInsightsContent">
-                        <div style="color:var(--text-tertiary);font-size:0.875rem;text-align:center;padding:32px 0;">
-                            Click "Generate Insights" to get AI-powered recommendations for your financial plan.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ═══ TAB: RETIREMENT ═══ -->
-            <div class="tab-panel" id="panel-retirement">
-                <!-- Member switcher -->
-                <div class="member-tabs" id="retMemberTabs"></div>
-
-                <!-- Per member data -->
-                <div id="retirementContent">
-                    <div style="text-align:center;padding:40px;color:var(--text-secondary);">Loading retirement data...</div>
-                </div>
-            </div>
-
-            <!-- ═══ TAB: TAX PLANNING ═══ -->
-            <div class="tab-panel" id="panel-tax">
-                <div class="section-card">
-                    <div class="section-title">Tax Planning</div>
-                    <div class="section-sub" id="taxYearLabel">FY2025-26 — Old Regime deduction optimiser</div>
-
-                    <div class="member-tabs" id="taxMemberTabs"></div>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;" id="taxLayout">
-                        <!-- Left: input -->
-                        <div>
-                            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.875rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:20px;">Income &amp; Deduction Inputs</div>
-                            <div class="tax-form" id="taxForm">
-                                <div class="form-group"><label class="form-label">Gross Salary (Annual)</label><input type="number" class="form-input" id="taxGrossSalary" placeholder="e.g. 1200000" min="0"></div>
-                                <div class="form-group"><label class="form-label">HRA Received (Annual)</label><input type="number" class="form-input" id="taxHraReceived" placeholder="e.g. 240000" min="0"></div>
-                                <div class="form-group"><label class="form-label">Section 80C <span class="limit-badge">(limit ₹1,50,000)</span></label><input type="number" class="form-input" id="tax80c" placeholder="ELSS / PPF / LIC / PF" min="0"></div>
-                                <div class="form-group"><label class="form-label">Section 80D Health <span class="limit-badge">(limit ₹25,000)</span></label><input type="number" class="form-input" id="tax80d" placeholder="Health insurance premium" min="0"></div>
-                                <div class="form-group"><label class="form-label">Section 80CCD(1B) NPS <span class="limit-badge">(limit ₹50,000)</span></label><input type="number" class="form-input" id="tax80ccd1b" placeholder="NPS contribution" min="0"></div>
-                                <div class="form-group"><label class="form-label">Home Loan Interest</label><input type="number" class="form-input" id="taxHomeLoan" placeholder="Sec 24(b) interest" min="0"></div>
-                                <div class="form-group full"><label class="form-label">Other Deductions</label><input type="number" class="form-input" id="taxOther" placeholder="Any other deductions" min="0"></div>
-                            </div>
-                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                                <button class="save-btn" id="taxSaveBtn" onclick="saveTax()">Save &amp; Calculate</button>
-                                <button class="save-btn" style="background:var(--bg-elevated);color:var(--text-secondary);border-color:var(--border-color);" onclick="openTaxImport()">Import via AI</button>
-                            </div>
-                            <div id="taxSaveStatus" style="margin-top:12px;font-size:0.8125rem;color:var(--success);display:none;"></div>
-                        </div>
-                        <!-- Right: results -->
-                        <div>
-                            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.875rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:20px;">Deduction Summary</div>
-                            <div class="tax-results" id="taxResults">
-                                <div style="color:var(--text-tertiary);font-size:0.875rem;text-align:center;padding:40px 0;">Enter your details and click Save &amp; Calculate</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ═══ TAB: PORTFOLIO JOURNEY ═══ -->
-            <div class="tab-panel active" id="panel-portfolio">
-                <div id="pjMemberTabs" class="member-tabs" style="margin-bottom:24px;"></div>
-                <div class="pj-config-strip">
-                    <span class="pj-config-label">Assumed Annual Return</span>
-                    <input class="pj-config-input" type="number" id="pjReturnRateInput" value="10" min="1" max="30" step="0.5"
-                        oninput="onReturnRateChange(this.value)">
-                    <span class="pj-config-unit">% p.a.</span>
-                    <span class="pj-config-note">— applied to portfolio growth each year</span>
-                </div>
-                <div id="pjContent">
-                    <div style="color:var(--text-tertiary);text-align:center;padding:60px 0;">Loading portfolio journey…</div>
-                </div>
+            <div id="pjContent">
+                <div style="color:var(--text-tertiary);text-align:center;padding:60px 0;">Loading portfolio journey…</div>
             </div>
         </div>
     </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
 <script src="/api.js"></script>
+<script src="ui.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
-let comprehensiveData = null;
-let familyMembers = [];
-let activeRetirementMemberId = null;
-let activeTaxMemberId = null;
-let activePJMemberId = null;
-let portfolioReturnRate = 10; // percent, e.g. 10 = 10% p.a.
-const CURRENT_TAX_YEAR = WealthAPI.getCurrentTaxYear();
+var comprehensiveData = null;
+var familyMembers = [];
+var activePJMemberId = null;
+var portfolioReturnRate = 10; // percent
+var isShowingDummyPlan = false;
+var activeData = null;
+var dataReadiness = { hasPortfolio: false, hasGoals: false, hasLifePlan: false, isComplete: false, isEmpty: true };
 
 // ── Return rate change ─────────────────────────────────────────────────────
-let _returnRateSaveTimer = null;
+var _returnRateSaveTimer = null;
 function onReturnRateChange(val) {
     const parsed = parseFloat(val);
     if (isNaN(parsed) || parsed <= 0 || parsed > 50) return;
@@ -549,19 +207,11 @@ function onReturnRateChange(val) {
     renderPortfolioJourneyForMember(activePJMemberId || 'all');
     clearTimeout(_returnRateSaveTimer);
     _returnRateSaveTimer = setTimeout(() => {
-        WealthAPI.planning.saveConfig({ portfolioReturnRate: parsed })
-            .catch(e => console.error('Failed to save return rate:', e));
+        if (!isShowingDummyPlan) {
+            WealthAPI.planning.saveConfig({ portfolioReturnRate: parsed })
+                .catch(e => console.error('Failed to save return rate:', e));
+        }
     }, 800);
-}
-
-// ── Tab switching ──────────────────────────────────────────────────────────
-function switchTab(tabId) {
-    document.querySelectorAll('.sub-tab').forEach((btn, i) => {
-        const tabs = ['portfolio','overview','retirement','tax'];
-        btn.classList.toggle('active', tabs[i] === tabId);
-    });
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + tabId).classList.add('active');
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
@@ -570,8 +220,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
-
-    document.getElementById('taxYearLabel').textContent = `${CURRENT_TAX_YEAR} — Old Regime deduction optimiser`;
 
     try {
         familyMembers = await WealthAPI.family.getMembers();
@@ -584,7 +232,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('planningContent').style.display = 'block';
 
-    // Load comprehensive data
     try {
         comprehensiveData = await WealthAPI.planning.comprehensive();
     } catch(e) {
@@ -592,752 +239,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         comprehensiveData = null;
     }
 
-    if (comprehensiveData) {
-        // Restore saved return rate
+    dataReadiness = checkDataReadiness();
+
+    if (dataReadiness.isEmpty) {
+        isShowingDummyPlan = true;
+        activeData = buildDummyPlanData();
+        document.getElementById('pjMemberTabs').style.display = 'none';
+        document.getElementById('pjPurpose').style.display = 'none';
+    } else {
+        isShowingDummyPlan = false;
+        activeData = comprehensiveData;
         const savedRate = comprehensiveData.config && comprehensiveData.config.portfolioReturnRate;
         if (savedRate && !isNaN(savedRate)) {
             portfolioReturnRate = parseFloat(savedRate);
             document.getElementById('pjReturnRateInput').value = portfolioReturnRate;
         }
-        renderOverview(comprehensiveData);
-        renderGoalsTimeline(comprehensiveData);
+        buildPJMemberTabs(familyMembers);
     }
 
-    // Set up retirement member tabs
-    buildMemberTabs('retMemberTabs', familyMembers, familyMembers[0].id, switchRetirementMember);
-    activeRetirementMemberId = familyMembers[0].id;
-    renderRetirementForMember(familyMembers[0].id);
-
-    // Set up tax member tabs
-    buildMemberTabs('taxMemberTabs', familyMembers, familyMembers[0].id, switchTaxMember);
-    activeTaxMemberId = familyMembers[0].id;
-    loadTax(activeTaxMemberId);
-
-    // Set up portfolio journey tabs (Overall first, then per member)
-    buildPJMemberTabs(familyMembers);
     activePJMemberId = 'all';
-    if (comprehensiveData) renderPortfolioJourneyForMember('all');
+    renderPortfolioJourneyForMember('all');
 });
-
-// ── Member Tab Builder ─────────────────────────────────────────────────────
-function buildMemberTabs(containerId, members, activeMemberId, onSwitch) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = '';
-    members.forEach(m => {
-        const btn = document.createElement('button');
-        btn.className = 'member-tab' + (m.id === activeMemberId ? ' active' : '');
-        btn.textContent = m.name;
-        btn.addEventListener('click', () => {
-            container.querySelectorAll('.member-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            onSwitch(m.id);
-        });
-        container.appendChild(btn);
-    });
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// OVERVIEW TAB
-// ══════════════════════════════════════════════════════════════════════════
-function renderOverview(data) {
-    const { summary, members, goals } = data;
-    const fmt = WealthAPI.formatCurrency;
-
-    // Hero cards
-    document.getElementById('h-corpus').textContent = fmt(summary.totalFamilyCorpus);
-    const freeSavings = summary.freeMonthlySavings;
-    const freeEl = document.getElementById('h-free');
-    freeEl.textContent = fmt(Math.abs(freeSavings));
-    freeEl.style.color = freeSavings < 0 ? 'var(--error)' : '';
-
-    document.getElementById('h-goals').textContent = `${summary.goalsOnTrack}/${summary.totalGoals}`;
-    document.getElementById('h-goals-sub').textContent = `${summary.goalsOffTrack} need attention`;
-
-    const nextRetire = members.reduce((min, m) => m.retireFY < min.retireFY ? m : min, members[0] || { retireFY: 9999, name: '—' });
-    document.getElementById('h-retire').textContent = `FY${nextRetire.retireFY}`;
-    document.getElementById('h-retire-sub').textContent = nextRetire.name ? `${nextRetire.name} retires` : '';
-
-    const totalPension = members.reduce((s, m) => s + (m.monthlyPension4pct || 0), 0);
-    document.getElementById('h-pension').textContent = fmt(totalPension) + '/mo';
-
-    // Waterfall bar
-    const income = summary.totalMonthlyIncome || 1;
-    const expPct = Math.min((summary.totalMonthlyExpense / income) * 100, 100);
-    const goalPct = Math.min((summary.totalGoalMonthlyCommit / income) * 100, 100);
-    const sipPct = Math.min((summary.totalFamilyMonthlySip / income) * 100, 100);
-    const freePct = Math.max(100 - expPct - goalPct - sipPct, 0);
-
-    const bar = document.getElementById('waterfallBar');
-    bar.innerHTML = `
-        <div class="wf-seg" style="width:${expPct}%;background:#ef4444;">${expPct > 8 ? Math.round(expPct) + '%' : ''}</div>
-        <div class="wf-seg" style="width:${goalPct}%;background:#fb923c;">${goalPct > 8 ? Math.round(goalPct) + '%' : ''}</div>
-        <div class="wf-seg" style="width:${sipPct}%;background:#0066ff;">${sipPct > 8 ? Math.round(sipPct) + '%' : ''}</div>
-        <div class="wf-seg" style="width:${freePct}%;background:#22c55e;">${freePct > 8 ? Math.round(freePct) + '%' : ''}</div>
-    `;
-    document.getElementById('wf-exp').textContent = fmt(summary.totalMonthlyExpense);
-    document.getElementById('wf-goal').textContent = fmt(summary.totalGoalMonthlyCommit);
-    document.getElementById('wf-sip').textContent = fmt(summary.totalFamilyMonthlySip);
-    document.getElementById('wf-free').textContent = fmt(Math.max(freeSavings, 0));
-
-    // SIP Affordability
-    const activeGoals = goals.filter(g => !g.isAchieved && g.fundingType !== 'EMI');
-    if (activeGoals.length > 0 && summary.totalMonthlyIncome > 0) {
-        const netSavings = summary.totalMonthlyIncome - summary.totalMonthlyExpense;
-        const totalRequired = activeGoals.reduce((s, g) => s + (g.requiredMonthlySip || 0), 0);
-        const totalCommitted = activeGoals.reduce((s, g) => s + (g.monthlyContribution || 0), 0);
-        const gap = netSavings - totalRequired;
-        const isShortfall = gap < 0;
-
-        document.getElementById('sipAffordCard').style.display = 'block';
-
-        const goalRows = activeGoals.map(g => {
-            const req = g.requiredMonthlySip || 0;
-            const comm = g.monthlyContribution || 0;
-            const diff = comm - req;
-            const pillClass = diff >= 0 ? 'pos' : 'neg';
-            const pillText = diff >= 0 ? `+${fmt(diff)}` : `−${fmt(Math.abs(diff))}`;
-            const isMilestone = g.isMilestone ? ' <span style="font-size:0.65rem;color:#7c3aed;font-weight:700;padding:1px 5px;background:rgba(139,92,246,0.1);border-radius:3px;">Milestone</span>' : '';
-            return `<tr>
-                <td style="font-weight:600;">${escHtml(g.name)}${isMilestone}</td>
-                <td>${fmt(req)}/mo</td>
-                <td>${comm > 0 ? fmt(comm) + '/mo' : '<span style="color:var(--text-tertiary)">—</span>'}</td>
-                <td><span class="sip-afford-gap-pill ${pillClass}">${pillText}</span></td>
-            </tr>`;
-        }).join('');
-
-        document.getElementById('sipAffordContent').innerHTML = `
-            <div class="sip-afford-banner ${isShortfall ? 'shortfall' : 'surplus'}">
-                <div class="sip-afford-summary">
-                    <div class="sip-afford-stat">
-                        <div class="sip-afford-stat-label">Net Monthly Savings</div>
-                        <div class="sip-afford-stat-val">${fmt(netSavings)}</div>
-                    </div>
-                    <div class="sip-afford-divider"></div>
-                    <div class="sip-afford-stat">
-                        <div class="sip-afford-stat-label">Total SIPs Required</div>
-                        <div class="sip-afford-stat-val">${fmt(totalRequired)}</div>
-                    </div>
-                    <div class="sip-afford-divider"></div>
-                    <div class="sip-afford-stat">
-                        <div class="sip-afford-stat-label">Currently Committed</div>
-                        <div class="sip-afford-stat-val">${fmt(totalCommitted)}</div>
-                    </div>
-                    <div class="sip-afford-divider"></div>
-                    <div class="sip-afford-stat">
-                        <div class="sip-afford-stat-label">${isShortfall ? 'Shortfall' : 'Surplus'}</div>
-                        <div class="sip-afford-stat-val ${isShortfall ? 'red' : 'green'}">${fmt(Math.abs(gap))}</div>
-                    </div>
-                </div>
-                <div class="sip-afford-verdict ${isShortfall ? 'shortfall' : 'surplus'}">
-                    ${isShortfall
-                        ? `⚠️ Monthly savings fall short by ${fmt(Math.abs(gap))} — not enough to fund all goal SIPs`
-                        : `✅ Monthly savings cover all goal SIPs with ${fmt(gap)} to spare`}
-                </div>
-                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
-                <table class="sip-afford-table">
-                    <thead><tr>
-                        <th>Goal</th>
-                        <th>Required SIP</th>
-                        <th>Committed</th>
-                        <th>Gap / Surplus</th>
-                    </tr></thead>
-                    <tbody>${goalRows}</tbody>
-                </table>
-                </div>
-            </div>`;
-    }
-
-    // Goals health — exclude milestone goals from on/off track lists
-    const spendingGoals = goals.filter(g => !g.isMilestone);
-    const onTrack = spendingGoals.filter(g => g.isOnTrack);
-    const offTrack = spendingGoals.filter(g => !g.isOnTrack);
-    const onTrackEl = document.getElementById('onTrackGoals');
-    const offTrackEl = document.getElementById('offTrackGoals');
-
-    if (onTrack.length === 0) {
-        onTrackEl.innerHTML = '<div style="color:var(--text-tertiary);font-size:0.875rem;padding:8px 0;">No goals on track yet</div>';
-    } else {
-        onTrackEl.innerHTML = onTrack.map(g => `
-            <div class="mini-goal-card on-track">
-                <div class="mini-goal-name">${escHtml(g.name)}</div>
-                <div class="mini-progress"><div class="mini-progress-fill" style="width:${Math.min(g.progressPct,100)}%;background:var(--success);"></div></div>
-                <div class="mini-goal-meta">
-                    <span>${g.progressPct.toFixed(1)}% complete</span>
-                    <span>FY${g.completionFY || '—'}</span>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    if (offTrack.length === 0) {
-        offTrackEl.innerHTML = '<div style="color:var(--text-tertiary);font-size:0.875rem;padding:8px 0;">All goals are on track!</div>';
-    } else {
-        offTrackEl.innerHTML = offTrack.map(g => `
-            <div class="mini-goal-card needs-attention">
-                <div class="mini-goal-name">${escHtml(g.name)}</div>
-                <div class="mini-progress"><div class="mini-progress-fill" style="width:${Math.min(g.progressPct,100)}%;background:var(--warning);"></div></div>
-                <div class="mini-goal-meta">
-                    <span>${g.progressPct.toFixed(1)}% — shortfall ${WealthAPI.formatCurrency(g.shortfall)}/mo</span>
-                    <span>FY${g.completionFY || '—'}</span>
-                </div>
-            </div>
-        `).join('');
-    }
-}
-
-// ── AI Insights ─────────────────────────────────────────────────────────
-async function generateAIInsights() {
-    if (!comprehensiveData) return;
-    const btn = document.getElementById('aiInsightsBtn');
-    const content = document.getElementById('aiInsightsContent');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Analyzing...';
-    content.innerHTML = '<div style="display:flex;justify-content:center;padding:40px 0;"><div class="spinner"></div></div>';
-
-    try {
-        const result = await WealthAPI.planning.aiInsights(comprehensiveData);
-        renderAIInsights(result.insights);
-    } catch(e) {
-        content.innerHTML = `<div style="color:var(--error);padding:16px;">Failed to generate insights: ${e.message}</div>`;
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '✨ Regenerate';
-    }
-}
-
-function renderAIInsights(insights) {
-    const content = document.getElementById('aiInsightsContent');
-    if (!insights || insights.length === 0) {
-        content.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:32px;">No insights generated.</div>';
-        return;
-    }
-    content.innerHTML = `<div class="ai-insights-grid">${insights.map(ins => `
-        <div class="insight-card">
-            <div class="insight-badge ${ins.priority}">${ins.priority} priority · ${(ins.type||'').replace(/_/g,' ')}</div>
-            <div class="insight-title">${escHtml(ins.title)}</div>
-            <div class="insight-body">${escHtml(ins.body)}</div>
-            <div class="insight-action">→ ${escHtml(ins.action)}</div>
-        </div>
-    `).join('')}</div>`;
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// GOALS TIMELINE TAB
-// ══════════════════════════════════════════════════════════════════════════
-function renderGoalsTimeline(data) {
-    const { timeline, goals, members } = data;
-    const currentFY = new Date().getMonth() >= 3 ? new Date().getFullYear() + 1 : new Date().getFullYear();
-
-    const fys = timeline.map(t => t.fy).filter(Boolean);
-    if (fys.length === 0) {
-        document.getElementById('timelineTrack').innerHTML = '<div class="timeline-axis"></div><div style="text-align:center;padding:20px;color:var(--text-tertiary);">No timeline events yet</div>';
-        renderGoalSimCards(goals, members);
-        return;
-    }
-
-    const minFY = Math.min(currentFY, ...fys);
-    const maxFY = Math.max(...fys) + 1;
-    const span = maxFY - minFY;
-
-    // FY axis labels
-    const labelsEl = document.getElementById('timelineFYLabels');
-    const labelCount = Math.min(span, 10);
-    const step = Math.ceil(span / labelCount);
-    let labelsHtml = '';
-    for (let fy = minFY; fy <= maxFY; fy += step) {
-        labelsHtml += `<span>FY${fy}</span>`;
-    }
-    labelsEl.innerHTML = labelsHtml;
-
-    // Timeline track
-    const track = document.getElementById('timelineTrack');
-    track.innerHTML = '<div class="timeline-axis"></div>';
-
-    const colors = ['#0066ff','#a855f7','#14b8a6','#fb923c','#ec4899'];
-    const MIN_GAP = 7; // min % between pills on same row to avoid overlap
-    const rowLastPct = [-Infinity, -Infinity]; // row-top, row-bottom
-    let goalIdx = 0;
-
-    timeline.forEach((event) => {
-        if (!event.fy) return;
-        const pct = ((event.fy - minFY) / span) * 100;
-        if (event.type === 'goal_complete') {
-            // Assign to row-top by default; switch to row-bottom if top would overlap
-            let row = 0;
-            if (pct - rowLastPct[0] < MIN_GAP && pct - rowLastPct[1] >= MIN_GAP) row = 1;
-            rowLastPct[row] = pct;
-            const pill = document.createElement('div');
-            pill.className = `timeline-goal-pill ${row === 0 ? 'row-top' : 'row-bottom'}`;
-            pill.style.left = `${pct}%`;
-            pill.title = `${event.goalName} — completes FY${event.fy}`;
-            pill.textContent = `🎯 ${event.goalName}`;
-            pill.style.background = colors[goalIdx % colors.length];
-            track.appendChild(pill);
-            goalIdx++;
-        } else if (event.type === 'retirement') {
-            const line = document.createElement('div');
-            line.style.cssText = `position:absolute;left:${pct}%;top:0;width:2px;height:100%;background:var(--chart-orange);transform:translateX(-50%);opacity:0.5;`;
-            const label = document.createElement('div');
-            label.style.cssText = `position:absolute;left:${pct}%;top:50%;margin-top:4px;transform:translateX(-50%);white-space:nowrap;font-size:0.6875rem;font-weight:700;color:var(--chart-orange);background:var(--bg-elevated);padding:2px 6px;border-radius:6px;border:1px solid var(--chart-orange);`;
-            label.textContent = `🏖️ ${event.memberName}`;
-            track.appendChild(line);
-            track.appendChild(label);
-        }
-    });
-
-    renderGoalSimCards(goals, members);
-}
-
-function renderGoalSimCards(goals, members) {
-    const grid = document.getElementById('goalSimGrid');
-    if (!goals || goals.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-tertiary);padding:20px;">No active goals to simulate.</div>';
-        return;
-    }
-
-    const primaryMember = members && members[0];
-    grid.innerHTML = '';
-
-    goals.forEach(goal => {
-        const card = document.createElement('div');
-        card.className = 'goal-sim-card';
-
-        const progressPct = Math.min(Math.max(goal.progressPct || 0, 0), 100);
-        const now = new Date();
-        const totalMonths = goal.monthsRemaining + Math.round((new Date(goal.targetDate) - now) / (1000 * 60 * 60 * 24 * 30.44));
-        const monthsElapsed = totalMonths - goal.monthsRemaining;
-        const expectedPct = totalMonths > 0 ? Math.min((monthsElapsed / totalMonths) * 100, 100) : 0;
-        const fillClass = progressPct >= expectedPct ? 'on-track' : 'off-track';
-
-        const sipClass = goal.isOnTrack ? 'on-track-text' : 'off-track-text';
-        const sipText = goal.isOnTrack
-            ? `✅ You invest ${WealthAPI.formatCurrency(goal.monthlyContribution)}/mo — need ${WealthAPI.formatCurrency(goal.requiredMonthlySip)} — Surplus ${WealthAPI.formatCurrency(goal.surplus)}`
-            : `⚠️ You invest ${WealthAPI.formatCurrency(goal.monthlyContribution)}/mo — need ${WealthAPI.formatCurrency(goal.requiredMonthlySip)} — Shortfall ${WealthAPI.formatCurrency(goal.shortfall)}/mo`;
-
-        const currentDateStr = goal.targetDate ? goal.targetDate.substring(0, 10) : '';
-
-        card.innerHTML = `
-            <div class="gsim-name">${escHtml(goal.name)}</div>
-            <div class="gsim-meta">${goal.goalType} · ${goal.progressPct.toFixed(1)}% complete · FY${goal.completionFY || '—'}</div>
-            <div class="gsim-progress">
-                <div class="gsim-fill ${fillClass}" style="width:${progressPct}%;"></div>
-                <div class="gsim-marker" style="left:${expectedPct}%;" title="Expected pace at ${expectedPct.toFixed(0)}%"></div>
-            </div>
-            <div class="gsim-sip-line ${sipClass}">${sipText}</div>
-            <div class="sim-date-row">
-                <input type="date" class="sim-date-input" value="${currentDateStr}" id="simDate_${goal.id}">
-                <button class="sim-btn" onclick="simulateGoal(${goal.id}, '${JSON.stringify(goal).replace(/'/g,'').replace(/"/g,'&quot;')}')">Simulate</button>
-            </div>
-            <div class="sim-impact-panel" id="simPanel_${goal.id}"></div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-function simulateGoal(goalId, goalJson) {
-    let goal;
-    try {
-        // Get from comprehensiveData instead of parsing inline JSON
-        goal = comprehensiveData.goals.find(g => g.id === goalId);
-    } catch(e) { return; }
-    if (!goal) return;
-
-    const newDateStr = document.getElementById('simDate_' + goalId).value;
-    if (!newDateStr) return;
-
-    const now = new Date();
-    const newTarget = new Date(newDateStr);
-    const monthsLeft = Math.max((newTarget.getFullYear() - now.getFullYear()) * 12 + (newTarget.getMonth() - now.getMonth()), 1);
-
-    const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
-    const rm = 0.08 / 12;
-    const factor = Math.pow(1 + rm, monthsLeft);
-    const newSip = factor === 1 ? remaining / monthsLeft : (remaining * rm) / (factor - 1);
-    const sipDelta = newSip - goal.requiredMonthlySip;
-
-    // Corpus impact on primary member
-    let corpusImpact = 0;
-    const primaryMember = comprehensiveData.members[0];
-    if (primaryMember) {
-        const n = primaryMember.yearsToRetire;
-        const r = primaryMember.returnRate;
-        const annualSipDelta = sipDelta * 12;
-        const gf = Math.pow(1 + r, n);
-        corpusImpact = r === 0 ? annualSipDelta * n : annualSipDelta * (gf - 1) / r;
-    }
-
-    const newFreeSavings = comprehensiveData.summary.freeMonthlySavings - sipDelta;
-    const panel = document.getElementById('simPanel_' + goalId);
-    const fmt = WealthAPI.formatCurrency;
-    const sign = v => v >= 0 ? '+' : '';
-    const cls = v => v >= 0 ? 'positive' : 'negative';
-
-    panel.className = 'sim-impact-panel visible';
-    panel.innerHTML = `
-        <div class="sim-impact-row"><span class="sim-impact-label">New Required SIP</span><span class="sim-impact-val">${fmt(Math.max(newSip, 0))}/mo</span></div>
-        <div class="sim-impact-row"><span class="sim-impact-label">SIP Change</span><span class="sim-impact-val ${cls(-sipDelta)}">${sign(-sipDelta)}${fmt(Math.abs(sipDelta))}/mo</span></div>
-        <div class="sim-impact-row"><span class="sim-impact-label">Retirement Corpus Impact</span><span class="sim-impact-val ${cls(-corpusImpact)}">${sign(-corpusImpact)}${fmt(Math.abs(corpusImpact))}</span></div>
-        <div class="sim-impact-row"><span class="sim-impact-label">New Free Savings</span><span class="sim-impact-val ${cls(newFreeSavings)}">${fmt(newFreeSavings)}/mo</span></div>
-        <button class="sim-apply-btn" onclick="applyGoalDate(${goalId}, '${newDateStr}')">Apply Date Change</button>
-    `;
-}
-
-async function applyGoalDate(goalId, newDateStr) {
-    try {
-        await WealthAPI.goals.update(goalId, { targetDate: newDateStr });
-        // Reload comprehensive data
-        comprehensiveData = await WealthAPI.planning.comprehensive();
-        renderGoalsTimeline(comprehensiveData);
-        renderOverview(comprehensiveData);
-        if (activePJMemberId) renderPortfolioJourneyForMember(activePJMemberId);
-    } catch(e) {
-        alert('Failed to update goal date: ' + e.message);
-    }
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// RETIREMENT TAB
-// ══════════════════════════════════════════════════════════════════════════
-function switchRetirementMember(memberId) {
-    activeRetirementMemberId = memberId;
-    renderRetirementForMember(memberId);
-}
-
-function renderRetirementForMember(memberId) {
-    const content = document.getElementById('retirementContent');
-    if (!comprehensiveData) {
-        content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">No data available. Please add portfolio data first.</div>';
-        return;
-    }
-
-    const mData = comprehensiveData.members.find(m => m.id === memberId);
-    const member = familyMembers.find(m => m.id === memberId);
-    if (!mData || !member) {
-        content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">Member data not found.</div>';
-        return;
-    }
-
-    const fmt = WealthAPI.formatCurrency;
-    const riskProfile = mData.riskProfile || 'moderate';
-    const score = computeRetirementScore(mData, comprehensiveData);
-    const scoreLabel = score >= 70 ? 'Good' : score >= 50 ? 'Moderate' : 'Needs Attention';
-    const scoreLabelClass = score >= 70 ? 'good' : score >= 50 ? 'moderate' : 'poor';
-    const scoreColor = score >= 70 ? '#00C805' : score >= 50 ? '#fb923c' : '#ef4444';
-
-    const circumference = 2 * Math.PI * 54;
-    const dashArray = (score / 100) * circumference;
-
-    content.innerHTML = `
-        <div class="risk-badge ${riskProfile}">${riskProfile.charAt(0).toUpperCase() + riskProfile.slice(1)} · ${(mData.returnRate * 100).toFixed(0)}% p.a.</div>
-
-        <div class="ret-highlight">
-            <div class="ret-hl-label">Projected Corpus at Retirement (FY${mData.retireFY})</div>
-            <div class="ret-hl-value">${fmt(mData.corpusAtRetirement)}</div>
-            <div class="ret-guidance">Based on ${mData.name}'s current portfolio of ${fmt(mData.currentCorpus)}, investing ${fmt(mData.avgMonthlySip)}/month at ${(mData.returnRate*100).toFixed(0)}% over ${mData.yearsToRetire} years.</div>
-        </div>
-
-        <div class="ret-stats">
-            <div class="ret-stat"><div class="ret-stat-label">Current Age</div><div class="ret-stat-value">${mData.age} yrs</div><div class="ret-stat-sub">${mData.yearsToRetire} years to retire</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Current Portfolio</div><div class="ret-stat-value">${fmt(mData.currentCorpus)}</div><div class="ret-stat-sub">Invested so far</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Monthly SIP</div><div class="ret-stat-value">${fmt(mData.avgMonthlySip)}</div><div class="ret-stat-sub">Active investments</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Est. Monthly Pension</div><div class="ret-stat-value">${fmt(mData.monthlyPension4pct)}</div><div class="ret-stat-sub">4% withdrawal rule</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Goals Impact</div><div class="ret-stat-value" style="color:var(--error);">-${fmt(mData.goalImpactOnCorpus)}</div><div class="ret-stat-sub">Corpus reduction from goals</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Corpus After Goals</div><div class="ret-stat-value">${fmt(Math.max(mData.corpusAtRetirement - mData.goalImpactOnCorpus, 0))}</div><div class="ret-stat-sub">Adjusted for goal SIPs</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Retire FY</div><div class="ret-stat-value">FY${mData.retireFY}</div><div class="ret-stat-sub">Planned retirement year</div></div>
-            <div class="ret-stat"><div class="ret-stat-label">Post-Retire Depletion</div><div class="ret-stat-value" style="color:${mData.corpusDepletedAtYear ? 'var(--error)' : 'var(--success)'};">${mData.corpusDepletedAtYear ? 'Year ' + mData.corpusDepletedAtYear : '30+ yrs'}</div><div class="ret-stat-sub">Corpus duration post-retirement</div></div>
-        </div>
-
-        <!-- Readiness score -->
-        <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title" style="margin-bottom:16px;">Retirement Readiness Score</div>
-            <div class="score-section">
-                <div class="score-donut-wrap">
-                    <svg viewBox="0 0 140 140">
-                        <circle cx="70" cy="70" r="54" fill="none" stroke="var(--border-subtle)" stroke-width="12"/>
-                        <circle cx="70" cy="70" r="54" fill="none" stroke="${scoreColor}" stroke-width="12"
-                            stroke-dasharray="${dashArray} ${circumference}"
-                            stroke-linecap="round"
-                            transform="rotate(-90 70 70)"/>
-                    </svg>
-                    <div class="score-center">
-                        <div class="score-number">${score}</div>
-                        <div class="score-label ${scoreLabelClass}">${scoreLabel}</div>
-                    </div>
-                </div>
-                <div class="score-breakdown">
-                    ${renderScoreBreakdown(mData, comprehensiveData)}
-                </div>
-            </div>
-        </div>
-
-        <!-- Post-retirement drawdown -->
-        <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Post-Retirement Corpus Drawdown</div>
-            <div class="section-sub">30-year corpus projection after retirement at 7% returns</div>
-            <div class="drawdown-wrap" id="drawdownWrap_${memberId}"></div>
-        </div>
-
-        <!-- Milestones -->
-        <div class="section-card">
-            <div class="section-title">10-Year Projection Milestones</div>
-            <div class="milestones" id="milestonesWrap_${memberId}"></div>
-        </div>
-    `;
-
-    renderDrawdownSVG(mData.postRetirementDrawdown, mData.corpusDepletedAtYear, document.getElementById('drawdownWrap_' + memberId));
-    buildRetirementMilestones(mData, document.getElementById('milestonesWrap_' + memberId));
-}
-
-function computeRetirementScore(mData, compData) {
-    const fmt = v => v;
-    let score = 0;
-
-    // 40pts: corpus vs 25x annual retirement expenses
-    const annualPension = (mData.monthlyPension4pct || 0) * 12;
-    const targetCorpus = annualPension * 25;
-    const corpusPct = targetCorpus > 0 ? Math.min(mData.corpusAtRetirement / targetCorpus, 1) : 0;
-    score += Math.round(corpusPct * 40);
-
-    // 30pts: corpus lasts 30yr post-retirement
-    if (!mData.corpusDepletedAtYear) score += 30;
-    else score += Math.round((mData.corpusDepletedAtYear / 30) * 30);
-
-    // 20pts: goals on track ratio
-    const totalGoals = compData.goals.length;
-    const onTrackGoals = compData.goals.filter(g => g.isOnTrack).length;
-    if (totalGoals > 0) score += Math.round((onTrackGoals / totalGoals) * 20);
-    else score += 20;
-
-    // 10pts: free savings positive
-    if (compData.summary.freeMonthlySavings > 0) score += 10;
-
-    return Math.min(Math.max(score, 0), 100);
-}
-
-function renderScoreBreakdown(mData, compData) {
-    const annualPension = (mData.monthlyPension4pct || 0) * 12;
-    const targetCorpus = annualPension * 25;
-    const corpusPct = targetCorpus > 0 ? Math.min(mData.corpusAtRetirement / targetCorpus, 1) : 0;
-    const p1 = Math.round(corpusPct * 40);
-    const p2 = mData.corpusDepletedAtYear ? Math.round((mData.corpusDepletedAtYear / 30) * 30) : 30;
-    const totalGoals = compData.goals.length;
-    const onTrack = compData.goals.filter(g => g.isOnTrack).length;
-    const p3 = totalGoals > 0 ? Math.round((onTrack / totalGoals) * 20) : 20;
-    const p4 = compData.summary.freeMonthlySavings > 0 ? 10 : 0;
-
-    return `
-        <div class="score-item"><span class="score-item-label">Corpus sufficiency (25x annual expenses)</span><span class="score-item-pts">${p1}/40</span></div>
-        <div class="score-item"><span class="score-item-label">Post-retirement corpus durability (30 yrs)</span><span class="score-item-pts">${p2}/30</span></div>
-        <div class="score-item"><span class="score-item-label">Goals on track ratio</span><span class="score-item-pts">${p3}/20</span></div>
-        <div class="score-item"><span class="score-item-label">Free monthly savings positive</span><span class="score-item-pts">${p4}/10</span></div>
-    `;
-}
-
-function renderDrawdownSVG(drawdownData, depletedYear, container) {
-    if (!drawdownData || drawdownData.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-tertiary);padding:20px;text-align:center;">No drawdown data</div>';
-        return;
-    }
-
-    const W = Math.max(280, container.clientWidth || 620), H = 200, PAD = 50;
-    const maxY = drawdownData[0].corpus;
-    const minY = Math.min(0, Math.min(...drawdownData.map(d => d.corpus)));
-    const rangeY = maxY - minY || 1;
-
-    function scaleX(i) { return PAD + (i / (drawdownData.length)) * (W - PAD * 2); }
-    function scaleY(v) { return PAD + (1 - (v - minY) / rangeY) * (H - PAD * 2); }
-
-    const points = drawdownData.map((d, i) => `${scaleX(i)},${scaleY(d.corpus)}`).join(' ');
-    const expPoints = drawdownData.map((d, i) => `${scaleX(i)},${scaleY(-d.annualExpense / 12)}`).join(' ');
-    const zeroY = scaleY(0);
-    const fmt = v => {
-        const n = Math.abs(v);
-        if (n >= 10000000) return (v < 0 ? '-' : '') + '₹' + (n / 10000000).toFixed(1) + 'Cr';
-        if (n >= 100000) return (v < 0 ? '-' : '') + '₹' + (n / 100000).toFixed(1) + 'L';
-        return '₹0';
-    };
-
-    let depletedLine = '';
-    if (depletedYear) {
-        const dx = scaleX(depletedYear - 1);
-        depletedLine = `<line x1="${dx}" y1="${PAD}" x2="${dx}" y2="${H - PAD}" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3"/>
-            <text x="${dx + 4}" y="${PAD + 14}" font-size="10" fill="#ef4444">Depleted yr ${depletedYear}</text>`;
-    }
-
-    // Y-axis labels
-    const yLabels = [maxY, maxY * 0.5, 0].map(v => ({
-        y: scaleY(v), label: fmt(v)
-    }));
-
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
-        <defs>
-            <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#0066ff" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#0066ff" stop-opacity="0"/>
-            </linearGradient>
-        </defs>
-        ${yLabels.map(({y, label}) => `
-            <line x1="${PAD}" y1="${y}" x2="${W-PAD}" y2="${y}" stroke="var(--border-subtle)" stroke-width="1"/>
-            <text x="${PAD - 6}" y="${y + 4}" font-size="10" fill="var(--text-tertiary)" text-anchor="end">${label}</text>
-        `).join('')}
-        <line x1="${PAD}" y1="${zeroY}" x2="${W-PAD}" y2="${zeroY}" stroke="var(--border-color)" stroke-width="1.5"/>
-        <polyline points="${points}" fill="none" stroke="#0066ff" stroke-width="2.5" stroke-linejoin="round"/>
-        ${depletedLine}
-        <text x="${PAD}" y="${H-10}" font-size="10" fill="var(--text-tertiary)">Retirement Year 1</text>
-        <text x="${W-PAD}" y="${H-10}" font-size="10" fill="var(--text-tertiary)" text-anchor="end">Year ${drawdownData.length}</text>
-    </svg>`;
-}
-
-function buildRetirementMilestones(mData, container) {
-    if (!container) return;
-    container.innerHTML = '';
-    const { age, yearsToRetire, currentCorpus, avgMonthlySip, returnRate } = mData;
-    const r = returnRate;
-    const annualInv = avgMonthlySip * 12;
-    const currentYear = new Date().getFullYear();
-    const checkpoints = [0.25, 0.5, 0.75, 1.0];
-
-    checkpoints.forEach(pct => {
-        const n = Math.round(yearsToRetire * pct);
-        if (n <= 0) return;
-        const yr = currentYear + n;
-        const ageAtPoint = age + n;
-        const gf = Math.pow(1 + r, n);
-        const corpus = r === 0 ? currentCorpus + annualInv * n : currentCorpus * gf + annualInv * (gf - 1) / r;
-        const div = document.createElement('div');
-        div.className = 'milestone';
-        div.innerHTML = `
-            <div class="milestone-year">${yr}</div>
-            <div class="milestone-label">Age ${ageAtPoint}${pct === 1.0 ? ' — Retirement' : ''}</div>
-            <div class="milestone-value">${WealthAPI.formatCurrency(Math.round(corpus))}</div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// TAX PLANNING TAB
-// ══════════════════════════════════════════════════════════════════════════
-function switchTaxMember(memberId) {
-    activeTaxMemberId = memberId;
-    loadTax(memberId);
-}
-
-async function loadTax(memberId) {
-    let data;
-    try {
-        data = await WealthAPI.planning.tax(memberId, CURRENT_TAX_YEAR);
-    } catch(e) { return; }
-    populateTaxForm(data);
-    renderTaxResults(data);
-}
-
-function populateTaxForm(data) {
-    document.getElementById('taxGrossSalary').value = data.grossSalary || '';
-    document.getElementById('taxHraReceived').value = data.hraReceived || '';
-    document.getElementById('tax80c').value = data.sec80c || '';
-    document.getElementById('tax80d').value = data.sec80d || '';
-    document.getElementById('tax80ccd1b').value = data.sec80ccd1b || '';
-    document.getElementById('taxHomeLoan').value = data.homeLoanInterest || '';
-    document.getElementById('taxOther').value = data.otherDeductions || '';
-}
-
-async function saveTax() {
-    const btn = document.getElementById('taxSaveBtn');
-    const status = document.getElementById('taxSaveStatus');
-    btn.disabled = true;
-    btn.textContent = 'Saving...';
-    status.style.display = 'none';
-
-    const payload = {
-        taxYear: CURRENT_TAX_YEAR,
-        grossSalary: parseFloat(document.getElementById('taxGrossSalary').value) || 0,
-        hraReceived: parseFloat(document.getElementById('taxHraReceived').value) || 0,
-        hraClaimed: parseFloat(document.getElementById('taxHraReceived').value) || 0,
-        sec80c: parseFloat(document.getElementById('tax80c').value) || 0,
-        sec80d: parseFloat(document.getElementById('tax80d').value) || 0,
-        sec80ccd1b: parseFloat(document.getElementById('tax80ccd1b').value) || 0,
-        homeLoanInterest: parseFloat(document.getElementById('taxHomeLoan').value) || 0,
-        otherDeductions: parseFloat(document.getElementById('taxOther').value) || 0
-    };
-
-    try {
-        const result = await WealthAPI.planning.updateTax(activeTaxMemberId, payload);
-        renderTaxResults(result);
-        status.textContent = 'Saved successfully';
-        status.style.color = 'var(--success)';
-        status.style.display = 'block';
-        setTimeout(() => { status.style.display = 'none'; }, 3000);
-    } catch(e) {
-        status.textContent = 'Error saving. Please try again.';
-        status.style.color = 'var(--error)';
-        status.style.display = 'block';
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save & Calculate';
-    }
-}
-
-function renderTaxResults(data) {
-    const container = document.getElementById('taxResults');
-    if (!data) {
-        container.innerHTML = '<div style="color:var(--text-tertiary);font-size:0.875rem;text-align:center;padding:40px 0;">No data available</div>';
-        return;
-    }
-
-    const pct80c = Math.min((data.sec80c / 150000) * 100, 100).toFixed(0);
-    const pct80d = Math.min((data.sec80d / 25000) * 100, 100).toFixed(0);
-    const pct80ccd = Math.min((data.sec80ccd1b / 50000) * 100, 100).toFixed(0);
-
-    const rows = [
-        { label: 'Standard Deduction', value: WealthAPI.formatCurrency(data.standardDeduction), badge: '✓', cls: '' },
-        { label: 'HRA Exemption', value: WealthAPI.formatCurrency(data.effectiveHra), badge: data.effectiveHra > 0 ? '✓' : '', cls: '' },
-        { label: `80C used: ${WealthAPI.formatCurrency(data.sec80c)} / ₹1,50,000`, isBar: true, pct: pct80c, color: '#0066ff', cls: '' },
-        { label: `80D used: ${WealthAPI.formatCurrency(data.sec80d)} / ₹25,000`, isBar: true, pct: pct80d, color: '#a855f7', cls: '' },
-        { label: `80CCD(1B) NPS used: ${WealthAPI.formatCurrency(data.sec80ccd1b)} / ₹50,000`, isBar: true, pct: pct80ccd, color: '#fb923c', cls: '' },
-        { label: 'Total Deductions', value: WealthAPI.formatCurrency(data.totalDeductions), badge: '', cls: '' },
-        { label: 'Estimated Taxable Income', value: WealthAPI.formatCurrency(data.taxableIncome), badge: '', cls: 'taxable' }
-    ];
-
-    const opportunities = [];
-    if (data.remaining80c > 0) opportunities.push({ label: 'Remaining 80C limit', value: WealthAPI.formatCurrency(data.remaining80c), note: 'Invest more in ELSS/PPF to save tax' });
-    if (data.remaining80d > 0) opportunities.push({ label: 'Remaining 80D limit', value: WealthAPI.formatCurrency(data.remaining80d), note: 'Consider health insurance top-up' });
-    if (data.remaining80ccd1b > 0) opportunities.push({ label: 'Remaining NPS (80CCD1B) limit', value: WealthAPI.formatCurrency(data.remaining80ccd1b), note: 'Contribute to NPS for extra deduction' });
-
-    let html = rows.map(row => {
-        if (row.isBar) {
-            return `<div class="tax-result-row ${row.cls}">
-                <div class="tax-result-label">${row.label}</div>
-                <div style="max-width:100px;min-width:80px;"><div class="progress-bar-container"><div class="progress-bar-fill" style="width:${row.pct}%;background:${row.color};"></div></div></div>
-                <div class="tax-result-value" style="min-width:40px;text-align:right;">${row.pct}%</div>
-            </div>`;
-        }
-        return `<div class="tax-result-row ${row.cls}">
-            <div class="tax-result-label">${row.label}</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-                <div class="tax-result-value">${row.value}</div>
-                ${row.badge ? `<div class="tax-result-badge">${row.badge}</div>` : ''}
-            </div>
-        </div>`;
-    }).join('');
-
-    if (opportunities.length > 0) {
-        html += `<div style="margin-top:8px;padding:12px 16px;background:rgba(0,200,5,0.06);border:1px solid rgba(0,200,5,0.2);border-radius:10px;">
-            <div style="font-size:0.8125rem;font-weight:700;color:var(--success);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em;">Tax Saving Opportunities</div>`;
-        opportunities.forEach(op => {
-            html += `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
-                <div>
-                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">${op.label}: <span style="color:var(--success);">${op.value}</span></div>
-                    <div style="font-size:0.75rem;color:var(--text-tertiary);margin-top:2px;">${op.note}</div>
-                </div>
-            </div>`;
-        });
-        html += '</div>';
-    }
-
-    container.innerHTML = html;
-}
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 function escHtml(str) {
@@ -1345,8 +267,78 @@ function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function checkDataReadiness() {
+    if (!comprehensiveData) return { hasPortfolio: false, hasGoals: false, hasLifePlan: false, isComplete: false, isEmpty: true };
+    const hasPortfolio = (comprehensiveData.members || []).some(m => (m.currentCorpus || 0) > 0 || (m.avgMonthlySip || 0) > 0);
+    const hasGoals = (comprehensiveData.goals || []).length > 0;
+    const hasLifePlan = (comprehensiveData.yearlyProjections || []).some(p => (p.totalIncome || 0) > 0);
+    const isComplete = hasPortfolio && hasGoals && hasLifePlan;
+    const isEmpty = !hasPortfolio && !hasGoals && !hasLifePlan;
+    return { hasPortfolio, hasGoals, hasLifePlan, isComplete, isEmpty };
+}
+
+function buildDummyPlanData() {
+    const projs = [];
+    let income = 15.0; // ₹15L/year starting
+    let expenses = 9.0; // ₹9L/year starting
+    for (let fy = 2027; fy <= 2065; fy++) {
+        projs.push({ fy, totalIncome: +income.toFixed(2), totalExpenses: +expenses.toFixed(2), netSavings: +(income - expenses).toFixed(2) });
+        if (fy < 2050) income *= 1.10;
+        expenses *= 1.06;
+    }
+    return {
+        members: [{ id: 'demo1', name: 'You (Sample)', currentCorpus: 3200000, avgMonthlySip: 50000, retireFY: 2050 }],
+        goals: [
+            { id: 'dg1', name: 'House Purchase', completionFY: 2030, targetAmount: 8000000, futureValue: 8000000, fundingType: 'Savings', monthlyContribution: 0, assignedMembers: null },
+            { id: 'dg2', name: "Children's Education", completionFY: 2038, targetAmount: 4000000, futureValue: 4000000, fundingType: 'Savings', monthlyContribution: 0, assignedMembers: null },
+            { id: 'dg3', name: 'World Trip', completionFY: 2035, targetAmount: 1500000, futureValue: 1500000, fundingType: 'Savings', monthlyContribution: 0, assignedMembers: null },
+        ],
+        yearlyProjections: projs,
+        config: { portfolioReturnRate: 10, expenseInflationRate: 0.06 },
+        snapshotMonth: 6,
+        snapshotYear: 2026
+    };
+}
+
+function renderSetupBanner(readiness) {
+    const tabs = [
+        { key: 'hasPortfolio', label: 'Portfolio', desc: 'Add your investments & holdings', href: 'portfolio.html', icon: '📊' },
+        { key: 'hasGoals',    label: 'Goals',     desc: 'Set your financial goals',       href: 'goals.html',     icon: '🎯' },
+        { key: 'hasLifePlan', label: 'Projections', desc: 'Add your income & expenses',     href: 'projections.html', icon: '📋' }
+    ];
+    const missing = tabs.filter(t => !readiness[t.key]);
+    if (missing.length === 0) return '';
+    const isDummy = readiness.isEmpty;
+    const title = isDummy
+        ? 'Complete your setup to see your personalised Financial Plan'
+        : 'Some details are missing — your plan may be incomplete';
+    const sub = isDummy
+        ? 'The plan below uses <strong>sample data</strong> to illustrate what your financial journey could look like. Fill in the tabs below to unlock your real projections.'
+        : 'Add information to the missing tabs for a more accurate plan. ' + missing.map(t => t.label).join(', ') + ' ' + (missing.length === 1 ? 'is' : 'are') + ' not yet set up.';
+    const steps = tabs.map(t => {
+        const done = readiness[t.key];
+        return `<a href="${t.href}" class="setup-step">
+            <span class="setup-step-icon">${t.icon}</span>
+            <div>
+                <div class="setup-step-label">${done ? '<span class="setup-step-check">✓ </span>' : ''}${t.label}</div>
+                <div class="setup-step-desc">${done ? 'All set' : t.desc}</div>
+            </div>
+        </a>`;
+    }).join('');
+    return `<div class="setup-banner">
+        <div class="setup-banner-header">
+            <div class="setup-banner-icon">💡</div>
+            <div>
+                <div class="setup-banner-title">${title}</div>
+                <div class="setup-banner-sub">${sub}</div>
+            </div>
+        </div>
+        <div class="setup-steps">${steps}</div>
+    </div>`;
+}
+
 // ══════════════════════════════════════════════════════════════════════════
-// PORTFOLIO JOURNEY TAB
+// PORTFOLIO JOURNEY
 // ══════════════════════════════════════════════════════════════════════════
 
 function buildPJMemberTabs(members) {
@@ -1385,25 +377,45 @@ function getCurrentFY() {
     return now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear();
 }
 
+// Returns number of FY months remaining after the snapshot month.
+// Indian FY: Apr(4)–Mar(3). "Remaining" = months from snapshot+1 to March (inclusive).
+// December salary is credited in January — so Dec income hasn't landed yet, making
+// remaining months for income = Jan, Feb, Mar = 3. The formula captures this naturally.
+function remainingFYMonths(snapshotMonth) {
+    if (snapshotMonth >= 4) return 15 - snapshotMonth; // Apr→11, May→10 … Dec→3
+    if (snapshotMonth === 3) return 0;                  // March = last FY month
+    return 3 - snapshotMonth;                           // Jan→2, Feb→1
+}
+
+function snapshotMonthName(m) {
+    return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m - 1] || '';
+}
+
 function computePortfolioJourneyForMember(memberId) {
-    if (!comprehensiveData) return null;
-    const members = memberId === 'all' ? comprehensiveData.members : comprehensiveData.members.filter(m => m.id === memberId);
+    if (!activeData) return null;
+    const members = memberId === 'all' ? activeData.members : activeData.members.filter(m => m.id === memberId);
     if (!members.length) return null;
 
     const currentFY = getCurrentFY();
     const endFY = 2080;
-    const goals = comprehensiveData.goals || [];
-    const totalMembers = comprehensiveData.members.length || 1;
+    const goals = activeData.goals || [];
+    const totalMembers = activeData.members.length || 1;
+
+    // Portfolio snapshot date — used to pro-rate the first (partial) FY
+    const snapMonth = activeData.snapshotMonth || (new Date().getMonth() + 1);
+    const snapYear  = activeData.snapshotYear  || new Date().getFullYear();
+    const partialMonths  = remainingFYMonths(snapMonth); // remaining FY months after snapshot
+    const partialFraction = partialMonths / 12;
 
     // Build per-FY net savings lookup from yearlyProjections (values in lakhs → convert to ₹)
     const projByFY = {};
-    (comprehensiveData.yearlyProjections || []).forEach(p => {
+    (activeData.yearlyProjections || []).forEach(p => {
         projByFY[p.fy] = p;
     });
 
     // Aggregate starting corpus across selected members
     let startCorpusTotal = 0;
-    let fallbackAnnualSip = 0; // flat SIP fallback if no projection data
+    let fallbackAnnualSip = 0;
     members.forEach(m => {
         startCorpusTotal += m.currentCorpus || 0;
         fallbackAnnualSip += (m.avgMonthlySip || 0) * 12;
@@ -1411,27 +423,19 @@ function computePortfolioJourneyForMember(memberId) {
     const returnRate = portfolioReturnRate / 100;
 
     // Member fraction for splitting family net savings when viewing a single member
-    const memberFraction = memberId === 'all' ? 1 : (1 / (comprehensiveData.members.length || 1));
+    const memberFraction = memberId === 'all' ? 1 : (1 / (activeData.members.length || 1));
 
-    // Group goal costs by FY for selected members
-    // goalCommittedByFY  = annual SIP/EMI payments happening toward goals (informational, does not reduce corpus)
-    // goalWithdrawalsByFY = actual corpus withdrawals (lump-sum shortfall at completion)
+    // Group goal costs by FY
     const goalWithdrawalsByFY = {};
     const goalCommittedByFY = {};
-    const goalNamesByFY = {}; // completion year only, for pill display
-    const milestoneGoals = []; // milestone goals for separate check panel
+    const goalNamesByFY = {};
+    const emiLoadByFY = {};   // yearly EMI load subtracted from investable savings
+    const milestoneGoals = [];
     goals.forEach(g => {
         if (!g.completionFY) return;
-
-        // Milestone goals: skip corpus deduction, collect for separate display
-        if (g.isMilestone) {
-            milestoneGoals.push(g);
-            return;
-        }
+        if (g.isMilestone) { milestoneGoals.push(g); return; }
 
         const assigned = g.assignedMembers && g.assignedMembers.length > 0 ? g.assignedMembers : null;
-
-        // Determine this member's share fraction
         let fraction;
         if (memberId === 'all') {
             fraction = 1;
@@ -1443,21 +447,24 @@ function computePortfolioJourneyForMember(memberId) {
 
         const monthlyContrib = g.monthlyContribution || 0;
         const isEMI = (g.fundingType || 'Savings') === 'EMI';
-        // Use pre-computed futureValue and downPaymentAmount from server (same formula as Goals tab)
         const futureValue = g.futureValue || g.targetAmount;
 
         if (isEMI) {
-            // EMI goal: corpus only covers down payment; loan handles the rest
             const downPayment = Math.round((g.downPaymentAmount || 0) * fraction);
             if (downPayment > 0) {
                 goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + downPayment;
             }
+            // Register ongoing EMI as a yearly load on savings from completionFY through loanEndsFY
+            if (g.monthlyEmi > 0 && g.loanEndsFY) {
+                const yearlyEmi = Math.round(g.monthlyEmi * 12 * fraction);
+                for (let fy = g.completionFY; fy < g.loanEndsFY; fy++) {
+                    emiLoadByFY[fy] = (emiLoadByFY[fy] || 0) + yearlyEmi;
+                }
+            }
         } else if (monthlyContrib > 0) {
-            // SIP-based goal: at completionFY, withdraw the full future value (SIPs accumulate toward it)
             const withdrawal = Math.round(futureValue * fraction);
             goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + withdrawal;
         } else {
-            // Pure lump-sum goal: full future value withdrawal at completion
             goalWithdrawalsByFY[g.completionFY] = (goalWithdrawalsByFY[g.completionFY] || 0) + Math.round(futureValue * fraction);
         }
         if (!goalNamesByFY[g.completionFY]) goalNamesByFY[g.completionFY] = [];
@@ -1470,23 +477,34 @@ function computePortfolioJourneyForMember(memberId) {
     let totalGoalsFunded = 0;
 
     for (let fy = currentFY; fy <= endFY; fy++) {
-        const opening = Math.max(corpus, 0); // floor at 0 for display
+        // For the current (snapshot) FY, pro-rate income and returns to remaining months only.
+        // From FY+1 onwards, use full-year values.
+        const isFirstFY = (fy === currentFY);
+        const yearFraction = isFirstFY ? partialFraction : 1;
+
+        const opening = Math.max(corpus, 0);
         const openingNoGoals = corpusNoGoals;
-        const growth = corpus * returnRate; // allow negative corpus to show reality
-        const growthNoGoals = openingNoGoals * returnRate;
+
         const goalWithdrawal = goalWithdrawalsByFY[fy] || 0;
-        const goalCommitted = goalCommittedByFY[fy] || 0;
+        const goalCommitted  = goalCommittedByFY[fy] || 0;
 
-        // Net savings from planned projections (lakhs → ₹), clamped to 0 after retirement
+        // Goal funding is deducted from corpus first; return is earned on the reduced corpus
+        const corpusForReturn = Math.max(corpus - goalWithdrawal, 0);
+        const growth = corpusForReturn * returnRate * yearFraction;
+        const growthNoGoals = openingNoGoals * returnRate * yearFraction;
+
         const projRow = projByFY[fy];
-        const annualSipTotal = projRow
-            ? projRow.netSavings * 100000 * memberFraction
-            : fallbackAnnualSip;
+        const emiLoad = emiLoadByFY[fy] || 0;
+        // investableSavings = net savings (income − expenses − EMI) flowing into portfolio
+        const investableSavings = (projRow
+            ? projRow.netSavings * 100000 * memberFraction - emiLoad
+            : fallbackAnnualSip - emiLoad) * yearFraction;
 
-        // Corpus is reduced only by lump-sum withdrawals; net savings flow in each year
-        const closing = corpus + growth + annualSipTotal - goalWithdrawal;
-        const closingNoGoals = corpusNoGoals + growthNoGoals + annualSipTotal;
-        const returnPct = corpus > 0 ? +(returnRate * 100).toFixed(1) : 0;
+        // closing: goal deducted first, then return on reduced corpus, then net savings added
+        const closing = corpusForReturn + growth + Math.round(investableSavings);
+        const closingNoGoals = corpusNoGoals + growthNoGoals + Math.round(investableSavings);
+
+        const returnPct = (corpusForReturn > 0 && yearFraction > 0) ? +(returnRate * 100 * yearFraction).toFixed(1) : 0;
         const totalGoalOutflow = goalWithdrawal + goalCommitted;
         const goalPct = opening > 0 ? +((totalGoalOutflow / opening) * 100).toFixed(1) : 0;
 
@@ -1495,9 +513,12 @@ function computePortfolioJourneyForMember(memberId) {
             opening: Math.round(corpus),
             growth: Math.round(growth),
             returnPct,
+            isFirstFY,
+            partialMonths: isFirstFY ? partialMonths : null,
             incomeL: projRow ? projRow.totalIncome : null,
             expensesL: projRow ? projRow.totalExpenses : null,
-            sipAdded: Math.round(annualSipTotal),
+            emiL: emiLoad > 0 ? emiLoad / 100000 : null,
+            sipAdded: Math.round(investableSavings),
             goalCommitted: Math.round(goalCommitted),
             goalWithdrawal: Math.round(goalWithdrawal),
             goalPct,
@@ -1511,7 +532,6 @@ function computePortfolioJourneyForMember(memberId) {
         corpusNoGoals = closingNoGoals;
     }
 
-    // Find retirement row for label
     const lastRetireFY = Math.max(...members.map(m => m.retireFY || currentFY + 20));
     const retireRow = rows.find(r => r.fy === lastRetireFY) || rows[rows.length - 1];
 
@@ -1524,12 +544,102 @@ function computePortfolioJourneyForMember(memberId) {
         projectedNoGoals: retireRow?.closingNoGoals || 0,
         startCorpus: Math.round(startCorpusTotal),
         milestoneGoals,
+        snapMonth,
+        snapYear,
+        partialMonths,
     };
+}
+
+// Derive plain-language insights from the journey data
+function computeInsights(journey, retireFY) {
+    const { rows, projectedAtRetirement, member, snapYear, snapMonth, startCorpus } = journey;
+    const insights = [];
+    const currentFY = getCurrentFY();
+
+    // 1 — Retirement corpus adequacy (25× annual expenses rule)
+    const retireRow = rows.find(r => r.fy === (member.retireFY || retireFY)) || rows[rows.length - 1];
+    if (retireRow && retireRow.expensesL != null) {
+        const annualExpenses = retireRow.expensesL * 100000;
+        const target25x = annualExpenses * 25;
+        if (target25x > 0) {
+            const coverage = projectedAtRetirement / target25x;
+            if (coverage >= 1) {
+                insights.push({
+                    cls: 'good',
+                    label: 'Retirement Corpus',
+                    verdict: `On track (${Math.round(coverage * 100)}% funded)`,
+                    verdictCls: 'good',
+                    detail: `Projected ${formatCorpusShort(projectedAtRetirement)} covers 25× projected annual expenses of ${formatCorpusShort(annualExpenses)}.`
+                });
+            } else {
+                const shortfall = target25x - projectedAtRetirement;
+                insights.push({
+                    cls: 'bad',
+                    label: 'Retirement Corpus',
+                    verdict: `Shortfall: ${formatCorpusShort(shortfall)}`,
+                    verdictCls: 'bad',
+                    detail: `Need ${formatCorpusShort(target25x)} (25× expenses) but projecting ${formatCorpusShort(projectedAtRetirement)}. Increase savings or defer retirement.`
+                });
+            }
+        }
+    }
+
+    // 2 — Goal corpus depletion (does corpus ever go negative?)
+    const firstNegRow = rows.find(r => r.closing < 0);
+    if (firstNegRow) {
+        insights.push({
+            cls: 'bad',
+            label: 'Goal Sustainability',
+            verdict: `Corpus dips negative in ${firstNegRow.fy}`,
+            verdictCls: 'bad',
+            detail: `A goal withdrawal in ${firstNegRow.fy} drives the portfolio negative. Consider spreading goals or increasing contributions.`
+        });
+    } else {
+        insights.push({
+            cls: 'good',
+            label: 'Goal Sustainability',
+            verdict: 'Portfolio stays positive',
+            verdictCls: 'good',
+            detail: 'No year shows a negative corpus after goal withdrawals — your investment runway is intact.'
+        });
+    }
+
+    // 3 — Savings rate (from current FY projection row)
+    const currentRow = rows.find(r => r.fy === currentFY);
+    if (currentRow && currentRow.incomeL && currentRow.incomeL > 0) {
+        const income = currentRow.incomeL * 100000;
+        const netSav = currentRow.sipAdded;
+        const rate = Math.round((netSav / income) * 100);
+        if (rate >= 20) {
+            insights.push({ cls: 'good', label: 'Savings Rate', verdict: `${rate}% — Healthy`, verdictCls: 'good', detail: `Saving ${rate}% of income this year. A 20%+ rate builds wealth quickly over time.` });
+        } else if (rate >= 10) {
+            insights.push({ cls: 'warn', label: 'Savings Rate', verdict: `${rate}% — Moderate`, verdictCls: 'warn', detail: `Saving ${rate}% of income. Aim for 20%+ to accelerate retirement readiness.` });
+        } else {
+            insights.push({ cls: 'bad', label: 'Savings Rate', verdict: `${rate}% — Low`, verdictCls: 'bad', detail: `Saving only ${rate}% of income. Increasing contributions even slightly has a large long-term impact.` });
+        }
+    }
+
+    // 4 — Years to retirement
+    const retireYear = member.retireFY || retireFY;
+    const yearsLeft = Math.max(retireYear - currentFY, 0);
+    const growthMultiple = startCorpus > 0 ? Math.round(projectedAtRetirement / startCorpus) : 0;
+    if (yearsLeft > 0) {
+        const cls = yearsLeft >= 15 ? 'good' : yearsLeft >= 8 ? 'warn' : 'bad';
+        insights.push({
+            cls,
+            label: 'Time Horizon',
+            verdict: `${yearsLeft} years to ${retireYear}`,
+            verdictCls: cls,
+            detail: `Starting corpus ${formatCorpusShort(startCorpus)}${growthMultiple > 1 ? `, projected to grow ${growthMultiple}×` : ''} at ${portfolioReturnRate}% p.a.`
+        });
+    }
+
+    return insights;
 }
 
 function renderPortfolioJourneyForMember(memberId) {
     const container = document.getElementById('pjContent');
-    if (!comprehensiveData) {
+    if (!activeData) {
         container.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:60px 0;">No data available</div>';
         return;
     }
@@ -1540,17 +650,27 @@ function renderPortfolioJourneyForMember(memberId) {
         return;
     }
 
-    const { member, rows, totalGoalsFunded, projectedAtRetirement, projectedNoGoals, startCorpus, milestoneGoals } = journey;
+    const { member, rows, totalGoalsFunded, projectedAtRetirement, projectedNoGoals, startCorpus, milestoneGoals, snapMonth, snapYear, partialMonths } = journey;
+    const snapLabel = `${snapshotMonthName(snapMonth)} ${snapYear}`;
+
+    // Setup banner + sample notice
+    let html = renderSetupBanner(dataReadiness);
+    if (isShowingDummyPlan) {
+        html += `<div class="sample-notice">
+            <span class="sample-badge">Sample Plan</span>
+            This is an illustrative example based on a typical financial profile. Fill in your data above to see your real projections.
+        </div>`;
+    }
 
     // Summary stats
-    let html = `<div class="pj-summary">
+    html += `<div class="pj-summary">
         <div class="pj-stat">
             <div class="pj-stat-label">Starting Portfolio</div>
             <div class="pj-stat-value">${formatCorpusShort(startCorpus)}</div>
-            <div class="pj-stat-sub">FY${getCurrentFY()} corpus</div>
+            <div class="pj-stat-sub">as of ${snapLabel}</div>
         </div>
         <div class="pj-stat accent">
-            <div class="pj-stat-label">Projected at FY${member.retireFY}</div>
+            <div class="pj-stat-label">Projected at ${member.retireFY}</div>
             <div class="pj-stat-value">${formatCorpusShort(projectedAtRetirement)}</div>
             <div class="pj-stat-sub">After funding all goals</div>
         </div>
@@ -1559,19 +679,38 @@ function renderPortfolioJourneyForMember(memberId) {
             <div class="pj-stat-value pj-td-negative">${formatCorpusShort(totalGoalsFunded)}</div>
             <div class="pj-stat-sub">Corpus redirected to goals</div>
         </div>
+        <div class="pj-stat">
+            <div class="pj-stat-label">Without Goals</div>
+            <div class="pj-stat-value">${formatCorpusShort(projectedNoGoals)}</div>
+            <div class="pj-stat-sub">If no goal withdrawals</div>
+        </div>
     </div>`;
+
+    // Insights
+    const insights = computeInsights(journey, member.retireFY);
+    if (insights.length > 0) {
+        html += `<div class="pj-insights">`;
+        insights.forEach(ins => {
+            html += `<div class="pj-insight-card ${ins.cls}">
+                <div class="pj-insight-label">${escHtml(ins.label)}</div>
+                <div class="pj-insight-verdict ${ins.verdictCls}">${escHtml(ins.verdict)}</div>
+                <div class="pj-insight-detail">${escHtml(ins.detail)}</div>
+            </div>`;
+        });
+        html += `</div>`;
+    }
 
     // Line chart
     html += `<div class="pj-chart-wrap">
-        <div class="pj-chart-title">Portfolio Growth Over Time</div>
+        <div class="pj-chart-title">Portfolio Value Over Time</div>
         <div class="pj-chart-legend">
             <span><span class="pj-legend-dot" style="background:#0066ff;"></span>Portfolio Value</span>
-            <span><span class="pj-legend-dot" style="background:#FF3B30;"></span>Goal Funded Year</span>
+            <span><span class="pj-legend-dot" style="background:#FF3B30;"></span>Goal Withdrawal Year</span>
         </div>
         <div id="pjLineChart"></div>
     </div>`;
 
-    // Annual returns/SIP bar chart
+    // Bar chart
     html += `<div class="pj-chart-wrap">
         <div class="pj-chart-title">Annual Breakdown — Returns vs Investments vs Goals Funded</div>
         <div class="pj-chart-legend">
@@ -1582,25 +721,46 @@ function renderPortfolioJourneyForMember(memberId) {
         <div id="pjBarChart"></div>
     </div>`;
 
-    // Detailed table
+    // Table
     html += `<div class="pj-table-wrap">
         <table class="pj-table">
             <thead>
                 <tr>
-                    <th>FY</th>
+                    <th>Year</th>
                     <th>Opening Balance</th>
-                    <th>Return %</th>
                     <th>Income</th>
                     <th>Expenses</th>
+                    <th>EMI</th>
                     <th>Net Savings</th>
                     <th>Goal Funding</th>
+                    <th>Portfolio Return</th>
                     <th>Closing Balance</th>
+                    <th style="text-align:left;">Goals</th>
                     ${milestoneGoals.length > 0 ? '<th style="text-align:left;">Milestones</th>' : ''}
                 </tr>
             </thead>
             <tbody id="pjTableBody"></tbody>
-        </table>
-    </div>`;
+        </table>`;
+
+    // Assumptions footer inside table-wrap
+    const incomeGrowthRates = (activeData.members || []).map(m => {
+        const cfg = (activeData.config && activeData.config.members && activeData.config.members[String(m.id)]) || {};
+        const rate = cfg.incomeGrowthRate != null ? cfg.incomeGrowthRate : (cfg.growthRate != null ? cfg.growthRate : 0.12);
+        return Math.round(rate * 100);
+    });
+    const incomeGrowthStr = incomeGrowthRates.length > 0
+        ? [...new Set(incomeGrowthRates)].join('/') + '%'
+        : '12%';
+    const expInflation = (activeData.config && activeData.config.expenseInflationRate)
+        ? Math.round(activeData.config.expenseInflationRate * 100) + '%'
+        : '6%';
+    const partialNote = partialMonths > 0
+        ? ` · First year (${getCurrentFY()}) uses ${partialMonths}/12 months — portfolio recorded as of ${snapLabel}`
+        : ` · Portfolio recorded as of ${snapLabel}`;
+
+    html += `<div class="pj-assumptions">
+        Assumptions: ${portfolioReturnRate}% p.a. investment return · ${expInflation} annual expense inflation · ${incomeGrowthStr} annual income growth${partialNote}
+    </div></div>`;
 
     container.innerHTML = html;
 
@@ -1615,55 +775,78 @@ function renderPortfolioJourneyForMember(memberId) {
     let tableHtml = '';
     rows.forEach(r => {
         const hasGoals = r.goals.length > 0;
-        const goalPills = r.goals.map(g => `<span class="pj-goal-pill">${escHtml(g.name)}</span>`).join('');
-        let goalCell = '—';
-        if (r.goalWithdrawal > 0) {
-            goalCell = `<span class="pj-goal-deduction">−${formatCorpusShort(r.goalWithdrawal)}</span>`;
-        }
+
         const incomeCell = r.incomeL != null ? formatCorpusShort(r.incomeL * 100000) : '—';
         const expCell    = r.expensesL != null ? formatCorpusShort(r.expensesL * 100000) : '—';
+        const emiCell    = r.emiL != null ? `<span style="color:var(--text-secondary);">${formatCorpusShort(r.emiL * 100000)}</span>` : '<span style="color:var(--text-tertiary);">—</span>';
 
-        // Milestone column for this row
+        // Return cell — % in small font, absolute value on second line like other monetary columns
+        const partialNote = r.isFirstFY && r.partialMonths != null
+            ? `<span style="color:var(--text-tertiary);font-size:0.68rem;">&nbsp;(${r.partialMonths}/12 yr)</span>`
+            : '';
+        const returnCell = `<div>${formatCorpusShort(r.growth)}${partialNote}</div>`
+            + `<div style="color:var(--text-tertiary);font-size:0.72rem;margin-top:1px;">${r.returnPct}% p.a.</div>`;
+
+        // Goal Funding column — numeric deduction value
+        const goalFundingCell = r.goalWithdrawal > 0
+            ? `<span style="color:var(--viz-expense,#FF9500);font-weight:600;">−${formatCorpusShort(r.goalWithdrawal)}</span>`
+            : '—';
+
+        // Goals names column (after Closing) — goal names + amounts in small font
+        let goalsNameCell = '<span style="color:var(--text-tertiary);">—</span>';
+        if (r.goals.length > 0 && r.goalWithdrawal > 0) {
+            const items = r.goals.map(g =>
+                `<div class="pj-info-item">
+                    <div class="pj-info-name">${escHtml(g.name)}</div>
+                    <div class="pj-info-sub">−${formatCorpusShort(r.goalWithdrawal)}</div>
+                </div>`
+            ).join('');
+            goalsNameCell = items;
+        } else if (r.goalWithdrawal > 0) {
+            goalsNameCell = `<div class="pj-info-item">
+                <div class="pj-info-name">Goal</div>
+                <div class="pj-info-sub">−${formatCorpusShort(r.goalWithdrawal)}</div>
+            </div>`;
+        }
+
+        // Milestone column
         let milestoneCell = '';
-        let hasMilestoneUnmet = false;
         if (milestoneGoals.length > 0) {
             const mGoals = milestonesByFY[r.fy] || [];
             if (mGoals.length === 0) {
-                milestoneCell = `<td class="pj-milestone-cell" style="color:var(--text-tertiary);">—</td>`;
+                milestoneCell = `<td class="pj-info-cell" style="color:var(--text-tertiary);">—</td>`;
             } else {
                 const items = mGoals.map(g => {
                     const target = g.futureValue || g.targetAmount;
                     const isMet = r.closing >= target;
-                    if (!isMet) hasMilestoneUnmet = true;
                     const gap = target - r.closing;
-                    return `<div class="pj-milestone-item">
-                        <div class="pj-milestone-name">${escHtml(g.name)}</div>
-                        <div class="pj-milestone-target">Target: ${formatCorpusShort(target)}</div>
-                        <span class="pj-milestone-status ${isMet ? 'met' : 'unmet'}">
-                            ${isMet ? '✅ Met' : `❌ Short by ${formatCorpusShort(gap)}`}
-                        </span>
+                    return `<div class="pj-info-item">
+                        <div class="pj-info-name">${escHtml(g.name)}</div>
+                        <div class="pj-info-sub">Target: ${formatCorpusShort(target)}</div>
+                        <div class="pj-info-status">${isMet ? 'On track' : `Short by ${formatCorpusShort(gap)}`}</div>
                     </div>`;
                 }).join('');
-                milestoneCell = `<td class="pj-milestone-cell">${items}</td>`;
+                milestoneCell = `<td class="pj-info-cell">${items}</td>`;
             }
         }
 
-        const rowClass = [hasGoals ? 'has-goals' : '', hasMilestoneUnmet ? 'has-milestone-unmet' : ''].filter(Boolean).join(' ');
+        const rowClass = '';
         tableHtml += `<tr class="${rowClass}">
-            <td>FY${r.fy}${goalPills}</td>
+            <td>${r.fy}</td>
             <td>${formatCorpusShort(r.opening)}</td>
-            <td class="pj-td-positive">${r.returnPct}% <span style="color:var(--text-tertiary);font-size:0.7rem;">(${formatCorpusShort(r.growth)})</span></td>
             <td>${incomeCell}</td>
             <td>${expCell}</td>
+            <td>${emiCell}</td>
             <td class="${r.sipAdded >= 0 ? 'pj-td-positive' : 'pj-td-negative'}">${r.sipAdded >= 0 ? '+' : ''}${formatCorpusShort(r.sipAdded)}</td>
-            <td>${goalCell}</td>
+            <td>${goalFundingCell}</td>
+            <td class="pj-td-positive">${formatCorpusShort(r.growth)}${partialNote}</td>
             <td style="font-weight:700;">${formatCorpusShort(r.closing)}</td>
+            <td class="pj-info-cell">${goalsNameCell}</td>
             ${milestoneCell}
         </tr>`;
     });
     document.getElementById('pjTableBody').innerHTML = tableHtml;
 
-    // Render charts after DOM is ready
     renderPJLineChart(rows, journey.isAll ? null : member, 'pjLineChart');
     renderPJBarChart(rows, 'pjBarChart');
 }
@@ -1685,12 +868,10 @@ function renderPJLineChart(rows, member, containerId) {
 
     const withGoalsPts = rows.map((r, i) => `${xPos(i)},${yPos(r.closing)}`).join(' ');
 
-    // Filled area for with-goals
     const areaPath = `M ${xPos(0)} ${yPos(rows[0].closing)} ` +
         rows.map((r, i) => `L ${xPos(i)} ${yPos(r.closing)}`).join(' ') +
         ` L ${xPos(rows.length - 1)} ${yPos(0)} L ${xPos(0)} ${yPos(0)} Z`;
 
-    // Y-axis labels (5 ticks)
     let yTicks = '';
     for (let t = 0; t <= 4; t++) {
         const val = minY + (maxY - minY) * (t / 4);
@@ -1699,15 +880,13 @@ function renderPJLineChart(rows, member, containerId) {
                    <line x1="${PAD.left}" y1="${y}" x2="${W - PAD.right}" y2="${y}" stroke="var(--border-subtle)" stroke-width="1"/>`;
     }
 
-    // X-axis labels (every 2 FY or fewer)
     let xLabels = '';
     const step = Math.ceil(rows.length / 10);
     rows.forEach((r, i) => {
         if (i % step !== 0 && i !== rows.length - 1) return;
-        xLabels += `<text x="${xPos(i)}" y="${H - PAD.bottom + 16}" text-anchor="middle" fill="var(--text-tertiary)" font-size="10">FY${r.fy}</text>`;
+        xLabels += `<text x="${xPos(i)}" y="${H - PAD.bottom + 16}" text-anchor="middle" fill="var(--text-tertiary)" font-size="10">${r.fy}</text>`;
     });
 
-    // Goal year markers
     let goalMarkers = '';
     rows.forEach((r, i) => {
         if (r.goals.length > 0) {
@@ -1718,18 +897,16 @@ function renderPJLineChart(rows, member, containerId) {
         }
     });
 
-    // Retirement FY marker(s)
     let retireMarker = '';
     if (member && member.retireFY) {
         const retireIdx = rows.findIndex(r => r.fy === member.retireFY);
         if (retireIdx >= 0) {
             const rx = xPos(retireIdx);
             retireMarker = `<line x1="${rx}" y1="${PAD.top}" x2="${rx}" y2="${PAD.top + ch}" stroke="#fb923c" stroke-width="2" stroke-dasharray="6,3"/>
-                <text x="${rx + 4}" y="${PAD.top + 12}" fill="#fb923c" font-size="10" font-weight="600">Retire FY${member.retireFY}</text>`;
+                <text x="${rx + 4}" y="${PAD.top + 12}" fill="#fb923c" font-size="10" font-weight="600">Retire ${member.retireFY}</text>`;
         }
-    } else if (comprehensiveData) {
-        // Overall: draw a marker for each member's retirement
-        comprehensiveData.members.forEach(m => {
+    } else if (activeData) {
+        activeData.members.forEach(m => {
             const ri = rows.findIndex(r => r.fy === m.retireFY);
             if (ri >= 0) {
                 const rx = xPos(ri);
@@ -1780,21 +957,17 @@ function renderPJBarChart(rows, containerId) {
         const sipH = (sipClamped / maxVal) * ch;
         const goalH = Math.min((r.goalWithdrawal / maxVal) * ch, ch);
 
-        // SIP bar (bottom)
         bars += `<rect x="${cx - barW / 2}" y="${PAD.top + ch - totalH}" width="${barW}" height="${sipH}" fill="#0066ff" opacity="0.7"/>`;
-        // Returns bar (top of SIP)
         bars += `<rect x="${cx - barW / 2}" y="${PAD.top + ch - totalH + sipH}" width="${barW}" height="${growthH}" fill="#22c55e" opacity="0.85"/>`;
-        // Goal overlay (red, going down from baseline)
         if (r.goalWithdrawal > 0) {
             bars += `<rect x="${cx - barW / 2}" y="${PAD.top + ch}" width="${barW}" height="${Math.min(goalH, 20)}" fill="#FF3B30" opacity="0.85"/>`;
         }
 
         if (i % labelStep === 0 || i === rows.length - 1) {
-            xLabels += `<text x="${cx}" y="${H - 4}" text-anchor="middle" fill="var(--text-tertiary)" font-size="10">FY${r.fy}</text>`;
+            xLabels += `<text x="${cx}" y="${H - 4}" text-anchor="middle" fill="var(--text-tertiary)" font-size="10">${r.fy}</text>`;
         }
     });
 
-    // Y-axis
     let yTicks = '';
     for (let t = 0; t <= 3; t++) {
         const val = (maxVal * t) / 3;
@@ -1808,61 +981,6 @@ function renderPJBarChart(rows, containerId) {
         ${bars}
         ${xLabels}
     </svg>`;
-}
-</script>
-<script src="/js/ai-import.js"></script>
-<script>
-function openTaxImport() {
-    new AIImport({
-        title: 'Import Tax Details via AI',
-        description: 'Paste your salary slip, Form 16, or any income/deduction table and AI will fill in the tax fields for you.',
-        placeholder: 'Gross Salary: 18,00,000\nHRA: 3,60,000\n80C (ELSS+PPF): 1,50,000\n80D Health Insurance: 25,000\n80CCD1B NPS: 50,000\nHome Loan Interest: 2,00,000\n...',
-        buildPrompt() {
-            return `You are a tax data extractor for WealthOS India tax planning.
-
-Extract income and tax deduction figures from the provided data (salary slip, Form 16, or any income/deduction table).
-
-Return ONLY a valid JSON object with no explanation or commentary:
-{
-  "grossSalary": number (annual gross salary in INR),
-  "hraReceived": number (HRA received in INR, 0 if none),
-  "sec80c": number (total 80C investments in INR, max 150000 — ELSS, PPF, EPF, LIC, etc.),
-  "sec80d": number (health insurance premium in INR, max 25000),
-  "sec80ccd1b": number (NPS additional contribution in INR, max 50000),
-  "homeLoanInterest": number (home loan interest paid in INR, 0 if none),
-  "otherDeductions": number (any other deductions in INR, 0 if none)
-}
-
-Rules:
-- Return ONLY valid JSON. No explanation, no markdown, no extra text.
-- All values in INR as plain numbers (no currency symbols, no commas).
-- Convert lakhs: ×100000, crores: ×10000000.
-- If a value is not mentioned or unclear, use 0.
-- Respect the legal maxima noted above — do not exceed them.`;
-        },
-        renderPreview(data) {
-            if (typeof data !== 'object' || Array.isArray(data)) return '<p style="color:var(--text-secondary)">Could not parse tax data.</p>';
-            const fmt = v => v != null ? '₹' + Number(v).toLocaleString('en-IN') : '—';
-            const fields = [
-                ['Gross Salary', data.grossSalary], ['HRA Received', data.hraReceived],
-                ['Section 80C', data.sec80c], ['Section 80D', data.sec80d],
-                ['Section 80CCD(1B) NPS', data.sec80ccd1b], ['Home Loan Interest', data.homeLoanInterest],
-                ['Other Deductions', data.otherDeductions]
-            ].filter(([, v]) => v != null);
-            const rows = fields.map(([l, v]) => `<tr><td style="padding:6px 8px;color:var(--text-secondary)">${l}</td><td style="padding:6px 8px;text-align:right;font-weight:600">${fmt(v)}</td></tr>`).join('');
-            return `<table style="width:100%;border-collapse:collapse;font-size:0.85rem"><thead><tr style="border-bottom:1px solid var(--border-color)"><th style="text-align:left;padding:6px 8px">Field</th><th style="text-align:right;padding:6px 8px">Amount</th></tr></thead><tbody>${rows}</tbody></table>`;
-        },
-        async onImport(data) {
-            if (data.grossSalary != null) document.getElementById('taxGrossSalary').value = data.grossSalary;
-            if (data.hraReceived != null) document.getElementById('taxHraReceived').value = data.hraReceived;
-            if (data.sec80c != null) document.getElementById('tax80c').value = data.sec80c;
-            if (data.sec80d != null) document.getElementById('tax80d').value = data.sec80d;
-            if (data.sec80ccd1b != null) document.getElementById('tax80ccd1b').value = data.sec80ccd1b;
-            if (data.homeLoanInterest != null) document.getElementById('taxHomeLoan').value = data.homeLoanInterest;
-            if (data.otherDeductions != null) document.getElementById('taxOther').value = data.otherDeductions;
-            return Object.keys(data).length;
-        }
-    }).open();
 }
 </script>
 <script src="sidebar.js"></script>

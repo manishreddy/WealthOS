@@ -4,19 +4,22 @@
 const WealthAPI = (() => {
   const BASE = '/api';
 
-  function headers() {
+  async function headers() {
+    const sb = await getSupabase();
+    const { data: { session } } = await sb.auth.getSession();
     return {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(session ? { 'Authorization': 'Bearer ' + session.access_token } : {})
     };
   }
 
   async function request(method, path, body) {
     try {
-      const opts = { method, headers: headers(), credentials: 'same-origin' };
+      const opts = { method, headers: await headers() };
       if (body) opts.body = JSON.stringify(body);
       const res = await fetch(BASE + path, opts);
       if (res.status === 401) {
-        window.location.href = '/api/login';
+        window.location.href = '/login';
         return null;
       }
       const data = await res.json();
@@ -35,11 +38,11 @@ const WealthAPI = (() => {
   // ── Auth ──────────────────────────────────────────────────────────────────
   const auth = {
     login() {
-      window.location.href = '/api/login';
+      window.location.href = '/login';
     },
 
     logout() {
-      window.location.href = '/api/logout';
+      (async()=>{ const s=await getSupabase(); await s.auth.signOut(); window.location.href='/login'; })();
     },
 
     async me() {
@@ -48,8 +51,7 @@ const WealthAPI = (() => {
 
     async isLoggedIn() {
       try {
-        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
-        return res.ok;
+        const s=await getSupabase(); const {data:{session}}=await s.auth.getSession(); return !!session;
       } catch {
         return false;
       }
@@ -57,7 +59,8 @@ const WealthAPI = (() => {
 
     async getUser() {
       try {
-        const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
+        const h = await headers();
+        const res = await fetch('/api/auth/user', { headers: h });
         if (!res.ok) return null;
         return await res.json();
       } catch {
@@ -66,16 +69,15 @@ const WealthAPI = (() => {
     },
 
     async requireAuth() {
-      const res = await fetch('/api/auth/user', { credentials: 'same-origin' });
-      if (!res.ok) {
-        window.location.href = '/api/login';
-        return false;
-      }
-      return true;
+      const s=await getSupabase(); const {data:{session}}=await s.auth.getSession(); if(!session){window.location.href='/login';return false;}return true;
     },
 
     getCachedUser() {
       return null;
+    },
+
+    async updateProfile({ name, age, dob } = {}) {
+      return request('PUT', '/auth/profile', { name, age, dob });
     }
   };
 
@@ -191,9 +193,27 @@ const WealthAPI = (() => {
     async parseZerodha(file) {
       const form = new FormData();
       form.append('file', file);
+      const sb = await getSupabase();
+      const { data: { session: _zs } } = await sb.auth.getSession();
       const res = await fetch(BASE + '/portfolio/parse-zerodha', {
         method: 'POST',
-        credentials: 'same-origin',
+        headers: _zs ? { 'Authorization': 'Bearer ' + _zs.access_token } : {},
+        body: form
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    },
+
+    async parseCAS(file, password) {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('password', password);
+      const sb = await getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(BASE + '/import/parse-cas', {
+        method: 'POST',
+        headers: session ? { 'Authorization': 'Bearer ' + session.access_token } : {},
         body: form
       });
       const data = await res.json();
@@ -268,6 +288,46 @@ const WealthAPI = (() => {
     }
   };
 
+  // ── FIRE Settings ─────────────────────────────────────────────────────────
+  const fire = {
+    async getSettings() {
+      return request('GET', '/fire/settings');
+    },
+    async saveSettings(data) {
+      return request('PUT', '/fire/settings', data);
+    },
+    async resetSettings() {
+      return request('DELETE', '/fire/settings');
+    }
+  };
+
+  // ── Liabilities ───────────────────────────────────────────────────────────
+  const liabilities = {
+    async getAll() {
+      return request('GET', '/liabilities');
+    },
+
+    async add(data) {
+      return request('POST', '/liabilities', data);
+    },
+
+    async update(id, data) {
+      return request('PUT', `/liabilities/${id}`, data);
+    },
+
+    async remove(id) {
+      return request('DELETE', `/liabilities/${id}`);
+    },
+
+    async amortization(id) {
+      return request('GET', `/liabilities/${id}/amortization`);
+    },
+
+    async syncToProjections() {
+      return request('POST', '/liabilities/sync-to-projections');
+    }
+  };
+
   // ── WealthBot ─────────────────────────────────────────────────────────────
   const wealthbot = {
     async chat(message, conversationHistory = []) {
@@ -308,6 +368,8 @@ const WealthAPI = (() => {
     goals,
     planning,
     setup,
+    fire,
+    liabilities,
     wealthbot,
     formatCurrency,
     getCurrentYearMonth,

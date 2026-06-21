@@ -214,7 +214,7 @@ router.post('/members', async (req, res) => {
 router.put('/members/:id', async (req, res) => {
   try {
     const memberId = parseInt(req.params.id, 10);
-    const { name, age, dob, role, riskProfile, email } = req.body;
+    const { name, age, dob, role, riskProfile, email, retirement_age } = req.body;
 
     const existingRes = await query(
       'SELECT * FROM family_members WHERE id = $1 AND user_id = $2',
@@ -231,14 +231,15 @@ router.put('/members/:id', async (req, res) => {
     const newRole = role || existing.role;
     const newRiskProfile = riskProfile || existing.risk_profile;
     const newEmail = email !== undefined ? (email || '').trim().toLowerCase() : (existing.email || '');
+    const newRetirementAge = retirement_age !== undefined ? parseInt(retirement_age, 10) : (existing.retirement_age || 60);
 
     if (!newName) {
       return res.status(400).json({ error: 'Member name cannot be empty' });
     }
 
     await query(
-      'UPDATE family_members SET name = $1, dob = $2, age = $3, role = $4, risk_profile = $5, email = $6 WHERE id = $7 AND user_id = $8',
-      [newName, newDob, newAge, newRole, newRiskProfile, newEmail, memberId, req.userId]
+      'UPDATE family_members SET name = $1, dob = $2, age = $3, role = $4, risk_profile = $5, email = $6, retirement_age = $7 WHERE id = $8 AND user_id = $9',
+      [newName, newDob, newAge, newRole, newRiskProfile, newEmail, newRetirementAge, memberId, req.userId]
     );
 
     if (dob !== undefined || age !== undefined) {

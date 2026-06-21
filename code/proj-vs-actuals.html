@@ -11,7 +11,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font); background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
-        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; overflow: hidden; }
 
         
         /* Main */
@@ -104,10 +104,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
     <aside id="sidebar-root"></aside>
 
     <main class="main-content">
-        <div class="top-bar">
+        <div class="page-header">
             <div>
-                <div class="page-title">Proj vs Actuals</div>
-                <div class="page-subtitle">How we're tracking against the plan — completed FYs</div>
+                <h1 class="page-title">Proj vs Actuals</h1>
+                <p class="page-subtitle">How we're tracking against the plan — completed FYs</p>
             </div>
         </div>
 
@@ -192,11 +192,19 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
 <div id="toast" class="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
 <script src="api.js"></script>
     <script src="sidebar.js"></script>
 <script src="auth.js"></script>
 <script>
-const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+async function authHeaders() {
+    const s = await getSupabase();
+    const { data: { session } } = await s.auth.getSession();
+    return session ? { 'Authorization': 'Bearer ' + session.access_token } : {};
+}
+
+var MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 
 function showToast(msg, isError) {
     const t = document.getElementById('toast');
@@ -220,9 +228,9 @@ function rateBadge(rate) {
     return `<span class="${cls}">${Math.round(rate)}%</span>`;
 }
 
-let allProjections = [];
-let allActuals = [];
-let selectedFY = null;
+var allProjections = [];
+var allActuals = [];
+var selectedFY = null;
 
 function renderSummaryCards(fyRows) {
     const container = document.getElementById('summaryCards');
@@ -328,7 +336,7 @@ async function loadMonthlyDetail(fy) {
 
         for (let i = 0; i < months.length; i++) {
             const { year, month } = months[i];
-            const res = await fetch(`/api/monthly/${year}/${month}`, { credentials: 'same-origin' });
+            const res = await fetch(`/api/monthly/${year}/${month}`, { headers: await authHeaders() });
             const members = res.ok ? await res.json() : [];
 
             const totalIncome = members.reduce((s, m) => s + (m.income || 0), 0);
@@ -384,12 +392,12 @@ function buildFYRows(projections, actuals) {
 async function loadAll() {
     try {
         // Load projections
-        const projRes = await fetch('/api/projections/yearly', { credentials: 'same-origin' });
+        const projRes = await fetch('/api/projections/yearly', { headers: await authHeaders() });
         allProjections = projRes.ok ? await projRes.json() : [];
 
         // Load actuals (FY2024 to current FY2026)
         const currentFY = 2026;
-        const actualsRes = await fetch(`/api/projections/actuals?startFY=2024&endFY=${currentFY}`, { credentials: 'same-origin' });
+        const actualsRes = await fetch(`/api/projections/actuals?startFY=2024&endFY=${currentFY}`, { headers: await authHeaders() });
         allActuals = actualsRes.ok ? await actualsRes.json() : [];
 
         const fyRows = buildFYRows(allProjections, allActuals);

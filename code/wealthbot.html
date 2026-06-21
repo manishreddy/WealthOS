@@ -26,7 +26,8 @@ body {
         .app-container {
             display: grid;
             grid-template-columns: 240px 1fr;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Sidebar / Nav */
@@ -43,7 +44,7 @@ body {
         /* Top Bar */
         .top-bar {
             padding: 24px 32px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border, #E5E8EC);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -74,16 +75,16 @@ body {
         /* Quick Actions */
         .quick-actions {
             padding: 16px 32px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border, #E5E8EC);
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
 
         .action-chip {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+            background: var(--hover-bg, rgba(15,23,42,0.04));
+            color: var(--text-primary, #0F172A);
+            border: 1px solid var(--border, #E5E8EC);
             border-radius: 20px;
             padding: 8px 16px;
             font-size: 13px;
@@ -95,8 +96,11 @@ body {
         }
 
         .action-chip:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: var(--cta-bg, #8FE62C);
+            color: var(--cta-text, #111);
+            border-color: var(--cta-bg, #8FE62C);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(143,230,44,0.25);
         }
 
         /* Chat Container */
@@ -143,8 +147,8 @@ body {
         }
 
         .message.bot .message-avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--text-primary, #0F172A);
+            color: var(--accent, #8FE62C);
         }
 
         .message.user .message-avatar {
@@ -167,8 +171,8 @@ body {
         }
 
         .message.user .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--text-primary, #0F172A);
+            color: #ffffff;
         }
 
         .message-time {
@@ -188,7 +192,7 @@ body {
         .thinking-dot {
             width: 8px;
             height: 8px;
-            background: #667eea;
+            background: var(--accent, #8FE62C);
             border-radius: 50%;
             animation: thinking 1.4s infinite;
         }
@@ -213,7 +217,7 @@ body {
         /* Input Area */
         .input-area {
             padding: 16px 32px 24px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--border, #E5E8EC);
             background: var(--bg);
             flex-shrink: 0;
         }
@@ -227,26 +231,27 @@ body {
 
         .message-input {
             flex: 1;
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
+            border: 1px solid var(--border-strong, #CBD5E1);
+            border-radius: 10px;
             padding: 12px 20px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             font-family: inherit;
             background: var(--bg);
             color: var(--text-primary);
         }
 
         .message-input:focus {
-            border-color: #667eea;
+            border-color: var(--input-focus-border, #8FE62C);
+            box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(143,230,44,0.15));
         }
 
         .send-btn {
             width: 44px;
             height: 44px;
-            background: var(--accent-primary);
-            color: white;
+            background: var(--cta-bg, #8FE62C);
+            color: var(--cta-text, #111);
             border: none;
             border-radius: 50%;
             font-size: 20px;
@@ -272,7 +277,7 @@ body {
 
         .clear-btn {
             background: none;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border, #E5E8EC);
             border-radius: 20px;
             padding: 8px 16px;
             font-size: 13px;
@@ -299,7 +304,7 @@ body {
         }
 
         .chat-container::-webkit-scrollbar-thumb {
-            background: var(--border-color);
+            background: var(--border, #E5E8EC);
             border-radius: 3px;
         }
 
@@ -358,11 +363,10 @@ body {
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div class="page-header">
-                    <h1>WealthBot</h1>
-                    <p>Your AI Financial Advisor</p>
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">WealthBot</h1>
+                    <p class="page-subtitle">Your AI financial advisor — ask anything about your money</p>
                 </div>
             </div>
 
@@ -410,12 +414,14 @@ body {
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="/api.js"></script>
     <script>
         // Conversation history — kept in memory, capped at last 10 messages
-        let conversationHistory = [];
-        let isProcessing = false;
-        const MAX_HISTORY = 10;
+        var conversationHistory = [];
+        var isProcessing = false;
+        var MAX_HISTORY = 10;
 
         // ── Page load ──────────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', async () => {

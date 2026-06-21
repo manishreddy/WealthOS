@@ -64,8 +64,19 @@ function enrichGoal(goal) {
       ? loanAmount / n
       : loanAmount * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
     const emiTargetYear = goal.target_date ? new Date(goal.target_date).getFullYear() : new Date().getFullYear();
+    // Down payment savings progress
+    const dpSavedSoFar = Math.min(currentAmount || 0, downPaymentAmount);
+    const dpRemaining = Math.max(downPaymentAmount - dpSavedSoFar, 0);
+    const downPaymentSip = Math.round(calcRequiredSip(downPaymentAmount, dpSavedSoFar, months || 0));
+    const dpProgressPct = downPaymentAmount > 0
+      ? parseFloat(((dpSavedSoFar / downPaymentAmount) * 100).toFixed(2))
+      : 0;
     fundingDetails = {
       downPaymentAmount,
+      dpSavedSoFar: Math.round(dpSavedSoFar),
+      dpRemaining: Math.round(dpRemaining),
+      dpProgressPct,
+      downPaymentSip,
       loanAmount: Math.round(loanAmount),
       monthlyEmi: Math.round(emi),
       yearlyEmi: Math.round(emi * 12),

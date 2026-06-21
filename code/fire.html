@@ -4,50 +4,37 @@
     <meta charset="UTF-8">
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wealthos_theme')||localStorage.getItem('theme')||'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WealthOS — FIRE Calculator</title>
+    <title>WealthOS — Retirement Planning</title>
     <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="dark-overrides.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font); background: var(--bg, #EBEBEB); color: var(--text-primary, #111); -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
+        body { font-family: var(--font); background: var(--bg, #F4F6F8); color: var(--text-primary, #0F172A); -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
 
-        /* ── CSS vars fallbacks (for guest mode where app CSS may not be fully loaded) ── */
         :root {
             --bg-elevated: #ffffff;
             --bg-secondary: #f0f0f0;
-            --border-color: rgba(0,0,0,0.08);
-            --border-subtle: rgba(0,0,0,0.05);
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            --hover-bg: rgba(0,0,0,0.04);
-            --accent-primary: #0066ff;
-            --gradient-start: #0066ff;
-            --gradient-end: #0052cc;
+            --border-color: #E5E8EC;
+            --card-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --hover-bg: rgba(15,23,42,0.04);
             --success: #15803d;
             --error: #dc2626;
             --warning: #c2410c;
-            --text-primary: #111111;
-            --text-secondary: #6b6b6b;
-            --text-tertiary: #ababab;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --text-tertiary: #94A3B8;
         }
         [data-theme="dark"] {
             --bg-elevated: #1c1c1c;
             --bg-secondary: #141414;
             --border-color: rgba(255,255,255,0.08);
-            --border-subtle: rgba(255,255,255,0.05);
             --card-shadow: 0 2px 12px rgba(0,0,0,0.3);
             --hover-bg: rgba(255,255,255,0.05);
         }
 
         /* ── Guest Navbar ── */
-        .fire-guest-nav {
-            display: none;
-            position: sticky; top: 0; z-index: 50;
-            background: var(--bg-elevated, #fff);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 40px; height: 60px;
-            align-items: center; justify-content: space-between;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        }
+        .fire-guest-nav { display: none; position: sticky; top: 0; z-index: 50; background: var(--bg-elevated, #fff); border-bottom: 1px solid var(--border-color); padding: 0 40px; height: 60px; align-items: center; justify-content: space-between; backdrop-filter: blur(12px); }
         body.guest-mode .fire-guest-nav { display: flex; }
         .guest-nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
         .guest-nav-mark { width: 32px; height: 32px; background: var(--text-primary, #111); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -58,7 +45,7 @@
         .guest-nav-cta { background: var(--text-primary, #111); color: #fff !important; font-weight: 700 !important; padding: 8px 18px; border-radius: 99px; }
 
         /* ── App Container ── */
-        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; overflow: hidden; }
         body.guest-mode .app-container { grid-template-columns: 1fr; }
         body.guest-mode aside { display: none !important; }
 
@@ -66,88 +53,108 @@
         .main-content { padding: 28px 40px 80px; overflow-y: auto; background: var(--bg); }
         body.guest-mode .main-content { max-width: 1280px; margin: 0 auto; width: 100%; }
 
-        /* ── Page Header ── */
-        .fire-header { margin-bottom: 24px; }
-        .fire-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
-        .fire-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--text-primary); }
-        .fire-subtitle { font-size: 0.9375rem; color: var(--text-secondary); letter-spacing: -0.01em; }
-        .fire-mode-tag { display: none; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; background: rgba(143,230,44,0.12); color: #15803d; padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(143,230,44,0.3); white-space: nowrap; flex-shrink: 0; }
-        .fire-mode-tag.visible { display: flex; }
-        [data-theme="dark"] .fire-mode-tag { color: #86efac; background: rgba(134,239,172,0.1); border-color: rgba(134,239,172,0.25); }
-
-        /* ── Data Banner ── */
-        .data-banner { display: none; align-items: center; gap: 10px; background: rgba(143,230,44,0.08); border: 1px solid rgba(143,230,44,0.25); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); }
-        .data-banner.visible { display: flex; }
-        .data-banner-dot { width: 8px; height: 8px; border-radius: 50%; background: #8FE62C; flex-shrink: 0; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .data-banner-link { margin-left: auto; font-size: 0.75rem; font-weight: 600; color: var(--accent-primary, #0066ff); text-decoration: none; white-space: nowrap; }
+        /* ── FIRE Intro Card ── */
+        .fire-intro-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 48px 20px 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 16px; box-shadow: var(--card-shadow); position: relative; }
+        .fire-intro-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+        .fire-intro-body-wrap { flex: 1; }
+        .fire-intro-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .fire-intro-body { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
+        .fire-intro-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .fire-intro-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--bg, #F4F6F8); border: 1px solid var(--border-color); border-radius: 99px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+        .fire-intro-link { font-size: 0.8125rem; font-weight: 600; color: #3B73FF; text-decoration: none; }
+        .fire-intro-link:hover { text-decoration: underline; }
+        .fire-intro-dismiss { position: absolute; top: 10px; right: 12px; background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 1.25rem; padding: 4px 6px; line-height: 1; border-radius: 6px; transition: background 0.15s; }
+        .fire-intro-dismiss:hover { background: var(--hover-bg); color: var(--text-secondary); }
 
         /* ── Two-Column Layout ── */
         .fire-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
 
         /* ── Input Panel ── */
-        .fire-inputs-panel { position: sticky; top: 20px; max-height: calc(100vh - 80px); overflow-y: auto; padding-right: 4px; }
-        .fire-inputs-panel::-webkit-scrollbar { width: 3px; }
-        .fire-inputs-panel::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+        .fire-inputs-panel { position: sticky; top: 20px; }
 
         .input-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
         .input-card-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 14px; }
 
         .inp-group { margin-bottom: 13px; }
         .inp-group:last-child { margin-bottom: 0; }
-        .inp-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .inp-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
         .inp-label-val { font-weight: 700; color: var(--text-primary); font-family: var(--font); }
 
-        .inp-field { display: flex; align-items: center; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 9px; overflow: hidden; transition: border-color 0.15s; }
-        .inp-field:focus-within { border-color: var(--accent-primary, #0066ff); box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+        .inp-field { display: flex; align-items: center; background: var(--bg-secondary); border: 1.5px solid var(--input-border, #CBD5E1); border-radius: 8px; overflow: hidden; transition: border-color 0.15s; }
+        .inp-field:focus-within { border-color: var(--input-focus-border, #8FE62C); box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(143,230,44,0.15)); }
         .inp-prefix { padding: 9px 10px; font-size: 0.875rem; font-weight: 700; color: var(--text-tertiary); background: transparent; white-space: nowrap; user-select: none; }
-        .inp-field input[type="number"] { border: none; background: transparent; padding: 9px 10px 9px 0; font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); font-family: var(--font); width: 100%; outline: none; min-width: 0; }
+        .inp-field input[type="number"],
+        .inp-field input[type="text"].money-input { border: none; background: transparent; padding: 9px 10px 9px 0; font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); font-family: var(--font); width: 100%; outline: none; min-width: 0; }
         .inp-suffix { padding: 9px 10px; font-size: 0.8rem; color: var(--text-tertiary); white-space: nowrap; user-select: none; }
 
         /* Range slider */
         .inp-range { width: 100%; -webkit-appearance: none; appearance: none; height: 4px; background: var(--border-color); border-radius: 2px; outline: none; cursor: pointer; margin-top: 7px; }
-        .inp-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-primary, #0066ff); cursor: pointer; border: 2px solid var(--bg-elevated, #fff); box-shadow: 0 0 0 2px rgba(0,102,255,0.2); }
-        .inp-range::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent-primary, #0066ff); cursor: pointer; border: 2px solid var(--bg-elevated, #fff); }
-        .inp-range-accent::-webkit-slider-thumb { background: #8FE62C; box-shadow: 0 0 0 2px rgba(143,230,44,0.25); }
+        .inp-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #8FE62C; cursor: pointer; border: 2px solid var(--bg-elevated, #fff); box-shadow: 0 0 0 2px rgba(143,230,44,0.25); }
+        .inp-range::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #8FE62C; cursor: pointer; border: 2px solid var(--bg-elevated, #fff); }
+
+        /* Member tabs strip */
+        .member-tabs-strip { display: none; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .member-tabs-strip.visible { display: flex; }
+        .member-tab-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 99px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border, #E5E8EC); background: var(--bg-elevated, #fff); color: var(--text-secondary); transition: all 0.15s; white-space: nowrap; }
+        .member-tab-pill:hover { border-color: var(--border-strong, #CBD5E1); color: var(--text-primary); }
+        .member-tab-pill.active { background: var(--text-primary, #0F172A); color: #fff; border-color: var(--text-primary, #0F172A); }
+        [data-theme="dark"] .member-tab-pill.active { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.25); }
+
+        /* Age display (read-only) shown in member mode */
+        .age-display-row { display: none; margin-bottom: 13px; }
+        .age-display-row.visible { display: block; }
+        .age-display-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+        .age-display-value { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); background: var(--bg, #F4F6F8); border: 1.5px solid var(--border, #E5E8EC); border-radius: 8px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; }
+        .age-display-source { font-size: 0.68rem; font-weight: 600; color: var(--text-tertiary); }
+
+        /* Planning for badge */
+        .planning-for-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .planning-for-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
+        .planning-for-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: rgba(143,230,44,0.12); color: #15803d; border: 1px solid rgba(143,230,44,0.25); }
+        [data-theme="dark"] .planning-for-badge { color: #86efac; background: rgba(134,239,172,0.1); border-color: rgba(134,239,172,0.2); }
+        .family-ages-note { font-size: 0.72rem; color: var(--text-tertiary); margin-top: -8px; margin-bottom: 12px; line-height: 1.5; }
+
+        /* Data source badge */
+        .data-source-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: 600; color: #15803d; background: rgba(34,197,94,0.1); padding: 2px 7px; border-radius: 99px; border: 1px solid rgba(34,197,94,0.2); flex-shrink: 0; }
+        [data-theme="dark"] .data-source-badge { color: #86efac; }
+        .inp-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .inp-label-left { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+
+        /* Assumptions toggle */
+        .assumptions-toggle-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; cursor: pointer; font-family: var(--font); padding: 0; margin-bottom: 0; }
+        .assumptions-toggle-left { display: flex; flex-direction: column; align-items: flex-start; }
+        .assumptions-toggle-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); }
+        .assumptions-toggle-sub { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 2px; font-weight: 400; }
+        .assumptions-chevron { color: var(--text-tertiary); transition: transform 0.2s; flex-shrink: 0; }
+        .assumptions-content { display: none; margin-top: 14px; }
+        .assumptions-content.open { display: block; }
+        .save-indicator { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .save-indicator-reset { background: none; border: none; cursor: pointer; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); font-family: var(--font); padding: 0; text-decoration: underline; }
+        .save-indicator-reset:hover { color: var(--text-primary); }
 
         .reset-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-size: 0.8125rem; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; margin-top: 4px; }
         .reset-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
 
-        /* ── Results Panel ── */
-        /* Summary Chips */
-        .fire-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-        .summary-chip { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; text-align: center; box-shadow: var(--card-shadow); }
-        .summary-chip-val { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.035em; color: var(--text-primary); font-family: var(--font); line-height: 1.1; }
-        .summary-chip-val.green { color: #22c55e; }
-        .summary-chip-val.blue { color: var(--accent-primary, #0066ff); }
-        .summary-chip-val.orange { color: #f97316; }
-        .summary-chip-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-top: 5px; }
+        /* ── Hero Card ── */
+        .fire-hero-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+        .fire-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+        .fire-hero-text { flex: 1; min-width: 0; }
+        .fire-hero-eyebrow { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 6px; }
+        .fire-hero-amount { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.04em; color: var(--text-primary); line-height: 1.05; margin-bottom: 6px; word-break: break-word; }
+        .fire-hero-sub { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+        .fire-hero-badge-wrap { margin-top: 2px; }
+        .fire-hero-ring { flex-shrink: 0; width: 100px; height: 100px; position: relative; }
+        .ring-svg { width: 100%; height: 100%; }
+        .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ring-pct { font-size: 1.125rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1; }
+        .ring-label { font-size: 0.6rem; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+        .fire-hero-stats { display: flex; align-items: stretch; border-top: 1px solid var(--border-color); padding-top: 16px; gap: 0; }
+        .fire-hero-stat { flex: 1; text-align: center; padding: 0 8px; }
+        .fire-hero-stat-val { font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 3px; line-height: 1.2; }
+        .fire-hero-divider { width: 1px; background: var(--border-color); flex-shrink: 0; align-self: stretch; }
+        .fire-hero-stat-label { font-size: 0.65rem; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3; }
 
-        /* Journey Bar */
-        .fire-journey { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: var(--card-shadow); }
-        .fire-journey-title { font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 18px; }
-        .journey-bar { height: 10px; background: var(--bg-secondary); border-radius: 5px; position: relative; margin-bottom: 28px; overflow: visible; }
-        .journey-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #8FE62C, #4ade80); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; }
-        .journey-fill::after { content: ''; position: absolute; right: -4px; top: -3px; width: 16px; height: 16px; border-radius: 50%; background: #4ade80; border: 3px solid var(--bg-elevated); box-shadow: 0 0 0 2px rgba(74,222,128,0.3); }
-        .journey-marker { position: absolute; top: -3px; width: 2px; height: 16px; border-radius: 1px; transform: translateX(-50%); z-index: 2; }
-        .journey-marker-label { position: absolute; top: 18px; transform: translateX(-50%); font-size: 0.62rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.02em; }
-        .journey-legend { display: flex; flex-wrap: wrap; gap: 12px; }
-        .journey-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--text-secondary); }
-        .journey-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-        /* FIRE Type Cards Grid */
-        .fire-types-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-
-        .fire-type-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px 20px; transition: all 0.2s ease; box-shadow: var(--card-shadow); }
-        .fire-type-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.1); }
-        .coast-card { grid-column: 1 / -1; }
-
-        .ftc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
-        .ftc-icon-name { display: flex; align-items: flex-start; gap: 10px; }
-        .ftc-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
-        .ftc-name { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
-        .ftc-desc { font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
-
+        /* Status badges reused from ftc-badge */
         .ftc-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 0.68rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
         .ftc-badge.on-track  { background: rgba(34,197,94,0.1);  color: #15803d; border: 1px solid rgba(34,197,94,0.2); }
         .ftc-badge.behind    { background: rgba(249,115,22,0.1);  color: #c2410c; border: 1px solid rgba(249,115,22,0.25); }
@@ -158,28 +165,60 @@
         [data-theme="dark"] .ftc-badge.achieved  { color: #86efac; }
         [data-theme="dark"] .ftc-badge.coasting  { color: #fde68a; }
 
-        .ftc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 14px; }
-        .ftc-metric-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-bottom: 3px; }
-        .ftc-metric-val { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; font-family: var(--font); line-height: 1.15; }
-        .ftc-metric-val.blue { color: var(--accent-primary, #0066ff); }
+        /* ── Journey Bar (simplified) ── */
+        .fire-journey { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+        .fire-journey-title { font-size: 0.875rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); margin-bottom: 14px; }
+        .journey-bar { height: 10px; background: var(--bg-secondary); border-radius: 5px; position: relative; margin-bottom: 10px; overflow: visible; }
+        .journey-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #8FE62C, #4ade80); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; }
+        .journey-fill::after { content: ''; position: absolute; right: -4px; top: -3px; width: 16px; height: 16px; border-radius: 50%; background: #4ade80; border: 3px solid var(--bg-elevated); box-shadow: 0 0 0 2px rgba(74,222,128,0.3); }
+        .journey-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-tertiary); font-weight: 600; }
+
+        /* ── Variants Toggle Section ── */
+        .variants-section { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; margin-bottom: 16px; box-shadow: var(--card-shadow); overflow: hidden; }
+        .variants-toggle-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: none; border: none; cursor: pointer; font-family: var(--font); text-align: left; transition: background 0.15s; }
+        .variants-toggle-btn:hover { background: var(--hover-bg); }
+        .variants-toggle-left { display: flex; flex-direction: column; }
+        .variants-toggle-label { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
+        .variants-toggle-sub { font-size: 0.78rem; color: var(--text-secondary); margin-top: 3px; }
+        .variants-chevron { color: var(--text-tertiary); transition: transform 0.25s; flex-shrink: 0; }
+        .variants-section.open .variants-chevron { transform: rotate(180deg); }
+        .variants-content { display: none; padding: 0 20px 20px; }
+        .variants-content.open { display: block; }
+        .variants-divider { height: 1px; background: var(--border-color); margin: 0 0 20px; }
+
+        /* ── FIRE Type Cards ── */
+        .fire-types-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .fire-type-card { background: var(--bg, #F4F6F8); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 18px; }
+        .coast-card { grid-column: 1 / -1; }
+        .ftc-explanation { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .ftc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+        .ftc-icon-name { display: flex; align-items: flex-start; gap: 10px; }
+        .ftc-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .ftc-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+        .ftc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-bottom: 12px; }
+        .ftc-metric-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-bottom: 2px; }
+        .ftc-metric-val { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; font-family: var(--font); line-height: 1.15; }
+        .ftc-metric-val.blue { color: #3B73FF; }
         .ftc-metric-val.green { color: #15803d; }
         [data-theme="dark"] .ftc-metric-val.green { color: #86efac; }
-        .ftc-metric-val.red   { color: #dc2626; }
-        .ftc-metric-sub { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 2px; line-height: 1.3; }
-
-        .ftc-progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
-        .ftc-progress-label { font-size: 0.72rem; color: var(--text-secondary); font-weight: 500; }
-        .ftc-progress-pct { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); }
-        .ftc-bar-track { height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
+        .ftc-metric-val.red { color: #dc2626; }
+        .ftc-metric-sub { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px; line-height: 1.3; }
+        .ftc-progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+        .ftc-progress-label { font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; }
+        .ftc-progress-pct { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); }
+        .ftc-bar-track { height: 5px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
         .ftc-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .coast-metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
 
-        /* Coast special layout */
-        .coast-metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 14px; }
+        /* Variant controls */
+        .variant-controls { background: var(--bg, #F4F6F8); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 16px; }
+        .variant-controls-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 12px; }
+        .variant-controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
 
         /* ── What-If Section ── */
-        .whatif-section { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: var(--card-shadow); }
+        .whatif-section { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
         .section-title-sm { font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 14px; }
-        .whatif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .whatif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .whatif-card { background: var(--bg-secondary); border-radius: 10px; padding: 14px 16px; }
         .whatif-action { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.4; font-weight: 500; }
         .whatif-result { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
@@ -187,15 +226,110 @@
         [data-theme="dark"] .whatif-result.positive { color: #86efac; }
 
         /* ── Insights ── */
-        .insights-section { margin-bottom: 18px; }
-        .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .insight-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 18px; box-shadow: var(--card-shadow); }
-        .insight-icon { font-size: 1.25rem; margin-bottom: 8px; display: block; }
-        .insight-heading { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; letter-spacing: -0.01em; }
-        .insight-body { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.55; }
+        .insights-section { margin-bottom: 16px; }
+        .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .insight-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; box-shadow: var(--card-shadow); }
+        .insight-icon { font-size: 1.125rem; margin-bottom: 6px; display: block; }
+        .insight-heading { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.01em; }
+        .insight-body { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.55; }
         .insight-body strong { color: var(--text-primary); font-weight: 600; }
+        .insights-show-more { margin-top: 10px; text-align: center; }
+        .insights-show-more-btn { background: none; border: none; cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: #3B73FF; font-family: var(--font); padding: 6px 12px; }
+        .insights-show-more-btn:hover { text-decoration: underline; }
+        .insights-extra { display: none; }
+        .insights-extra.open { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
 
-        /* ── Sign-up prompt (guest only) ── */
+        /* ── FIRE Outlook Card ── */
+        .fire-outlook-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+        .fire-outlook-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .fire-outlook-num-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 4px; }
+        .fire-outlook-num-val { font-size: 1.125rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1.1; }
+        .fire-outlook-num-val.shortfall { color: #dc2626; }
+        .fire-outlook-num-val.surplus { color: #15803d; }
+        [data-theme="dark"] .fire-outlook-num-val.surplus { color: #86efac; }
+        .fire-outlook-num-sub { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 3px; }
+        .fire-outlook-actions { display: flex; flex-direction: column; gap: 8px; }
+        .fire-outlook-action { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; }
+        .fire-outlook-action.primary { background: rgba(143,230,44,0.08); border: 1px solid rgba(143,230,44,0.2); }
+        .fire-outlook-action.secondary { background: var(--bg, #F4F6F8); border: 1px solid var(--border-color); }
+        .fire-outlook-action-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .fire-outlook-action-body { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.55; }
+        .fire-outlook-action-body strong { color: var(--text-primary); }
+        .fire-outlook-action-body .amt { font-size: 1rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; display: block; margin-top: 2px; }
+        .fire-outlook-achieved { padding: 14px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px; font-size: 0.8125rem; color: #15803d; font-weight: 600; line-height: 1.5; }
+        [data-theme="dark"] .fire-outlook-achieved { color: #86efac; }
+        /* Gap headline */
+        .fire-gap-headline { padding: 14px 16px; background: rgba(220,38,38,0.05); border: 1px solid rgba(220,38,38,0.15); border-radius: 10px; margin-bottom: 14px; }
+        .fire-gap-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #dc2626; margin-bottom: 6px; }
+        .fire-gap-amount { font-size: 1.75rem; font-weight: 800; color: #dc2626; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+        .fire-gap-explain { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+        .fire-gap-explain strong { color: var(--text-primary); }
+        /* Options */
+        .fire-options-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-bottom: 10px; }
+        .fire-options { display: flex; flex-direction: column; gap: 8px; }
+        .fire-option { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .fire-option-a { background: rgba(143,230,44,0.07); border-color: rgba(143,230,44,0.25); }
+        .fire-option-b { background: rgba(59,115,255,0.05); border-color: rgba(59,115,255,0.18); }
+        .fire-option-c { background: var(--bg, #F4F6F8); }
+        .fire-option-num { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); background: var(--bg-secondary, #f0f0f0); padding: 3px 8px; border-radius: 99px; flex-shrink: 0; white-space: nowrap; margin-top: 2px; }
+        .fire-option-body { flex: 1; min-width: 0; }
+        .fire-option-title { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+        .fire-option-key { font-size: 1.125rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; margin-bottom: 4px; }
+        .fire-option-detail { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+        .fire-option-detail strong { color: var(--text-primary); }
+        @media (max-width: 600px) { .fire-outlook-row { grid-template-columns: 1fr 1fr; } }
+        /* Early retirement card */
+        .fire-early-card { background: rgba(143,230,44,0.07); border: 1px solid rgba(143,230,44,0.3); border-radius: 10px; padding: 16px; }
+        .fire-early-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #15803d; margin-bottom: 8px; }
+        [data-theme="dark"] .fire-early-tag { color: #86efac; }
+        .fire-early-age { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
+        .fire-early-note { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+        .fire-early-note strong { color: var(--text-primary); }
+        .fire-early-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.55); border-radius: 8px; margin-bottom: 12px; }
+        [data-theme="dark"] .fire-early-metrics { background: rgba(255,255,255,0.06); }
+        .fire-early-metric-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 4px; }
+        .fire-early-metric-val { font-size: 1.0625rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1.1; }
+        .fire-early-metric-sub { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px; }
+        .fire-early-bonus { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.55; padding-top: 10px; border-top: 1px solid rgba(143,230,44,0.25); }
+        .fire-early-bonus strong { color: var(--text-primary); }
+
+        /* ── Goals Disclaimer ── */
+        .fire-goals-disclaimer { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.22); border-radius: 10px; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+        .fire-goals-disclaimer a { color: #3B73FF; text-decoration: none; font-weight: 600; }
+        .fire-goals-disclaimer a:hover { text-decoration: underline; }
+        .fire-goals-disclaimer strong { color: var(--text-primary); font-weight: 600; }
+
+        /* ── Insight priority grades ── */
+        .insight-card.accent-success { border-left: 3px solid #5DC840; background: rgba(93,200,64,0.05); }
+        .insight-card.accent-warning { border-left: 3px solid #FF9500; background: rgba(255,149,0,0.05); }
+        .insight-card.accent-critical { border-left: 3px solid #dc2626; background: rgba(220,38,38,0.04); }
+        .insight-card.accent-info { border-left: 3px solid #3B73FF; background: rgba(59,115,255,0.04); }
+        .insight-card.priority-high .insight-heading { font-size: 0.875rem; }
+
+        /* ── FIRE Math Card ── */
+        .fire-math-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+        .fire-math-header { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 16px; }
+        .fire-math-steps { display: flex; align-items: stretch; gap: 0; }
+        .fire-math-step { flex: 1; min-width: 0; }
+        .fire-math-arrow { display: flex; align-items: center; color: var(--text-tertiary); font-size: 1.25rem; flex-shrink: 0; padding: 0 10px; padding-bottom: 18px; }
+        .fire-math-step-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-tertiary); margin-bottom: 4px; }
+        .fire-math-step-desc { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 7px; min-height: 2.8em; }
+        .fire-math-step-val { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1.1; }
+        .fire-math-step-val.accent { color: var(--accent, #8FE62C); }
+        .fire-math-step-sub { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 3px; line-height: 1.4; }
+        .fire-math-swr { margin-top: 16px; padding: 12px 14px; background: var(--bg, #F4F6F8); border-radius: 10px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; }
+        .fire-math-swr strong { color: var(--text-primary); }
+        .fire-math-today { margin-top: 10px; padding: 11px 14px; background: rgba(143,230,44,0.07); border: 1px solid rgba(143,230,44,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .fire-math-today-text { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+        .fire-math-today-text strong { color: var(--text-primary); }
+        .fire-math-today-val { font-size: 1.0625rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; flex-shrink: 0; white-space: nowrap; }
+        @media (max-width: 680px) {
+            .fire-math-steps { flex-direction: column; gap: 12px; }
+            .fire-math-arrow { transform: rotate(90deg); padding: 4px 0; align-self: flex-start; margin-left: 4px; }
+            .fire-math-step-desc { min-height: auto; }
+        }
+
+        /* ── Sign-up prompt ── */
         .signup-prompt { display: none; background: linear-gradient(135deg, #111 0%, #1c1c2e 100%); border-radius: 16px; padding: 28px; margin-top: 20px; text-align: center; }
         body.guest-mode .signup-prompt { display: block; }
         .signup-prompt h3 { font-size: 1.125rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
@@ -203,45 +337,16 @@
         .signup-btn-fire { display: inline-block; background: #8FE62C; color: #111; font-weight: 700; padding: 13px 32px; border-radius: 99px; text-decoration: none; font-size: 0.9375rem; transition: transform 0.2s; }
         .signup-btn-fire:hover { transform: scale(1.04); }
 
-        /* ── Mobile Responsive ── */
-        @media (max-width: 1100px) {
-            .fire-layout { grid-template-columns: 300px 1fr; }
-            .coast-metrics-row { grid-template-columns: 1fr 1fr; }
-            .whatif-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 900px) {
-            .fire-layout { grid-template-columns: 1fr; }
-            .fire-inputs-panel { position: static; max-height: none; overflow-y: visible; }
-        }
-        @media (max-width: 768px) {
-            .main-content { padding: 20px 16px 60px; }
-            .fire-guest-nav { padding: 0 16px; }
-            .fire-types-grid { grid-template-columns: 1fr; }
-            .fire-summary { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .summary-chip-val { font-size: 1.1rem; }
-            .insights-grid { grid-template-columns: 1fr; }
-            .whatif-grid { grid-template-columns: 1fr; }
-            .coast-metrics-row { grid-template-columns: 1fr 1fr; }
-            .ftc-metrics { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 480px) {
-            .fire-summary { grid-template-columns: 1fr 1fr; }
-            .fire-title { font-size: 1.5rem; }
-        }
-        @media (max-width: 360px) {
-            .fire-summary { grid-template-columns: 1fr; }
-        }
-
-        /* Spinner */
-        .fire-spinner { display: none; align-items: center; justify-content: center; padding: 60px 20px; gap: 10px; color: var(--text-secondary); font-size: 0.875rem; }
-        .fire-spinner.visible { display: flex; }
-        .spin-ring { width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--accent-primary, #0066ff); border-radius: 50%; animation: spin 0.7s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* ── Responsive ── */
+        @media (max-width: 1100px) { .fire-layout { grid-template-columns: 300px 1fr; } .coast-metrics-row { grid-template-columns: 1fr 1fr; } .whatif-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 900px) { .fire-layout { grid-template-columns: 1fr; } .fire-inputs-panel { position: static; max-height: none; overflow-y: visible; } }
+        @media (max-width: 768px) { .main-content { padding: 16px 16px 60px; } .fire-guest-nav { padding: 0 16px; } .fire-types-grid { grid-template-columns: 1fr; } .whatif-grid { grid-template-columns: 1fr; } .coast-metrics-row { grid-template-columns: 1fr 1fr; } .fire-hero-amount { font-size: 2rem; } .fire-hero-ring { width: 80px; height: 80px; } .ring-pct { font-size: 0.9rem; } .insights-grid, .insights-extra { grid-template-columns: 1fr; } .variant-controls-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .fire-hero-top { flex-direction: column-reverse; } .fire-hero-ring { width: 80px; height: 80px; } .fire-types-grid { grid-template-columns: 1fr; } .fire-intro-card { flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
 
-<!-- ── Guest Navbar ── -->
+<!-- Guest Navbar -->
 <nav class="fire-guest-nav">
     <a href="/" class="guest-nav-logo">
         <div class="guest-nav-mark">
@@ -252,8 +357,8 @@
         <span class="guest-nav-text">WealthOS</span>
     </a>
     <div class="guest-nav-actions">
-        <a href="/fire.html" style="color:var(--accent-primary,#0066ff)!important;font-weight:700!important;">🔥 FIRE Calculator</a>
-        <a href="/login.html">Sign In</a>
+        <a href="/fire.html" style="color:#3B73FF!important;font-weight:700!important;">📊 Retirement Planning</a>
+        <a href="/login">Sign In</a>
         <a href="/signup.html" class="guest-nav-cta">Get Started</a>
     </div>
 </nav>
@@ -264,359 +369,235 @@
     <main class="main-content">
 
         <!-- Page Header -->
-        <div class="fire-header">
-            <div class="fire-header-row">
-                <h1 class="fire-title">🔥 FIRE Calculator</h1>
-                <div class="fire-mode-tag" id="modeTag">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    Auto-filled from your data
-                </div>
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">📊 Retirement Planning</h1>
+                <p class="page-subtitle" id="pageSubtitle">Find your retirement number — we'll auto-fill from your data</p>
             </div>
-            <p class="fire-subtitle">Financial Independence, Retire Early — see all FIRE variants, change any assumption, get instant insights</p>
         </div>
 
-        <!-- Data Banner -->
-        <div class="data-banner" id="dataBanner">
-            <span class="data-banner-dot"></span>
-            <span id="dataBannerText">Data loaded from your Monthly Tracker</span>
-            <a href="/monthly-tracker.html" class="data-banner-link">Update in Tracker →</a>
+        <!-- FIRE Intro Card -->
+        <div class="fire-intro-card" id="fireIntroCard">
+            <div class="fire-intro-icon">📊</div>
+            <div class="fire-intro-body-wrap">
+                <div class="fire-intro-title">What is Retirement Planning?</div>
+                <div class="fire-intro-body">
+                    Figure out how much corpus you need to retire comfortably. Save and invest enough so that your portfolio generates returns to cover your expenses forever. Once you hit your retirement number, work becomes optional — a concept also known as <strong>FIRE</strong> (Financial Independence, Retire Early).
+                </div>
+                <div class="fire-intro-chips">
+                    <span class="fire-intro-chip">💼 Work becomes optional</span>
+                    <span class="fire-intro-chip">📈 Your money works for you</span>
+                    <span class="fire-intro-chip">🕊 Freedom to choose your time</span>
+                </div>
+                <a href="https://www.investopedia.com/terms/f/financial-independence-retire-early-fire.asp" target="_blank" rel="noopener" class="fire-intro-link">Learn more about FIRE →</a>
+            </div>
+            <button class="fire-intro-dismiss" onclick="dismissIntro()" title="Dismiss">×</button>
         </div>
+
+        <!-- Member tabs — only shown for 2+ member families -->
+        <div class="member-tabs-strip" id="memberTabsStrip"></div>
 
         <div class="fire-layout">
             <!-- ══════════ INPUTS PANEL ══════════ -->
             <div class="fire-inputs-panel">
 
-                <!-- Profile -->
+                <!-- Group A: About You -->
                 <div class="input-card">
-                    <div class="input-card-title">Your Profile</div>
-                    <div class="inp-group">
+                    <div class="input-card-title">About You</div>
+
+                    <div class="planning-for-row">
+                        <span class="planning-for-label">Planning for</span>
+                        <span class="planning-for-badge" id="planningForBadge">Just Me</span>
+                    </div>
+                    <div class="family-ages-note" id="familyAgesNote" style="display:none"></div>
+
+                    <!-- Age display (member mode — read-only from profile DOB) -->
+                    <div class="age-display-row" id="ageDisplayRow">
+                        <div class="age-display-label">Current Age</div>
+                        <div class="age-display-value">
+                            <span id="ageDisplayVal">—</span>
+                            <span class="age-display-source">from profile</span>
+                        </div>
+                    </div>
+
+                    <!-- Age slider (household mode) -->
+                    <div class="inp-group" id="ageSliderRow">
                         <div class="inp-label">Current Age <span class="inp-label-val" id="v-age">30</span></div>
-                        <input type="range" class="inp-range" id="r-age" min="18" max="65" step="1" value="30" oninput="syncRange('age')">
+                        <input type="range" class="inp-range" id="r-age" min="18" max="65" step="1" value="30" oninput="syncRange('age'); schedSave();">
                     </div>
                     <div class="inp-group">
-                        <div class="inp-label">Target Retirement Age <span class="inp-label-val" id="v-retireAge">50</span></div>
-                        <input type="range" class="inp-range" id="r-retireAge" min="30" max="75" step="1" value="50" oninput="syncRange('retireAge')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Current Portfolio / Net Worth</div>
-                        <div class="inp-field">
-                            <span class="inp-prefix">₹</span>
-                            <input type="number" id="f-corpus" value="2500000" min="0" step="50000" oninput="calculate()">
-                        </div>
+                        <div class="inp-label">Planned Retirement Age <span class="inp-label-val" id="v-retireAge">60</span></div>
+                        <input type="range" class="inp-range" id="r-retireAge" min="30" max="75" step="1" value="60" oninput="syncRange('retireAge'); schedSave();">
                     </div>
                 </div>
 
-                <!-- Cash Flow -->
+                <!-- Group B: Your Money -->
                 <div class="input-card">
-                    <div class="input-card-title">Monthly Cash Flow</div>
+                    <div class="input-card-title">Your Money</div>
+
                     <div class="inp-group">
-                        <div class="inp-label">Monthly Take-home Income</div>
+                        <div class="inp-label-row">
+                            <span class="inp-label-left">Current Portfolio Value</span>
+                            <span class="data-source-badge" id="badge-corpus" style="display:none">✓ From your data</span>
+                        </div>
                         <div class="inp-field">
                             <span class="inp-prefix">₹</span>
-                            <input type="number" id="f-income" value="150000" min="0" step="5000" oninput="calculate()">
+                            <input type="text" class="money-input" id="f-corpus" inputmode="numeric" value="25,00,000" oninput="calculate(); schedSave();" onblur="fmtMoneyBlur(this)" onfocus="fmtMoneyFocus(this)">
                         </div>
                     </div>
+
                     <div class="inp-group">
-                        <div class="inp-label">Monthly Expenses</div>
+                        <div class="inp-label-row">
+                            <span class="inp-label-left">Monthly Income</span>
+                            <span class="data-source-badge" id="badge-income" style="display:none">✓ From your data</span>
+                        </div>
                         <div class="inp-field">
                             <span class="inp-prefix">₹</span>
-                            <input type="number" id="f-expenses" value="80000" min="0" step="5000" oninput="calculate()">
+                            <input type="text" class="money-input" id="f-income" inputmode="numeric" value="1,50,000" oninput="calculate(); schedSave();" onblur="fmtMoneyBlur(this)" onfocus="fmtMoneyFocus(this)">
                         </div>
                     </div>
+
                     <div class="inp-group">
-                        <div class="inp-label">Monthly Investments / SIP</div>
+                        <div class="inp-label-row">
+                            <span class="inp-label-left">Monthly Expenses</span>
+                            <span class="data-source-badge" id="badge-expenses" style="display:none">✓ From your data</span>
+                        </div>
                         <div class="inp-field">
                             <span class="inp-prefix">₹</span>
-                            <input type="number" id="f-investments" value="40000" min="0" step="5000" oninput="calculate()">
+                            <input type="text" class="money-input" id="f-expenses" inputmode="numeric" value="80,000" oninput="calculate(); schedSave();" onblur="fmtMoneyBlur(this)" onfocus="fmtMoneyFocus(this)">
                         </div>
                     </div>
+
+                    <div class="inp-group">
+                        <div class="inp-label-row">
+                            <span class="inp-label-left">Monthly Investments / SIP</span>
+                            <span class="data-source-badge" id="badge-investments" style="display:none">✓ From your data</span>
+                        </div>
+                        <div class="inp-field">
+                            <span class="inp-prefix">₹</span>
+                            <input type="text" class="money-input" id="f-investments" inputmode="numeric" value="40,000" oninput="calculate(); schedSave();" onblur="fmtMoneyBlur(this)" onfocus="fmtMoneyFocus(this)">
+                        </div>
+                    </div>
+
+                    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:4px;line-height:1.5;" id="dataSourceNote" style="display:none"></div>
                 </div>
 
-                <!-- Growth Assumptions -->
+                <!-- Group C: Assumptions (collapsible) -->
                 <div class="input-card">
-                    <div class="input-card-title">Growth Assumptions</div>
-                    <div class="inp-group">
-                        <div class="inp-label">Pre-retirement Return <span class="inp-label-val" id="v-preReturn">12%</span></div>
-                        <input type="range" class="inp-range" id="r-preReturn" min="6" max="20" step="0.5" value="12" oninput="syncRange('preReturn')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Post-retirement Return <span class="inp-label-val" id="v-postReturn">8%</span></div>
-                        <input type="range" class="inp-range" id="r-postReturn" min="4" max="15" step="0.5" value="8" oninput="syncRange('postReturn')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Inflation Rate <span class="inp-label-val" id="v-inflation">6%</span></div>
-                        <input type="range" class="inp-range" id="r-inflation" min="2" max="12" step="0.5" value="6" oninput="syncRange('inflation')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Safe Withdrawal Rate (SWR) <span class="inp-label-val" id="v-swr">4%</span></div>
-                        <input type="range" class="inp-range inp-range-accent" id="r-swr" min="2" max="6" step="0.25" value="4" oninput="syncRange('swr')">
-                    </div>
-                </div>
+                    <button class="assumptions-toggle-btn" onclick="toggleAssumptions()" id="assumptionsToggleBtn">
+                        <div class="assumptions-toggle-left">
+                            <span class="assumptions-toggle-title">Advanced Assumptions</span>
+                            <span class="assumptions-toggle-sub" id="assumptionsSub">Returns · Inflation · Withdrawal rate</span>
+                        </div>
+                        <svg class="assumptions-chevron" id="assumptionsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transform:rotate(180deg)">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
 
-                <!-- FIRE Variant Assumptions -->
-                <div class="input-card">
-                    <div class="input-card-title">FIRE Variant Assumptions</div>
-                    <div class="inp-group">
-                        <div class="inp-label">Lean FIRE expense ratio <span class="inp-label-val" id="v-leanFactor">70%</span></div>
-                        <input type="range" class="inp-range" id="r-leanFactor" min="40" max="90" step="5" value="70" oninput="syncRange('leanFactor')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Fat FIRE expense ratio <span class="inp-label-val" id="v-fatFactor">150%</span></div>
-                        <input type="range" class="inp-range" id="r-fatFactor" min="110" max="300" step="10" value="150" oninput="syncRange('fatFactor')">
-                    </div>
-                    <div class="inp-group">
-                        <div class="inp-label">Barista FIRE — monthly part-time income</div>
-                        <div class="inp-field">
-                            <span class="inp-prefix">₹</span>
-                            <input type="number" id="f-baristaIncome" value="30000" min="0" step="5000" oninput="calculate()">
-                            <span class="inp-suffix">/mo</span>
+                    <div class="assumptions-content open" id="assumptionsContent">
+                        <div class="inp-group">
+                            <div class="inp-label">Pre-retirement Return <span class="inp-label-val" id="v-preReturn">12%</span></div>
+                            <input type="range" class="inp-range" id="r-preReturn" min="6" max="20" step="0.5" value="12" oninput="syncRange('preReturn'); schedSave();">
+                        </div>
+                        <div class="inp-group">
+                            <div class="inp-label">Post-retirement Return <span class="inp-label-val" id="v-postReturn">8%</span></div>
+                            <input type="range" class="inp-range" id="r-postReturn" min="4" max="15" step="0.5" value="8" oninput="syncRange('postReturn'); schedSave();">
+                        </div>
+                        <div class="inp-group">
+                            <div class="inp-label">Inflation Rate <span class="inp-label-val" id="v-inflation">6%</span></div>
+                            <input type="range" class="inp-range" id="r-inflation" min="2" max="12" step="0.5" value="6" oninput="syncRange('inflation'); schedSave();">
+                        </div>
+                        <div class="inp-group">
+                            <div class="inp-label">Safe Withdrawal Rate (SWR) <span class="inp-label-val" id="v-swr">4%</span></div>
+                            <input type="range" class="inp-range" id="r-swr" min="2" max="6" step="0.25" value="4" oninput="syncRange('swr'); schedSave();">
+                        </div>
+                        <div class="save-indicator" id="saveIndicator" style="display:none">
+                            <span id="saveIndicatorText">Saved</span>
+                            <button class="save-indicator-reset" onclick="resetAll()">Reset to defaults</button>
                         </div>
                     </div>
                 </div>
 
-                <button class="reset-btn" onclick="resetDefaults()">↺ Reset to Defaults</button>
+                <button class="reset-btn" onclick="resetAll()">↺ Reset all to defaults</button>
             </div>
 
             <!-- ══════════ RESULTS PANEL ══════════ -->
             <div class="fire-results">
 
-                <!-- Summary Chips -->
-                <div class="fire-summary">
-                    <div class="summary-chip">
-                        <div class="summary-chip-val green" id="s-savingsRate">—</div>
-                        <div class="summary-chip-label">Savings Rate</div>
+                <!-- Hero Card -->
+                <div class="fire-hero-card">
+                    <div class="fire-hero-top">
+                        <div class="fire-hero-text">
+                            <div class="fire-hero-eyebrow">Your FIRE Number</div>
+                            <div class="fire-hero-amount" id="hero-corpus">—</div>
+                            <div class="fire-hero-sub" id="hero-subtitle">This is how much you need invested to retire comfortably.</div>
+                            <div class="fire-hero-badge-wrap">
+                                <span class="ftc-badge" id="hero-badge">—</span>
+                            </div>
+                        </div>
+                        <div class="fire-hero-ring">
+                            <svg viewBox="0 0 120 120" class="ring-svg">
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border-color,#E5E8EC)" stroke-width="10"/>
+                                <circle id="hero-ring-fill" cx="60" cy="60" r="50" fill="none" stroke="#8FE62C" stroke-width="10"
+                                    stroke-dasharray="314.16" stroke-dashoffset="314.16"
+                                    stroke-linecap="round" transform="rotate(-90 60 60)"
+                                    style="transition:stroke-dashoffset 0.6s ease;"/>
+                            </svg>
+                            <div class="ring-center">
+                                <div class="ring-pct" id="hero-pct">0%</div>
+                                <div class="ring-label" id="hero-ring-label">projected</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="summary-chip">
-                        <div class="summary-chip-val blue" id="s-fireCorpus">—</div>
-                        <div class="summary-chip-label">FIRE Corpus (Trad.)</div>
-                    </div>
-                    <div class="summary-chip">
-                        <div class="summary-chip-val" id="s-yearsToFire">—</div>
-                        <div class="summary-chip-label">Years to FIRE (Trad.)</div>
-                    </div>
-                </div>
-
-                <!-- Journey Progress Bar -->
-                <div class="fire-journey">
-                    <div class="fire-journey-title">Your FIRE Journey</div>
-                    <div class="journey-bar" id="journeyBar">
-                        <div class="journey-fill" id="journeyFill" style="width:0%"></div>
-                    </div>
-                    <div class="journey-legend" id="journeyLegend"></div>
-                </div>
-
-                <!-- FIRE Type Cards -->
-                <div class="fire-types-grid">
-
-                    <!-- Lean FIRE -->
-                    <div class="fire-type-card">
-                        <div class="ftc-header">
-                            <div class="ftc-icon-name">
-                                <div class="ftc-icon" style="background:rgba(134,239,172,0.15);">🏔</div>
-                                <div>
-                                    <div class="ftc-name">Lean FIRE</div>
-                                    <div class="ftc-desc">Retire on <span id="lean-factor-txt">70%</span> of current expenses</div>
-                                </div>
-                            </div>
-                            <div class="ftc-badge" id="badge-lean">—</div>
+                    <div class="fire-hero-stats">
+                        <div class="fire-hero-stat">
+                            <div class="fire-hero-stat-val" id="hero-projected">—</div>
+                            <div class="fire-hero-stat-label" id="hero-projected-lbl">Projected at 50</div>
                         </div>
-                        <div class="ftc-metrics">
-                            <div>
-                                <div class="ftc-metric-label">Corpus Needed</div>
-                                <div class="ftc-metric-val" id="lean-corpus">—</div>
-                                <div class="ftc-metric-sub" id="lean-monthly">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Years Away</div>
-                                <div class="ftc-metric-val blue" id="lean-years">—</div>
-                                <div class="ftc-metric-sub" id="lean-year">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">SIP Needed / mo</div>
-                                <div class="ftc-metric-val" id="lean-sip">—</div>
-                                <div class="ftc-metric-sub" id="lean-sip-sub">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Projected Corpus</div>
-                                <div class="ftc-metric-val" id="lean-projected">—</div>
-                                <div class="ftc-metric-sub">at target age</div>
-                            </div>
+                        <div class="fire-hero-divider"></div>
+                        <div class="fire-hero-stat">
+                            <div class="fire-hero-stat-val" id="hero-fire-target">—</div>
+                            <div class="fire-hero-stat-label">FIRE target</div>
                         </div>
-                        <div class="ftc-progress-header">
-                            <span class="ftc-progress-label">Progress to Lean FIRE</span>
-                            <span class="ftc-progress-pct" id="lean-pct">0%</span>
+                        <div class="fire-hero-divider"></div>
+                        <div class="fire-hero-stat">
+                            <div class="fire-hero-stat-val" id="hero-gap" style="color:#dc2626;">—</div>
+                            <div class="fire-hero-stat-label" id="hero-gap-lbl">Shortfall</div>
                         </div>
-                        <div class="ftc-bar-track"><div class="ftc-bar-fill" id="lean-bar" style="width:0%;background:#86efac;"></div></div>
-                    </div>
-
-                    <!-- Traditional FIRE -->
-                    <div class="fire-type-card">
-                        <div class="ftc-header">
-                            <div class="ftc-icon-name">
-                                <div class="ftc-icon" style="background:rgba(59,115,255,0.12);">🎯</div>
-                                <div>
-                                    <div class="ftc-name">Traditional FIRE</div>
-                                    <div class="ftc-desc">4% rule — maintain current lifestyle</div>
-                                </div>
-                            </div>
-                            <div class="ftc-badge" id="badge-trad">—</div>
-                        </div>
-                        <div class="ftc-metrics">
-                            <div>
-                                <div class="ftc-metric-label">Corpus Needed</div>
-                                <div class="ftc-metric-val" id="trad-corpus">—</div>
-                                <div class="ftc-metric-sub" id="trad-monthly">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Years Away</div>
-                                <div class="ftc-metric-val blue" id="trad-years">—</div>
-                                <div class="ftc-metric-sub" id="trad-year">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">SIP Needed / mo</div>
-                                <div class="ftc-metric-val" id="trad-sip">—</div>
-                                <div class="ftc-metric-sub" id="trad-sip-sub">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Projected Corpus</div>
-                                <div class="ftc-metric-val" id="trad-projected">—</div>
-                                <div class="ftc-metric-sub">at target age</div>
-                            </div>
-                        </div>
-                        <div class="ftc-progress-header">
-                            <span class="ftc-progress-label">Progress to Traditional FIRE</span>
-                            <span class="ftc-progress-pct" id="trad-pct">0%</span>
-                        </div>
-                        <div class="ftc-bar-track"><div class="ftc-bar-fill" id="trad-bar" style="width:0%;background:#3b73ff;"></div></div>
-                    </div>
-
-                    <!-- Fat FIRE -->
-                    <div class="fire-type-card">
-                        <div class="ftc-header">
-                            <div class="ftc-icon-name">
-                                <div class="ftc-icon" style="background:rgba(251,146,60,0.15);">💎</div>
-                                <div>
-                                    <div class="ftc-name">Fat FIRE</div>
-                                    <div class="ftc-desc">Retire on <span id="fat-factor-txt">150%</span> of current expenses</div>
-                                </div>
-                            </div>
-                            <div class="ftc-badge" id="badge-fat">—</div>
-                        </div>
-                        <div class="ftc-metrics">
-                            <div>
-                                <div class="ftc-metric-label">Corpus Needed</div>
-                                <div class="ftc-metric-val" id="fat-corpus">—</div>
-                                <div class="ftc-metric-sub" id="fat-monthly">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Years Away</div>
-                                <div class="ftc-metric-val blue" id="fat-years">—</div>
-                                <div class="ftc-metric-sub" id="fat-year">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">SIP Needed / mo</div>
-                                <div class="ftc-metric-val" id="fat-sip">—</div>
-                                <div class="ftc-metric-sub" id="fat-sip-sub">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Projected Corpus</div>
-                                <div class="ftc-metric-val" id="fat-projected">—</div>
-                                <div class="ftc-metric-sub">at target age</div>
-                            </div>
-                        </div>
-                        <div class="ftc-progress-header">
-                            <span class="ftc-progress-label">Progress to Fat FIRE</span>
-                            <span class="ftc-progress-pct" id="fat-pct">0%</span>
-                        </div>
-                        <div class="ftc-bar-track"><div class="ftc-bar-fill" id="fat-bar" style="width:0%;background:#fb923c;"></div></div>
-                    </div>
-
-                    <!-- Barista FIRE -->
-                    <div class="fire-type-card">
-                        <div class="ftc-header">
-                            <div class="ftc-icon-name">
-                                <div class="ftc-icon" style="background:rgba(167,139,250,0.15);">☕</div>
-                                <div>
-                                    <div class="ftc-name">Barista FIRE</div>
-                                    <div class="ftc-desc">Semi-retire with part-time income covering gaps</div>
-                                </div>
-                            </div>
-                            <div class="ftc-badge" id="badge-barista">—</div>
-                        </div>
-                        <div class="ftc-metrics">
-                            <div>
-                                <div class="ftc-metric-label">Corpus Needed</div>
-                                <div class="ftc-metric-val" id="barista-corpus">—</div>
-                                <div class="ftc-metric-sub" id="barista-coverage">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Years Away</div>
-                                <div class="ftc-metric-val blue" id="barista-years">—</div>
-                                <div class="ftc-metric-sub" id="barista-year">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">SIP Needed / mo</div>
-                                <div class="ftc-metric-val" id="barista-sip">—</div>
-                                <div class="ftc-metric-sub" id="barista-sip-sub">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Part-time Income</div>
-                                <div class="ftc-metric-val" id="barista-parttime">—</div>
-                                <div class="ftc-metric-sub">covers remaining gap</div>
-                            </div>
-                        </div>
-                        <div class="ftc-progress-header">
-                            <span class="ftc-progress-label">Progress to Barista FIRE</span>
-                            <span class="ftc-progress-pct" id="barista-pct">0%</span>
-                        </div>
-                        <div class="ftc-bar-track"><div class="ftc-bar-fill" id="barista-bar" style="width:0%;background:#a78bfa;"></div></div>
-                    </div>
-
-                    <!-- Coast FIRE (full-width) -->
-                    <div class="fire-type-card coast-card">
-                        <div class="ftc-header">
-                            <div class="ftc-icon-name">
-                                <div class="ftc-icon" style="background:rgba(251,191,36,0.15);">🏄</div>
-                                <div>
-                                    <div class="ftc-name">Coast FIRE</div>
-                                    <div class="ftc-desc">Accumulate enough today so investments grow to your FIRE number by retirement — no more contributions needed</div>
-                                </div>
-                            </div>
-                            <div class="ftc-badge" id="badge-coast">—</div>
-                        </div>
-                        <div class="coast-metrics-row">
-                            <div>
-                                <div class="ftc-metric-label">Coast Corpus Needed Today</div>
-                                <div class="ftc-metric-val" id="coast-corpus">—</div>
-                                <div class="ftc-metric-sub">invest this now, then stop</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Years to Coast FIRE</div>
-                                <div class="ftc-metric-val blue" id="coast-years">—</div>
-                                <div class="ftc-metric-sub" id="coast-year">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Gap to Coast Target</div>
-                                <div class="ftc-metric-val" id="coast-gap">—</div>
-                                <div class="ftc-metric-sub" id="coast-gap-sub">—</div>
-                            </div>
-                            <div>
-                                <div class="ftc-metric-label">Once coasting, corpus grows to</div>
-                                <div class="ftc-metric-val" id="coast-grows-to">—</div>
-                                <div class="ftc-metric-sub" id="coast-grows-sub">—</div>
-                            </div>
-                        </div>
-                        <div class="ftc-progress-header">
-                            <span class="ftc-progress-label">Current corpus as % of Coast FIRE target</span>
-                            <span class="ftc-progress-pct" id="coast-pct">0%</span>
-                        </div>
-                        <div class="ftc-bar-track"><div class="ftc-bar-fill" id="coast-bar" style="width:0%;background:#fbbf24;"></div></div>
                     </div>
                 </div>
 
-                <!-- What-If Scenarios -->
+                <!-- Goals Disclaimer -->
+                <div class="fire-goals-disclaimer">
+                    <span style="font-size:1rem;flex-shrink:0;margin-top:1px;">⚠️</span>
+                    <div><strong>These projections assume uninterrupted compounding.</strong> Goal withdrawals — child's education, home down payment, wedding, car — are <strong>not</strong> deducted here. If you have planned goals, your real FIRE corpus will need to be higher. Model those in the <a href="/goals.html">Goals</a> and <a href="/financial-planning.html">Financial Planning</a> tabs.</div>
+                </div>
+
+                <!-- Retirement Outlook & Actions (hidden when on track — info moves to Insights) -->
+                <div class="fire-outlook-card" id="fireOutlookCard">
+                    <div id="fireOutlookContent"></div>
+                </div>
+
+                <!-- How your FIRE number is calculated (collapsible) -->
+                <div class="variants-section" id="fireMathSection">
+                    <button class="variants-toggle-btn" onclick="toggleMathCard()">
+                        <div class="variants-toggle-left">
+                            <span class="variants-toggle-label">How your FIRE number is calculated</span>
+                            <span class="variants-toggle-sub">Step-by-step math — inflation, SWR and today's equivalent</span>
+                        </div>
+                        <svg class="variants-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <div class="variants-content" id="fireMathCollapse">
+                        <div class="variants-divider"></div>
+                        <div style="padding:0 4px" id="fireMathContent"></div>
+                    </div>
+                </div>
+
+                <!-- What changes if I… -->
                 <div class="whatif-section">
-                    <div class="section-title-sm">⚡ What-If Scenarios <span style="font-size:0.75rem;font-weight:500;color:var(--text-tertiary);">vs Traditional FIRE at current rate</span></div>
+                    <div class="section-title-sm">⚡ What changes if I…</div>
                     <div class="whatif-grid">
                         <div class="whatif-card">
                             <div class="whatif-action">💰 Invest ₹5,000 more per month</div>
@@ -633,37 +614,252 @@
                     </div>
                 </div>
 
-                <!-- Insights -->
+                <!-- Insights — all visible, sorted by importance, color-graded -->
                 <div class="insights-section">
-                    <div class="section-title-sm">💡 Personalized Insights</div>
-                    <div class="insights-grid" id="insightsGrid">
-                        <!-- Injected by JS -->
-                    </div>
+                    <div class="section-title-sm">💡 Insights</div>
+                    <div class="insights-grid" id="insightsGrid"></div>
                 </div>
 
-                <!-- Guest Sign-up Prompt -->
+                <!-- Explore Other Retirement Styles -->
+                <div class="variants-section" id="variantsSection">
+                    <button class="variants-toggle-btn" onclick="toggleVariants()">
+                        <div class="variants-toggle-left">
+                            <span class="variants-toggle-label">Explore other retirement styles</span>
+                            <span class="variants-toggle-sub">Lean, Fat, Barista &amp; Coast FIRE — explained</span>
+                        </div>
+                        <svg class="variants-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+
+                    <div class="variants-content" id="variantsContent">
+                        <div class="variants-divider"></div>
+
+                        <!-- FIRE Type Cards -->
+                        <div class="fire-types-grid">
+
+                            <!-- Lean FIRE -->
+                            <div class="fire-type-card">
+                                <div class="ftc-explanation">
+                                    <strong>Lean FIRE</strong> 🏔 — Retire on a leaner budget (about <span id="lean-factor-txt">70%</span> of your current expenses). This works if you're willing to cut back significantly — think frugal living, lower costs.
+                                </div>
+                                <div class="ftc-header">
+                                    <div class="ftc-icon-name">
+                                        <div class="ftc-icon" style="background:rgba(134,239,172,0.15);">🏔</div>
+                                        <div><div class="ftc-name">Lean FIRE</div></div>
+                                    </div>
+                                    <div class="ftc-badge" id="badge-lean">—</div>
+                                </div>
+                                <div class="ftc-metrics">
+                                    <div>
+                                        <div class="ftc-metric-label">Corpus Needed</div>
+                                        <div class="ftc-metric-val" id="lean-corpus">—</div>
+                                        <div class="ftc-metric-sub" id="lean-monthly">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Years Away</div>
+                                        <div class="ftc-metric-val blue" id="lean-years">—</div>
+                                        <div class="ftc-metric-sub" id="lean-year">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">SIP Needed / mo</div>
+                                        <div class="ftc-metric-val" id="lean-sip">—</div>
+                                        <div class="ftc-metric-sub" id="lean-sip-sub">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Projected Corpus</div>
+                                        <div class="ftc-metric-val" id="lean-projected">—</div>
+                                        <div class="ftc-metric-sub">at target age</div>
+                                    </div>
+                                </div>
+                                <div class="ftc-progress-header">
+                                    <span class="ftc-progress-label">Progress to Lean FIRE</span>
+                                    <span class="ftc-progress-pct" id="lean-pct">0%</span>
+                                </div>
+                                <div class="ftc-bar-track"><div class="ftc-bar-fill" id="lean-bar" style="width:0%;background:#86efac;"></div></div>
+                            </div>
+
+                            <!-- Fat FIRE -->
+                            <div class="fire-type-card">
+                                <div class="ftc-explanation">
+                                    <strong>Fat FIRE</strong> 💎 — Retire with extra cushion (<span id="fat-factor-txt">150%</span> of current expenses). For those who want to maintain or upgrade their lifestyle in retirement — travel, dining, experiences.
+                                </div>
+                                <div class="ftc-header">
+                                    <div class="ftc-icon-name">
+                                        <div class="ftc-icon" style="background:rgba(251,146,60,0.15);">💎</div>
+                                        <div><div class="ftc-name">Fat FIRE</div></div>
+                                    </div>
+                                    <div class="ftc-badge" id="badge-fat">—</div>
+                                </div>
+                                <div class="ftc-metrics">
+                                    <div>
+                                        <div class="ftc-metric-label">Corpus Needed</div>
+                                        <div class="ftc-metric-val" id="fat-corpus">—</div>
+                                        <div class="ftc-metric-sub" id="fat-monthly">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Years Away</div>
+                                        <div class="ftc-metric-val blue" id="fat-years">—</div>
+                                        <div class="ftc-metric-sub" id="fat-year">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">SIP Needed / mo</div>
+                                        <div class="ftc-metric-val" id="fat-sip">—</div>
+                                        <div class="ftc-metric-sub" id="fat-sip-sub">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Projected Corpus</div>
+                                        <div class="ftc-metric-val" id="fat-projected">—</div>
+                                        <div class="ftc-metric-sub">at target age</div>
+                                    </div>
+                                </div>
+                                <div class="ftc-progress-header">
+                                    <span class="ftc-progress-label">Progress to Fat FIRE</span>
+                                    <span class="ftc-progress-pct" id="fat-pct">0%</span>
+                                </div>
+                                <div class="ftc-bar-track"><div class="ftc-bar-fill" id="fat-bar" style="width:0%;background:#fb923c;"></div></div>
+                            </div>
+
+                            <!-- Barista FIRE -->
+                            <div class="fire-type-card">
+                                <div class="ftc-explanation">
+                                    <strong>Barista FIRE</strong> ☕ — Semi-retire early. Leave your high-stress job and cover part of your expenses with a low-pressure part-time income. You need a much smaller corpus.
+                                </div>
+                                <div class="ftc-header">
+                                    <div class="ftc-icon-name">
+                                        <div class="ftc-icon" style="background:rgba(167,139,250,0.15);">☕</div>
+                                        <div><div class="ftc-name">Barista FIRE</div></div>
+                                    </div>
+                                    <div class="ftc-badge" id="badge-barista">—</div>
+                                </div>
+                                <div class="ftc-metrics">
+                                    <div>
+                                        <div class="ftc-metric-label">Corpus Needed</div>
+                                        <div class="ftc-metric-val" id="barista-corpus">—</div>
+                                        <div class="ftc-metric-sub" id="barista-coverage">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Years Away</div>
+                                        <div class="ftc-metric-val blue" id="barista-years">—</div>
+                                        <div class="ftc-metric-sub" id="barista-year">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">SIP Needed / mo</div>
+                                        <div class="ftc-metric-val" id="barista-sip">—</div>
+                                        <div class="ftc-metric-sub" id="barista-sip-sub">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Part-time Income</div>
+                                        <div class="ftc-metric-val" id="barista-parttime">—</div>
+                                        <div class="ftc-metric-sub">covers remaining gap</div>
+                                    </div>
+                                </div>
+                                <div class="ftc-progress-header">
+                                    <span class="ftc-progress-label">Progress to Barista FIRE</span>
+                                    <span class="ftc-progress-pct" id="barista-pct">0%</span>
+                                </div>
+                                <div class="ftc-bar-track"><div class="ftc-bar-fill" id="barista-bar" style="width:0%;background:#a78bfa;"></div></div>
+                            </div>
+
+                            <!-- Coast FIRE -->
+                            <div class="fire-type-card coast-card">
+                                <div class="ftc-explanation">
+                                    <strong>Coast FIRE</strong> 🏄 — Stop contributing now and let compounding do the rest. If you've saved enough today, your investments will grow to your full FIRE number by retirement — no more SIP needed.
+                                </div>
+                                <div class="ftc-header">
+                                    <div class="ftc-icon-name">
+                                        <div class="ftc-icon" style="background:rgba(251,191,36,0.15);">🏄</div>
+                                        <div><div class="ftc-name">Coast FIRE</div></div>
+                                    </div>
+                                    <div class="ftc-badge" id="badge-coast">—</div>
+                                </div>
+                                <div class="coast-metrics-row">
+                                    <div>
+                                        <div class="ftc-metric-label">Coast Corpus Needed Today</div>
+                                        <div class="ftc-metric-val" id="coast-corpus">—</div>
+                                        <div class="ftc-metric-sub">invest this now, then stop</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Years to Coast FIRE</div>
+                                        <div class="ftc-metric-val blue" id="coast-years">—</div>
+                                        <div class="ftc-metric-sub" id="coast-year">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Gap to Coast Target</div>
+                                        <div class="ftc-metric-val" id="coast-gap">—</div>
+                                        <div class="ftc-metric-sub" id="coast-gap-sub">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="ftc-metric-label">Corpus grows to</div>
+                                        <div class="ftc-metric-val" id="coast-grows-to">—</div>
+                                        <div class="ftc-metric-sub" id="coast-grows-sub">—</div>
+                                    </div>
+                                </div>
+                                <div class="ftc-progress-header">
+                                    <span class="ftc-progress-label">Progress to Coast FIRE</span>
+                                    <span class="ftc-progress-pct" id="coast-pct">0%</span>
+                                </div>
+                                <div class="ftc-bar-track"><div class="ftc-bar-fill" id="coast-bar" style="width:0%;background:#fbbf24;"></div></div>
+                            </div>
+                        </div><!-- /fire-types-grid -->
+
+                        <!-- Variant-specific controls -->
+                        <div class="variant-controls">
+                            <div class="variant-controls-title">Adjust parameters for these styles</div>
+                            <div class="variant-controls-grid">
+                                <div class="inp-group" style="margin-bottom:0">
+                                    <div class="inp-label">Lean FIRE expense ratio <span class="inp-label-val" id="v-leanFactor">70%</span></div>
+                                    <input type="range" class="inp-range" id="r-leanFactor" min="40" max="90" step="5" value="70" oninput="syncRange('leanFactor'); schedSave();">
+                                </div>
+                                <div class="inp-group" style="margin-bottom:0">
+                                    <div class="inp-label">Fat FIRE expense ratio <span class="inp-label-val" id="v-fatFactor">150%</span></div>
+                                    <input type="range" class="inp-range" id="r-fatFactor" min="110" max="300" step="10" value="150" oninput="syncRange('fatFactor'); schedSave();">
+                                </div>
+                                <div class="inp-group" style="margin-bottom:0;grid-column:1/-1">
+                                    <div class="inp-label">Barista FIRE — monthly part-time income</div>
+                                    <div class="inp-field">
+                                        <span class="inp-prefix">₹</span>
+                                        <input type="text" class="money-input" id="f-baristaIncome" inputmode="numeric" value="30,000" oninput="calculate(); schedSave();" onblur="fmtMoneyBlur(this)" onfocus="fmtMoneyFocus(this)">
+                                        <span class="inp-suffix">/mo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /variants-content -->
+                </div><!-- /variants-section -->
+
+                <!-- Guest Sign-up -->
                 <div class="signup-prompt">
                     <h3>📊 Track your FIRE progress over time</h3>
-                    <p>Sign up free to auto-fill from your Monthly Tracker data, save your numbers, and get personalized FIRE insights based on your real income and expenses.</p>
+                    <p>Sign up free to auto-fill from your Monthly Tracker, save your assumptions, and get personalized insights based on your real numbers.</p>
                     <a href="/signup.html" class="signup-btn-fire">Create Free Account →</a>
                 </div>
 
-            </div>
+            </div><!-- /fire-results -->
         </div><!-- /fire-layout -->
     </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
 <script src="/api.js"></script>
 <script src="/sidebar.js"></script>
 <script>
 
-// ── Formatting helpers ────────────────────────────────────────────────────────
+async function authHeaders() {
+    const s = await getSupabase();
+    const { data: { session } } = await s.auth.getSession();
+    return session ? { 'Authorization': 'Bearer ' + session.access_token } : {};
+}
+
+// ── Formatting ─────────────────────────────────────────────────────────────────
 function fmt(n) {
     if (!isFinite(n) || isNaN(n)) return '—';
     const abs = Math.abs(n);
     const sign = n < 0 ? '-' : '';
-    if (abs >= 1e7)  return sign + '₹' + (abs / 1e7).toFixed(2) + ' Cr';
-    if (abs >= 1e5)  return sign + '₹' + (abs / 1e5).toFixed(2) + 'L';
+    if (abs >= 1e7) return sign + '₹' + (abs / 1e7).toFixed(2) + ' Cr';
+    if (abs >= 1e5) return sign + '₹' + (abs / 1e5).toFixed(2) + 'L';
     return sign + '₹' + Math.round(abs).toLocaleString('en-IN');
 }
 
@@ -679,21 +875,51 @@ function fmtYrs(y) {
 
 function el(id) { return document.getElementById(id); }
 
-// ── Input helpers ─────────────────────────────────────────────────────────────
+function fmtMoneyBlur(inp) {
+    const v = parseFloat(inp.value.replace(/,/g, ''));
+    if (!isNaN(v)) inp.value = Math.round(v).toLocaleString('en-IN');
+    calculate();
+}
+function fmtMoneyFocus(inp) {
+    inp.value = inp.value.replace(/,/g, '');
+}
+
+function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+}
+
+// ── Input helpers ──────────────────────────────────────────────────────────────
 function syncRange(key) {
     const r = el('r-' + key);
     const v = el('v-' + key);
     if (!r || !v) return;
     const val = parseFloat(r.value);
     let label;
-    if (key === 'age' || key === 'retireAge') label = Math.round(val) + ' yrs';
-    else label = val + '%';
+    if (key === 'retireAge') {
+        const curAge = parseFloat(el('r-age')?.value || 30);
+        const retireYear = new Date().getFullYear() + Math.round(val - curAge);
+        label = Math.round(val) + ' yrs · ' + retireYear;
+    } else if (key === 'age') {
+        label = Math.round(val) + ' yrs';
+    } else {
+        label = val + '%';
+    }
     v.textContent = label;
     calculate();
 }
 
 function getInputs() {
-    const num = (id, def) => { const v = parseFloat(el(id) && el(id).value); return isNaN(v) ? def : v; };
+    const num = (id, def) => {
+        const e = el(id);
+        const raw = e ? String(e.value).replace(/,/g, '') : '';
+        const v = parseFloat(raw);
+        return isNaN(v) ? def : v;
+    };
     return {
         age:           num('r-age', 30),
         retireAge:     num('r-retireAge', 50),
@@ -711,40 +937,19 @@ function getInputs() {
     };
 }
 
-function resetDefaults() {
-    const set = (id, v) => { const e = el(id); if (e) e.value = v; };
-    set('r-age', 30);       syncRange('age');
-    set('r-retireAge', 50); syncRange('retireAge');
-    set('f-corpus', 2500000);
-    set('f-income', 150000);
-    set('f-expenses', 80000);
-    set('f-investments', 40000);
-    set('r-preReturn', 12);  syncRange('preReturn');
-    set('r-postReturn', 8);  syncRange('postReturn');
-    set('r-inflation', 6);   syncRange('inflation');
-    set('r-swr', 4);         syncRange('swr');
-    set('r-leanFactor', 70); syncRange('leanFactor');
-    set('r-fatFactor', 150); syncRange('fatFactor');
-    set('f-baristaIncome', 30000);
-    calculate();
-}
-
-// ── Core FIRE math ────────────────────────────────────────────────────────────
+// ── Core FIRE math ─────────────────────────────────────────────────────────────
 function fv(years, monthly, corpus, annReturn) {
     if (years <= 0) return corpus;
     const r = annReturn / 100 / 12;
     const n = Math.round(years * 12);
     const fvC = corpus * Math.pow(1 + annReturn / 100, years);
-    const fvS = r > 0
-        ? monthly * (Math.pow(1 + r, n) - 1) / r * (1 + r)
-        : monthly * n;
+    const fvS = r > 0 ? monthly * (Math.pow(1 + r, n) - 1) / r * (1 + r) : monthly * n;
     return fvC + fvS;
 }
 
 function yearsToReach(target, monthly, corpus, annReturn) {
     if (target <= 0) return 0;
     if (corpus >= target) return 0;
-    // Quick check: can we ever reach it?
     if (fv(100, monthly, corpus, annReturn) < target) return Infinity;
     let lo = 0, hi = 100;
     for (let i = 0; i < 80; i++) {
@@ -767,48 +972,65 @@ function sipNeeded(target, corpus, annReturn, years) {
     return remaining / factor;
 }
 
-// ── Main calculate function ───────────────────────────────────────────────────
+// Self-consistent crossover: find earliest t where projC(t) >= FIRE number for that same t.
+// Unlike yearsToReach(), neither side is fixed — both depend on t.
+function yearsToFIRECrossover(monthlyExp, monthly, corpus, preReturn, inflation, swr) {
+    const annExp = monthlyExp * 12;
+    const swrD   = swr / 100;
+    const check  = t => fv(t, monthly, corpus, preReturn) >= annExp * Math.pow(1 + inflation / 100, t) / swrD;
+    if (check(0)) return 0;
+    if (!check(80)) return Infinity;
+    let lo = 0, hi = 80;
+    for (let i = 0; i < 80; i++) {
+        const mid = (lo + hi) / 2;
+        if (check(mid)) hi = mid; else lo = mid;
+        if (hi - lo < 0.05) break;
+    }
+    return hi;
+}
+
+// ── Calculate ─────────────────────────────────────────────────────────────────
 function calculate() {
     const inp = getInputs();
     const curYear = new Date().getFullYear();
 
-    // Guard: retireAge > age
     if (inp.retireAge <= inp.age) {
         inp.retireAge = inp.age + 5;
         const re = el('r-retireAge');
-        if (re) { re.value = inp.retireAge; syncRange('retireAge'); }
+        if (re) { re.value = inp.retireAge; syncRange('retireAge'); return; }
     }
-    const ytr = Math.max(1, inp.retireAge - inp.age); // years to retirement
+    const ytr = Math.max(1, inp.retireAge - inp.age);
 
-    // ── Annual expenses & inflation ──
-    const annExp   = inp.expenses * 12;
-    const inflF    = Math.pow(1 + inp.inflation / 100, ytr);
-    const swr      = inp.swr / 100;
+    const annExp = inp.expenses * 12;
+    const inflF  = Math.pow(1 + inp.inflation / 100, ytr);
+    const swr    = inp.swr / 100;
 
-    // Retirement expenses (inflation-adjusted) for each type
     const leanAnn    = annExp * (inp.leanFactor / 100) * inflF;
     const tradAnn    = annExp * inflF;
-    const fatAnn     = annExp * (inp.fatFactor  / 100) * inflF;
+    const fatAnn     = annExp * (inp.fatFactor / 100) * inflF;
     const baristaNet = Math.max(0, inp.expenses - inp.baristaIncome) * 12 * inflF;
 
-    // FIRE corpus needed
     const leanC    = leanAnn    / swr;
     const tradC    = tradAnn    / swr;
     const fatC     = fatAnn     / swr;
     const baristaC = baristaNet / swr;
     const coastC   = tradC / Math.pow(1 + inp.preReturn / 100, ytr);
 
-    // Projected corpus at retirement (current savings rate)
     const projC = fv(ytr, inp.investments, inp.corpus, inp.preReturn);
 
-    // Years to reach each at current savings rate
     const leanYrs    = yearsToReach(leanC,    inp.investments, inp.corpus, inp.preReturn);
     const tradYrs    = yearsToReach(tradC,    inp.investments, inp.corpus, inp.preReturn);
     const fatYrs     = yearsToReach(fatC,     inp.investments, inp.corpus, inp.preReturn);
     const baristaYrs = yearsToReach(baristaC, inp.investments, inp.corpus, inp.preReturn);
     const coastYrs   = yearsToReach(coastC,   inp.investments, inp.corpus, inp.preReturn);
 
-    // SIP needed to reach by target retirement age
+    // Self-consistent crossover — the true "earliest you can retire" regardless of planned retirement age.
+    // tradYrs is tied to the current retirement age's FIRE number (moving target when slider changes).
+    // crossoverYrs is stable: it finds when projected corpus >= FIRE number for that same year.
+    const crossoverYrs  = yearsToFIRECrossover(inp.expenses, inp.investments, inp.corpus, inp.preReturn, inp.inflation, inp.swr);
+    const crossoverAge  = isFinite(crossoverYrs) ? Math.ceil(inp.age  + crossoverYrs) : null;
+    const crossoverYear = isFinite(crossoverYrs) ? Math.ceil(curYear + crossoverYrs) : null;
+
     const leanSip    = sipNeeded(leanC,    inp.corpus, inp.preReturn, ytr);
     const tradSip    = sipNeeded(tradC,    inp.corpus, inp.preReturn, ytr);
     const fatSip     = sipNeeded(fatC,     inp.corpus, inp.preReturn, ytr);
@@ -816,57 +1038,232 @@ function calculate() {
 
     const savingsRate = inp.income > 0 ? (inp.investments / inp.income * 100) : 0;
 
-    // ── Summary chips ──
-    el('s-savingsRate').textContent = savingsRate.toFixed(1) + '%';
-    el('s-savingsRate').className = 'summary-chip-val ' + (savingsRate >= 40 ? 'green' : savingsRate >= 20 ? 'orange' : '');
-    el('s-fireCorpus').textContent = fmt(tradC);
-    el('s-yearsToFire').textContent = fmtYrs(tradYrs);
-    el('s-yearsToFire').className = 'summary-chip-val ' + (tradYrs <= ytr ? 'green' : '');
+    // ── Hero card ──
+    const tradPct  = tradC > 0 ? Math.min(100, inp.corpus / tradC * 100) : 0;
+    const projPct  = tradC > 0 ? Math.min(100, projC  / tradC * 100) : 0;
+    const tradAch  = inp.corpus >= tradC && tradC > 0;
+    const tradOnTrack = tradYrs <= ytr || tradAch;
+    const tradNever   = !isFinite(tradYrs) && !tradAch;
+    let heroBadge, heroCls;
+    if (tradAch)         { heroBadge = '✓ FIRE Achieved'; heroCls = 'achieved'; }
+    else if (tradNever)  { heroBadge = '⚠ Not Reachable'; heroCls = 'never'; }
+    else if (tradOnTrack){ heroBadge = '✅ On Track'; heroCls = 'on-track'; }
+    else                 { heroBadge = '⏳ Behind Schedule'; heroCls = 'behind'; }
 
-    // ── Journey Bar ──
-    const journeyPct = Math.min(100, tradC > 0 ? inp.corpus / tradC * 100 : 0);
-    el('journeyFill').style.width = journeyPct + '%';
+    const heroAmountEl = el('hero-corpus');
+    if (heroAmountEl) heroAmountEl.textContent = fmt(tradC);
 
-    const bar = el('journeyBar');
-    bar.querySelectorAll('.journey-marker,.journey-marker-label').forEach(e => e.remove());
-    const addMarker = (pos, label, color) => {
-        const clampedPos = Math.max(1, Math.min(98, pos));
-        const m = document.createElement('div');
-        m.className = 'journey-marker';
-        m.style.cssText = `left:${clampedPos}%;background:${color};`;
-        bar.appendChild(m);
-        const lbl = document.createElement('div');
-        lbl.className = 'journey-marker-label';
-        lbl.style.cssText = `left:${clampedPos}%;color:${color};`;
-        lbl.textContent = label;
-        bar.appendChild(lbl);
-    };
-    if (tradC > 0) {
-        addMarker(Math.min(99, coastC / tradC * 100), 'Coast', '#fbbf24');
-        addMarker(Math.min(99, leanC  / tradC * 100), 'Lean',  '#86efac');
-        addMarker(100, 'Trad', '#3b73ff');
-        const fatPos = Math.min(120, fatC / tradC * 100);
-        if (fatPos <= 110) addMarker(Math.min(98, fatPos), 'Fat', '#fb923c');
+    // Subtitle: explain what the monthly expense at retirement means
+    const heroSubEl = el('hero-subtitle');
+    if (heroSubEl) {
+        const retireYear = curYear + ytr;
+        heroSubEl.innerHTML = `Your <strong>${fmt(inp.expenses)}/mo</strong> in expenses today will grow to <strong>${fmt(tradAnn / 12)}/mo</strong> by ${retireYear}, after ${inp.inflation}% annual inflation for ${ytr} years. This ₹${(tradAnn/1e5).toFixed(1)}L/yr is what your portfolio must fund for life.`;
     }
-    el('journeyLegend').innerHTML = [
-        ['#4ade80', `You Now (${fmt(inp.corpus)})`],
-        ['#86efac', `Lean FIRE (${fmt(leanC)})`],
-        ['#fbbf24', `Coast FIRE (${fmt(coastC)})`],
-        ['#3b73ff', `Traditional FIRE (${fmt(tradC)})`],
-        ['#fb923c', `Fat FIRE (${fmt(fatC)})`],
-    ].map(([c, t]) => `<div class="journey-legend-item"><div class="journey-legend-dot" style="background:${c}"></div>${t}</div>`).join('');
 
-    // ── Helper: update a FIRE card ──
-    function updateCard(id, corpus, years, sip, annualRet, projectedCorpus, extraMonthly) {
-        const pct     = corpus > 0 ? Math.min(100, inp.corpus / corpus * 100) : 100;
-        const isAch   = inp.corpus >= corpus && corpus > 0;
+    const heroBadgeEl = el('hero-badge');
+    if (heroBadgeEl) { heroBadgeEl.textContent = heroBadge; heroBadgeEl.className = 'ftc-badge ' + heroCls; }
+
+    // Ring shows projected corpus at retirement vs FIRE number (more actionable than current corpus %)
+    const pctEl = el('hero-pct');
+    if (pctEl) pctEl.textContent = projPct.toFixed(0) + '%';
+    const ringLabelEl = el('hero-ring-label');
+    if (ringLabelEl) ringLabelEl.textContent = tradAch ? 'achieved' : 'projected';
+
+    const ringEl = el('hero-ring-fill');
+    if (ringEl) ringEl.style.strokeDashoffset = (314.16 * (1 - projPct / 100)).toFixed(2);
+
+    // Hero stats: Projected | FIRE target | Shortfall/Surplus
+    const retireYear2 = curYear + ytr;
+    const heroGapAmt  = tradC - projC;
+
+    const heroProjEl = el('hero-projected');
+    if (heroProjEl) heroProjEl.textContent = fmt(projC);
+    const heroProjLbl = el('hero-projected-lbl');
+    if (heroProjLbl) heroProjLbl.textContent = `Projected at ${inp.retireAge}`;
+
+    const heroTargetEl = el('hero-fire-target');
+    if (heroTargetEl) heroTargetEl.textContent = fmt(tradC);
+
+    const heroGapEl = el('hero-gap');
+    const heroGapLbl = el('hero-gap-lbl');
+    if (heroGapEl) {
+        if (tradAch) {
+            heroGapEl.textContent = 'Achieved!';
+            heroGapEl.style.color = '#15803d';
+            if (heroGapLbl) heroGapLbl.textContent = 'Status';
+        } else if (heroGapAmt > 0) {
+            heroGapEl.textContent = '−' + fmt(heroGapAmt);
+            heroGapEl.style.color = '#dc2626';
+            if (heroGapLbl) heroGapLbl.textContent = 'Shortfall';
+        } else {
+            heroGapEl.textContent = '+' + fmt(-heroGapAmt);
+            heroGapEl.style.color = '#15803d';
+            if (heroGapLbl) heroGapLbl.textContent = 'Surplus';
+        }
+    }
+
+    // ── Retirement Outlook card ──
+    const outlookEl = el('fireOutlookContent');
+    if (outlookEl) {
+        const retireYear = curYear + ytr;
+        const sipGap     = Math.max(0, tradSip - inp.investments);
+        // achYrs = years from now to reach FIRE number at current investment rate
+        const achYrs = isFinite(tradYrs) ? tradYrs : null;
+        // Use ceil so we never under-promise (e.g. 17.2 years → age 53, not 52)
+        const achAge  = achYrs != null ? Math.ceil(inp.age  + achYrs) : null;
+        const achYear = achYrs != null ? Math.ceil(curYear + achYrs) : null;
+        const gapAmt  = tradC - projC;  // positive = shortfall
+
+        if (tradAch) {
+            // Already hit FIRE today
+            outlookEl.innerHTML = `<div class="fire-outlook-achieved">🎉 You've already hit your FIRE number! Your portfolio today covers your retirement. Consider shifting to Fat FIRE for extra lifestyle cushion.</div>`;
+
+        } else if (tradOnTrack) {
+            // Will reach FIRE before planned retirement — show early retirement card
+            const yearsSaved = inp.retireAge - (achAge || inp.retireAge);
+            const bonusPct   = tradC > 0 ? Math.round((projC / tradC - 1) * 100) : 0;
+            // Portfolio at planned retirement (projC) vs at FIRE crossover (tradC)
+            const earlyRetireLine = achAge && achAge < inp.retireAge
+                ? `<strong>age ${achAge} (${achYear})</strong> — ${yearsSaved} year${yearsSaved !== 1 ? 's' : ''} earlier than your plan`
+                : `<strong>age ${inp.retireAge} (${retireYear})</strong> — right on schedule`;
+
+            outlookEl.innerHTML = `
+                <div class="fire-early-card">
+                    <div class="fire-early-tag">You can retire early</div>
+                    <div class="fire-early-age">${achAge && achAge < inp.retireAge ? 'Age ' + achAge + ' · ' + achYear : 'Age ' + inp.retireAge + ' · ' + retireYear}</div>
+                    <div class="fire-early-note">
+                        At ${fmt(inp.investments)}/mo, your portfolio crosses the FIRE number at ${earlyRetireLine}.
+                        You're fully funded to retire — work is optional from that point.
+                    </div>
+                    <div class="fire-early-metrics">
+                        <div>
+                            <div class="fire-early-metric-tag">Portfolio at retirement</div>
+                            <div class="fire-early-metric-val">${fmt(tradC)}</div>
+                            <div class="fire-early-metric-sub">your FIRE number — enough to retire</div>
+                        </div>
+                        <div>
+                            <div class="fire-early-metric-tag">Monthly income from portfolio</div>
+                            <div class="fire-early-metric-val">${fmt(tradAnn / 12)}/mo</div>
+                            <div class="fire-early-metric-sub">at ${inp.swr}% annual withdrawal rate</div>
+                        </div>
+                    </div>
+                    ${bonusPct > 0 ? `<div class="fire-early-bonus">
+                        Keep investing until ${inp.retireAge}? Your portfolio grows to <strong>${fmt(projC)}</strong> — that's <strong>${bonusPct}% more</strong> than your FIRE target, giving you extra cushion for a richer retirement.
+                    </div>` : ''}
+                </div>`;
+
+        } else {
+            // Behind schedule — show gap + 3 options
+            const affordableMonthlyExp = inp.expenses > 0 ? (projC * swr / inflF) / 12 : 0;
+            const expReduction = Math.max(0, inp.expenses - affordableMonthlyExp);
+
+            const option3Text = crossoverAge != null
+                ? `Keep investing ${fmt(inp.investments)}/mo and your portfolio self-funds its FIRE number at <strong>age ${crossoverAge} (${crossoverYear})</strong> — ${Math.ceil(crossoverYrs)} years from now instead of ${ytr}.`
+                : `At ${fmt(inp.investments)}/mo, the timeline extends far beyond reasonable. Increasing SIP or reducing expenses will have more impact.`;
+
+            outlookEl.innerHTML = `
+                <div class="fire-gap-headline">
+                    <div class="fire-gap-tag">Shortfall to retire at ${inp.retireAge}</div>
+                    <div class="fire-gap-amount">−${fmt(gapAmt)}</div>
+                    <div class="fire-gap-explain">
+                        At ${fmt(inp.investments)}/mo, you'll reach <strong>${fmt(projC)}</strong> by ${retireYear} —
+                        but need <strong>${fmt(tradC)}</strong> to fund a ${fmt(inp.expenses)}/mo lifestyle in retirement.
+                        That's a gap of <strong>${fmt(gapAmt)}</strong> to bridge.
+                    </div>
+                </div>
+                <div class="fire-options-label">To close this gap, you have 3 options:</div>
+                <div class="fire-options">
+                    <div class="fire-option fire-option-a">
+                        <div class="fire-option-num">Option 1</div>
+                        <div class="fire-option-body">
+                            <div class="fire-option-title">📈 Increase your monthly SIP</div>
+                            <div class="fire-option-key">${fmt(tradSip)}/mo</div>
+                            <div class="fire-option-detail">Invest <strong>${fmt(sipGap)} more per month</strong> — raise SIP from ${fmt(inp.investments)} to ${fmt(tradSip)}/mo to retire at ${inp.retireAge} with the same lifestyle.</div>
+                        </div>
+                    </div>
+                    <div class="fire-option fire-option-b">
+                        <div class="fire-option-num">Option 2</div>
+                        <div class="fire-option-body">
+                            <div class="fire-option-title">✂️ Reduce monthly expenses</div>
+                            <div class="fire-option-key">${fmt(affordableMonthlyExp)}/mo</div>
+                            <div class="fire-option-detail">Cut spending from ${fmt(inp.expenses)} to <strong>${fmt(affordableMonthlyExp)}/mo</strong> (−${fmt(expReduction)}/mo). Lower expenses lower your FIRE target — making your projected ${fmt(projC)} corpus sufficient.</div>
+                        </div>
+                    </div>
+                    <div class="fire-option fire-option-c">
+                        <div class="fire-option-num">Option 3</div>
+                        <div class="fire-option-body">
+                            <div class="fire-option-title">⏰ Retire later</div>
+                            <div class="fire-option-key">${crossoverAge != null ? 'Age ' + crossoverAge + ' · ' + crossoverYear : 'Extend timeline'}</div>
+                            <div class="fire-option-detail">${option3Text}</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+    }
+
+    // ── FIRE Math explanation ──
+    const mathEl = el('fireMathContent');
+    if (mathEl) {
+        const monthlyToday   = inp.expenses;
+        const annualToday    = monthlyToday * 12;
+        const monthlyRetire  = monthlyToday * inflF;
+        const annualRetire   = annualToday  * inflF;
+        const retireYear     = curYear + ytr;
+        const todayEquiv     = tradC / inflF;   // FIRE number in today's purchasing power
+
+        const swrSafeNote = inp.swr <= 4
+            ? `At ${inp.swr}%, your portfolio earns more than it pays out — studies show this rate sustains withdrawals for 30+ years through market cycles.`
+            : `At ${inp.swr}%, you're drawing more than the conservative 4% benchmark. Consider reducing to 3.5–4% for a longer-lasting corpus.`;
+
+        mathEl.innerHTML = `
+            <div class="fire-math-steps">
+                <div class="fire-math-step">
+                    <div class="fire-math-step-tag">Step 1 — Today</div>
+                    <div class="fire-math-step-desc">Your current monthly expenses</div>
+                    <div class="fire-math-step-val">${fmt(monthlyToday)}<span style="font-size:0.75rem;font-weight:500;color:var(--text-tertiary);">/mo</span></div>
+                    <div class="fire-math-step-sub">${fmt(annualToday)}/year</div>
+                </div>
+                <div class="fire-math-arrow">→</div>
+                <div class="fire-math-step">
+                    <div class="fire-math-step-tag">Step 2 — At retirement (${retireYear})</div>
+                    <div class="fire-math-step-desc">(1 + ${inp.inflation}%)^${ytr} = ${inflF.toFixed(2)}× — compound inflation over ${ytr} years</div>
+                    <div class="fire-math-step-val">${fmt(monthlyRetire)}<span style="font-size:0.75rem;font-weight:500;color:var(--text-tertiary);">/mo</span></div>
+                    <div class="fire-math-step-sub">${fmt(annualRetire)}/year · ${fmt(monthlyToday)}/mo × ${inflF.toFixed(2)}</div>
+                </div>
+                <div class="fire-math-arrow">→</div>
+                <div class="fire-math-step">
+                    <div class="fire-math-step-tag">Step 3 — FIRE Number</div>
+                    <div class="fire-math-step-desc">Annual expenses ÷ ${inp.swr}% withdrawal rate</div>
+                    <div class="fire-math-step-val accent">${fmt(tradC)}</div>
+                    <div class="fire-math-step-sub">${fmt(annualRetire)} ÷ ${inp.swr}% = ${fmt(tradC)}</div>
+                </div>
+            </div>
+            <div class="fire-math-swr">
+                <strong>What is the ${inp.swr}% Safe Withdrawal Rate (SWR)?</strong> After retirement, your portfolio stays invested and earns returns (assumed ${inp.postReturn}% p.a.). You withdraw only ${inp.swr}% each year — leaving the rest to keep compounding. ${swrSafeNote}
+            </div>
+            <div class="fire-math-today">
+                <div class="fire-math-today-text">
+                    <strong>In today's money:</strong> ${fmt(tradC)} at retirement = <strong>${fmt(todayEquiv)} in today's purchasing power</strong><br>
+                    <span style="font-size:0.68rem;color:var(--text-tertiary);">${fmt(tradC)} ÷ ${inflF.toFixed(2)} (inflation factor) = ${fmt(todayEquiv)}</span>
+                </div>
+                <div class="fire-math-today-val">${fmt(todayEquiv)}</div>
+            </div>`;
+    }
+
+    // Hide outlook card when on track — early retire info lives in Insights instead
+    const outcardEl = el('fireOutlookCard');
+    if (outcardEl) outcardEl.style.display = tradOnTrack ? 'none' : '';
+
+    // ── Variant cards ──
+    function updateCard(id, corpus, years, sip, annualRet, projectedCorpus) {
+        const pct   = corpus > 0 ? Math.min(100, inp.corpus / corpus * 100) : 100;
+        const isAch = inp.corpus >= corpus && corpus > 0;
         const onTrack = years <= ytr || isAch;
-        const never   = !isFinite(years) && !isAch;
-
+        const never = !isFinite(years) && !isAch;
         let badge, cls;
-        if (isAch)    { badge = '✓ Achieved'; cls = 'achieved'; }
-        else if (never) { badge = '⚠ Not Reachable'; cls = 'never'; }
-        else if (onTrack) { badge = '✅ On Track'; cls = 'on-track'; }
+        if (isAch)     { badge = '✓ Achieved'; cls = 'achieved'; }
+        else if (never){ badge = '⚠ Not Reachable'; cls = 'never'; }
+        else if (onTrack){ badge = '✅ On Track'; cls = 'on-track'; }
         else           { badge = '⏳ Behind'; cls = 'behind'; }
 
         const be = el('badge-' + id);
@@ -883,8 +1280,7 @@ function calculate() {
         const sipSubEl = el(id + '-sip-sub');
         if (sipEl) {
             if (isAch) {
-                sipEl.textContent = '₹0';
-                sipEl.className = 'ftc-metric-val green';
+                sipEl.textContent = '₹0'; sipEl.className = 'ftc-metric-val green';
                 if (sipSubEl) sipSubEl.textContent = 'Goal achieved!';
             } else {
                 const needed = Math.max(0, sip);
@@ -895,53 +1291,49 @@ function calculate() {
                     : '+' + fmt(needed - inp.investments) + ' more needed';
             }
         }
-        const pctEl  = el(id + '-pct');
+        const pctEl2  = el(id + '-pct');
         const barEl  = el(id + '-bar');
-        if (pctEl) pctEl.textContent = pct.toFixed(1) + '%';
+        if (pctEl2) pctEl2.textContent = pct.toFixed(1) + '%';
         if (barEl) barEl.style.width = pct + '%';
     }
 
-    updateCard('lean',  leanC,  leanYrs,  leanSip,  leanAnn,  projC);
-    updateCard('trad',  tradC,  tradYrs,  tradSip,  tradAnn,  projC);
-    updateCard('fat',   fatC,   fatYrs,   fatSip,   fatAnn,   projC);
+    updateCard('lean', leanC,  leanYrs,  leanSip,  leanAnn, projC);
+    updateCard('fat',  fatC,   fatYrs,   fatSip,   fatAnn,  projC);
 
-    // Update factor text labels
     const lft = el('lean-factor-txt'); if (lft) lft.textContent = inp.leanFactor + '%';
     const fft = el('fat-factor-txt');  if (fft) fft.textContent = inp.fatFactor + '%';
 
-    // ── Barista FIRE ──
+    // Barista
     const bAch = inp.corpus >= baristaC && baristaC > 0;
-    const bImmediate = baristaC <= 0;
-    const bOnTrack = baristaYrs <= ytr || bAch || bImmediate;
-    const bNever   = !isFinite(baristaYrs) && !bAch && !bImmediate;
+    const bImm = baristaC <= 0;
+    const bOnTrack = baristaYrs <= ytr || bAch || bImm;
+    const bNever   = !isFinite(baristaYrs) && !bAch && !bImm;
     const bPct = baristaC > 0 ? Math.min(100, inp.corpus / baristaC * 100) : 100;
-
-    el('badge-barista').textContent = (bAch || bImmediate) ? '✓ Achieved' : bNever ? '⚠ Not Reachable' : bOnTrack ? '✅ On Track' : '⏳ Behind';
-    el('badge-barista').className   = 'ftc-badge ' + ((bAch || bImmediate) ? 'achieved' : bNever ? 'never' : bOnTrack ? 'on-track' : 'behind');
-    el('barista-corpus').textContent   = bImmediate ? '₹0 (Immediate!)' : fmt(baristaC);
-    el('barista-years').textContent    = (bAch || bImmediate) ? 'Now!' : fmtYrs(baristaYrs);
-    el('barista-year').textContent     = (bAch || bImmediate) ? 'You can semi-retire now!' : 'Target ' + (isFinite(baristaYrs) ? (curYear + Math.round(baristaYrs)) : '—');
+    el('badge-barista').textContent = (bAch || bImm) ? '✓ Achieved' : bNever ? '⚠ Not Reachable' : bOnTrack ? '✅ On Track' : '⏳ Behind';
+    el('badge-barista').className   = 'ftc-badge ' + ((bAch || bImm) ? 'achieved' : bNever ? 'never' : bOnTrack ? 'on-track' : 'behind');
+    el('barista-corpus').textContent = bImm ? '₹0 (Immediate!)' : fmt(baristaC);
+    el('barista-years').textContent  = (bAch || bImm) ? 'Now!' : fmtYrs(baristaYrs);
+    el('barista-year').textContent   = (bAch || bImm) ? 'You can semi-retire now!' : 'Target ' + (isFinite(baristaYrs) ? (curYear + Math.round(baristaYrs)) : '—');
     el('barista-coverage').textContent = inp.expenses > 0
         ? `Part-time covers ${Math.round(Math.min(100, inp.baristaIncome / inp.expenses * 100))}% of expenses`
         : 'Part-time income covers gap';
     el('barista-parttime').textContent = fmt(inp.baristaIncome) + '/mo';
     const bsip = Math.max(0, baristaSip);
-    el('barista-sip').textContent    = (bAch || bImmediate) ? '₹0' : fmt(bsip);
-    el('barista-sip').className      = 'ftc-metric-val ' + ((bAch || bImmediate || bsip <= inp.investments) ? 'green' : 'red');
-    el('barista-sip-sub').textContent = (bAch || bImmediate) ? 'Already done!' : bsip <= inp.investments ? 'Current SIP sufficient ✓' : '+' + fmt(bsip - inp.investments) + ' more needed';
+    el('barista-sip').textContent    = (bAch || bImm) ? '₹0' : fmt(bsip);
+    el('barista-sip').className      = 'ftc-metric-val ' + ((bAch || bImm || bsip <= inp.investments) ? 'green' : 'red');
+    el('barista-sip-sub').textContent = (bAch || bImm) ? 'Already done!' : bsip <= inp.investments ? 'Current SIP sufficient ✓' : '+' + fmt(bsip - inp.investments) + ' more needed';
     el('barista-pct').textContent    = bPct.toFixed(1) + '%';
     el('barista-bar').style.width    = bPct + '%';
 
-    // ── Coast FIRE ──
-    const cAch  = inp.corpus >= coastC;
-    const cPct  = coastC > 0 ? Math.min(100, inp.corpus / coastC * 100) : 100;
-    const cGap  = Math.max(0, coastC - inp.corpus);
-
+    // Coast
+    const cAch = inp.corpus >= coastC;
+    const cPct = coastC > 0 ? Math.min(100, inp.corpus / coastC * 100) : 100;
+    const cGap = Math.max(0, coastC - inp.corpus);
     el('badge-coast').textContent = cAch ? '🏄 Coasting!' : (coastYrs <= ytr ? '✅ Almost Coasting' : '⏳ Keep Saving');
     el('badge-coast').className   = 'ftc-badge ' + (cAch ? 'coasting' : coastYrs <= ytr ? 'on-track' : 'behind');
     el('coast-corpus').textContent   = fmt(coastC);
     el('coast-years').textContent    = cAch ? 'Now!' : fmtYrs(coastYrs);
-    el('coast-year').textContent     = cAch ? 'Already coasting — no more investing needed' : 'Target ' + (isFinite(coastYrs) ? (curYear + Math.round(coastYrs)) : '—');
+    el('coast-year').textContent     = cAch ? 'Already coasting!' : 'Target ' + (isFinite(coastYrs) ? (curYear + Math.round(coastYrs)) : '—');
     el('coast-gap').textContent      = cAch ? '₹0' : fmt(cGap);
     el('coast-gap-sub').textContent  = cAch ? 'You can stop investing!' : 'still needed to reach coast target';
     el('coast-grows-to').textContent = fmt(tradC);
@@ -949,7 +1341,7 @@ function calculate() {
     el('coast-pct').textContent      = cPct.toFixed(1) + '%';
     el('coast-bar').style.width      = cPct + '%';
 
-    // ── What-If scenarios ──
+    // ── What-If ──
     const wiExtra = yearsToReach(tradC, inp.investments + 5000, inp.corpus, inp.preReturn);
     el('wi-extra-sip').textContent = isFinite(tradYrs) && isFinite(wiExtra) && tradYrs > wiExtra
         ? `Retire ${fmtYrs(tradYrs - wiExtra)} earlier (${curYear + Math.round(wiExtra)})`
@@ -966,82 +1358,491 @@ function calculate() {
         ? `Retire ${fmtYrs(tradYrs - wiHigher)} earlier (${curYear + Math.round(wiHigher)})`
         : isFinite(wiHigher) ? `You'd reach FIRE in ${fmtYrs(wiHigher)}` : 'Already optimized';
 
-    // ── Insights ──
-    const insights = [];
-    const tradPctNow = tradC > 0 ? Math.min(100, inp.corpus / tradC * 100) : 0;
-    const doublingYrs = 72 / inp.preReturn;
+    // ── Insights — priority sorted, all visible, color-graded ──
+    const insArr = [];
+    const doublingYrs = inp.preReturn > 0 ? 72 / inp.preReturn : 0;
 
-    // Savings rate
-    if (savingsRate >= 50) {
-        insights.push({ icon: '🚀', heading: 'Excellent savings rate!', body: `At <strong>${savingsRate.toFixed(1)}%</strong> you're on the FIRE fast track. Few people achieve this — keep it up and compounding will do the heavy lifting.` });
-    } else if (savingsRate >= 30) {
-        insights.push({ icon: '📊', heading: 'Good savings rate', body: `At <strong>${savingsRate.toFixed(1)}%</strong> you're above average. Pushing to 50%+ would dramatically cut your FIRE timeline — even ₹5k more/mo makes a big difference.` });
-    } else if (savingsRate > 0) {
-        insights.push({ icon: '⚠️', heading: 'Savings rate needs attention', body: `At <strong>${savingsRate.toFixed(1)}%</strong> your FIRE journey is slow. FIRE typically requires 30–50%+ savings rates. Try to plug any expense leaks first.` });
+    // Priority 1 — FIRE achieved (best news)
+    if (tradAch) {
+        insArr.push({ icon: '🎉', heading: 'FIRE Achieved!', body: `Your portfolio of <strong>${fmt(inp.corpus)}</strong> already meets your Traditional FIRE target. Work is optional. Consider shifting to Fat FIRE for extra lifestyle cushion.`, priority: 1, accent: 'success' });
     }
 
-    // Progress to FIRE
-    if (tradPctNow >= 100) {
-        insights.push({ icon: '🎉', heading: 'Traditional FIRE Achieved!', body: `Your corpus of <strong>${fmt(inp.corpus)}</strong> already meets your Traditional FIRE target. Consider shifting to Fat FIRE goals or reducing work today.` });
-    } else if (tradPctNow >= 75) {
-        insights.push({ icon: '🎯', heading: `${tradPctNow.toFixed(0)}% to FIRE — almost there!`, body: `You need just <strong>${fmt(tradC - inp.corpus)}</strong> more. At current pace, you'll reach Traditional FIRE in <strong>${fmtYrs(tradYrs)}</strong>.` });
-    } else if (tradPctNow >= 40) {
-        insights.push({ icon: '📈', heading: `${tradPctNow.toFixed(0)}% to Traditional FIRE`, body: `Great progress! With <strong>${fmt(inp.investments)}/mo</strong> invested, you'll reach your <strong>${fmt(tradC)}</strong> FIRE corpus in <strong>${fmtYrs(tradYrs)}</strong>.` });
-    } else {
-        insights.push({ icon: '🌱', heading: 'Starting your FIRE journey', body: `You're at <strong>${tradPctNow.toFixed(0)}%</strong> of your Traditional FIRE corpus. Consistency is key — stay the course with <strong>${fmt(inp.investments)}/mo</strong> in investments.` });
+    // Priority 1 — You can retire early (only when crossover is 2+ years before planned retirement)
+    const yearsEarly = crossoverAge != null ? inp.retireAge - crossoverAge : 0;
+    if (!tradAch && yearsEarly >= 2) {
+        insArr.push({ icon: '🎯', heading: 'You can retire early!', body: `Based on your current SIP, your portfolio self-funds its FIRE number at <strong>age ${crossoverAge} · ${crossoverYear}</strong> — <strong>${yearsEarly} year${yearsEarly !== 1 ? 's' : ''} ahead</strong> of your plan. You'll generate <strong>${fmt(tradAnn / 12)}/mo</strong> in passive income at ${inp.swr}% withdrawal.`, priority: 1, accent: 'success' });
     }
 
-    // Coast FIRE nudge
-    if (cAch) {
-        insights.push({ icon: '🏄', heading: 'You\'ve hit Coast FIRE!', body: `Your <strong>${fmt(inp.corpus)}</strong> will grow to <strong>${fmt(tradC)}</strong> by ${curYear + ytr} without any new contributions. You can now work a fulfilling lower-stress job guilt-free.` });
-    } else if (isFinite(coastYrs) && coastYrs < tradYrs - 2) {
-        insights.push({ icon: '🏄', heading: `Coast FIRE in ${fmtYrs(coastYrs)}`, body: `Once you hit <strong>${fmt(coastC)}</strong>, you can stop all investing and your corpus coasts to <strong>${fmt(tradC)}</strong> by ${curYear + ytr}. That's <strong>${fmtYrs(tradYrs - coastYrs)}</strong> of financial freedom gained.` });
-    }
-
-    // Lean FIRE stepping stone
-    if (!isAchievedCheck(inp.corpus, leanC) && isFinite(leanYrs) && leanYrs < tradYrs - 2) {
-        insights.push({ icon: '🏔', heading: 'Lean FIRE is reachable sooner', body: `By targeting Lean FIRE (<strong>${fmt(leanC)}</strong>), you could achieve financial independence <strong>${fmtYrs(tradYrs - leanYrs)} earlier</strong> on ${inp.leanFactor}% of current expenses.` });
-    }
-
-    // Barista FIRE
-    if (inp.baristaIncome > 0 && isFinite(baristaYrs) && baristaYrs < tradYrs - 1) {
-        insights.push({ icon: '☕', heading: 'Barista FIRE is a great stepping stone', body: `With <strong>${fmt(inp.baristaIncome)}/mo</strong> part-time income, your Barista FIRE corpus is just <strong>${fmt(baristaC)}</strong> — achievable <strong>${fmtYrs(tradYrs - baristaYrs)} sooner</strong> than full FIRE.` });
-    }
-
-    // Inflation warning
-    if (inp.inflation >= 7) {
-        insights.push({ icon: '🔥', heading: 'High inflation eats your corpus', body: `At ${inp.inflation}% inflation, expenses in ${ytr} years will be <strong>${inflF.toFixed(1)}x higher</strong>. Invest in assets that beat inflation — Nifty 50, international equity — not just FDs.` });
-    }
-
-    // Rule of 72
-    insights.push({ icon: '🔢', heading: 'Rule of 72 — compounding power', body: `At <strong>${inp.preReturn}%</strong> return, your money doubles every <strong>${doublingYears.toFixed(1)} years</strong>. Your current <strong>${fmt(inp.corpus)}</strong> becomes <strong>${fmt(inp.corpus * 4)}</strong> in just ${(doublingYears * 2).toFixed(0)} years.` });
-
-    // SWR warning
+    // Priority 1 — High SWR risk
     if (inp.swr > 4.5) {
-        insights.push({ icon: '⚠️', heading: 'Higher SWR increases sequence risk', body: `A ${inp.swr}% withdrawal rate is above the traditional 4% safe rate. Consider keeping it at 3.5–4% to ensure your corpus lasts 30+ years through market downturns.` });
-    } else if (inp.swr < 3) {
-        insights.push({ icon: '🛡️', heading: 'Very conservative SWR', body: `At ${inp.swr}%, you're building a very large safety buffer. This means a larger corpus requirement — consider 3.5–4% SWR if you have equity-heavy investments for Indian inflation.` });
+        insArr.push({ icon: '⚠️', heading: 'High withdrawal rate — corpus may not last', body: `At <strong>${inp.swr}%</strong> SWR, you're above the historically safe 4%. Your corpus may run out in 25–30 years. Consider targeting 3.5–4% for a 30+ year retirement.`, priority: 1, accent: 'critical' });
     }
 
-    // Fat FIRE timeline context
-    if (isFinite(fatYrs) && fatYrs < 40) {
-        insights.push({ icon: '💎', heading: `Fat FIRE in ${fmtYrs(fatYrs)}`, body: `Fat FIRE (<strong>${fmt(fatC)}</strong>) gives you a retirement with <strong>${fmt(fatAnn / 12)}/mo</strong> — ${inp.fatFactor}% of current expenses. Worth aiming for if you want a lifestyle upgrade in retirement.` });
+    // Priority 1 — Low savings rate
+    if (savingsRate > 0 && savingsRate < 20) {
+        insArr.push({ icon: '⚠️', heading: 'Savings rate needs attention', body: `At <strong>${savingsRate.toFixed(1)}%</strong>, FIRE will take a very long time. FIRE typically requires 30–50%+ savings. Start by identifying your biggest expense categories.`, priority: 1, accent: 'warning' });
+    } else if (savingsRate >= 20 && savingsRate < 30) {
+        insArr.push({ icon: '📉', heading: 'Savings rate below FIRE benchmark', body: `At <strong>${savingsRate.toFixed(1)}%</strong>, you're below the 30%+ needed for a healthy FIRE pace. Even a 5% boost cuts the timeline significantly.`, priority: 1, accent: 'warning' });
     }
 
-    el('insightsGrid').innerHTML = insights.slice(0, 6).map(ins => `
-        <div class="insight-card">
-            <span class="insight-icon">${ins.icon}</span>
-            <div class="insight-heading">${ins.heading}</div>
-            <div class="insight-body">${ins.body}</div>
-        </div>
-    `).join('');
+    // Priority 1 — High inflation warning
+    if (inp.inflation >= 7) {
+        insArr.push({ icon: '🔥', heading: 'High inflation erodes your corpus', body: `At <strong>${inp.inflation}%</strong>, expenses in ${ytr} years will be <strong>${inflF.toFixed(1)}x higher</strong>. Your FIRE number must beat inflation — favour equity-heavy investments.`, priority: 1, accent: 'warning' });
+    }
+
+    // Priority 2 — Good savings rate
+    if (savingsRate >= 50) {
+        insArr.push({ icon: '🚀', heading: 'Excellent savings rate!', body: `At <strong>${savingsRate.toFixed(1)}%</strong>, you're on the FIRE fast track. Compounding will do the heavy lifting from here.`, priority: 2, accent: 'success' });
+    } else if (savingsRate >= 30) {
+        insArr.push({ icon: '📊', heading: 'Good savings rate', body: `At <strong>${savingsRate.toFixed(1)}%</strong> you're above average. Pushing to 50%+ could cut your FIRE timeline significantly.`, priority: 2 });
+    }
+
+    // Priority 2 — FIRE progress milestones
+    if (!tradAch) {
+        if (tradPct >= 75) {
+            insArr.push({ icon: '📈', heading: `${tradPct.toFixed(0)}% to FIRE — almost there!`, body: `You need just <strong>${fmt(tradC - inp.corpus)}</strong> more. At current pace you'll reach FIRE in <strong>${fmtYrs(tradYrs)}</strong>.`, priority: 2, accent: 'info' });
+        } else if (tradPct >= 40) {
+            insArr.push({ icon: '📈', heading: `${tradPct.toFixed(0)}% to your FIRE goal`, body: `Great progress! With <strong>${fmt(inp.investments)}/mo</strong> invested, you'll reach <strong>${fmt(tradC)}</strong> in <strong>${fmtYrs(tradYrs)}</strong>.`, priority: 2 });
+        } else {
+            insArr.push({ icon: '🌱', heading: 'Starting your FIRE journey', body: `You're at <strong>${tradPct.toFixed(0)}%</strong> of your goal. Consistency is key — stay the course with <strong>${fmt(inp.investments)}/mo</strong>.`, priority: 2 });
+        }
+    }
+
+    // Priority 3 — Educational
+    if (doublingYrs > 0) {
+        insArr.push({ icon: '🔢', heading: 'The power of compounding', body: `At <strong>${inp.preReturn}%</strong> return, your money doubles every <strong>${doublingYrs.toFixed(1)} years</strong>. Your <strong>${fmt(inp.corpus)}</strong> becomes <strong>${fmt(inp.corpus * 4)}</strong> in just ${(doublingYrs * 2).toFixed(0)} years.`, priority: 3 });
+    }
+
+    insArr.sort((a, b) => (a.priority || 3) - (b.priority || 3));
+
+    const insightCard = ins => `<div class="insight-card${ins.accent ? ' accent-' + ins.accent : ''}${ins.priority === 1 ? ' priority-high' : ''}"><span class="insight-icon">${ins.icon}</span><div class="insight-heading">${ins.heading}</div><div class="insight-body">${ins.body}</div></div>`;
+    el('insightsGrid').innerHTML = insArr.map(insightCard).join('');
 }
 
-function isAchievedCheck(corpus, target) { return target > 0 && corpus >= target; }
+// ── UI toggles ─────────────────────────────────────────────────────────────────
+function toggleVariants() {
+    const section = el('variantsSection');
+    const content = el('variantsContent');
+    if (!section || !content) return;
+    const isOpen = section.classList.contains('open');
+    section.classList.toggle('open', !isOpen);
+    content.classList.toggle('open', !isOpen);
+}
 
-// ── Auth check & data loading ─────────────────────────────────────────────────
+function toggleMathCard() {
+    const section = el('fireMathSection');
+    const content = el('fireMathCollapse');
+    if (!section || !content) return;
+    const isOpen = section.classList.contains('open');
+    section.classList.toggle('open', !isOpen);
+    content.classList.toggle('open', !isOpen);
+}
+
+function toggleAssumptions() {
+    const content = el('assumptionsContent');
+    const chevron = el('assumptionsChevron');
+    if (!content) return;
+    const isOpen = content.classList.contains('open');
+    content.classList.toggle('open', !isOpen);
+    if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function toggleMoreInsights() {
+    const extra = el('insightsExtra');
+    const btn   = el('insightsMoreBtn');
+    if (!extra) return;
+    const isOpen = extra.classList.contains('open');
+    extra.classList.toggle('open', !isOpen);
+    if (btn) btn.textContent = isOpen ? 'See all insights ↓' : 'Show less ↑';
+}
+
+function dismissIntro() {
+    const card = el('fireIntroCard');
+    if (card) card.style.display = 'none';
+    try { localStorage.setItem('wos_fire_intro_seen', '1'); } catch {}
+}
+
+// ── Settings persistence ───────────────────────────────────────────────────────
+let _saveTimer = null;
+let _isLoggedIn = false;
+let _activeMemberId = null; // null = household mode
+
+function schedSave() {
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(saveSettings, 800);
+}
+
+async function saveSettings() {
+    const inp = getInputs();
+    const data = {
+        retirement_age: inp.retireAge,
+        current_age_override: inp.age,
+        pre_ret_return: inp.preReturn,
+        post_ret_return: inp.postReturn,
+        inflation: inp.inflation,
+        swr: inp.swr,
+        lean_ratio: inp.leanFactor,
+        fat_ratio: inp.fatFactor,
+        barista_income: inp.baristaIncome,
+        corpus: inp.corpus,
+        income: inp.income,
+        expenses: inp.expenses,
+        investments: inp.investments
+    };
+
+    if (_isLoggedIn) {
+        try {
+            await WealthAPI.fire.saveSettings(data);
+            // Also save retirement_age per-member when viewing a specific member
+            if (_activeMemberId !== null) {
+                await fetch(`/api/family/members/${_activeMemberId}`, {
+                    method: 'PUT',
+                    headers: { ...(await authHeaders()), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ retirement_age: inp.retireAge }),
+                });
+            }
+            const ind = el('saveIndicator');
+            const txt = el('saveIndicatorText');
+            if (ind) ind.style.display = 'flex';
+            if (txt) txt.textContent = 'Saved just now';
+        } catch {}
+    } else {
+        try { localStorage.setItem('wos_fire_settings', JSON.stringify(data)); } catch {}
+    }
+}
+
+async function resetAll() {
+    if (_isLoggedIn) {
+        try { await WealthAPI.fire.resetSettings(); } catch {}
+    } else {
+        try { localStorage.removeItem('wos_fire_settings'); } catch {}
+    }
+    const set = (id, v) => { const e = el(id); if (e) e.value = v; };
+    set('r-age', 30);       syncRange('age');
+    set('r-retireAge', 60); syncRange('retireAge');
+    set('f-corpus', (2500000).toLocaleString('en-IN'));
+    set('f-income', (150000).toLocaleString('en-IN'));
+    set('f-expenses', (80000).toLocaleString('en-IN'));
+    set('f-investments', (40000).toLocaleString('en-IN'));
+    set('r-preReturn', 12);  syncRange('preReturn');
+    set('r-postReturn', 8);  syncRange('postReturn');
+    set('r-inflation', 6);   syncRange('inflation');
+    set('r-swr', 4);         syncRange('swr');
+    set('r-leanFactor', 70); syncRange('leanFactor');
+    set('r-fatFactor', 150); syncRange('fatFactor');
+    set('f-baristaIncome', (30000).toLocaleString('en-IN'));
+    // Clear data badges
+    ['corpus','income','expenses','investments'].forEach(k => {
+        const b = el('badge-' + k);
+        if (b) b.style.display = 'none';
+    });
+    const note = el('dataSourceNote');
+    if (note) note.style.display = 'none';
+    const ind = el('saveIndicator');
+    if (ind) ind.style.display = 'none';
+    calculate();
+}
+
+function applySettings(s) {
+    const set = (id, v) => { if (v == null) return; const e = el(id); if (e) e.value = v; };
+    const setMoney = (id, v) => { if (!v) return; const e = el(id); if (e) e.value = Math.round(v).toLocaleString('en-IN'); };
+    if (s.retirement_age)     { set('r-retireAge', s.retirement_age); syncRange('retireAge'); }
+    if (s.current_age_override){ set('r-age', s.current_age_override); syncRange('age'); }
+    if (s.pre_ret_return)     { set('r-preReturn', s.pre_ret_return);  syncRange('preReturn'); }
+    if (s.post_ret_return)    { set('r-postReturn', s.post_ret_return); syncRange('postReturn'); }
+    if (s.inflation)          { set('r-inflation', s.inflation);       syncRange('inflation'); }
+    if (s.swr)                { set('r-swr', s.swr);                   syncRange('swr'); }
+    if (s.lean_ratio)         { set('r-leanFactor', s.lean_ratio);     syncRange('leanFactor'); }
+    if (s.fat_ratio)          { set('r-fatFactor', s.fat_ratio);       syncRange('fatFactor'); }
+    if (s.barista_income != null){ set('f-baristaIncome', Math.round(s.barista_income).toLocaleString('en-IN')); }
+    setMoney('f-corpus',      s.corpus);
+    setMoney('f-income',      s.income);
+    setMoney('f-expenses',    s.expenses);
+    setMoney('f-investments', s.investments);
+    if (s.updated_at) {
+        const ind = el('saveIndicator');
+        const txt = el('saveIndicatorText');
+        if (ind) ind.style.display = 'flex';
+        if (txt) txt.textContent = 'Last saved ' + timeAgo(s.updated_at);
+    }
+}
+
+// ── Data loading ───────────────────────────────────────────────────────────────
+async function loadFireSettings() {
+    if (!_isLoggedIn) {
+        try {
+            const raw = localStorage.getItem('wos_fire_settings');
+            if (raw) applySettings(JSON.parse(raw));
+        } catch {}
+        return;
+    }
+    try {
+        const s = await WealthAPI.fire.getSettings();
+        if (s && Object.keys(s).length > 0) applySettings(s);
+    } catch {}
+}
+
+async function loadFamilyContext() {
+    if (!_isLoggedIn) return;
+    try {
+        const [familyData, membersData] = await Promise.all([
+            WealthAPI.family.get().catch(() => null),
+            WealthAPI.family.getMembers().catch(() => [])
+        ]);
+        const members = Array.isArray(membersData) ? membersData : [];
+        const familyName = familyData && familyData.familyName ? familyData.familyName : null;
+        const badge = el('planningForBadge');
+
+        if (members.length >= 2) {
+            // Multi-member: build tab strip
+            const strip = el('memberTabsStrip');
+            if (strip) {
+                strip.innerHTML = '';
+                // Household tab
+                const household = document.createElement('button');
+                household.className = 'member-tab-pill active';
+                household.textContent = '🏠 ' + (familyName || 'Household');
+                household.onclick = () => switchToHousehold(members);
+                strip.appendChild(household);
+                // Per-member tabs
+                members.forEach(m => {
+                    const pill = document.createElement('button');
+                    pill.className = 'member-tab-pill';
+                    pill.dataset.memberId = m.id;
+                    const age = m.age || (m.dob ? calcAge(m.dob) : null);
+                    pill.textContent = m.name + (age ? ` (${age})` : '');
+                    pill.onclick = () => switchToMember(m.id, members);
+                    strip.appendChild(pill);
+                });
+                strip.classList.add('visible');
+            }
+            if (badge) badge.textContent = '🏠 ' + (familyName || 'Household');
+
+            // Auto-set age from primary/self member for household view
+            const primary = members.find(m => m.role === 'self' || m.role === 'primary') || members[0];
+            if (primary) {
+                const age = primary.age || (primary.dob ? calcAge(primary.dob) : null);
+                if (age && age >= 18 && age <= 65) {
+                    const r = el('r-age');
+                    if (r) { r.value = age; syncRange('age'); }
+                }
+            }
+        } else if (members.length === 1) {
+            const m = members[0];
+            if (badge) badge.textContent = '👤 ' + (m.name || 'Just Me');
+            // Auto-set age from member data
+            const age = m.age || (m.dob ? calcAge(m.dob) : null);
+            if (age && age >= 18 && age <= 65) {
+                const r = el('r-age');
+                if (r) { r.value = age; syncRange('age'); }
+            }
+        } else if (members.length === 0) {
+            if (badge) badge.textContent = '👤 Just Me';
+        }
+    } catch {}
+}
+
+// ── Member switching ────────────────────────────────────────────────────────────
+async function switchToMember(memberId, allMembers) {
+    _activeMemberId = memberId;
+
+    // Update tab active state
+    document.querySelectorAll('.member-tab-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.memberId === String(memberId));
+    });
+
+    // Show age-display, hide age slider
+    const ageSlider = el('ageSliderRow');
+    const ageDisplay = el('ageDisplayRow');
+    if (ageSlider) ageSlider.style.display = 'none';
+    if (ageDisplay) ageDisplay.classList.add('visible');
+
+    // Update planning-for badge
+    const m = allMembers ? allMembers.find(x => x.id === memberId) : null;
+    const badge = el('planningForBadge');
+    if (badge && m) badge.textContent = '👤 ' + m.name;
+
+    try {
+        const snap = await fetch(`/api/fire/member-snapshot/${memberId}`, { headers: await authHeaders() }).then(r => r.json());
+
+        // Show age from DOB
+        const ageVal = el('ageDisplayVal');
+        if (ageVal) ageVal.textContent = snap.age != null ? snap.age + ' yrs' : '—';
+
+        // Set internal age for calculations via hidden slider
+        const rAge = el('r-age');
+        if (rAge && snap.age) { rAge.value = snap.age; }
+
+        // Set retirement age
+        const retireSlider = el('r-retireAge');
+        if (retireSlider) { retireSlider.value = snap.retirement_age || 60; syncRange('retireAge'); }
+
+        // Populate money fields from member's data
+        const setMoney = (id, v) => { if (!v) return; const e = el(id); if (e) e.value = Math.round(v).toLocaleString('en-IN'); };
+        setMoney('f-corpus', snap.corpus);
+        setMoney('f-income', snap.income);
+        setMoney('f-expenses', snap.expenses);
+        setMoney('f-investments', snap.investments);
+
+        // Show/hide data badges
+        ['corpus','income','expenses','investments'].forEach(k => {
+            const b = el('badge-' + k);
+            if (b) b.style.display = snap[k] > 0 ? 'inline-flex' : 'none';
+        });
+
+        const note = el('dataSourceNote');
+        if (note) {
+            note.textContent = snap.hasTrackerData ? `Figures from ${m ? m.name + "'s" : 'member'} tracker data (3-month avg).` : `No tracker data yet for ${m ? m.name : 'this member'}.`;
+            note.style.display = 'block';
+        }
+    } catch {}
+
+    calculate();
+}
+
+async function switchToHousehold(allMembers) {
+    _activeMemberId = null;
+
+    // Update tab active state
+    document.querySelectorAll('.member-tab-pill').forEach(p => {
+        p.classList.toggle('active', !p.dataset.memberId);
+    });
+
+    // Show age slider, hide age-display
+    const ageSlider = el('ageSliderRow');
+    const ageDisplay = el('ageDisplayRow');
+    if (ageSlider) ageSlider.style.display = '';
+    if (ageDisplay) ageDisplay.classList.remove('visible');
+
+    // Restore household badge
+    const familyData = await WealthAPI.family.get().catch(() => null);
+    const familyName = familyData && familyData.familyName ? familyData.familyName : null;
+    const badge = el('planningForBadge');
+    if (badge) badge.textContent = '🏠 ' + (familyName || 'Household');
+
+    // Restore household age from primary member
+    if (allMembers && allMembers.length > 0) {
+        const primary = allMembers.find(m => m.role === 'self' || m.role === 'primary') || allMembers[0];
+        if (primary) {
+            const age = primary.age || (primary.dob ? calcAge(primary.dob) : null);
+            if (age && age >= 18 && age <= 65) {
+                const r = el('r-age');
+                if (r) { r.value = age; syncRange('age'); }
+            }
+        }
+    }
+
+    // Restore household retirement age from saved settings
+    try {
+        const s = await WealthAPI.fire.getSettings();
+        if (s && s.retirement_age) {
+            const r = el('r-retireAge');
+            if (r) { r.value = s.retirement_age; syncRange('retireAge'); }
+        } else {
+            const r = el('r-retireAge');
+            if (r) { r.value = 60; syncRange('retireAge'); }
+        }
+    } catch {}
+
+    // Reload aggregate tracker data
+    await loadTrackerData();
+    calculate();
+}
+
+function calcAge(dob) {
+    if (!dob) return null;
+    const today = new Date();
+    const birth = new Date(dob);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+}
+
+async function loadTrackerData() {
+    if (!_isLoggedIn) return;
+    const now = new Date();
+
+    // Helper: generate recent months starting from previous month
+    function recentMonths(count) {
+        const out = [];
+        for (let i = 1; i <= count; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            out.push({ year: d.getFullYear(), month: d.getMonth() + 1, date: d });
+        }
+        return out;
+    }
+
+    // ── Monthly income / expenses / investments ────────────────────────────────
+    try {
+        for (const { year, month, date } of recentMonths(6)) {
+            try {
+                const res = await fetch(`/api/monthly/${year}/${month}`, { headers: await authHeaders() });
+                if (!res.ok) continue;
+                const json = await res.json();
+                const members = Array.isArray(json) ? json : (json.members || json.data || []);
+                if (!Array.isArray(members) || members.length === 0) continue;
+
+                const totals = members.reduce((acc, m) => ({
+                    income:      acc.income      + (parseFloat(m.income)      || 0),
+                    expenditure: acc.expenditure + (parseFloat(m.expenditure) || 0),
+                    investments: acc.investments + (parseFloat(m.investments) || 0),
+                }), { income: 0, expenditure: 0, investments: 0 });
+
+                if (totals.income > 0 || totals.expenditure > 0) {
+                    const monthName = date.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+                    if (totals.income > 0) {
+                        const e = el('f-income'); if (e) e.value = Math.round(totals.income).toLocaleString('en-IN');
+                        const b = el('badge-income'); if (b) b.style.display = 'inline-flex';
+                    }
+                    if (totals.expenditure > 0) {
+                        const e = el('f-expenses'); if (e) e.value = Math.round(totals.expenditure).toLocaleString('en-IN');
+                        const b = el('badge-expenses'); if (b) b.style.display = 'inline-flex';
+                    }
+                    if (totals.investments > 0) {
+                        const e = el('f-investments'); if (e) e.value = Math.round(totals.investments).toLocaleString('en-IN');
+                        const b = el('badge-investments'); if (b) b.style.display = 'inline-flex';
+                    }
+                    const note = el('dataSourceNote');
+                    if (note) {
+                        note.textContent = `Figures from ${monthName}` + (members.length > 1 ? ` · combined across ${members.length} members` : '') + '.';
+                        note.style.display = 'block';
+                    }
+                    break; // stop at the most recent month with data
+                }
+            } catch {}
+        }
+    } catch {}
+
+    // ── Portfolio corpus ───────────────────────────────────────────────────────
+    try {
+        for (const { year, month } of recentMonths(6)) {
+            try {
+                const pRes = await fetch(`/api/portfolio/summary?year=${year}&month=${month}`, { headers: await authHeaders() });
+                if (!pRes.ok) continue;
+                const pData = await pRes.json();
+                const totalValue = pData.totalNetWorth || 0;
+                if (totalValue > 0) {
+                    const e = el('f-corpus'); if (e) e.value = Math.round(totalValue).toLocaleString('en-IN');
+                    const b = el('badge-corpus'); if (b) b.style.display = 'inline-flex';
+                    break; // stop at the most recent month with portfolio data
+                }
+            } catch {}
+        }
+    } catch {}
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
 async function init() {
-    // Initial render with defaults (no wait)
+    // Show/hide intro card
+    try {
+        if (localStorage.getItem('wos_fire_intro_seen')) {
+            const card = el('fireIntroCard');
+            if (card) card.style.display = 'none';
+        }
+    } catch {}
+
+    // Initial render with defaults
     syncRange('age');
     syncRange('retireAge');
     syncRange('preReturn');
@@ -1053,76 +1854,20 @@ async function init() {
     calculate();
 
     try {
-        const loggedIn = await WealthAPI.auth.isLoggedIn();
-        if (loggedIn) {
-            document.body.classList.add('app-mode');
-            const mt = el('modeTag');
-            if (mt) mt.classList.add('visible');
-            await loadTrackerData();
-            calculate(); // re-render with loaded data
-        } else {
-            document.body.classList.add('guest-mode');
-        }
-    } catch (e) {
+        _isLoggedIn = await WealthAPI.auth.isLoggedIn();
+    } catch { _isLoggedIn = false; }
+
+    if (_isLoggedIn) {
+        document.body.classList.add('app-mode');
+        // Load settings first (assumptions/age), then live data (money), then family context
+        await loadFireSettings();
+        await Promise.all([loadTrackerData(), loadFamilyContext()]);
+        calculate();
+    } else {
         document.body.classList.add('guest-mode');
-    }
-}
-
-async function loadTrackerData() {
-    try {
-        const now = new Date();
-        let loaded = false;
-
-        // Try up to 3 months back to find data
-        for (let offset = 0; offset <= 2 && !loaded; offset++) {
-            const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-            const year = d.getFullYear(), month = d.getMonth() + 1;
-            try {
-                const res = await fetch(`/api/monthly/${year}/${month}`, { credentials: 'same-origin' });
-                if (!res.ok) continue;
-                const json = await res.json();
-                // Handle both {members:[...]} and [...] shapes
-                const members = Array.isArray(json) ? json : (json.members || json.data || []);
-                if (!Array.isArray(members) || members.length === 0) continue;
-
-                const totals = members.reduce((acc, m) => ({
-                    income:      acc.income      + (parseFloat(m.income)      || 0),
-                    expenditure: acc.expenditure + (parseFloat(m.expenditure) || 0),
-                    investments: acc.investments + (parseFloat(m.investments) || 0),
-                }), { income: 0, expenditure: 0, investments: 0 });
-
-                if (totals.income > 0 || totals.expenditure > 0 || totals.investments > 0) {
-                    const monthName = d.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
-                    if (totals.income > 0)      { const e = el('f-income');      if (e) e.value = Math.round(totals.income); }
-                    if (totals.expenditure > 0) { const e = el('f-expenses');    if (e) e.value = Math.round(totals.expenditure); }
-                    if (totals.investments > 0) { const e = el('f-investments'); if (e) e.value = Math.round(totals.investments); }
-
-                    const banner = el('dataBanner');
-                    const bannerTxt = el('dataBannerText');
-                    if (banner) banner.classList.add('visible');
-                    if (bannerTxt) {
-                        bannerTxt.textContent = `Auto-filled from ${monthName} — Income: ${fmt(totals.income)}, Expenses: ${fmt(totals.expenditure)}, Investments: ${fmt(totals.investments)}`;
-                    }
-                    loaded = true;
-                }
-            } catch {}
-        }
-
-        // Try to load portfolio for corpus
-        try {
-            const pRes = await fetch(`/api/portfolio/summary?year=${now.getFullYear()}&month=${now.getMonth() + 1}`, { credentials: 'same-origin' });
-            if (pRes.ok) {
-                const pData = await pRes.json();
-                const totalValue = pData.totalValue || pData.total_value || pData.totalCurrentValue || 0;
-                if (totalValue > 0) {
-                    const e = el('f-corpus');
-                    if (e) e.value = Math.round(totalValue);
-                }
-            }
-        } catch {}
-
-    } catch (e) {
-        console.warn('FIRE: could not load tracker data', e.message);
+        // Try localStorage settings for guests
+        await loadFireSettings();
+        calculate();
     }
 }
 

@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liabilities — WealthOS</title>
+  <link rel="stylesheet" href="design-system.css" />
+  <link rel="stylesheet" href="controls.css" />
+  <link rel="stylesheet" href="dark-overrides.css" />
+  <style>
+    .liab-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .liab-summary-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border, #E5E8EC);
+      border-radius: var(--card-radius, 14px);
+      padding: 20px 22px;
+      box-shadow: var(--card-light-shadow);
+    }
+    .liab-summary-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #64748B);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .liab-summary-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary, #0F172A);
+      line-height: 1.1;
+    }
+    .liab-summary-sub {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #64748B);
+      margin-top: 4px;
+    }
+
+    /* Card list */
+    .liab-cards-list { display: flex; flex-direction: column; gap: 14px; }
+    .liab-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border, #E5E8EC);
+      border-radius: var(--card-radius, 14px);
+      box-shadow: var(--card-light-shadow);
+      overflow: hidden;
+    }
+    .liab-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      cursor: default;
+    }
+    .liab-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--bg, #F4F6F8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
+    .liab-card-meta { flex: 1; min-width: 0; }
+    .liab-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary, #0F172A);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .liab-card-lender {
+      font-size: 0.8125rem;
+      color: var(--text-secondary, #64748B);
+      margin-top: 2px;
+    }
+    .liab-card-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 10px;
+    }
+    .liab-stat { }
+    .liab-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary, #94A3B8);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .liab-stat-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary, #0F172A);
+    }
+    .liab-progress-wrap {
+      padding: 0 20px 4px;
+    }
+    .liab-progress-bar {
+      height: 6px;
+      background: var(--border, #E5E8EC);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .liab-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .liab-progress-label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary, #94A3B8);
+      margin-top: 4px;
+      padding-bottom: 10px;
+    }
+    .liab-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px 14px;
+      border-top: 1px solid var(--border, #E5E8EC);
+      flex-wrap: wrap;
+    }
+    .liab-amort-toggle {
+      background: none;
+      border: none;
+      font-size: 0.8125rem;
+      color: var(--text-secondary, #64748B);
+      cursor: pointer;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .liab-amort-toggle:hover { color: var(--text-primary, #0F172A); }
+    .liab-amort-section {
+      padding: 0 20px 16px;
+      display: none;
+    }
+    .liab-amort-section.open { display: block; }
+    .liab-amort-loading {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      padding: 8px 0;
+    }
+    .liab-showmore {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 6px 0 0;
+      text-decoration: underline;
+    }
+
+    /* Delete confirm inline */
+    .liab-delete-confirm {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #fff5f5;
+      border-top: 1px solid #fecaca;
+      font-size: 0.8125rem;
+      color: #b91c1c;
+    }
+    .liab-delete-confirm.open { display: flex; }
+    [data-theme="dark"] .liab-delete-confirm { background: rgba(185,28,28,0.08); border-color: rgba(185,28,28,0.2); }
+
+    /* Tax benefit card */
+    .liab-tax-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border, #E5E8EC);
+      border-radius: var(--card-radius, 14px);
+      box-shadow: var(--card-light-shadow);
+      padding: 20px 22px;
+      margin-top: 28px;
+    }
+    .liab-tax-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .liab-tax-row {
+      background: var(--bg, #F4F6F8);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .liab-tax-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .liab-tax-amount {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .liab-tax-note {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 3px;
+    }
+
+    /* Sync card */
+    .liab-sync-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border, #E5E8EC);
+      border-radius: var(--card-radius, 14px);
+      box-shadow: var(--card-light-shadow);
+      padding: 18px 22px;
+      margin-top: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .liab-sync-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .liab-sync-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .liab-sync-desc {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Empty state */
+    .liab-empty {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border, #E5E8EC);
+      border-radius: var(--card-radius, 14px);
+    }
+    .liab-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .liab-empty-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .liab-empty-sub {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    /* Modal overlay */
+    .liab-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .liab-modal-overlay.open { display: flex; }
+    .liab-modal {
+      background: var(--card-bg, #fff);
+      border-radius: var(--card-radius, 14px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .liab-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border, #E5E8EC);
+      position: sticky;
+      top: 0;
+      background: var(--card-bg, #fff);
+      z-index: 1;
+    }
+    .liab-modal-title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .liab-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 4px;
+      line-height: 1;
+      font-size: 1.25rem;
+    }
+    .liab-modal-body { padding: 20px 24px; }
+    .liab-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .liab-form-full { grid-column: 1 / -1; }
+    .liab-form-group { display: flex; flex-direction: column; gap: 5px; }
+    .liab-form-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .liab-emi-computed {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      display: none;
+    }
+    .liab-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border, #E5E8EC);
+    }
+    @media (max-width: 540px) {
+      .liab-form-grid { grid-template-columns: 1fr; }
+      .liab-form-full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside id="sidebar-root"></aside>
+
+  <main class="main-content">
+    <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+      <div>
+        <h1 class="page-title" style="margin:0 0 2px;">Liabilities</h1>
+        <p style="font-size:0.8125rem; color:var(--text-secondary); margin:0;">Track loans, EMIs, and outstanding debt</p>
+      </div>
+      <button class="action-btn primary" id="addLiabBtn" onclick="openModal()">+ Add Liability</button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="liab-summary-grid" id="summaryGrid" style="display:none;">
+      <div class="liab-summary-card">
+        <div class="liab-summary-label">Total Outstanding</div>
+        <div class="liab-summary-value" id="sumOutstanding">₹0</div>
+        <div class="liab-summary-sub" id="sumOutstandingSub"></div>
+      </div>
+      <div class="liab-summary-card">
+        <div class="liab-summary-label">Monthly EMI Burden</div>
+        <div class="liab-summary-value" id="sumEmi">₹0</div>
+        <div class="liab-summary-sub" id="sumEmiSub"></div>
+      </div>
+      <div class="liab-summary-card">
+        <div class="liab-summary-label">Debt-to-Income</div>
+        <div class="liab-summary-value" id="sumDti">—</div>
+        <div class="liab-summary-sub" id="sumDtiSub"></div>
+      </div>
+      <div class="liab-summary-card">
+        <div class="liab-summary-label">Weighted Avg. Rate</div>
+        <div class="liab-summary-value" id="sumRate">—</div>
+        <div class="liab-summary-sub">Annual interest rate</div>
+      </div>
+    </div>
+
+    <!-- Liability cards -->
+    <div id="liabCards" class="liab-cards-list"></div>
+
+    <!-- Empty state -->
+    <div class="liab-empty" id="liabEmpty" style="display:none;">
+      <div class="liab-empty-icon">🏦</div>
+      <div class="liab-empty-title">No liabilities tracked yet</div>
+      <div class="liab-empty-sub">Add your home loan, car loan, credit card dues, and other debts to track your total debt picture.</div>
+      <button class="action-btn primary" onclick="openModal()">+ Add Your First Liability</button>
+    </div>
+
+    <!-- Tax benefit summary -->
+    <div class="liab-tax-card" id="taxCard" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:0.9375rem; font-weight:700; color:var(--text-primary);">Tax-Deductible Interest</div>
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">Estimated annual interest eligible for deduction</div>
+        </div>
+        <a href="financial-planning.html" class="action-btn secondary" style="font-size:0.8rem;">→ Tax Planning</a>
+      </div>
+      <div class="liab-tax-grid" id="taxGrid"></div>
+      <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:10px;">
+        * Estimated using outstanding balance × interest rate. Actual deduction depends on FY-specific payment schedule.
+      </div>
+    </div>
+
+    <!-- Sync to projections -->
+    <div class="liab-sync-card" id="syncCard" style="display:none;">
+      <div class="liab-sync-icon">📊</div>
+      <div style="flex:1;">
+        <div class="liab-sync-title">Sync EMI schedule to Financial Projections</div>
+        <div class="liab-sync-desc">
+          This replaces any manually entered EMI schedule in Financial Planning with values computed from your liabilities above.
+          <strong>Only do this if your monthly tracker expenses do NOT already include your EMI payments.</strong>
+        </div>
+        <button class="action-btn secondary" id="syncBtn" style="margin-top:10px; font-size:0.8125rem;" onclick="syncToProjections()">Sync Now</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add / Edit Modal -->
+<div class="liab-modal-overlay" id="liabModalOverlay" onclick="closeModalOnBackdrop(event)">
+  <div class="liab-modal">
+    <div class="liab-modal-header">
+      <div class="liab-modal-title" id="modalTitle">Add Liability</div>
+      <button class="liab-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="liab-modal-body">
+      <div class="liab-form-grid">
+        <div class="liab-form-group liab-form-full">
+          <label class="liab-form-label" for="fName">Name *</label>
+          <input class="wos-input" type="text" id="fName" placeholder="e.g. HDFC Home Loan" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fType">Type *</label>
+          <select class="wos-input" id="fType" onchange="onTypeChange()">
+            <option>Home Loan</option>
+            <option>Personal Loan</option>
+            <option>Car Loan</option>
+            <option>Two-Wheeler Loan</option>
+            <option>Education Loan</option>
+            <option>Credit Card</option>
+            <option>Loan Against Securities</option>
+            <option>Gold Loan</option>
+            <option>Loan Against Property</option>
+            <option>Consumer Durable</option>
+            <option>Business Loan</option>
+          </select>
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fLender">Lender / Bank</label>
+          <input class="wos-input" type="text" id="fLender" placeholder="e.g. HDFC, SBI" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fMember">Member *</label>
+          <select class="wos-input" id="fMember"></select>
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fOutstanding">Outstanding Amount (₹) *</label>
+          <input class="wos-input" type="number" id="fOutstanding" placeholder="Current balance" min="0" onchange="autoComputeEmi()" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fOriginal">Original Loan Amount (₹)</label>
+          <input class="wos-input" type="number" id="fOriginal" placeholder="Sanctioned amount" min="0" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fRate">Interest Rate (% p.a.) *</label>
+          <input class="wos-input" type="number" id="fRate" placeholder="e.g. 8.5" step="0.01" min="0" onchange="autoComputeEmi()" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fEmi">Monthly EMI (₹)</label>
+          <input class="wos-input" type="number" id="fEmi" placeholder="Auto-computed" min="0" />
+          <div class="liab-emi-computed" id="emiComputedNote">Auto-computed from outstanding, rate & end date</div>
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fStartDate">Start Date</label>
+          <input class="wos-input" type="date" id="fStartDate" />
+        </div>
+        <div class="liab-form-group" id="endDateGroup">
+          <label class="liab-form-label" for="fEndDate">End Date</label>
+          <input class="wos-input" type="date" id="fEndDate" onchange="autoComputeEmi()" />
+        </div>
+        <div class="liab-form-group liab-form-full" id="revolvingGroup">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="fRevolving" onchange="onRevolvingChange()" style="width:16px;height:16px;" />
+            <span class="liab-form-label" style="margin:0;">Revolving credit (no fixed end date)</span>
+          </label>
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fTaxSection">Tax Benefit Section</label>
+          <input class="wos-input" type="text" id="fTaxSection" placeholder="e.g. 24b, 80E or leave blank" />
+        </div>
+        <div class="liab-form-group">
+          <label class="liab-form-label" for="fCollateral">Collateral</label>
+          <input class="wos-input" type="text" id="fCollateral" placeholder="e.g. Property, Gold" />
+        </div>
+        <div class="liab-form-group liab-form-full">
+          <label class="liab-form-label" for="fNotes">Notes</label>
+          <textarea class="wos-input" id="fNotes" rows="2" placeholder="Optional notes"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="liab-modal-footer">
+      <button class="action-btn secondary" onclick="closeModal()">Cancel</button>
+      <button class="action-btn primary" id="modalSaveBtn" onclick="saveLiability()">Save Liability</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
+<script src="api.js"></script>
+<script src="sidebar.js"></script>
+<script>
+  const TAX_SECTIONS = { 'Home Loan': '24b', 'Education Loan': '80E' };
+  const REVOLVING_TYPES = new Set(['Credit Card', 'Loan Against Securities']);
+  const TYPE_ICONS = {
+    'Home Loan': '🏠', 'Personal Loan': '💳', 'Car Loan': '🚗', 'Two-Wheeler Loan': '🏍️',
+    'Education Loan': '🎓', 'Credit Card': '💳', 'Loan Against Securities': '📈',
+    'Gold Loan': '🪙', 'Loan Against Property': '🏢', 'Consumer Durable': '🛒', 'Business Loan': '🏭'
+  };
+  const TYPE_BADGE_CLASS = {
+    'Credit Card': 'negative', 'Education Loan': 'positive'
+  };
+
+  let allLiabilities = [];
+  let editingId = null;
+  let members = [];
+  const amortCache = {};
+
+  async function init() {
+    await WealthAPI.auth.requireAuth();
+    try {
+      const mRes = await WealthAPI.family.getMembers();
+      members = mRes || [];
+    } catch {}
+    populateMemberSelect();
+    await loadLiabilities();
+  }
+
+  function populateMemberSelect() {
+    const sel = document.getElementById('fMember');
+    sel.innerHTML = members.length
+      ? members.map(m => `<option value="${m.id}">${m.name}</option>`).join('')
+      : '<option value="">No members</option>';
+  }
+
+  async function loadLiabilities() {
+    try {
+      const data = await WealthAPI.liabilities.getAll();
+      allLiabilities = data.liabilities || [];
+      renderSummary(data.summary || {}, data.liabilities || []);
+      renderCards(allLiabilities);
+      renderTaxCard(allLiabilities);
+    } catch (err) {
+      console.error('Failed to load liabilities:', err);
+    }
+  }
+
+  function fmt(n) { return WealthAPI.formatCurrency(n); }
+
+  async function renderSummary(summary, liabilities) {
+    const grid = document.getElementById('summaryGrid');
+    const emptyEl = document.getElementById('liabEmpty');
+    const syncCard = document.getElementById('syncCard');
+
+    if (!liabilities.length) {
+      grid.style.display = 'none';
+      emptyEl.style.display = '';
+      syncCard.style.display = 'none';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    grid.style.display = '';
+    syncCard.style.display = '';
+
+    document.getElementById('sumOutstanding').textContent = fmt(summary.totalOutstanding || 0);
+    document.getElementById('sumEmi').textContent = fmt(summary.totalMonthlyEmi || 0);
+    document.getElementById('sumRate').textContent = (summary.weightedAvgRate || 0).toFixed(2) + '%';
+    document.getElementById('sumEmiSub').textContent = `₹${((summary.totalMonthlyEmi || 0) * 12 / 100000).toFixed(1)}L per year`;
+
+    // DTI: fetch last month's income
+    try {
+      const { year, month } = WealthAPI.getCurrentYearMonth();
+      const monthData = await WealthAPI.monthly.getMonth(year, month);
+      const totalIncome = (monthData || []).reduce((s, m) => s + (m.income || 0), 0);
+      if (totalIncome > 0) {
+        const dti = ((summary.totalMonthlyEmi || 0) / totalIncome) * 100;
+        document.getElementById('sumDti').textContent = dti.toFixed(1) + '%';
+        const badge = dti < 30 ? 'positive' : dti < 50 ? 'neutral' : 'negative';
+        const label = dti < 30 ? 'Healthy' : dti < 50 ? 'Moderate' : 'High';
+        document.getElementById('sumDtiSub').innerHTML = `<span class="wos-badge ${badge}">${label}</span>`;
+      } else {
+        document.getElementById('sumDti').textContent = '—';
+        document.getElementById('sumDtiSub').textContent = 'Add income data to compute';
+      }
+    } catch { document.getElementById('sumDti').textContent = '—'; }
+  }
+
+  function renderCards(liabilities) {
+    const container = document.getElementById('liabCards');
+    if (!liabilities.length) { container.innerHTML = ''; return; }
+
+    container.innerHTML = liabilities.map(l => {
+      const paid = l.principalOriginal > 0 ? l.principalOriginal - l.principalOutstanding : 0;
+      const pct = l.progressPct || 0;
+      const barColor = pct >= 75 ? 'var(--viz-growth)' : 'var(--viz-neutral)';
+      const months = l.monthsRemaining;
+      const tenorText = l.isRevolving ? 'Revolving' : months > 0 ? `${Math.ceil(months/12)}y ${months%12}m left` : (l.endDate ? 'Completed' : '—');
+      const badgeClass = TYPE_BADGE_CLASS[l.liabilityType] || 'neutral';
+      const taxBadge = l.taxBenefitSection ? `<span class="wos-badge neutral" style="font-size:0.65rem;">Sec. ${l.taxBenefitSection}</span>` : '';
+
+      return `
+      <div class="liab-card" id="liab-${l.id}">
+        <div class="liab-card-header">
+          <div class="liab-card-icon">${TYPE_ICONS[l.liabilityType] || '💰'}</div>
+          <div class="liab-card-meta">
+            <div class="liab-card-title">
+              ${l.name}
+              <span class="wos-badge ${badgeClass}" style="font-size:0.7rem;">${l.liabilityType}</span>
+              ${taxBadge}
+            </div>
+            ${l.lender ? `<div class="liab-card-lender">${l.lender}</div>` : ''}
+            <div class="liab-card-stats">
+              <div class="liab-stat">
+                <div class="liab-stat-label">Outstanding</div>
+                <div class="liab-stat-value">${fmt(l.principalOutstanding)}</div>
+              </div>
+              <div class="liab-stat">
+                <div class="liab-stat-label">EMI / Month</div>
+                <div class="liab-stat-value">${fmt(l.emiMonthly)}</div>
+              </div>
+              <div class="liab-stat">
+                <div class="liab-stat-label">Rate</div>
+                <div class="liab-stat-value">${l.interestRate}% p.a.</div>
+              </div>
+              <div class="liab-stat">
+                <div class="liab-stat-label">Tenor</div>
+                <div class="liab-stat-value">${tenorText}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${!l.isRevolving && l.principalOriginal > 0 ? `
+        <div class="liab-progress-wrap">
+          <div class="liab-progress-bar">
+            <div class="liab-progress-fill" style="width:${pct}%; background:${barColor};"></div>
+          </div>
+          <div class="liab-progress-label">${pct.toFixed(1)}% paid — ${fmt(paid)} of ${fmt(l.principalOriginal)}</div>
+        </div>` : ''}
+        <div class="liab-card-actions">
+          <button class="action-btn secondary" style="font-size:0.8rem; padding:6px 14px;" onclick="openModal(${l.id})">Edit</button>
+          <button class="action-btn secondary" style="font-size:0.8rem; padding:6px 14px; color:var(--text-tertiary);" onclick="showDeleteConfirm(${l.id})">Delete</button>
+          ${!l.isRevolving ? `<button class="liab-amort-toggle" onclick="toggleAmort(${l.id}, this)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            Amortization Schedule
+          </button>` : ''}
+        </div>
+        <div class="liab-delete-confirm" id="delConfirm-${l.id}">
+          Remove this liability? This will also affect projections if synced.
+          <button class="action-btn secondary" style="font-size:0.75rem; padding:4px 10px; margin-left:6px;" onclick="deleteLiability(${l.id})">Yes, Remove</button>
+          <button class="action-btn secondary" style="font-size:0.75rem; padding:4px 10px;" onclick="hideDeleteConfirm(${l.id})">Cancel</button>
+        </div>
+        <div class="liab-amort-section" id="amort-${l.id}"></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderTaxCard(liabilities) {
+    const card = document.getElementById('taxCard');
+    const grid = document.getElementById('taxGrid');
+    const taxLiabs = liabilities.filter(l => l.taxBenefitSection);
+    if (!taxLiabs.length) { card.style.display = 'none'; return; }
+
+    const bySection = {};
+    for (const l of taxLiabs) {
+      const sec = l.taxBenefitSection;
+      if (!bySection[sec]) bySection[sec] = { liabilities: [], totalEstInterest: 0 };
+      const annualInterest = Math.round(l.principalOutstanding * l.interestRate / 100);
+      bySection[sec].liabilities.push(l);
+      bySection[sec].totalEstInterest += annualInterest;
+    }
+
+    const sectionLabels = { '24b': 'Section 24b — Home Loan Interest', '80E': 'Section 80E — Education Loan Interest' };
+
+    grid.innerHTML = Object.entries(bySection).map(([sec, data]) => `
+      <div class="liab-tax-row">
+        <div class="liab-tax-section-label">${sectionLabels[sec] || 'Section ' + sec}</div>
+        <div class="liab-tax-amount">${fmt(data.totalEstInterest)}</div>
+        <div class="liab-tax-note">Est. annual interest · ${data.liabilities.map(l => l.name).join(', ')}</div>
+      </div>
+    `).join('');
+
+    card.style.display = '';
+  }
+
+  async function toggleAmort(id, btn) {
+    const section = document.getElementById(`amort-${id}`);
+    if (section.classList.contains('open')) {
+      section.classList.remove('open');
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg> Amortization Schedule`;
+      return;
+    }
+    section.classList.add('open');
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg> Hide Schedule`;
+
+    if (amortCache[id]) { renderAmort(id, amortCache[id]); return; }
+    section.innerHTML = '<div class="liab-amort-loading">Loading schedule…</div>';
+    try {
+      const data = await WealthAPI.liabilities.amortization(id);
+      amortCache[id] = data;
+      renderAmort(id, data);
+    } catch {
+      section.innerHTML = '<div class="liab-amort-loading">Could not load schedule.</div>';
+    }
+  }
+
+  function renderAmort(id, data) {
+    const section = document.getElementById(`amort-${id}`);
+    if (data.isRevolving) {
+      section.innerHTML = '<div class="liab-amort-loading">Revolving credit — no fixed amortization schedule.</div>';
+      return;
+    }
+    const rows = data.schedule || [];
+    if (!rows.length) {
+      section.innerHTML = '<div class="liab-amort-loading">No schedule available.</div>';
+      return;
+    }
+    const PREVIEW = 12;
+    const renderRows = (list) => list.map(r => `
+      <tr>
+        <td class="num">${r.month}</td>
+        <td>${r.date}</td>
+        <td class="num">${fmt(r.payment)}</td>
+        <td class="num">${fmt(r.principal)}</td>
+        <td class="num">${fmt(r.interest)}</td>
+        <td class="num">${fmt(r.balance)}</td>
+      </tr>`).join('');
+
+    const preview = rows.slice(0, PREVIEW);
+    const hasMore = rows.length > PREVIEW;
+    section.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table class="wos-table" style="font-size:0.8rem;">
+          <thead><tr><th>#</th><th>Month</th><th class="num">Payment</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Balance</th></tr></thead>
+          <tbody id="amortBody-${id}">${renderRows(preview)}</tbody>
+        </table>
+      </div>
+      ${hasMore ? `<button class="liab-showmore" onclick="showAllAmort(${id})">Show all ${rows.length} months</button>` : ''}
+    `;
+  }
+
+  function showAllAmort(id) {
+    const data = amortCache[id];
+    if (!data) return;
+    const tbody = document.getElementById(`amortBody-${id}`);
+    if (!tbody) return;
+    tbody.innerHTML = (data.schedule || []).map(r => `
+      <tr>
+        <td class="num">${r.month}</td>
+        <td>${r.date}</td>
+        <td class="num">${fmt(r.payment)}</td>
+        <td class="num">${fmt(r.principal)}</td>
+        <td class="num">${fmt(r.interest)}</td>
+        <td class="num">${fmt(r.balance)}</td>
+      </tr>`).join('');
+    const btn = document.querySelector(`#amort-${id} .liab-showmore`);
+    if (btn) btn.remove();
+  }
+
+  function showDeleteConfirm(id) {
+    document.getElementById(`delConfirm-${id}`).classList.add('open');
+  }
+  function hideDeleteConfirm(id) {
+    document.getElementById(`delConfirm-${id}`).classList.remove('open');
+  }
+  async function deleteLiability(id) {
+    try {
+      await WealthAPI.liabilities.remove(id);
+      delete amortCache[id];
+      await loadLiabilities();
+    } catch (err) { alert('Failed to delete: ' + err.message); }
+  }
+
+  // ── Modal ───────────────────────────────────────────────────────────────────
+  function openModal(id) {
+    editingId = id || null;
+    document.getElementById('modalTitle').textContent = id ? 'Edit Liability' : 'Add Liability';
+    clearForm();
+    if (id) {
+      const l = allLiabilities.find(x => x.id === id);
+      if (l) fillForm(l);
+    } else {
+      onTypeChange();
+    }
+    document.getElementById('liabModalOverlay').classList.add('open');
+    document.getElementById('fName').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('liabModalOverlay').classList.remove('open');
+    editingId = null;
+  }
+  function closeModalOnBackdrop(e) {
+    if (e.target === document.getElementById('liabModalOverlay')) closeModal();
+  }
+
+  function clearForm() {
+    ['fName','fLender','fOutstanding','fOriginal','fRate','fEmi','fStartDate','fEndDate','fTaxSection','fCollateral','fNotes']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('fType').value = 'Home Loan';
+    document.getElementById('fRevolving').checked = false;
+    if (members.length) document.getElementById('fMember').value = members[0].id;
+    document.getElementById('endDateGroup').style.display = '';
+    document.getElementById('emiComputedNote').style.display = 'none';
+  }
+
+  function fillForm(l) {
+    document.getElementById('fName').value = l.name;
+    document.getElementById('fType').value = l.liabilityType;
+    document.getElementById('fLender').value = l.lender || '';
+    document.getElementById('fMember').value = l.memberId;
+    document.getElementById('fOutstanding').value = l.principalOutstanding || '';
+    document.getElementById('fOriginal').value = l.principalOriginal || '';
+    document.getElementById('fRate').value = l.interestRate || '';
+    document.getElementById('fEmi').value = l.emiMonthly || '';
+    document.getElementById('fStartDate').value = l.startDate || '';
+    document.getElementById('fEndDate').value = l.endDate || '';
+    document.getElementById('fRevolving').checked = l.isRevolving;
+    document.getElementById('fTaxSection').value = l.taxBenefitSection || '';
+    document.getElementById('fCollateral').value = l.collateral || '';
+    document.getElementById('fNotes').value = l.notes || '';
+    onRevolvingChange();
+  }
+
+  function onTypeChange() {
+    const type = document.getElementById('fType').value;
+    const taxSec = TAX_SECTIONS[type] || '';
+    document.getElementById('fTaxSection').value = taxSec;
+    document.getElementById('fRevolving').checked = REVOLVING_TYPES.has(type);
+    onRevolvingChange();
+  }
+
+  function onRevolvingChange() {
+    const rev = document.getElementById('fRevolving').checked;
+    document.getElementById('endDateGroup').style.display = rev ? 'none' : '';
+  }
+
+  function autoComputeEmi() {
+    const outstanding = parseFloat(document.getElementById('fOutstanding').value) || 0;
+    const rate = parseFloat(document.getElementById('fRate').value) || 0;
+    const endDateVal = document.getElementById('fEndDate').value;
+    const emiField = document.getElementById('fEmi');
+    const note = document.getElementById('emiComputedNote');
+
+    if (!outstanding || !rate || !endDateVal || emiField.value) { note.style.display = 'none'; return; }
+
+    const end = new Date(endDateVal);
+    const now = new Date();
+    const months = (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth());
+    if (months <= 0) { note.style.display = 'none'; return; }
+
+    const r = rate / 100 / 12;
+    const factor = Math.pow(1 + r, months);
+    const emi = r > 0 ? Math.round(outstanding * r * factor / (factor - 1)) : Math.round(outstanding / months);
+    emiField.value = emi;
+    note.style.display = '';
+  }
+
+  async function saveLiability() {
+    const name = document.getElementById('fName').value.trim();
+    const liabilityType = document.getElementById('fType').value;
+    const lender = document.getElementById('fLender').value.trim();
+    const memberId = parseInt(document.getElementById('fMember').value, 10);
+    const principalOutstanding = parseFloat(document.getElementById('fOutstanding').value) || 0;
+    const principalOriginal = parseFloat(document.getElementById('fOriginal').value) || principalOutstanding;
+    const interestRate = parseFloat(document.getElementById('fRate').value) || 0;
+    const emiMonthly = parseFloat(document.getElementById('fEmi').value) || 0;
+    const startDate = document.getElementById('fStartDate').value;
+    const endDate = document.getElementById('fEndDate').value;
+    const isRevolving = document.getElementById('fRevolving').checked;
+    const taxBenefitSection = document.getElementById('fTaxSection').value.trim();
+    const collateral = document.getElementById('fCollateral').value.trim();
+    const notes = document.getElementById('fNotes').value.trim();
+
+    if (!name) { alert('Name is required'); return; }
+    if (!memberId) { alert('Please select a member'); return; }
+    if (!principalOutstanding) { alert('Outstanding amount is required'); return; }
+    if (!interestRate && !isRevolving) { alert('Interest rate is required'); return; }
+
+    const btn = document.getElementById('modalSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const payload = { memberId, name, liabilityType, lender, principalOriginal, principalOutstanding, interestRate, emiMonthly, startDate, endDate, isRevolving, taxBenefitSection, collateral, notes };
+
+    try {
+      if (editingId) {
+        await WealthAPI.liabilities.update(editingId, payload);
+        delete amortCache[editingId];
+      } else {
+        await WealthAPI.liabilities.add(payload);
+      }
+      closeModal();
+      await loadLiabilities();
+    } catch (err) {
+      alert('Failed to save: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Liability';
+    }
+  }
+
+  async function syncToProjections() {
+    const btn = document.getElementById('syncBtn');
+    btn.disabled = true;
+    btn.textContent = 'Syncing…';
+    try {
+      const res = await WealthAPI.liabilities.syncToProjections();
+      alert(`Done! Synced ${res.count} EMI slot${res.count !== 1 ? 's' : ''} to Financial Planning projections.`);
+    } catch (err) {
+      alert('Sync failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sync Now';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

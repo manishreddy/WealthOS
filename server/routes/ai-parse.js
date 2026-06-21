@@ -4,10 +4,15 @@ const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const router = express.Router();
-const client = new Anthropic({
-  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-});
+function makeClient() {
+  const opts = {};
+  const key = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (key) opts.apiKey = key;
+  const base = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL || process.env.ANTHROPIC_BASE_URL;
+  if (base) opts.baseURL = base;
+  return new Anthropic(opts);
+}
+const client = makeClient();
 
 // POST /api/ai-parse
 // Accepts { prompt } OR { prompt, imageBase64, imageMediaType } for screenshot/vision support

@@ -2,6 +2,7 @@
 
 const express = require('express');
 const { query } = require('../db');
+const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -32,15 +33,10 @@ router.get('/invite/:token', async (req, res) => {
   }
 });
 
-router.post('/invite/accept', async (req, res) => {
+router.post('/invite/accept', verifyToken, async (req, res) => {
   try {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'Token is required' });
-
-    if (!req.isAuthenticated || !req.isAuthenticated() || !req.session?.appUserId) {
-      req.session.pendingInviteToken = token;
-      return res.status(200).json({ redirect: `/api/login` });
-    }
 
     const invRes = await query('SELECT * FROM family_invitations WHERE token = $1', [token]);
     const inv = invRes.rows[0];
@@ -48,8 +44,8 @@ router.post('/invite/accept', async (req, res) => {
     if (inv.status !== 'pending') return res.status(410).json({ error: 'Invite already used or expired' });
     if (new Date(inv.expires_at) < new Date()) return res.status(410).json({ error: 'Invite has expired' });
 
-    const appUserId = req.session.appUserId;
-    const appUserEmail = req.session.appUserEmail || '';
+    const appUserId = req.userId;
+    const appUserEmail = req.userEmail || '';
     if (inv.email && appUserEmail && inv.email.toLowerCase() !== appUserEmail.toLowerCase()) {
       return res.status(403).json({ error: 'This invite was sent to a different email address.' });
     }
@@ -61,9 +57,6 @@ router.post('/invite/accept', async (req, res) => {
     await query('UPDATE family_members SET linked_user_id = $1 WHERE id = $2', [appUserId, member.id]);
     await query("UPDATE family_invitations SET status = 'accepted' WHERE id = $1", [inv.id]);
     await query('INSERT INTO setup_progress (user_id) VALUES ($1) ON CONFLICT DO NOTHING', [appUserId]);
-
-    req.session.ownerResolved = false;
-    req.session.cachedOwnerUserId = null;
 
     return res.status(200).json({
       success: true,

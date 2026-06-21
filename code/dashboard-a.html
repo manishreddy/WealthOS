@@ -502,7 +502,7 @@
                 <div class="family-setup-widget" id="familySetupWidget" style="display:none;">
                     <div class="family-widget-icon">👨‍👩‍👧‍👦</div>
                     <div class="family-widget-body">
-                        <div class="family-widget-title">Set up your family account</div>
+                        <div class="family-widget-title">Setup your account</div>
                         <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals.</div>
                         <div class="family-widget-benefit">Takes 2 minutes — add or remove members any time.</div>
                     </div>
@@ -656,6 +656,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="api.js"></script>
     <script>
         // ── Shared helpers ───────────────────────────────────────────────────
@@ -880,8 +882,8 @@
                 <path d="M ${incPts}" stroke="var(--accent,#8FE62C)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M ${savPts}" stroke="var(--positive,#5DC840)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
                 ${data.map((d, i) => `<circle cx="${toX(i)}" cy="${toY(d.income)}" r="4" fill="var(--accent,#8FE62C)"/>`).join('')}
-                ` : `<text x="400" y="110" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="Inter,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
-                ${data.map((d, i) => `<text x="${toX(i)}" y="215" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="Inter,sans-serif">${d.label}</text>`).join('')}
+                ` : `<text x="400" y="110" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="Space Grotesk,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
+                ${data.map((d, i) => `<text x="${toX(i)}" y="215" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="Space Grotesk,sans-serif">${d.label}</text>`).join('')}
             `;
             document.getElementById('chartTitle').textContent = 'Income & Savings Trend';
             const header = document.querySelector('#mainChart .chart-header');

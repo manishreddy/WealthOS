@@ -9,12 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent-blue: #0066ff;
-            --accent-cyan: #00d4ff;
             --success: #00C805;
             --error: #ff3b30;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -33,21 +29,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-            background-size: 400% 400%;
-            animation: meshGradient 15s ease infinite;
+            background: #F4F6F8;
             padding: 24px;
             -webkit-font-smoothing: antialiased;
         }
 
         .invite-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            background: #FFFFFF;
+            border-radius: 14px;
             padding: 40px;
             width: 100%;
             max-width: 440px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            border: 1px solid #E5E8EC;
             animation: fadeIn 0.6s ease;
         }
 
@@ -59,15 +53,13 @@
             font-family: 'Space Grotesk', sans-serif;
             font-size: 28px;
             font-weight: 800;
-            background: linear-gradient(135deg, #0066ff, #00d4ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #0F172A;
+            letter-spacing: -0.03em;
         }
 
         .invite-banner {
-            background: linear-gradient(135deg, rgba(0,102,255,0.08), rgba(0,212,255,0.08));
-            border: 1px solid rgba(0,102,255,0.15);
+            background: rgba(143,230,44,0.07);
+            border: 1px solid rgba(143,230,44,0.25);
             border-radius: 12px;
             padding: 16px 20px;
             margin-bottom: 28px;
@@ -76,17 +68,17 @@
         .invite-banner .family-name {
             font-size: 18px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: #0F172A;
             margin-bottom: 4px;
         }
         .invite-banner .invite-sub {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: #64748B;
         }
         .invite-banner .member-tag {
             display: inline-block;
-            background: linear-gradient(135deg, #0066ff, #00d4ff);
-            color: white;
+            background: #8FE62C;
+            color: #111;
             font-size: 12px;
             font-weight: 600;
             padding: 3px 10px;
@@ -97,13 +89,13 @@
         .section-title {
             font-size: 20px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: #0F172A;
             margin-bottom: 12px;
         }
 
         .section-sub {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: #64748B;
             margin-bottom: 24px;
             line-height: 1.5;
         }
@@ -111,8 +103,8 @@
         .btn-primary {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #0066ff, #00d4ff);
-            color: white;
+            background: #8FE62C;
+            color: #111;
             border: none;
             border-radius: 10px;
             font-size: 15px;
@@ -120,14 +112,14 @@
             font-family: inherit;
             cursor: pointer;
             margin-top: 8px;
-            transition: opacity 0.2s, transform 0.1s;
+            transition: opacity 0.2s, transform 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             text-decoration: none;
         }
-        .btn-primary:hover { opacity: 0.92; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.01); }
         .btn-primary:active { transform: scale(0.99); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -141,31 +133,31 @@
         }
         .provider-badge {
             font-size: 11px;
-            color: var(--text-secondary);
-            background: #f5f7fa;
-            border: 1px solid #e0e0e0;
+            color: #64748B;
+            background: #F4F6F8;
+            border: 1px solid #E5E8EC;
             border-radius: 5px;
             padding: 3px 9px;
         }
 
         .divider {
             text-align: center;
-            color: var(--text-secondary);
+            color: #64748B;
             font-size: 13px;
             margin: 16px 0;
         }
-        .link { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+        .link { color: #8FE62C; text-decoration: none; font-weight: 600; }
         .link:hover { text-decoration: underline; }
 
         .state-loading, .state-error, .state-success { text-align: center; padding: 20px 0; }
         .state-icon { font-size: 48px; margin-bottom: 16px; }
-        .state-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-        .state-msg { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+        .state-title { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
+        .state-msg { font-size: 14px; color: #64748B; line-height: 1.6; }
 
         .spinner {
             width: 36px; height: 36px;
-            border: 3px solid rgba(0,102,255,0.15);
-            border-top-color: var(--accent-blue);
+            border: 3px solid rgba(143,230,44,0.2);
+            border-top-color: #8FE62C;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             margin: 0 auto 16px;
@@ -214,7 +206,7 @@
             <div class="state-title">Invite not valid</div>
             <div class="state-msg" id="invalid-msg">This invite link is invalid or has expired.</div>
             <br>
-            <a href="/login.html" class="link">Go to login</a>
+            <a href="/login" class="link">Go to login</a>
         </div>
     </div>
 
@@ -254,7 +246,7 @@
             </button>
         </div>
 
-        <div class="divider">Already have an account? <a href="/login.html" class="link">Sign in</a></div>
+        <div class="divider">Already have an account? <a href="/login" class="link">Sign in</a></div>
     </div>
 
     <!-- Success -->
@@ -267,7 +259,15 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
 <script>
+    async function authHeaders() {
+        const s = await getSupabase();
+        const { data: { session } } = await s.auth.getSession();
+        return session ? { 'Authorization': 'Bearer ' + session.access_token } : {};
+    }
+
     const params = new URLSearchParams(window.location.search);
     const inviteToken = params.get('token');
     const fromAuth = params.get('from_auth') === '1';
@@ -304,10 +304,11 @@
         document.getElementById('banner-family').textContent = data.familyName;
         document.getElementById('banner-member').textContent = 'Joining as ' + data.memberName;
 
-        document.getElementById('signInBtn').href = `/api/login?invite=${encodeURIComponent(inviteToken)}`;
+        document.getElementById('signInBtn').href = `/login?invite=${encodeURIComponent(inviteToken)}`;
 
-        const authRes = await fetch('/api/auth/user', { credentials: 'same-origin' });
-        if (authRes.ok) {
+        const sbClient = await getSupabase();
+        const { data: { session: _sess } } = await sbClient.auth.getSession();
+        if (_sess) {
             document.getElementById('sign-in-prompt').style.display = 'none';
             document.getElementById('accept-prompt').style.display = 'block';
 
@@ -328,8 +329,7 @@
         try {
             const res = await fetch('/api/auth/invite/accept', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
+                headers: { ...(await authHeaders()), 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: inviteToken })
             });
             const data = await res.json();

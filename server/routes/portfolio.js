@@ -109,6 +109,7 @@ function formatAsset(asset) {
     assetType: asset.asset_type,
     name: asset.name,
     assetClass: asset.asset_class,
+    category: asset.category || '',
     purchaseValue: parseFloat(asset.purchase_value),
     currentValue: parseFloat(asset.current_value),
     units: parseFloat(asset.units),
@@ -206,8 +207,8 @@ router.post('/copy-month', async (req, res) => {
       await client.query('BEGIN');
       for (const a of sourceAssets) {
         await client.query(
-          'INSERT INTO portfolio_assets (user_id, member_id, year, month, asset_type, name, asset_class, purchase_value, current_value, units, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
-          [req.userId, a.member_id, toYear, toMonth, a.asset_type, a.name, a.asset_class, a.purchase_value, a.current_value, a.units, a.notes]
+          'INSERT INTO portfolio_assets (user_id, member_id, year, month, asset_type, name, asset_class, category, purchase_value, current_value, units, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+          [req.userId, a.member_id, toYear, toMonth, a.asset_type, a.name, a.asset_class, a.category || '', a.purchase_value, a.current_value, a.units, a.notes]
         );
       }
       await client.query('COMMIT');
@@ -303,7 +304,7 @@ router.post('/:memberId', async (req, res) => {
     );
     if (!memberRes.rows[0]) return res.status(404).json({ error: 'Member not found' });
 
-    const { assetType, name, assetClass, purchaseValue = 0, currentValue, units = 0, notes = '', year, month } = req.body;
+    const { assetType, name, assetClass, category = '', purchaseValue = 0, currentValue, units = 0, notes = '', year, month } = req.body;
 
     if (!assetType || !assetType.trim()) return res.status(400).json({ error: 'Asset type is required' });
     if (!name || !name.trim()) return res.status(400).json({ error: 'Asset name is required' });
@@ -317,10 +318,10 @@ router.post('/:memberId', async (req, res) => {
     const assetMonth = parseInt(month, 10) || (now.getMonth() + 1);
 
     const result = await query(`
-      INSERT INTO portfolio_assets (user_id, member_id, year, month, asset_type, name, asset_class, purchase_value, current_value, units, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO portfolio_assets (user_id, member_id, year, month, asset_type, name, asset_class, category, purchase_value, current_value, units, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING id
-    `, [req.userId, memberId, assetYear, assetMonth, assetType.trim(), name.trim(), assetClass.trim(), parseFloat(purchaseValue), parseFloat(currentValue), parseFloat(units), notes]);
+    `, [req.userId, memberId, assetYear, assetMonth, assetType.trim(), name.trim(), assetClass.trim(), category, parseFloat(purchaseValue), parseFloat(currentValue), parseFloat(units), notes]);
 
     await query(
       'UPDATE setup_progress SET portfolio_done = 1, updated_at = NOW() WHERE user_id = $1',
@@ -357,6 +358,7 @@ router.put('/:memberId/:id', async (req, res) => {
       assetType = existing.asset_type,
       name = existing.name,
       assetClass = existing.asset_class,
+      category = existing.category,
       purchaseValue = existing.purchase_value,
       currentValue = existing.current_value,
       units = existing.units,
@@ -365,12 +367,13 @@ router.put('/:memberId/:id', async (req, res) => {
 
     await query(`
       UPDATE portfolio_assets
-      SET asset_type = $1, name = $2, asset_class = $3, purchase_value = $4, current_value = $5, units = $6, notes = $7, last_updated = NOW()
-      WHERE id = $8 AND user_id = $9 AND member_id = $10
+      SET asset_type = $1, name = $2, asset_class = $3, category = $4, purchase_value = $5, current_value = $6, units = $7, notes = $8, last_updated = NOW()
+      WHERE id = $9 AND user_id = $10 AND member_id = $11
     `, [
       assetType.toString().trim(),
       name.toString().trim(),
       assetClass.toString().trim(),
+      category || '',
       parseFloat(purchaseValue),
       parseFloat(currentValue),
       parseFloat(units),

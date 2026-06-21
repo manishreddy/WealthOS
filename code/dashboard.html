@@ -13,125 +13,132 @@
     <style>
         body { font-family: var(--font); background: var(--bg); color: var(--text-primary); }
 
-        .app-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
-        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); }
+        .app-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; overflow: hidden; }
+        .main-content { padding: 32px 40px; overflow-y: auto; background: var(--bg); height: 100%; }
 
         /* ── Top bar ─────────────────────────────────────────────────────── */
         .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
-        .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; margin-bottom: 4px; }
-        .page-subtitle { font-size: 0.9375rem; color: var(--text-secondary); letter-spacing: -0.01em; }
+        .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; margin-bottom: 8px; }
 
-        /* ── Dashboard grid — 20px tighter gaps ─────────────────────────── */
+        /* ── Month nav (inside cashflow card) ───────────────────────────── */
+        .cashflow-month-nav { display: flex; align-items: center; gap: 8px; }
+        .cashflow-month-nav-btn {
+            width: 26px; height: 26px; border-radius: 7px;
+            border: 1px solid var(--border-strong); background: var(--card-light-bg);
+            color: var(--text-secondary); font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.14s; line-height: 1;
+        }
+        .cashflow-month-nav-btn:hover { background: var(--border); color: var(--text-primary); }
+        .cashflow-month-nav-label { font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); letter-spacing: -0.02em; min-width: 110px; text-align: center; }
+
+        /* ── Dashboard grid ──────────────────────────────────────────────── */
         .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; }
 
-        /* ── Hero card ───────────────────────────────────────────────────── */
-        .hero-metric-card {
+        /* ── Cashflow card ───────────────────────────────────────────────── */
+        .cashflow-card {
             grid-column: span 12;
-            background: var(--card-dark-bg, #111);
-            border-radius: 20px; padding: 0;
-            position: relative; overflow: hidden;
-            box-shadow: var(--shadow-md);
-            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
-            min-height: 140px;
-        }
-
-        /* ── Hero: filled (data exists) ──────────────────────────────────── */
-        .hero-filled { display: flex; align-items: stretch; padding: 28px 32px; gap: 0; }
-        .hero-metric-main { flex: 1; position: relative; }
-        .hero-metric-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
-        .hero-metric-value { font-size: 2.75rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; margin-bottom: 6px; line-height: 1; font-feature-settings: 'tnum' 1; }
-        .hero-metric-change { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8125rem; font-weight: 600; color: var(--accent, #8FE62C); }
-        .hero-metric-divider { width: 1px; background: rgba(255,255,255,0.08); margin: 0 28px; }
-        .hero-metric-secondary { display: flex; flex-direction: column; justify-content: center; gap: 18px; flex-shrink: 0; min-width: 220px; }
-        .hero-secondary-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
-        .hero-secondary-value { font-size: 1.25rem; font-weight: 700; color: white; letter-spacing: -0.03em; font-feature-settings: 'tnum' 1; }
-        .hero-secondary-sub { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
-
-        /* Growth curve SVG decoration on filled hero */
-        .hero-bg-illu { position: absolute; right: 0; bottom: 0; width: 220px; height: 100%; opacity: 0.07; pointer-events: none; }
-
-        /* ── Hero: empty / welcome state ─────────────────────────────────── */
-        .hero-empty {
-            display: flex; align-items: center; gap: 40px;
-            padding: 32px 40px; position: relative;
-        }
-        .hero-empty-illu { flex-shrink: 0; width: 120px; opacity: 0.85; }
-        .hero-empty-illu svg { display: block; }
-        .hero-empty-body { flex: 1; }
-        .hero-empty-eyebrow { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent, #8FE62C); margin-bottom: 8px; }
-        .hero-empty-heading { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; margin-bottom: 8px; line-height: 1.2; }
-        .hero-empty-sub { font-size: 0.9375rem; color: rgba(255,255,255,0.45); line-height: 1.55; max-width: 480px; margin-bottom: 22px; }
-        .hero-empty-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .hero-empty-btn {
-            padding: 10px 20px; background: var(--accent, #8FE62C); color: #111;
-            border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
-            cursor: pointer; text-decoration: none; display: inline-block; font-family: var(--font);
-            transition: filter 0.15s, transform 0.15s;
-        }
-        .hero-empty-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-        .hero-empty-btn.secondary {
-            background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75);
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-        .hero-empty-btn.secondary:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
-        /* Decorative grid pattern on empty hero */
-        .hero-empty::before {
-            content: ''; position: absolute; inset: 0; border-radius: inherit;
-            background-image: radial-gradient(circle, rgba(143,230,44,0.06) 1px, transparent 1px);
-            background-size: 24px 24px; pointer-events: none;
-        }
-
-        /* skeleton (loading) */
-        .hero-metric-card.loading::after {
-            content: ''; position: absolute; inset: 0; border-radius: inherit;
-            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-            background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear;
-            pointer-events: none;
-        }
-
-        /* ── FTUX Nudge — Rich (lime border, light card) ─────────────────── */
-        .ftux-nudge-section { grid-column: span 12; }
-        .ftux-nudge-card {
             background: var(--card-light-bg);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent, #8FE62C);
-            background-color: rgba(143, 230, 44, 0.04);
+            border-radius: var(--card-radius, 14px);
             padding: 24px 28px;
-            display: flex; align-items: center; gap: 20px;
-            box-shadow: var(--shadow-sm);
-            animation: wos-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) 0.08s both;
+            position: relative; overflow: hidden;
+            box-shadow: var(--card-light-shadow);
+            border: 1px solid var(--border);
+            animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
         }
-        .ftux-nudge-icon { font-size: 2.25rem; flex-shrink: 0; }
-        .ftux-nudge-body { flex: 1; min-width: 0; }
-        .ftux-nudge-step {
-            font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.06em; color: var(--accent-dark, #5FA518); margin-bottom: 4px;
+        .cashflow-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .cashflow-header-left { display: flex; flex-direction: column; gap: 4px; }
+        .cashflow-card-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+        .cashflow-top { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
+        .cashflow-income-block { flex: 1; }
+        .cashflow-income-label { font-size: 0.75rem; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+        .cashflow-income-value { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; line-height: 1; font-feature-settings: 'tnum' 1; }
+        .cashflow-rate-hero { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .cashflow-rate-value { font-size: 2.75rem; font-weight: 800; color: var(--accent, #8FE62C); letter-spacing: -0.04em; line-height: 1; font-feature-settings: 'tnum' 1; display: flex; align-items: baseline; gap: 6px; }
+        .cashflow-rate-label { font-size: 0.75rem; color: var(--text-secondary); }
+        .cashflow-thumb { font-size: 1.25rem; display: inline-block; }
+        .cashflow-thumb.animate { animation: thumb-bounce 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes thumb-bounce {
+            0%   { transform: scale(0.5) translateY(8px); opacity: 0; }
+            60%  { transform: scale(1.3) translateY(-4px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
         }
-        .ftux-nudge-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; }
-        .ftux-nudge-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
-        .ftux-nudge-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .ftux-nudge-btn {
-            padding: 10px 20px; background: var(--accent, #8FE62C); color: #111;
-            border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 700;
-            cursor: pointer; transition: all 0.16s; white-space: nowrap;
-            text-decoration: none; display: inline-block; font-family: var(--font);
+        .cashflow-rows { display: flex; flex-direction: column; gap: 12px; }
+        .cashflow-row { display: flex; align-items: center; gap: 12px; }
+        .cashflow-row-icon { font-size: 0.875rem; flex-shrink: 0; width: 20px; text-align: center; }
+        .cashflow-row-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); width: 86px; flex-shrink: 0; }
+        .cashflow-bar-wrap { flex: 1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .cashflow-bar-fill { height: 100%; border-radius: 4px; transition: width 0.7s cubic-bezier(0.22,1,0.36,1); min-width: 0; }
+        .cashflow-row-amount { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; width: 96px; text-align: right; flex-shrink: 0; }
+        .cashflow-row-pct { font-size: 0.8125rem; font-weight: 700; color: var(--text-secondary); width: 36px; text-align: right; flex-shrink: 0; }
+        .cashflow-row-delta { font-size: 0.6875rem; font-weight: 600; width: 60px; text-align: right; flex-shrink: 0; }
+        .cashflow-row-delta.up { color: #5DC840; }
+        .cashflow-row-delta.down { color: #FF9500; }
+        .cashflow-row-delta.neutral { color: var(--text-tertiary); }
+        .cashflow-example-badge { position: absolute; top: 14px; right: 14px; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); background: var(--border); padding: 3px 8px; border-radius: 20px; }
+        /* Firework / confetti burst for excellent savings */
+        .cashflow-card.savings-excellent::after {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at 80% 20%, rgba(143,230,44,0.08) 0%, transparent 60%);
+            animation: wos-fade-in 0.5s ease both;
         }
-        .ftux-nudge-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-        .ftux-nudge-dismiss { width: 30px; height: 30px; border-radius: 50%; background: var(--hover-bg); border: none; color: var(--text-tertiary); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.16s; flex-shrink: 0; }
-        .ftux-nudge-dismiss:hover { background: var(--border); color: var(--text-primary); }
-        .ftux-progress-dots { display: flex; gap: 5px; margin-top: 8px; }
-        .ftux-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
-        .ftux-dot.active { background: var(--accent, #8FE62C); width: 18px; border-radius: 3px; }
-        .ftux-dot.done { background: var(--accent, #8FE62C); opacity: 0.4; }
+        .savings-good .cashflow-rate-value { color: var(--accent, #8FE62C); }
+        .savings-excellent .cashflow-rate-value { color: var(--accent, #8FE62C); }
+        .savings-poor .cashflow-rate-value { color: var(--viz-expense, #FF9500); }
+
+        /* ── Mid-row: 2-col layout ───────────────────────────────────────── */
+        .mid-row { grid-column: span 12; display: grid; grid-template-columns: 7fr 5fr; gap: 20px; }
+
+        /* ── Portfolio summary ───────────────────────────────────────────── */
+        .portfolio-summary-card { background: var(--card-light-bg); border-radius: var(--card-radius, 14px); padding: 24px; box-shadow: var(--card-light-shadow); border: 1px solid var(--border); }
+        .ps-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .ps-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+        .ps-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; transition: opacity 0.15s; }
+        .ps-link:hover { opacity: 0.75; }
+        [data-theme="dark"] .ps-link { color: var(--accent, #8FE62C); }
+        .ps-networth { font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.04em; font-feature-settings: 'tnum' 1; margin-bottom: 2px; }
+        .ps-networth-label { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 20px; }
+        .ps-allocation-list { display: flex; flex-direction: column; gap: 11px; }
+        .ps-row { display: flex; align-items: center; gap: 10px; }
+        .ps-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .ps-class { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); width: 90px; flex-shrink: 0; }
+        .ps-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .ps-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .ps-pct { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); width: 36px; text-align: right; flex-shrink: 0; font-feature-settings: 'tnum' 1; }
+        .ps-val { font-size: 0.8125rem; color: var(--text-secondary); width: 80px; text-align: right; flex-shrink: 0; font-feature-settings: 'tnum' 1; }
+        .ps-example-badge { display: inline-block; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); background: var(--border); padding: 2px 7px; border-radius: 20px; margin-bottom: 8px; }
+
+        /* ── Goals snapshot ──────────────────────────────────────────────── */
+        .goals-snapshot-card { background: var(--card-light-bg); border-radius: var(--card-radius, 14px); padding: 24px; box-shadow: var(--card-light-shadow); border: 1px solid var(--border); }
+        .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .gs-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+        .gs-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; transition: opacity 0.15s; }
+        .gs-link:hover { opacity: 0.75; }
+        [data-theme="dark"] .gs-link { color: var(--accent, #8FE62C); }
+        .goals-compact-list { display: flex; flex-direction: column; gap: 4px; }
+        .goal-compact-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; transition: background 0.14s; cursor: pointer; }
+        .goal-compact-row:hover { background: var(--hover-bg); }
+        .goal-compact-icon { font-size: 1.25rem; flex-shrink: 0; width: 26px; text-align: center; line-height: 1; }
+        .goal-compact-body { flex: 1; min-width: 0; }
+        .goal-compact-name { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .goal-compact-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+        .goal-compact-bar-fill { height: 100%; background: var(--accent, #8FE62C); border-radius: 2px; transition: width 0.5s ease; }
+        .goal-compact-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; min-width: 52px; }
+        .goal-compact-pct { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; }
+        .goal-compact-time { font-size: 0.6875rem; color: var(--text-tertiary); }
+        .gs-example-badge { display: inline-block; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); background: var(--border); padding: 2px 7px; border-radius: 20px; margin-bottom: 8px; }
+        .gs-empty-cta { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; border: 1px solid var(--accent-dark, #5FA518); padding: 5px 14px; border-radius: 20px; display: inline-block; transition: all 0.15s; }
+        .gs-empty-cta:hover { background: var(--accent-dark, #5FA518); color: #fff; }
+        [data-theme="dark"] .gs-empty-cta { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
 
         /* ── Family Setup Widget ─────────────────────────────────────────── */
         .family-setup-widget {
-            grid-column: span 12; background: var(--card-light-bg); border-radius: 20px;
+            grid-column: span 12; background: var(--card-light-bg); border-radius: var(--card-radius, 14px);
             border: 1px solid var(--border); border-left: 4px solid var(--accent, #8FE62C);
             padding: 24px 28px;
             display: flex; align-items: center; gap: 24px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--card-light-shadow);
             animation: wos-slide-up 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
             position: relative;
         }
@@ -148,196 +155,24 @@
         .family-widget-dismiss { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--hover-bg); border: none; color: var(--text-tertiary); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.16s; }
         .family-widget-dismiss:hover { background: var(--border); color: var(--text-primary); }
 
-        /* ── Metric Cards ────────────────────────────────────────────────── */
-        .metric-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
-        .metric-card {
-            background: var(--card-light-bg); border-radius: 16px; padding: 20px 20px 16px;
-            box-shadow: var(--shadow-sm); cursor: pointer;
-            transition: box-shadow 0.16s, transform 0.16s; border: 1px solid var(--border);
-            position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 0;
-        }
-        .metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-
-        /* Colored top accent bar per card type */
-        .metric-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0;
-            height: 3px; border-radius: 16px 16px 0 0;
-            background: var(--mc-accent, var(--border-strong));
-        }
-
-        /* Icon badge top-right */
-        .metric-icon-badge {
-            position: absolute; top: 14px; right: 14px;
-            width: 32px; height: 32px; border-radius: 8px;
-            background: var(--mc-icon-bg, rgba(0,0,0,0.04));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; pointer-events: none;
-        }
-
-        .metric-label {
-            font-size: 0.625rem; font-weight: 700; color: var(--text-tertiary);
-            text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
-            padding-top: 4px;
-        }
-        .metric-label.key { color: var(--accent-dark, #5FA518); }
-        [data-theme="dark"] .metric-label.key { color: var(--accent, #8FE62C); }
-
-        .metric-value {
-            font-size: 1.4375rem; font-weight: 800; color: var(--text-primary);
-            letter-spacing: -0.035em; line-height: 1.1; font-feature-settings: 'tnum' 1;
-            margin-bottom: 4px;
-        }
-
-        /* Trend indicator: ↑ +12% or ↓ -4% */
-        .metric-trend {
-            font-size: 0.6875rem; font-weight: 600; display: flex; align-items: center; gap: 3px;
-            margin-bottom: 10px; min-height: 16px;
-        }
-        .metric-trend.up { color: var(--positive, #5DC840); }
-        .metric-trend.down { color: var(--negative, #FF3B30); }
-        .metric-trend.neutral { color: var(--text-tertiary); }
-
-        /* Mini sparkline */
-        .metric-sparkline { display: block; width: 100%; height: 28px; overflow: visible; margin-top: auto; }
-        .spark-line { stroke: var(--mc-spark, var(--accent, #8FE62C)); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .spark-area { fill: var(--mc-spark-area, rgba(143,230,44,0.12)); }
-        .spark-baseline { stroke: var(--border-strong); stroke-width: 1; }
-
-        /* ── Metric card empty state ─────────────────────────────────────── */
-        .metric-card--empty {
-            align-items: center; justify-content: center;
-            text-align: center; gap: 8px; padding: 22px 14px;
-            border-style: dashed !important;
-        }
-        .metric-card--empty::before { display: none; }
-        .metric-card--empty .metric-label { margin-bottom: 4px; }
-        .metric-empty-illu {
-            width: 64px; height: 50px; display: block;
-            color: var(--text-tertiary);
-            margin: 4px auto;
-        }
-        .metric-empty-cta {
-            font-size: 0.6875rem; font-weight: 700;
-            color: var(--accent-dark, #5FA518); text-decoration: none;
-            letter-spacing: -0.01em; transition: opacity 0.15s;
-            border: 1px solid var(--accent-dark, #5FA518);
-            padding: 4px 12px; border-radius: 20px;
-            display: inline-block; margin-top: 2px;
-        }
-        .metric-empty-cta:hover { opacity: 0.75; }
-        [data-theme="dark"] .metric-empty-cta { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
-
-        /* ── Charts ──────────────────────────────────────────────────────── */
-        .chart-card { grid-column: span 8; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-        .chart-card.full-width { grid-column: span 12; }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .chart-title { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.6875rem; }
-        .chart-tabs { display: flex; gap: 4px; }
-        .chart-tab { padding: 5px 12px; border-radius: 7px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); background: transparent; border: 1px solid var(--border); cursor: pointer; transition: all 0.16s; }
-        .chart-tab:hover { border-color: var(--accent); color: var(--text-primary); }
-        .chart-tab.active { background: var(--card-dark-bg, #111); border-color: var(--card-dark-bg, #111); color: #fff; }
-        .chart-area { height: 200px; position: relative; margin-bottom: 8px; }
-        .chart-svg { width: 100%; height: 100%; }
-        .chart-grid { stroke: var(--border); stroke-width: 1; }
-
-        /* Gauge */
-        .gauge-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; position: relative; }
-        .gauge-svg { width: 160px; height: 160px; max-width: 100%; }
-        .gauge-bg { fill: none; stroke: var(--border); stroke-width: 12; }
-        .gauge-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1s ease; }
-        .gauge-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
-        .gauge-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-        /* Gauge empty state */
-        .gauge-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 10px; text-align: center; padding: 0 16px; }
-        .gauge-empty-icon { font-size: 2.25rem; opacity: 0.4; }
-        .gauge-empty-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.45; }
-        .gauge-empty-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; border: 1px solid var(--accent-dark, #5FA518); padding: 5px 14px; border-radius: 20px; margin-top: 2px; display: inline-block; }
-        [data-theme="dark"] .gauge-empty-link { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
-        /* Section empty state */
-        .section-empty { padding: 32px 0 16px; text-align: center; }
-        .section-empty-icon { font-size: 2rem; opacity: 0.35; margin-bottom: 8px; }
-        .section-empty-text { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px; }
-        .section-empty-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; }
-        [data-theme="dark"] .section-empty-link { color: var(--accent, #8FE62C); }
-
-        /* ── Goals ───────────────────────────────────────────────────────── */
-        .goals-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-        .goal-card { background: var(--card-light-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.16s; overflow: hidden; }
-        .goal-card:hover { box-shadow: var(--shadow-md); }
-        .goal-card.expanded { grid-column: span 2; }
-        .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .goal-icon { font-size: 1.875rem; }
-        .goal-progress-ring { width: 40px; height: 40px; }
-        .goal-ring-bg { fill: none; stroke: var(--border); stroke-width: 4; }
-        .goal-ring-progress { fill: none; stroke: var(--accent, #8FE62C); stroke-width: 4; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; }
-        .goal-title { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
-        .goal-stats { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-        .goal-current { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; }
-        .goal-target { font-size: 0.8125rem; color: var(--text-secondary); }
-        .goal-progress-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-        .goal-progress-fill { height: 100%; background: var(--accent, #8FE62C); border-radius: 3px; transition: width 0.5s ease; }
-        .goal-percentage { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; }
-        .goal-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .goal-card.expanded .goal-details { display: block; }
-        .goal-detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8125rem; }
-        .goal-detail-label { color: var(--text-secondary); }
-        .goal-detail-value { font-weight: 600; color: var(--text-primary); }
-
-        /* ── Allocation & Activity ───────────────────────────────────────── */
-        .activity-card { grid-column: span 4; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-        .activity-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 16px; }
-        .activity-list { display: flex; flex-direction: column; gap: 12px; }
-        .activity-item { display: flex; gap: 10px; cursor: pointer; padding: 8px; margin: -8px; border-radius: 10px; transition: background 0.14s; }
-        .activity-item:hover { background: var(--hover-bg); }
-        .activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; }
-        .activity-icon.buy { background: rgba(93,200,64,0.1); }
-        .activity-icon.sell { background: rgba(255,59,48,0.1); }
-        .activity-icon.transfer { background: rgba(59,115,255,0.1); }
-        .activity-info { flex: 1; min-width: 0; }
-        .activity-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .activity-details { font-size: 0.75rem; color: var(--text-secondary); }
-        .activity-amount { text-align: right; flex-shrink: 0; }
-        .activity-value { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
-
-        .allocation-card { grid-column: span 6; background: var(--card-light-bg); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-        .allocation-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 20px; }
-        .allocation-list { display: flex; flex-direction: column; gap: 16px; }
-        .allocation-item { display: flex; align-items: center; gap: 12px; }
-        .allocation-color { width: 3px; height: 30px; border-radius: 2px; }
-        .allocation-info { flex: 1; }
-        .allocation-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
-        .allocation-bar { height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; }
-        .allocation-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-        .allocation-stats { text-align: right; }
-        .allocation-percentage { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-        .allocation-value { font-size: 0.75rem; color: var(--text-secondary); }
-
-        /* ── Sections ────────────────────────────────────────────────────── */
-        .section-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
-        .section-toggle-icon { font-size: 1.125rem; transition: transform 0.28s; }
-        .section-toggle.expanded .section-toggle-icon { transform: rotate(180deg); }
-        .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-        .section-content.expanded { max-height: 2000px; }
-
-        .income-expense-bars { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
-        .ie-row { display: flex; align-items: center; gap: 12px; }
-        .ie-label { width: 80px; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); }
-        .ie-bar { flex: 1; height: 28px; background: var(--border); border-radius: 7px; overflow: hidden; }
-        .ie-bar-fill { height: 100%; border-radius: 7px; display: flex; align-items: center; padding: 0 12px; font-size: 0.8125rem; font-weight: 700; color: white; transition: width 0.5s ease; }
-        .ie-bar-fill.income { background: var(--positive, #5DC840); }
-        .ie-bar-fill.expense { background: var(--warning, #FF9500); }
-        .ie-value { width: 100px; text-align: right; font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); font-feature-settings: 'tnum' 1; }
 
         /* ── Skeleton ────────────────────────────────────────────────────── */
         .wos-skeleton-line { display: block; background: linear-gradient(90deg, var(--border) 25%, var(--hover-bg) 50%, var(--border) 75%); background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear; border-radius: 6px; color: transparent !important; min-height: 18px; }
-        .wos-skeleton-card { pointer-events: none; opacity: 0.55; }
-        .chart-card.loading { position: relative; }
-        .chart-card.loading::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%); background-size: 600px 100%; animation: wos-shimmer 1.5s infinite linear; pointer-events: none; z-index: 2; }
+
+        /* ── Empty state helper ──────────────────────────────────────────── */
+        .empty-state-box { text-align: center; padding: 36px 20px; }
+        .empty-state-box-icon { font-size: 2.25rem; margin-bottom: 10px; opacity: 0.45; }
+        .empty-state-box-text { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .empty-state-box-link { font-size: 0.875rem; font-weight: 600; color: var(--accent-dark, #5FA518); text-decoration: none; }
+        .empty-state-box-link:hover { text-decoration: underline; }
+        .example-cta-link { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; border: 1.5px solid var(--accent-dark, #5FA518); padding: 5px 16px; border-radius: 20px; transition: all 0.15s; display: inline-block; }
+        .example-cta-link:hover { background: var(--accent-dark, #5FA518); color: #fff; }
+        [data-theme="dark"] .example-cta-link { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
 
         /* ── Modal ───────────────────────────────────────────────────────── */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; animation: wos-fade-in 0.2s ease both; }
-        .modal { background: var(--card-light-bg); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: wos-scale-in 0.28s cubic-bezier(0.22,1,0.36,1) both; }
+        .modal { background: var(--card-light-bg); border-radius: var(--card-radius, 14px); padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: wos-scale-in 0.28s cubic-bezier(0.22,1,0.36,1) both; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
         .modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--hover-bg); border: none; cursor: pointer; font-size: 1.25rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: background 0.14s; }
@@ -349,8 +184,8 @@
         .form-input:focus, .form-select:focus { border-color: var(--accent, #8FE62C); box-shadow: 0 0 0 3px rgba(143,230,44,0.15); }
         .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
         .btn { padding: 12px 24px; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: all 0.14s; border: none; font-family: var(--font); }
-        .btn-primary { background: var(--text-primary); color: var(--bg); }
-        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary { background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); }
+        .btn-primary:hover { filter: brightness(1.08); }
         .btn-secondary { background: var(--hover-bg); color: var(--text-primary); border: 1px solid var(--border-strong); }
         .btn-secondary:hover { background: var(--border); }
 
@@ -364,43 +199,104 @@
         .empty-state-box-link { font-size: 0.875rem; font-weight: 600; color: var(--accent-dark, #5FA518); text-decoration: none; }
         .empty-state-box-link:hover { text-decoration: underline; }
 
+        /* ── Setup Journey (onboarding timeline) ────────────────────────────── */
+        .setup-stack-wrap { grid-column: span 12; }
+        .journey-card { background: var(--card-light-bg); border-radius: var(--card-radius, 14px); border: 1px solid var(--border); padding: 24px 28px; box-shadow: var(--card-light-shadow); }
+        .journey-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .journey-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+        .journey-count { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+        .journey-count strong { color: var(--accent-dark, #5FA518); }
+        [data-theme="dark"] .journey-count strong { color: var(--accent, #8FE62C); }
+        .journey-progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 22px; overflow: hidden; }
+        .journey-progress-bar-fill { height: 100%; background: var(--accent, #8FE62C); border-radius: 2px; transition: width 0.6s ease; }
+        .journey-steps { display: flex; flex-direction: column; }
+        .journey-step { display: flex; gap: 16px; }
+        .journey-spine { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 28px; }
+        .journey-node {
+            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; transition: background 0.2s;
+        }
+        .journey-node--done { background: var(--accent, #8FE62C); color: #111; font-size: 0.875rem; }
+        .journey-node--pending { border: 2px solid var(--border-strong); background: var(--card-light-bg); color: var(--text-secondary); }
+        .journey-connector { width: 2px; flex: 1; min-height: 12px; margin: 2px 0; border-radius: 1px; transition: background 0.3s; }
+        .journey-connector--done { background: var(--accent, #8FE62C); }
+        .journey-connector--pending { background: var(--border); }
+        .journey-body { flex: 1; padding-bottom: 18px; display: flex; align-items: flex-start; gap: 12px; padding-top: 2px; }
+        .journey-step:last-child .journey-body { padding-bottom: 0; }
+        .journey-step-icon { font-size: 1.125rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+        .journey-step-text { flex: 1; min-width: 0; }
+        .journey-step-title { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); display: block; }
+        .journey-step-title--done { text-decoration: line-through; color: var(--text-tertiary); }
+        .journey-step-sub { font-size: 0.8125rem; color: var(--text-secondary); margin-top: 1px; line-height: 1.4; }
+        .journey-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .journey-cta { font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518); text-decoration: none; white-space: nowrap; transition: opacity 0.15s; }
+        .journey-cta:hover { opacity: 0.75; }
+        [data-theme="dark"] .journey-cta { color: var(--accent, #8FE62C); }
+        .journey-skip { font-size: 0.75rem; color: var(--text-tertiary); background: none; border: none; cursor: pointer; font-family: var(--font); padding: 0; white-space: nowrap; transition: color 0.15s; }
+        .journey-skip:hover { color: var(--text-secondary); text-decoration: underline; }
+
+        /* ── Example data: metric cards ─────────────────────────────────────── */
+        .metric-card--example { position: relative; }
+        .metric-card--example .metric-value { color: var(--text-secondary); }
+        .metric-card--example .metric-trend { opacity: 0.6; }
+        .metric-example-badge {
+            display: inline-block; font-size: 0.5rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-tertiary); background: var(--border);
+            padding: 2px 7px; border-radius: 20px; margin-bottom: 6px;
+        }
+        .metric-example-cta {
+            font-size: 0.6875rem; font-weight: 700; color: var(--accent-dark, #5FA518);
+            text-decoration: none; border: 1px solid var(--accent-dark, #5FA518);
+            padding: 4px 12px; border-radius: 20px; display: inline-block; margin-top: 6px;
+            transition: all 0.15s;
+        }
+        .metric-example-cta:hover { background: var(--accent-dark, #5FA518); color: #fff; }
+        [data-theme="dark"] .metric-example-cta { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
+
+        /* ── Example data: charts ────────────────────────────────────────────── */
+        .chart-example-wrap { position: relative; }
+        .chart-example-label {
+            position: absolute; top: 8px; right: 8px;
+            font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text-tertiary); background: var(--border); padding: 2px 8px; border-radius: 20px;
+        }
+        .chart-example-cta-wrap {
+            display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 14px;
+        }
+        .chart-example-note { font-size: 0.8125rem; color: var(--text-tertiary); }
+        .chart-example-link {
+            font-size: 0.8125rem; font-weight: 700; color: var(--accent-dark, #5FA518);
+            text-decoration: none; border: 1.5px solid var(--accent-dark, #5FA518);
+            padding: 5px 16px; border-radius: 20px; transition: all 0.15s;
+        }
+        .chart-example-link:hover { background: var(--accent-dark, #5FA518); color: #fff; }
+        [data-theme="dark"] .chart-example-link { color: var(--accent, #8FE62C); border-color: var(--accent, #8FE62C); }
+
         /* ── Responsive ──────────────────────────────────────────────────── */
-        @media (max-width: 1536px) { .metric-cards { grid-template-columns: repeat(3, 1fr); } .goals-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 1280px) { .metric-cards { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: repeat(2, 1fr); } .chart-card { grid-column: span 12; } .activity-card, .allocation-card { grid-column: span 6; } }
+        @media (max-width: 1280px) { .mid-row { grid-template-columns: 1fr; } .activity-card, .allocation-card { grid-column: span 6; } }
         @media (max-width: 900px) {
-            .hero-filled { flex-direction: column; gap: 20px; }
-            .hero-metric-divider { width: 100%; height: 1px; margin: 8px 0; }
-            .hero-metric-secondary { min-width: 0; width: 100%; flex-direction: row; gap: 24px; }
-            .hero-metric-value { font-size: 2.25rem; }
-            .hero-empty { flex-direction: column; gap: 16px; padding: 28px 24px; }
-            .hero-empty-illu { width: 80px; align-self: center; }
-            .ftux-nudge-card { flex-direction: column; align-items: flex-start; gap: 14px; }
-            .ftux-nudge-actions { width: 100%; justify-content: space-between; }
+            .cashflow-top { flex-direction: column; gap: 16px; }
+            .cashflow-rate-hero { text-align: left; align-items: flex-start; }
             .family-setup-widget { flex-direction: column; align-items: flex-start; }
             .family-widget-actions { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
         }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
             .main-content { padding: 16px; overflow-x: hidden; }
-            .metric-cards { grid-template-columns: repeat(2, 1fr); }
-            .goals-grid { grid-template-columns: 1fr; }
             .activity-card, .allocation-card { grid-column: span 12; }
             .top-bar { flex-direction: column; gap: 16px; }
-            .top-actions { flex-wrap: wrap; gap: 8px; }
-            .chart-header { flex-wrap: wrap; gap: 8px; }
-            .chart-title { white-space: normal; }
-            .chart-tabs { width: 100%; justify-content: flex-start; }
-            .hero-empty-heading { font-size: 1.4rem; }
+            .cashflow-card { padding: 20px; }
+            .cashflow-header { flex-wrap: wrap; gap: 10px; }
+            .cashflow-income-value { font-size: 1.875rem; }
+            .cashflow-rate-value { font-size: 2.25rem; }
+            .cashflow-row-amount { width: 76px; }
+            .cashflow-row-icon { display: none; }
         }
         @media (max-width: 480px) {
             .page-title { font-size: 1.5rem; }
-            .hero-metric-value { font-size: 2rem; }
-            .metric-cards { grid-template-columns: 1fr; }
-            .goals-grid { grid-template-columns: 1fr; }
-            .chart-card { overflow: hidden; }
-            .chart-area { height: 160px; }
-            .gauge-container { height: 160px; }
-            .gauge-svg { width: 120px; height: 120px; }
+            .cashflow-row-delta { display: none; }
+            .cashflow-month-nav-label { min-width: 90px; font-size: 0.8125rem; }
         }
     </style>
 </head>
@@ -412,7 +308,6 @@
             <div class="top-bar">
                 <div class="page-header">
                     <div class="page-title" id="pageTitle">Welcome</div>
-                    <div class="page-subtitle" id="pageSubtitle">Loading your dashboard…</div>
                 </div>
             </div>
 
@@ -422,123 +317,54 @@
                 <div class="person-tabs-actions"><a href="settings.html" class="settings-link-btn">⚙️ Manage members</a></div>
             </div>
 
-
             <div class="dashboard-grid" id="dashboardGrid">
 
-                <!-- Hero Net Worth Card -->
-                <div class="hero-metric-card loading" id="heroCard"></div>
+                <!-- Setup Journey (onboarding) — shown first -->
+                <div class="setup-stack-wrap" id="ftuxNudgeSection" style="display:none;"></div>
 
-                <!-- Family Setup Widget -->
-                <div class="family-setup-widget" id="familySetupWidget" style="display:none;">
-                    <button class="family-widget-dismiss" id="familyWidgetDismiss" title="Skip for now">×</button>
-                    <div class="family-widget-icon">👨‍👩‍👧‍👦</div>
-                    <div class="family-widget-body">
-                        <div class="family-widget-title">Set up your family account</div>
-                        <div class="family-widget-desc">Track combined net worth, split income and expenses per person, and plan shared goals.</div>
-                        <div class="family-widget-benefit">Takes 2 minutes — add or remove members any time.</div>
-                    </div>
-                    <div class="family-widget-actions">
-                        <a href="family-setup.html" class="family-widget-btn">Set up family →</a>
-                        <button class="family-widget-skip" id="familyWidgetSkip">Maybe later →</button>
-                    </div>
-                </div>
-
-                <!-- FTUX Nudge -->
-                <div class="ftux-nudge-section" id="ftuxNudgeSection" style="display:none;">
-                    <div class="ftux-nudge-card">
-                        <div class="ftux-nudge-icon" id="ftuxIcon">📊</div>
-                        <div class="ftux-nudge-body">
-                            <div class="ftux-nudge-step" id="ftuxStep">Step 1 of 3</div>
-                            <div class="ftux-nudge-title" id="ftuxTitle">Add your monthly income &amp; expenses</div>
-                            <div class="ftux-nudge-desc" id="ftuxDesc">See your savings rate and where your money goes.</div>
-                            <div class="ftux-progress-dots" id="ftuxDots">
-                                <div class="ftux-dot active"></div>
-                                <div class="ftux-dot"></div>
-                                <div class="ftux-dot"></div>
-                            </div>
+                <!-- Cashflow Summary Card -->
+                <div class="cashflow-card" id="cashflowCard">
+                    <div class="cashflow-header">
+                        <div class="cashflow-header-left">
+                            <div class="cashflow-card-title">Monthly Summary</div>
                         </div>
-                        <div class="ftux-nudge-actions">
-                            <a href="#" class="ftux-nudge-btn" id="ftuxCta">Go to Monthly Tracker →</a>
-                            <button class="ftux-nudge-dismiss" id="ftuxDismiss" title="Dismiss">×</button>
+                        <div class="cashflow-month-nav">
+                            <button class="cashflow-month-nav-btn" id="prevMonthBtn">‹</button>
+                            <span class="cashflow-month-nav-label" id="monthNavLabel">Loading…</span>
+                            <button class="cashflow-month-nav-btn" id="nextMonthBtn">›</button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Metric Cards (skeleton) — JS will replace these -->
-                <div class="metric-cards" id="metricCards">
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
-                    <div class="metric-card wos-skeleton-card"><div class="metric-value wos-skeleton-line" style="width:72%"></div><div class="metric-label wos-skeleton-line" style="width:50%;height:10px;margin-top:10px"></div></div>
-                </div>
-
-                <!-- Main Chart -->
-                <div class="chart-card loading" id="mainChart">
-                    <div class="chart-header">
-                        <div class="chart-title" id="chartTitle">Income &amp; Savings</div>
-                        <div class="chart-tabs">
-                            <button class="chart-tab" data-months="1">1M</button>
-                            <button class="chart-tab active" data-months="3">3M</button>
-                            <button class="chart-tab" data-months="6">6M</button>
-                            <button class="chart-tab" data-months="12">1Y</button>
-                            <button class="chart-tab" data-months="24">All</button>
+                    <div class="cashflow-top">
+                        <div class="cashflow-income-block">
+                            <div class="cashflow-income-label">Total Income</div>
+                            <div class="cashflow-income-value">—</div>
+                        </div>
+                        <div class="cashflow-rate-hero">
+                            <div class="cashflow-rate-value" id="cashflowRateValue">—<span class="cashflow-thumb" id="cashflowThumb" style="display:none;">👍</span></div>
+                            <div class="cashflow-rate-label">savings rate</div>
                         </div>
                     </div>
-                    <div class="chart-area">
-                        <svg class="chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
-                            <line x1="0" y1="50"  x2="800" y2="50"  class="chart-grid"/>
-                            <line x1="0" y1="100" x2="800" y2="100" class="chart-grid"/>
-                            <line x1="0" y1="150" x2="800" y2="150" class="chart-grid"/>
-                        </svg>
-                    </div>
+                    <div class="cashflow-rows" id="cashflowRows"></div>
                 </div>
 
-                <!-- Savings Rate Gauge -->
-                <div class="chart-card loading" id="savingsGauge">
-                    <div class="chart-header"><div class="chart-title">Savings Rate</div></div>
-                    <div class="gauge-container">
-                        <svg class="gauge-svg" viewBox="0 0 160 160">
-                            <circle class="gauge-bg" cx="80" cy="80" r="62"/>
-                            <circle class="gauge-progress" cx="80" cy="80" r="62"
-                                style="stroke-dasharray:0 389.55;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center;"/>
-                        </svg>
-                        <div style="position:absolute;text-align:center;">
-                            <div class="gauge-value" id="gaugeValue">0%</div>
-                            <div class="gauge-label">saved</div>
+                <!-- Mid row: Portfolio Summary + Goals Snapshot -->
+                <div class="mid-row">
+                    <div class="portfolio-summary-card" id="portfolioSummaryCard">
+                        <div class="ps-header">
+                            <div class="ps-title">Portfolio</div>
+                            <a href="portfolio.html" class="ps-link">View details →</a>
                         </div>
+                        <div id="psContent"></div>
                     </div>
-                </div>
-
-                <!-- Goals -->
-                <div class="goals-grid" id="goalsGrid"></div>
-
-                <!-- Income vs Expense -->
-                <div class="chart-card full-width" id="incomeExpenseChart">
-                    <div class="section-toggle" onclick="toggleSection(this)">
-                        <div class="chart-title">Income vs Expenses</div>
-                        <span class="section-toggle-icon">▼</span>
-                    </div>
-                    <div class="section-content expanded">
-                        <div id="incomeExpenseBarsWrap">
-                            <div class="income-expense-bars" id="incomeExpenseBars">
-                                <div class="ie-row"><div class="ie-label">Income</div><div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar" style="width:0%;"></div></div><div class="ie-value" id="incomeBarValue">—</div></div>
-                                <div class="ie-row"><div class="ie-label">Expenses</div><div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar" style="width:0%;"></div></div><div class="ie-value" id="expenseBarValue">—</div></div>
-                            </div>
+                    <div class="goals-snapshot-card" id="goalsSnapshotCard">
+                        <div class="gs-header">
+                            <div class="gs-title">Goals</div>
+                            <a href="goals.html" class="gs-link">View all →</a>
                         </div>
+                        <div class="goals-compact-list" id="goalsCompactList"></div>
                     </div>
                 </div>
 
-                <!-- Allocation -->
-                <div class="allocation-card" id="allocationCard">
-                    <div class="allocation-title">Asset Allocation</div>
-                    <div class="allocation-list" id="allocationList"></div>
-                </div>
-
-                <!-- Activity -->
-                <div class="activity-card" id="activityCard">
-                    <div class="activity-title">Recent Activity</div>
-                    <div class="activity-list" id="activityList"></div>
-                </div>
             </div>
         </main>
     </div>
@@ -576,379 +402,250 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="api.js"></script>
     <script>
         function fmt(v) { return WealthAPI.formatCurrency(v || 0); }
 
-        function renderGauge(totalIncome, savingsRate) {
-            const gaugeCard = document.getElementById('savingsGauge');
-            if (!gaugeCard) return;
-            gaugeCard.classList.remove('loading');
-            if (!totalIncome || totalIncome <= 0) {
-                gaugeCard.querySelector('.gauge-container').innerHTML = `
-                    <div class="gauge-empty">
-                        <div class="gauge-empty-icon">🎯</div>
-                        <div class="gauge-empty-text">Add income to see your savings rate</div>
-                        <a href="monthly-tracker.html" class="gauge-empty-link">Track this month →</a>
-                    </div>`;
-                return;
-            }
-            gaugeCard.querySelector('.gauge-container').innerHTML = `
-                <svg class="gauge-svg" viewBox="0 0 160 160">
-                    <circle class="gauge-bg" cx="80" cy="80" r="62"/>
-                    <circle class="gauge-progress" cx="80" cy="80" r="62"
-                        style="stroke-dasharray:0 389.55;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center;"/>
-                </svg>
-                <div style="position:absolute;text-align:center;">
-                    <div class="gauge-value" id="gaugeValue">0%</div>
-                    <div class="gauge-label">saved</div>
-                </div>`;
-            const r = 62, circumference = 2 * Math.PI * r;
-            const filled = (Math.max(0, Math.min(100, savingsRate)) / 100) * circumference * 0.75;
-            const gauge = gaugeCard.querySelector('.gauge-progress');
-            if (gauge) {
-                gauge.style.strokeDasharray = `${filled} ${circumference}`;
-                gauge.style.strokeDashoffset = '0';
-                gauge.style.transform = 'rotate(-90deg)';
-                gauge.style.transformOrigin = 'center';
-            }
-            const gaugeVal = document.getElementById('gaugeValue');
-            if (gaugeVal) gaugeVal.textContent = Math.round(savingsRate) + '%';
+        var ASSET_COLOR_MAP = { 'Equity':'#3B73FF','Debt':'#6B6B6B','Hybrid':'#FF9500','Cash':'#5DC840','Real Estate':'#5DC840','Commodity':'#d97706','Gold':'#d97706','Other':'#ABABAB' };
+        var currentYear, currentMonth, allFamilyMembers = [], currentDashboardMemberId = null, _dashFirstName = '', _totalLiabilities = 0;
+
+        // ── Month navigation ──────────────────────────────────────────────────
+        function updateMonthNavLabel(year, month) {
+            const label = document.getElementById('monthNavLabel');
+            if (!label) return;
+            label.textContent = new Date(year, month - 1, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
         }
 
-        function updateGauge(pct) {
-            const r = 62, circumference = 2 * Math.PI * r;
-            const filled = (pct / 100) * circumference * 0.75;
-            const gauge = document.querySelector('.gauge-progress');
-            if (gauge) {
-                gauge.style.strokeDasharray = `${filled} ${circumference}`;
-                gauge.style.strokeDashoffset = '0';
-                gauge.style.transform = 'rotate(-90deg)';
-                gauge.style.transformOrigin = 'center';
-            }
-            const gaugeVal = document.getElementById('gaugeValue');
-            if (gaugeVal) gaugeVal.textContent = Math.round(pct) + '%';
-            const gaugeCard = document.getElementById('savingsGauge');
-            if (gaugeCard) gaugeCard.classList.remove('loading');
+        function initMonthNav(year, month) {
+            currentYear = year; currentMonth = month;
+            updateMonthNavLabel(year, month);
+            document.getElementById('prevMonthBtn').addEventListener('click', () => navigateMonth(-1));
+            document.getElementById('nextMonthBtn').addEventListener('click', () => navigateMonth(1));
         }
 
-        function toggleGoalExpand(el) { el.classList.toggle('expanded'); }
-        function toggleSection(el) { el.classList.toggle('expanded'); el.nextElementSibling.classList.toggle('expanded'); }
-
-        const ASSET_COLOR_MAP = { 'Equity':'#3B73FF','Debt':'#6B6B6B','Hybrid':'#8b5cf6','Cash':'#5DC840','Real Estate':'#f59e0b','Commodity':'#ef4444','Gold':'#d97706','Other':'#6b7280' };
-
-        // ── Sparkline generator ────────────────────────────────────────────
-        function generateSparklineSVG(values, isKey) {
-            const W = 100, H = 28;
-            if (!values || values.every(v => v === 0)) {
-                // Flat baseline (empty state)
-                return `<svg class="metric-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-                    <line x1="0" y1="${H-4}" x2="${W}" y2="${H-4}" class="spark-baseline"/>
-                </svg>`;
-            }
-            const max = Math.max(...values, 1);
-            const pts = values.map((v, i) => {
-                const x = (i / Math.max(values.length - 1, 1)) * W;
-                const y = H - 4 - ((v / max) * (H - 8));
-                return `${x.toFixed(1)},${y.toFixed(1)}`;
-            });
-            const lastPt = pts[pts.length - 1];
-            const [lx, ly] = lastPt.split(',');
-            const polyline = pts.join(' ');
-            const areaPath = `M ${pts[0]} L ${polyline} L ${lx},${H-4} L 0,${H-4} Z`;
-            return `<svg class="metric-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-                <path d="${areaPath}" class="spark-area"/>
-                <polyline points="${polyline}" class="spark-line"/>
-            </svg>`;
+        function navigateMonth(delta) {
+            let m = currentMonth + delta, y = currentYear;
+            if (m > 12) { m = 1; y++; } if (m < 1) { m = 12; y--; }
+            currentYear = y; currentMonth = m;
+            updateMonthNavLabel(y, m);
+            loadMonthData(y, m);
         }
 
-        // ── Metric card empty illustrations ─────────────────────────────────
-        function metricEmptyIllu(key) {
-            const s = 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
-            const illu = {
-                income: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <circle cx="32" cy="25" r="17" stroke-dasharray="6 3" opacity="0.2"/>
-                    <path d="M26 25 h12 M32 19 v12" opacity="0.5"/>
-                    <circle cx="32" cy="25" r="8" opacity="0.15"/>
-                    <path d="M18 42 h28" opacity="0.15"/></svg>`,
-                expenses: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <rect x="18" y="10" width="28" height="34" rx="4" stroke-dasharray="4 2" opacity="0.2"/>
-                    <line x1="24" y1="20" x2="40" y2="20" opacity="0.4"/>
-                    <line x1="24" y1="27" x2="40" y2="27" opacity="0.4"/>
-                    <line x1="24" y1="34" x2="34" y2="34" opacity="0.3"/>
-                    <circle cx="44" cy="16" r="6" opacity="0.2"/>
-                    <path d="M41 16 h6 M44 13 v6" opacity="0.4"/></svg>`,
-                rate: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <path d="M12 42 A22 22 0 1 1 52 42" stroke-dasharray="6 3" opacity="0.25"/>
-                    <line x1="32" y1="42" x2="32" y2="26" stroke-width="2" opacity="0.4"/>
-                    <line x1="32" y1="42" x2="44" y2="31" stroke-width="1.5" opacity="0.25"/>
-                    <circle cx="32" cy="42" r="3" fill="currentColor" stroke="none" opacity="0.3"/></svg>`,
-                networth: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <line x1="8" y1="44" x2="56" y2="44" opacity="0.2"/>
-                    <rect x="10" y="31" width="10" height="13" rx="2" stroke-dasharray="3 2" opacity="0.25"/>
-                    <rect x="27" y="22" width="10" height="22" rx="2" stroke-dasharray="3 2" opacity="0.3"/>
-                    <rect x="44" y="11" width="10" height="33" rx="2" stroke-dasharray="3 2" opacity="0.35"/>
-                    <polyline points="14,34 31,25 48,14" stroke-dasharray="3 2" opacity="0.3"/></svg>`,
-                savings: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <ellipse cx="28" cy="30" rx="17" ry="13" stroke-dasharray="5 2" opacity="0.2"/>
-                    <circle cx="36" cy="24" r="3" opacity="0.3"/>
-                    <path d="M44 26 L48 26 L48 34 L44 34" opacity="0.25"/>
-                    <line x1="22" y1="43" x2="22" y2="47" opacity="0.3"/>
-                    <line x1="32" y1="43" x2="32" y2="47" opacity="0.3"/>
-                    <path d="M20 30 h6 M23 27 v6" opacity="0.35"/></svg>`,
-                investments: `<svg viewBox="0 0 64 50" ${s} class="metric-empty-illu">
-                    <polyline points="8,42 18,30 26,35 36,20 48,10" stroke-dasharray="5 3" opacity="0.3"/>
-                    <circle cx="48" cy="10" r="4" fill="currentColor" stroke="none" opacity="0.25"/>
-                    <line x1="8" y1="44" x2="56" y2="44" opacity="0.15"/>
-                    <circle cx="18" cy="30" r="2" opacity="0.25"/>
-                    <circle cx="36" cy="20" r="2" opacity="0.25"/></svg>`,
-            };
-            return illu[key] || illu.networth;
-        }
-
-        // ── Per-card styling config ──────────────────────────────────────────
-        const METRIC_CONFIG = {
-            'Monthly Income':    { accent: '#5DC840', iconBg: 'rgba(93,200,64,0.1)',   sparkColor: '#5DC840', sparkArea: 'rgba(93,200,64,0.1)',   illuKey: 'income',      icon: '💰' },
-            'Monthly Expenses':  { accent: '#FF9500', iconBg: 'rgba(255,149,0,0.1)',   sparkColor: '#FF9500', sparkArea: 'rgba(255,149,0,0.08)',  illuKey: 'expenses',    icon: '🧾' },
-            'Savings Rate':      { accent: '#8FE62C', iconBg: 'rgba(143,230,44,0.1)',  sparkColor: '#8FE62C', sparkArea: 'rgba(143,230,44,0.1)',  illuKey: 'rate',        icon: '🎯' },
-            'Net Worth':         { accent: '#6366F1', iconBg: 'rgba(99,102,241,0.1)',  sparkColor: '#6366F1', sparkArea: 'rgba(99,102,241,0.08)', illuKey: 'networth',    icon: '💎' },
-            'Monthly Savings':   { accent: '#3B73FF', iconBg: 'rgba(59,115,255,0.1)',  sparkColor: '#3B73FF', sparkArea: 'rgba(59,115,255,0.08)', illuKey: 'savings',     icon: '🐖' },
-            'Total Investments': { accent: '#8FE62C', iconBg: 'rgba(143,230,44,0.1)',  sparkColor: '#8FE62C', sparkArea: 'rgba(143,230,44,0.1)',  illuKey: 'investments', icon: '📈' },
-        };
-
-        // ── Trend label from sparkline ───────────────────────────────────────
-        function computeTrend(spark) {
-            if (!spark || spark.length < 2) return null;
-            const prev = spark[spark.length - 2], curr = spark[spark.length - 1];
-            if (!prev || curr === prev) return { dir: 'neutral', text: 'Same as last month' };
-            const pct = Math.abs(Math.round(((curr - prev) / prev) * 100));
-            if (curr > prev) return { dir: 'up', text: `↑ ${pct}% vs last month` };
-            return { dir: 'down', text: `↓ ${pct}% vs last month` };
-        }
-
-        // ── Metric cards ─────────────────────────────────────────────────────
-        function renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData) {
-            const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
-            const monthlySavings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
-            const sd = sparkData || {};
-
-            const cards = [
-                { label: 'Monthly Income',    raw: totalIncome,      fmtd: fmt(totalIncome),              key: false, spark: sd.income || [],      href: 'monthly-tracker.html', hint: 'Track income' },
-                { label: 'Monthly Expenses',  raw: totalExpenses,    fmtd: fmt(totalExpenses),            key: false, spark: sd.expenses || [],    href: 'monthly-tracker.html', hint: 'Add expenses' },
-                { label: 'Savings Rate',      raw: savingsRate,      fmtd: Math.round(savingsRate) + '%', key: true,  spark: sd.savingsRate || [], href: 'monthly-tracker.html', hint: 'Track spending' },
-                { label: 'Net Worth',         raw: netWorth,         fmtd: fmt(netWorth),                 key: true,  spark: sd.netWorth || [],    href: 'portfolio.html',       hint: 'Add assets' },
-                { label: 'Monthly Savings',   raw: monthlySavings,   fmtd: totalIncome > 0 ? Math.round(monthlySavings / totalIncome * 100) + '%' : '0%',   key: false, spark: sd.savings || [],     href: 'monthly-tracker.html', hint: 'Track spending' },
-                { label: 'Total Investments', raw: totalInvestments, fmtd: totalIncome > 0 ? Math.round(totalInvestments / totalIncome * 100) + '%' : '0%', key: false, spark: sd.investments || [], href: 'savings-plan.html',    hint: 'Log investments' },
-            ];
-
-            const container = document.getElementById('metricCards');
-            container.innerHTML = cards.map(c => {
-                const cfg = METRIC_CONFIG[c.label] || {};
-                const accent = cfg.accent || '#ccc';
-                const iconBg = cfg.iconBg || 'rgba(0,0,0,0.04)';
-                const sparkColor = cfg.sparkColor || accent;
-                const sparkArea = cfg.sparkArea || 'rgba(143,230,44,0.1)';
-                const icon = cfg.icon || '📊';
-                const illuKey = cfg.illuKey || 'networth';
-
-                if (!c.raw || c.raw <= 0) {
-                    return `<div class="metric-card metric-card--empty">
-                        <div class="metric-label${c.key ? ' key' : ''}">${c.label}</div>
-                        ${metricEmptyIllu(illuKey)}
-                        <a href="${c.href}" class="metric-empty-cta">${c.hint} →</a>
-                    </div>`;
-                }
-
-                const trend = computeTrend(c.spark);
-                const trendHtml = trend
-                    ? `<div class="metric-trend ${trend.dir}">${trend.text}</div>`
-                    : `<div class="metric-trend neutral">This month</div>`;
-
-                // Override CSS custom properties via inline style for per-card theming
-                const style = `--mc-accent:${accent};--mc-icon-bg:${iconBg};--mc-spark:${sparkColor};--mc-spark-area:${sparkArea};`;
-
-                // Rebuild sparkline with per-card color
-                const svgHtml = generateSparklineSVG(c.spark, c.key);
-
-                return `<div class="metric-card" style="${style}">
-                    <div class="metric-icon-badge">${icon}</div>
-                    <div class="metric-label${c.key ? ' key' : ''}">${c.label}</div>
-                    <div class="metric-value">${c.fmtd}</div>
-                    ${trendHtml}
-                    ${svgHtml}
-                </div>`;
-            }).join('');
-        }
-
-        // ── Goals ─────────────────────────────────────────────────────────────
-        function renderGoals(goals) {
-            const container = document.getElementById('goalsGrid');
-            const circumference = 2 * Math.PI * 22;
-            if (!goals || goals.length === 0) {
-                container.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state-box"><div class="empty-state-box-icon">🎯</div><div class="empty-state-box-text">No goals yet</div><a href="goals.html" class="empty-state-box-link">Define your first goal →</a></div></div>`;
-                return;
-            }
-            container.innerHTML = goals.map(goal => {
-                const pct = Math.min(100, Math.round(goal.progressPct || 0));
-                const offset = circumference - (pct / 100 * circumference);
-                const statusColor = goal.isOnTrack ? 'var(--positive)' : 'var(--warning)';
-                const iconMap = { House:'🏠', Education:'🎓', Vacation:'🏖️', Vehicle:'🚗', Retirement:'🌴', Emergency:'🛡️' };
-                return `
-                    <div class="goal-card" onclick="toggleGoalExpand(this)">
-                        <div class="goal-header">
-                            <div class="goal-icon">${iconMap[goal.type] || '🎯'}</div>
-                            <svg class="goal-progress-ring" viewBox="0 0 48 48">
-                                <circle class="goal-ring-bg" cx="24" cy="24" r="22"/>
-                                <circle class="goal-ring-progress" cx="24" cy="24" r="22"
-                                    style="stroke-dasharray:${circumference};stroke-dashoffset:${offset};transform:rotate(-90deg);transform-origin:center;"/>
-                            </svg>
-                        </div>
-                        <div class="goal-title">${goal.name || 'Goal'}</div>
-                        <div class="goal-stats"><div class="goal-current">${fmt(goal.currentAmount||0)}</div><div class="goal-target">of ${fmt(goal.targetAmount||0)}</div></div>
-                        <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%"></div></div>
-                        <div class="goal-percentage"><span>${pct}% complete</span><span style="color:${statusColor};font-size:0.7rem;font-weight:700;">${goal.isOnTrack ? 'On track' : 'Behind'}</span></div>
-                        <div class="goal-details">
-                            <div class="goal-detail-row"><span class="goal-detail-label">Remaining</span><span class="goal-detail-value">${fmt((goal.targetAmount||0)-(goal.currentAmount||0))}</span></div>
-                            <div class="goal-detail-row"><span class="goal-detail-label">Time left</span><span class="goal-detail-value">${goal.monthsRemaining != null ? goal.monthsRemaining + ' mo' : '—'}</span></div>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        function renderAllocation(byAssetClass) {
-            const container = document.getElementById('allocationList');
-            if (!byAssetClass || byAssetClass.length === 0) {
-                container.innerHTML = `<div class="empty-state-box"><div class="empty-state-box-icon">📊</div><div class="empty-state-box-text">No assets yet</div><a href="portfolio.html" class="empty-state-box-link">Add portfolio assets →</a></div>`;
-                return;
-            }
-            container.innerHTML = byAssetClass.map(item => {
-                const color = ASSET_COLOR_MAP[item.class] || ASSET_COLOR_MAP['Other'];
-                const pct = Math.round(item.pct || 0);
-                return `<div class="allocation-item">
-                    <div class="allocation-color" style="background:${color};"></div>
-                    <div class="allocation-info"><div class="allocation-name">${item.class}</div><div class="allocation-bar"><div class="allocation-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>
-                    <div class="allocation-stats"><div class="allocation-percentage">${pct}%</div><div class="allocation-value">${fmt(item.value)}</div></div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderIncomeExpenseBars(totalIncome, totalExpenses) {
-            const barsWrap = document.getElementById('incomeExpenseBarsWrap');
-            if (!totalIncome && !totalExpenses) {
-                if (barsWrap) barsWrap.innerHTML = `<div class="section-empty">
-                    <div class="section-empty-icon">📊</div>
-                    <div class="section-empty-text">Add income & expenses to see the breakdown</div>
-                    <a href="monthly-tracker.html" class="section-empty-link">Go to Monthly Tracker →</a>
-                </div>`;
-                return;
-            }
-            if (barsWrap) barsWrap.innerHTML = `<div class="income-expense-bars" id="incomeExpenseBars">
-                <div class="ie-row">
-                    <div class="ie-label">Income</div>
-                    <div class="ie-bar"><div class="ie-bar-fill income" id="incomeBar"></div></div>
-                    <div class="ie-value" id="incomeBarValue"></div>
-                </div>
-                <div class="ie-row">
-                    <div class="ie-label">Expenses</div>
-                    <div class="ie-bar"><div class="ie-bar-fill expense" id="expenseBar"></div></div>
-                    <div class="ie-value" id="expenseBarValue"></div>
-                </div>
+        // ── Cashflow card ─────────────────────────────────────────────────────
+        function cashflowRow(icon, label, value, totalIncome, color, prevValue, prevIncome) {
+            const pct = totalIncome > 0 ? Math.round((value / totalIncome) * 100) : 0;
+            let deltaHtml;
+            if (prevIncome > 0) {
+                const prevPct = Math.round((prevValue / prevIncome) * 100);
+                const diff = pct - prevPct;
+                if (diff > 0) deltaHtml = `<span class="cashflow-row-delta up">↑ ${diff}pp</span>`;
+                else if (diff < 0) deltaHtml = `<span class="cashflow-row-delta down">↓ ${Math.abs(diff)}pp</span>`;
+                else deltaHtml = `<span class="cashflow-row-delta neutral">→ 0pp</span>`;
+            } else { deltaHtml = `<span class="cashflow-row-delta neutral">—</span>`; }
+            return `<div class="cashflow-row">
+                <span class="cashflow-row-icon">${icon}</span>
+                <span class="cashflow-row-label">${label}</span>
+                <div class="cashflow-bar-wrap"><div class="cashflow-bar-fill" style="width:${Math.min(100,pct)}%;background:${color};"></div></div>
+                <span class="cashflow-row-amount">${fmt(value)}</span>
+                <span class="cashflow-row-pct">${pct}%</span>
+                ${deltaHtml}
             </div>`;
-            const maxVal = Math.max(totalIncome, totalExpenses, 1);
-            const ib = document.getElementById('incomeBar'), eb = document.getElementById('expenseBar');
-            const iv = document.getElementById('incomeBarValue'), ev = document.getElementById('expenseBarValue');
-            if (ib) ib.style.width = Math.round((totalIncome / maxVal) * 100) + '%';
-            if (eb) eb.style.width = Math.round((totalExpenses / maxVal) * 100) + '%';
-            if (iv) iv.textContent = fmt(totalIncome);
-            if (ev) ev.textContent = fmt(totalExpenses);
         }
 
-        function renderActivity(allMembersMonthData) {
-            const container = document.getElementById('activityList');
-            if (!container) return;
-            const members = Array.isArray(allMembersMonthData) ? allMembersMonthData : [];
-            const showMemberName = members.length > 1;
-            const items = [];
-            members.forEach(m => {
-                (m.investmentBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'buy', name:b.name, detail:'Investment'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
-                (m.incomeBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'transfer', name:b.name, detail:'Income'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
-                (m.expenseBreakup || []).forEach(b => { if (b.amount > 0) items.push({ type:'sell', name:b.name, detail:'Expense'+(showMemberName?' · '+m.memberName:''), amount:b.amount }); });
-            });
-            items.sort((a,b) => b.amount - a.amount);
-            const top = items.slice(0, 6);
-            if (top.length === 0) {
-                container.innerHTML = `<div class="empty-state-box"><div class="empty-state-box-icon">💸</div><div class="empty-state-box-text">No transactions this month</div><a href="monthly-tracker.html" class="empty-state-box-link">Add entries →</a></div>`;
+        function renderCashflowCard(income, expenses, investments, prevIncome, prevExpenses, prevInvestments, monthLabel) {
+            const card = document.getElementById('cashflowCard');
+            if (!card) return;
+
+            // Update month label in the inline nav
+            const navLabel = document.getElementById('monthNavLabel');
+            if (navLabel && monthLabel) navLabel.textContent = monthLabel;
+
+            const incomeValueEl = card.querySelector('.cashflow-income-value');
+            const rowsEl = document.getElementById('cashflowRows');
+
+            if (!income || income <= 0) {
+                // Example / empty state — preserve header, update body only
+                const si = 110000, se = 65000, sv = 45000;
+                const exRow = (icon, label, value, base, color) => {
+                    const p = Math.round((value / base) * 100);
+                    return `<div class="cashflow-row">
+                        <span class="cashflow-row-icon">${icon}</span>
+                        <span class="cashflow-row-label">${label}</span>
+                        <div class="cashflow-bar-wrap"><div class="cashflow-bar-fill" style="width:${p}%;background:${color};opacity:0.5;"></div></div>
+                        <span class="cashflow-row-amount" style="opacity:0.5;">${fmt(value)}</span>
+                        <span class="cashflow-row-pct" style="opacity:0.5;">${p}%</span>
+                        <span class="cashflow-row-delta neutral">—</span>
+                    </div>`;
+                };
+                if (incomeValueEl) { incomeValueEl.textContent = fmt(si); incomeValueEl.style.opacity = '0.45'; }
+                const rateEl = document.getElementById('cashflowRateValue');
+                if (rateEl) { rateEl.innerHTML = '<span style="opacity:0.4;color:var(--accent,#8FE62C);">41%</span>'; }
+                card.classList.remove('savings-excellent','savings-good','savings-poor');
+                if (!card.querySelector('.cashflow-example-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'cashflow-example-badge'; badge.textContent = 'Example';
+                    card.appendChild(badge);
+                }
+                if (rowsEl) rowsEl.innerHTML =
+                    exRow('📉', 'Expenditure',         se, si, 'var(--viz-expense, #FF9500)') +
+                    exRow('📈', 'Savings & Investments', sv, si, 'var(--viz-growth, #8FE62C)') +
+                    `<div style="margin-top:14px;"><a href="monthly-tracker.html" class="example-cta-link">Track this month →</a></div>`;
                 return;
             }
-            const iconMap = { buy:'📈', sell:'📉', transfer:'💰' };
-            container.innerHTML = top.map(item => `
-                <div class="activity-item">
-                    <div class="activity-icon ${item.type}">${iconMap[item.type]}</div>
-                    <div class="activity-info"><div class="activity-name">${item.name}</div><div class="activity-details">${item.detail}</div></div>
-                    <div class="activity-amount"><div class="activity-value">${fmt(item.amount)}</div></div>
-                </div>`).join('');
-        }
 
-        function computeAllocationFromAssets(assets) {
-            if (!assets || assets.length === 0) return [];
-            const classMap = {};
-            assets.forEach(a => { const cls = a.assetClass || 'Other'; classMap[cls] = (classMap[cls] || 0) + (a.currentValue || 0); });
-            const total = Object.values(classMap).reduce((s, v) => s + v, 0);
-            return Object.entries(classMap).map(([cls, value]) => ({ class:cls, value, pct: total>0 ? parseFloat(((value/total)*100).toFixed(2)) : 0 })).sort((a,b) => b.value - a.value);
-        }
+            // Remove example badge if present
+            const badge = card.querySelector('.cashflow-example-badge');
+            if (badge) badge.remove();
 
-        // ── Net worth chart ────────────────────────────────────────────────────
-        async function renderNetWorthChart(numMonths) {
-            numMonths = numMonths || 3;
-            const now = new Date();
-            const monthPairs = [];
-            for (let i = numMonths - 1; i >= 0; i--) {
-                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                monthPairs.push({ year: d.getFullYear(), month: d.getMonth() + 1, label: d.toLocaleString('en-US', { month: 'short', ...(numMonths > 12 ? { year:'2-digit' } : {}) }) });
+            // investments field in DB = Savings & Investments (auto-calc: income − expenditure)
+            const savingsRate = income > 0 ? Math.round((investments / income) * 100) : 0;
+
+            // Update income value
+            if (incomeValueEl) { incomeValueEl.textContent = fmt(income); incomeValueEl.style.opacity = ''; }
+
+            // Update savings rate display + thumbs up
+            const rateEl = document.getElementById('cashflowRateValue');
+            card.classList.remove('savings-excellent','savings-good','savings-poor');
+            if (rateEl) {
+                let thumbHtml = '';
+                if (savingsRate >= 30) {
+                    card.classList.add('savings-excellent');
+                    thumbHtml = `<span class="cashflow-thumb animate">👍</span>`;
+                } else if (savingsRate >= 20) {
+                    card.classList.add('savings-good');
+                    thumbHtml = `<span class="cashflow-thumb animate">👍</span>`;
+                } else if (savingsRate < 10) {
+                    card.classList.add('savings-poor');
+                }
+                rateEl.innerHTML = savingsRate + '%' + thumbHtml;
             }
-            const results = await Promise.all(monthPairs.map(({ year, month }) => WealthAPI.monthly.getMonth(year, month).catch(() => [])));
-            const data = results.map((rows, i) => {
-                const ms = Array.isArray(rows) ? rows : [];
-                const inc = ms.reduce((s, m) => s + (m.income || 0), 0);
-                const exp = ms.reduce((s, m) => s + (m.expenditure || 0), 0);
-                const inv = ms.reduce((s, m) => s + (m.investments || 0), 0);
-                return { label: monthPairs[i].label, income: inc, savings: Math.max(0, inc - exp - inv) };
-            });
-            const maxVal = Math.max(...data.map(d => d.income), 1);
-            const W = 800, TOP = 15, BOT = 180, n = data.length;
-            function toY(val) { return (BOT - ((val / maxVal) * (BOT - TOP))).toFixed(1); }
-            function toX(i)   { return ((i / Math.max(n - 1, 1)) * W).toFixed(1); }
-            const hasData = data.some(d => d.income > 0);
-            const incPts = data.map((d, i) => `${toX(i)} ${toY(d.income)}`).join(' L ');
-            const savPts = data.map((d, i) => `${toX(i)} ${toY(d.savings)}`).join(' L ');
-            const lastX = toX(n - 1);
-            const svg = document.querySelector('#mainChart .chart-svg');
-            if (!svg) return;
-            svg.innerHTML = `
-                <line x1="0" y1="50"  x2="${W}" y2="50"  class="chart-grid"/>
-                <line x1="0" y1="100" x2="${W}" y2="100" class="chart-grid"/>
-                <line x1="0" y1="150" x2="${W}" y2="150" class="chart-grid"/>
-                ${hasData ? `
-                <path d="M ${incPts} L ${lastX} ${BOT} L 0 ${BOT} Z" fill="rgba(143,230,44,0.1)"/>
-                <path d="M ${incPts}" stroke="var(--accent,#8FE62C)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M ${savPts}" stroke="var(--positive,#5DC840)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
-                ${data.map((d, i) => `<circle cx="${toX(i)}" cy="${toY(d.income)}" r="3.5" fill="var(--accent,#8FE62C)"/>`).join('')}
-                ` : `<text x="400" y="100" text-anchor="middle" fill="var(--text-tertiary)" font-size="14" font-family="Inter,sans-serif">No data yet — add entries in Monthly Tracker</text>`}
-                ${data.map((d, i) => `<text x="${toX(i)}" y="196" text-anchor="middle" fill="var(--text-tertiary)" font-size="11" font-family="Inter,sans-serif">${d.label}</text>`).join('')}
-            `;
-            document.getElementById('chartTitle').textContent = 'Income & Savings';
-            const header = document.querySelector('#mainChart .chart-header');
-            if (header && !header.querySelector('.chart-legend')) {
-                const legend = document.createElement('div');
-                legend.className = 'chart-legend';
-                legend.style.cssText = 'display:flex;gap:14px;align-items:center;font-size:0.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-secondary);';
-                legend.innerHTML = `<span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:2.5px;background:var(--accent,#8FE62C);display:inline-block;border-radius:2px;"></span>Income</span><span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:0;border-top:2px dashed var(--positive,#5DC840);display:inline-block;"></span>Savings</span>`;
-                header.insertBefore(legend, header.querySelector('.chart-tabs'));
-            }
-            const chartCard = document.getElementById('mainChart');
-            if (chartCard) chartCard.classList.remove('loading');
+
+            // Two rows matching monthly tracker: Expenditure + Savings & Investments
+            if (rowsEl) rowsEl.innerHTML =
+                cashflowRow('📉', 'Expenditure',          expenses,    income, 'var(--viz-expense, #FF9500)',  prevExpenses,    prevIncome) +
+                cashflowRow('📈', 'Savings & Investments', investments, income, 'var(--viz-growth, #8FE62C)',   prevInvestments, prevIncome);
         }
 
+        // ── Portfolio summary ─────────────────────────────────────────────────
+        function renderPortfolioSummary(netWorth, byAssetClass, totalLiabilities) {
+            const container = document.getElementById('psContent');
+            if (!container) return;
+            if (!netWorth && (!byAssetClass || byAssetClass.length === 0)) {
+                const sample = [
+                    { class:'Equity', pct:60, value:2052000 }, { class:'Debt', pct:25, value:855000 },
+                    { class:'Gold',   pct:10, value:342000  }, { class:'Other', pct:5,  value:171000 },
+                ];
+                container.innerHTML = `
+                    <span class="ps-example-badge">Example</span>
+                    <div class="ps-networth" style="color:var(--text-secondary);">₹34.2L</div>
+                    <div class="ps-networth-label">Total Net Worth</div>
+                    <div class="ps-allocation-list">${sample.map(item => {
+                        const color = ASSET_COLOR_MAP[item.class] || '#ABABAB';
+                        return `<div class="ps-row">
+                            <span class="ps-dot" style="background:${color};opacity:0.5;"></span>
+                            <span class="ps-class" style="color:var(--text-secondary);">${item.class}</span>
+                            <div class="ps-bar-wrap"><div class="ps-bar-fill" style="width:${item.pct}%;background:${color};opacity:0.4;"></div></div>
+                            <span class="ps-pct" style="color:var(--text-secondary);">${item.pct}%</span>
+                            <span class="ps-val">${fmt(item.value)}</span>
+                        </div>`;
+                    }).join('')}</div>
+                    <div style="margin-top:16px;"><a href="portfolio.html" class="example-cta-link">Add portfolio →</a></div>`;
+                return;
+            }
+            const networthLabel = totalLiabilities > 0 ? 'Net Worth (Assets − Debt)' : 'Total Net Worth';
+            container.innerHTML = `
+                <div class="ps-networth">${fmt(netWorth)}</div>
+                <div class="ps-networth-label">${networthLabel}</div>
+                <div class="ps-allocation-list">${(byAssetClass || []).map(item => {
+                    const color = ASSET_COLOR_MAP[item.class] || '#ABABAB';
+                    const pct = Math.round(item.pct || 0);
+                    return `<div class="ps-row">
+                        <span class="ps-dot" style="background:${color};"></span>
+                        <span class="ps-class">${item.class}</span>
+                        <div class="ps-bar-wrap"><div class="ps-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+                        <span class="ps-pct">${pct}%</span>
+                        <span class="ps-val">${fmt(item.value)}</span>
+                    </div>`;
+                }).join('')}</div>`;
+        }
+
+        // ── Goals compact ─────────────────────────────────────────────────────
+        function renderGoalsCompact(goals) {
+            const container = document.getElementById('goalsCompactList');
+            if (!container) return;
+            const iconMap = { House:'🏠', Education:'🎓', Vacation:'🏖️', Vehicle:'🚗', Retirement:'🌴', Emergency:'🛡️' };
+            if (!goals || goals.length === 0) {
+                const sample = [
+                    { name:'House', type:'House', progressPct:62, isOnTrack:true,  monthsRemaining:18 },
+                    { name:'Emergency Fund', type:'Emergency', progressPct:40, isOnTrack:false, monthsRemaining:8 },
+                ];
+                container.innerHTML = `<span class="gs-example-badge">Example</span>` +
+                    sample.map(g => {
+                        const p = Math.round(g.progressPct);
+                        return `<div class="goal-compact-row" style="opacity:0.55;">
+                            <span class="goal-compact-icon">${iconMap[g.type] || '🎯'}</span>
+                            <div class="goal-compact-body">
+                                <div class="goal-compact-name">${g.name}</div>
+                                <div class="goal-compact-bar"><div class="goal-compact-bar-fill" style="width:${p}%;"></div></div>
+                            </div>
+                            <div class="goal-compact-right">
+                                <span class="goal-compact-pct">${p}%</span>
+                                <span class="wos-badge ${g.isOnTrack ? 'positive' : 'negative'}">${g.isOnTrack ? 'On track' : 'Behind'}</span>
+                                <span class="goal-compact-time">${g.monthsRemaining} mo</span>
+                            </div>
+                        </div>`;
+                    }).join('') +
+                    `<div style="margin-top:12px;"><a href="goals.html" class="gs-empty-cta">Create your first goal →</a></div>`;
+                return;
+            }
+            container.innerHTML = goals.slice(0, 4).map(goal => {
+                const pct = Math.min(100, Math.round(goal.progressPct || 0));
+                const timeLeft = goal.monthsRemaining != null ? goal.monthsRemaining + ' mo' : '—';
+                return `<div class="goal-compact-row" onclick="location.href='goals.html'">
+                    <span class="goal-compact-icon">${iconMap[goal.type] || '🎯'}</span>
+                    <div class="goal-compact-body">
+                        <div class="goal-compact-name">${goal.name || 'Goal'}</div>
+                        <div class="goal-compact-bar"><div class="goal-compact-bar-fill" style="width:${pct}%;"></div></div>
+                    </div>
+                    <div class="goal-compact-right">
+                        <span class="goal-compact-pct">${pct}%</span>
+                        <span class="wos-badge ${goal.isOnTrack ? 'positive' : 'negative'}">${goal.isOnTrack ? 'On track' : 'Behind'}</span>
+                        <span class="goal-compact-time">${timeLeft}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── Load month data (called on nav) ──────────────────────────────────
+        async function loadMonthData(year, month) {
+            const prevM = month === 1 ? 12 : month - 1;
+            const prevY = month === 1 ? year - 1 : year;
+            const monthLabel = new Date(year, month - 1, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            const [monthData, prevMonthData, portfolio] = await Promise.all([
+                WealthAPI.monthly.getMonth(year, month).catch(() => []),
+                WealthAPI.monthly.getMonth(prevY, prevM).catch(() => []),
+                WealthAPI.portfolio.summary(year, month).catch(() => null),
+            ]);
+            const members = Array.isArray(monthData) ? monthData : [];
+            const prevMembers = Array.isArray(prevMonthData) ? prevMonthData : [];
+            const income      = members.reduce((s, m) => s + (m.income      || 0), 0);
+            const expenses    = members.reduce((s, m) => s + (m.expenditure || 0), 0);
+            const investments = members.reduce((s, m) => s + (m.investments || 0), 0);
+            const prevIncome      = prevMembers.reduce((s, m) => s + (m.income      || 0), 0);
+            const prevExpenses    = prevMembers.reduce((s, m) => s + (m.expenditure || 0), 0);
+            const prevInvestments = prevMembers.reduce((s, m) => s + (m.investments || 0), 0);
+            const netWorth    = (portfolio ? (portfolio.totalNetWorth || 0) : 0) - _totalLiabilities;
+            const byAssetClass = portfolio ? (portfolio.byAssetClass  || []) : [];
+            renderCashflowCard(income, expenses, investments, prevIncome, prevExpenses, prevInvestments, monthLabel);
+            renderPortfolioSummary(netWorth, byAssetClass, _totalLiabilities);
+            return { income, expenses, investments, netWorth, byAssetClass, members };
+        }
+
+
+
+        // ── Modals ────────────────────────────────────────────────────────────
         function openAssetModal()  { document.getElementById('assetModal').classList.add('active'); }
         function openBudgetModal() { document.getElementById('budgetModal').classList.add('active'); }
         function openGoalModal()   { document.getElementById('goalModal').classList.add('active'); }
@@ -959,174 +656,80 @@
         function submitGoal()   { const f = document.getElementById('goalForm');   if (f.checkValidity()) { closeModal('goalModal');   f.reset(); } else f.reportValidity(); }
         function handleLogout() { WealthAPI.auth.logout(); }
 
-        // ── Family Widget skip helpers ────────────────────────────────────────
-        function isFamilyWidgetSkipped() { return localStorage.getItem('wealthos_family_widget_skipped') === '1'; }
-        function skipFamilyWidget() {
-            localStorage.setItem('wealthos_family_widget_skipped', '1');
-            const w = document.getElementById('familySetupWidget');
-            if (!w) return;
-            w.style.transition = 'opacity 0.3s ease';
-            w.style.opacity = '0';
-            setTimeout(() => { w.style.display = 'none'; }, 320);
+        // ── Setup Journey ─────────────────────────────────────────────────────
+        var SETUP_STEPS = [
+            { id:'family',   icon:'👨‍👩‍👧‍👦', title:'Setup your account',             sub:'Add your profile details, add family members etc for easier tracking', cta:'Set up →',       href:'/family-setup.html'       },
+            { id:'monthly',  icon:'📊',       title:'Track Monthly Income, Expenses etc.', sub:'Log income and expenses each month to know your savings rate.',  cta:'Track →',        href:'/monthly-tracker.html'    },
+            { id:'portfolio',icon:'💼',       title:'Track your portfolio',          sub:'Add all your assets to see your true net worth and allocation.',     cta:'Add assets →',   href:'/portfolio.html'          },
+            { id:'goals',    icon:'🎯',       title:'Set up your goals',             sub:'Define what you\'re saving for — home, education, retirement.',      cta:'Add goals →',    href:'/goals.html'              },
+            { id:'savings',  icon:'🔥',       title:'Build your life plan',          sub:'Set your FIRE target and see when you can reach financial freedom.', cta:'Open →',         href:'/fire.html'               },
+            { id:'planning', icon:'📋',       title:'See the financial plan',        sub:'Get a full projection of your net worth, taxes, and retirement.',    cta:'View plan →',    href:'/financial-planning.html' }
+        ];
+
+        var _setupProg = null;
+
+        async function skipSetupStep(stepId) {
+            try {
+                await WealthAPI.setup.markStep(stepId, 1);
+                const prog = await WealthAPI.setup.getProgress();
+                _setupProg = prog;
+                renderSetupJourney(prog);
+            } catch(e) { console.error('Skip step error:', e); }
         }
 
-        // ── FTUX Nudge ────────────────────────────────────────────────────────
-        const FTUX_NUDGES = [
-            { id:'monthly',     icon:'📊', step:'Step 1 of 3', title:'Add your monthly income & expenses',   desc:'See your savings rate and where your money goes — the most important first step.', cta:'Go to Monthly Tracker →', href:'/monthly-tracker.html' },
-            { id:'investments', icon:'📈', step:'Step 2 of 3', title:'Log how much you invest each month',   desc:'Track monthly investments to measure your wealth-building habit over time.',        cta:'Add investments →',        href:'/monthly-tracker.html' },
-            { id:'portfolio',   icon:'💼', step:'Step 3 of 3', title:'Add your portfolio assets',            desc:'Log funds, stocks, FDs, gold, real estate — see your full net worth and allocation.', cta:'Build your portfolio →',   href:'/portfolio.html' },
-        ];
-        function getDismissedNudges() { try { return JSON.parse(localStorage.getItem('wealthos_dismissed_nudges') || '[]'); } catch { return []; } }
-        function dismissNudge(id) { const d = getDismissedNudges(); if (!d.includes(id)) d.push(id); localStorage.setItem('wealthos_dismissed_nudges', JSON.stringify(d)); }
-        function renderFtuxNudge(hasMonthly, hasInvestments, hasPortfolio) {
-            const dismissed = getDismissedNudges();
-            const checks = [hasMonthly, hasInvestments, hasPortfolio];
-            let activeNudge = null, activeIdx = -1;
-            for (let i = 0; i < FTUX_NUDGES.length; i++) { if (!checks[i] && !dismissed.includes(FTUX_NUDGES[i].id)) { activeNudge = FTUX_NUDGES[i]; activeIdx = i; break; } }
+        function renderSetupJourney(prog) {
             const section = document.getElementById('ftuxNudgeSection');
             if (!section) return;
-            if (!activeNudge) { section.style.display = 'none'; return; }
-            section.style.display = '';
-            document.getElementById('ftuxIcon').textContent = activeNudge.icon;
-            document.getElementById('ftuxStep').textContent = activeNudge.step;
-            document.getElementById('ftuxTitle').textContent = activeNudge.title;
-            document.getElementById('ftuxDesc').textContent = activeNudge.desc;
-            const cta = document.getElementById('ftuxCta'); cta.textContent = activeNudge.cta; cta.href = activeNudge.href;
-            document.getElementById('ftuxDots').innerHTML = FTUX_NUDGES.map((n, i) => `<div class="ftux-dot${i<activeIdx?' done':i===activeIdx?' active':''}"></div>`).join('');
-            document.getElementById('ftuxDismiss').onclick = () => {
-                dismissNudge(activeNudge.id);
-                section.style.opacity = '0'; section.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => { section.style.display = 'none'; }, 320);
+            if (!prog) { section.style.display = 'none'; return; }
+            const isDone = id => {
+                const map = { family:'familyDone', monthly:'monthlyDone', portfolio:'portfolioDone', goals:'goalsDone', savings:'savingsDone', planning:'planningDone' };
+                return !!(prog[map[id]]);
             };
-        }
-
-        // ── Hero card ─────────────────────────────────────────────────────────
-        function heroGrowthIllu() {
-            return `<svg viewBox="0 0 200 110" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
-                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8" stroke="#8FE62C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8 L190 110 L10 110 Z" fill="#8FE62C" opacity="0.12"/>
-                <circle cx="190" cy="8" r="4" fill="#8FE62C"/>
-                <line x1="10" y1="105" x2="190" y2="105" stroke="#8FE62C" stroke-width="0.5" opacity="0.2"/>
-            </svg>`;
-        }
-
-        function heroWelcomeIllu() {
-            return `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
-                <circle cx="60" cy="60" r="56" stroke="#8FE62C" stroke-width="1" opacity="0.15"/>
-                <circle cx="60" cy="60" r="40" stroke="#8FE62C" stroke-width="1" opacity="0.2"/>
-                <path d="M30 85 C40 65,50 40,60 35 S80 30,90 25" stroke="#8FE62C" stroke-width="2" stroke-linecap="round" fill="none"/>
-                <circle cx="90" cy="25" r="5" fill="#8FE62C" opacity="0.8"/>
-                <path d="M45 70 L50 64 L56 68 L63 55 L70 60 L78 45 L85 50" stroke="#8FE62C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
-                <rect x="30" y="88" width="12" height="16" rx="2" fill="#8FE62C" opacity="0.25"/>
-                <rect x="48" y="80" width="12" height="24" rx="2" fill="#8FE62C" opacity="0.35"/>
-                <rect x="66" y="70" width="12" height="34" rx="2" fill="#8FE62C" opacity="0.5"/>
-                <rect x="84" y="60" width="12" height="44" rx="2" fill="#8FE62C" opacity="0.7"/>
-            </svg>`;
-        }
-
-        function updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments, firstName) {
-            const heroCard = document.getElementById('heroCard');
-            if (!heroCard) return;
-            heroCard.classList.remove('loading');
-            const savings = Math.max(0, totalIncome - totalExpenses - totalInvestments);
-            const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
-            const now = new Date();
-            const monthLabel = now.toLocaleString('en-IN', { month: 'long' });
-            const hasIncome = totalIncome > 0;
-            const hasNetWorth = netWorth > 0;
-
-            if (!hasIncome && !hasNetWorth) {
-                // Full empty state — welcome
-                heroCard.innerHTML = `
-                    <div class="hero-empty">
-                        <div class="hero-empty-illu">${heroWelcomeIllu()}</div>
-                        <div class="hero-empty-body">
-                            <div class="hero-empty-eyebrow">Welcome${firstName ? ', ' + firstName : ''}</div>
-                            <div class="hero-empty-heading">Start tracking your wealth</div>
-                            <div class="hero-empty-sub">Add this month's income, expenses, and investments to unlock your savings rate, net worth, and personalised insights.</div>
-                            <div class="hero-empty-actions">
-                                <a href="monthly-tracker.html" class="hero-empty-btn">Track ${monthLabel} →</a>
-                                <a href="portfolio.html" class="hero-empty-btn secondary">Add portfolio assets</a>
-                            </div>
+            const doneCount = SETUP_STEPS.filter(s => isDone(s.id)).length;
+            if (doneCount === SETUP_STEPS.length) { section.style.display = 'none'; return; }
+            section.style.display = '';
+            const pct = Math.round((doneCount / SETUP_STEPS.length) * 100);
+            const stepsHtml = SETUP_STEPS.map((step, i) => {
+                const done = isDone(step.id);
+                const isLast = i === SETUP_STEPS.length - 1;
+                const nodeHtml = done
+                    ? `<div class="journey-node journey-node--done">✓</div>`
+                    : `<div class="journey-node journey-node--pending">${i + 1}</div>`;
+                const connectorClass = done ? 'journey-connector--done' : 'journey-connector--pending';
+                const titleClass = done ? 'journey-step-title journey-step-title--done' : 'journey-step-title';
+                const actionsHtml = done
+                    ? `<a href="${step.href}" class="journey-cta">${step.cta}</a>`
+                    : `<a href="${step.href}" class="journey-cta">${step.cta}</a>
+                       <button class="journey-skip" onclick="skipSetupStep('${step.id}')">Skip</button>`;
+                return `<div class="journey-step">
+                    <div class="journey-spine">
+                        ${nodeHtml}
+                        ${!isLast ? `<div class="journey-connector ${connectorClass}"></div>` : ''}
+                    </div>
+                    <div class="journey-body">
+                        <span class="journey-step-icon">${step.icon}</span>
+                        <div class="journey-step-text">
+                            <span class="${titleClass}">${step.title}</span>
+                            <div class="journey-step-sub">${step.sub}</div>
                         </div>
-                    </div>`;
-            } else if (hasIncome && !hasNetWorth) {
-                // Has monthly data but no portfolio — feature income/savings, prompt for portfolio
-                heroCard.innerHTML = `
-                    <div class="hero-filled">
-                        <div class="hero-metric-main">
-                            <div class="hero-metric-label">Monthly Income</div>
-                            <div class="hero-metric-value">${fmt(totalIncome)}</div>
-                            <div class="hero-metric-change" style="color:var(--accent,#8FE62C);">↑ ${savingsRate}% savings rate</div>
-                            <svg class="hero-bg-illu" viewBox="0 0 200 110" fill="none" preserveAspectRatio="xMaxYMax meet">
-                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8" stroke="#8FE62C" stroke-width="2" stroke-linecap="round" fill="none"/>
-                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8 L190 110 L10 110 Z" fill="#8FE62C"/>
-                            </svg>
-                        </div>
-                        <div class="hero-metric-divider"></div>
-                        <div class="hero-metric-secondary">
-                            <div>
-                                <div class="hero-secondary-label">Monthly Savings</div>
-                                <div class="hero-secondary-value">${fmt(savings)}</div>
-                                <div class="hero-secondary-sub">${savingsRate}% of income</div>
-                            </div>
-                            <div>
-                                <div class="hero-secondary-label">Net Worth</div>
-                                <div class="hero-secondary-value" style="opacity:0.45;font-size:1.1rem;">Not tracked</div>
-                                <a href="portfolio.html" style="font-size:0.75rem;color:var(--accent,#8FE62C);text-decoration:none;font-weight:700;letter-spacing:-0.01em;">Add portfolio →</a>
-                            </div>
-                        </div>
-                    </div>`;
-            } else {
-                // Has net worth — full filled state
-                heroCard.innerHTML = `
-                    <div class="hero-filled">
-                        <div class="hero-metric-main">
-                            <div class="hero-metric-label">Total Net Worth</div>
-                            <div class="hero-metric-value">${fmt(netWorth)}</div>
-                            <div class="hero-metric-change">↑ Growing</div>
-                            <svg class="hero-bg-illu" viewBox="0 0 200 110" fill="none" preserveAspectRatio="xMaxYMax meet">
-                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8" stroke="#8FE62C" stroke-width="2" stroke-linecap="round" fill="none"/>
-                                <path d="M10 90 C40 75,60 40,100 30 S150 15,190 8 L190 110 L10 110 Z" fill="#8FE62C"/>
-                            </svg>
-                        </div>
-                        <div class="hero-metric-divider"></div>
-                        <div class="hero-metric-secondary">
-                            <div>
-                                <div class="hero-secondary-label">Monthly Savings</div>
-                                <div class="hero-secondary-value">${fmt(savings)}</div>
-                                <div class="hero-secondary-sub">${savingsRate}% savings rate</div>
-                            </div>
-                            <div>
-                                <div class="hero-secondary-label">Monthly Income</div>
-                                <div class="hero-secondary-value">${fmt(totalIncome)}</div>
-                                <div class="hero-secondary-sub">${fmt(totalExpenses)} expenses</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }
+                        <div class="journey-actions">${actionsHtml}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            section.innerHTML = `<div class="journey-card">
+                <div class="journey-header">
+                    <div class="journey-title">Get started</div>
+                    <div class="journey-count"><strong>${doneCount} of ${SETUP_STEPS.length}</strong> complete</div>
+                </div>
+                <div class="journey-progress-bar-wrap"><div class="journey-progress-bar-fill" style="width:${pct}%"></div></div>
+                <div class="journey-steps">${stepsHtml}</div>
+            </div>`;
         }
 
         // ── Person tabs ───────────────────────────────────────────────────────
-        let allFamilyMembers = [], currentDashboardMemberId = null;
         function buildDashboardPersonTabs(members) {
             const container = document.getElementById('personTabsContainer');
             const tabsList  = document.getElementById('personTabsList');
-            const familyWidget = document.getElementById('familySetupWidget');
-
-            // Show family widget only when ≤1 member AND user hasn't skipped it
-            const showFamilyWidget = (!members || members.length <= 1) && !isFamilyWidgetSkipped();
-            if (familyWidget) {
-                familyWidget.style.display = showFamilyWidget ? '' : 'none';
-                if (showFamilyWidget) {
-                    // Wire up dismiss × and "Maybe later" buttons
-                    const dismissBtn = document.getElementById('familyWidgetDismiss');
-                    const skipBtn    = document.getElementById('familyWidgetSkip');
-                    if (dismissBtn) dismissBtn.onclick = skipFamilyWidget;
-                    if (skipBtn)    skipBtn.onclick    = skipFamilyWidget;
-                }
-            }
-
             if (!members || members.length < 2) { if (container) container.style.display = 'none'; return; }
             if (!container || !tabsList) return;
             tabsList.innerHTML = '';
@@ -1146,53 +749,45 @@
         async function switchDashboardMember(memberId) {
             currentDashboardMemberId = memberId === 'overall' ? null : memberId;
             document.querySelectorAll('#personTabsList .person-tab').forEach(t => t.classList.toggle('active', t.dataset.memberId === String(memberId)));
-            const { year, month } = WealthAPI.getCurrentYearMonth();
+            const year = currentYear, month = currentMonth;
+            const prevM = month === 1 ? 12 : month - 1, prevY = month === 1 ? year - 1 : year;
+            const monthLabel = new Date(year, month - 1, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
             let income = 0, expenses = 0, investments = 0, memberMonthData = [];
+            let prevIncome = 0, prevExpenses = 0, prevInvestments = 0, netWorth = 0, byAssetClass = [];
             if (currentDashboardMemberId === null) {
-                const data = await WealthAPI.monthly.getMonth(year, month).catch(() => []);
+                const [data, prevData, portfolio] = await Promise.all([
+                    WealthAPI.monthly.getMonth(year, month).catch(() => []),
+                    WealthAPI.monthly.getMonth(prevY, prevM).catch(() => []),
+                    WealthAPI.portfolio.summary(year, month).catch(() => null),
+                ]);
                 memberMonthData = Array.isArray(data) ? data : [];
+                const prevMems = Array.isArray(prevData) ? prevData : [];
                 income = memberMonthData.reduce((s, m) => s + (m.income || 0), 0);
                 expenses = memberMonthData.reduce((s, m) => s + (m.expenditure || 0), 0);
                 investments = memberMonthData.reduce((s, m) => s + (m.investments || 0), 0);
-                const portfolio = await WealthAPI.portfolio.summary(year, month).catch(() => null);
-                const netWorth = portfolio ? (portfolio.totalNetWorth || 0) : 0;
-                renderMetrics(income, expenses, investments, netWorth);
-                renderAllocation(portfolio ? (portfolio.byAssetClass || []) : []);
+                prevIncome = prevMems.reduce((s, m) => s + (m.income || 0), 0);
+                prevExpenses = prevMems.reduce((s, m) => s + (m.expenditure || 0), 0);
+                prevInvestments = prevMems.reduce((s, m) => s + (m.investments || 0), 0);
+                netWorth = (portfolio ? (portfolio.totalNetWorth || 0) : 0) - _totalLiabilities;
+                byAssetClass = portfolio ? (portfolio.byAssetClass || []) : [];
             } else {
-                const data = await WealthAPI.monthly.getMemberMonth(year, month, currentDashboardMemberId).catch(() => null);
+                const [data, prevData, memberAssets] = await Promise.all([
+                    WealthAPI.monthly.getMemberMonth(year, month, currentDashboardMemberId).catch(() => null),
+                    WealthAPI.monthly.getMemberMonth(prevY, prevM, currentDashboardMemberId).catch(() => null),
+                    WealthAPI.portfolio.getMember(currentDashboardMemberId, year, month).catch(() => []),
+                ]);
                 memberMonthData = data ? [data] : [];
                 income = data ? (data.income || 0) : 0; expenses = data ? (data.expenditure || 0) : 0; investments = data ? (data.investments || 0) : 0;
-                const memberAssets = await WealthAPI.portfolio.getMember(currentDashboardMemberId, year, month).catch(() => []);
+                prevIncome = prevData ? (prevData.income || 0) : 0; prevExpenses = prevData ? (prevData.expenditure || 0) : 0; prevInvestments = prevData ? (prevData.investments || 0) : 0;
                 const assetList = Array.isArray(memberAssets) ? memberAssets : [];
-                renderMetrics(income, expenses, investments, assetList.reduce((s, a) => s + (a.currentValue || 0), 0));
-                renderAllocation(computeAllocationFromAssets(assetList));
+                netWorth = assetList.reduce((s, a) => s + (a.currentValue || 0), 0);
+                byAssetClass = computeAllocationFromAssets(assetList);
             }
-            const savingsRate = income > 0 ? Math.max(0, (1 - expenses / income) * 100) : 0;
-            renderGauge(income, savingsRate);
-            renderIncomeExpenseBars(income, expenses);
-            renderActivity(memberMonthData);
-        }
-
-        // ── Build historical spark data from chart ─────────────────────────────
-        async function buildSparkData(numMonths) {
-            numMonths = numMonths || 3;
-            const now = new Date();
-            const monthPairs = [];
-            for (let i = numMonths - 1; i >= 0; i--) {
-                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                monthPairs.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
-            }
-            const results = await Promise.all(monthPairs.map(({ year, month }) => WealthAPI.monthly.getMonth(year, month).catch(() => [])));
-            const income = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.income || 0), 0));
-            const expenses = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.expenditure || 0), 0));
-            const investments = results.map(rows => (Array.isArray(rows) ? rows : []).reduce((s, m) => s + (m.investments || 0), 0));
-            const savings = income.map((inc, i) => Math.max(0, inc - expenses[i] - investments[i]));
-            const savingsRate = income.map((inc, i) => inc > 0 ? Math.round(((inc - expenses[i]) / inc) * 100) : 0);
-            return { income, expenses, savings, savingsRate, investments };
+            renderCashflowCard(income, expenses, investments, prevIncome, prevExpenses, prevInvestments, monthLabel);
+            renderPortfolioSummary(netWorth, byAssetClass, currentDashboardMemberId === null ? _totalLiabilities : 0);
         }
 
         // ── Main init ─────────────────────────────────────────────────────────
-        let _dashFirstName = '';
         async function initDashboard() {
             if (!(await WealthAPI.auth.requireAuth())) return;
             const user = await WealthAPI.auth.getUser();
@@ -1203,71 +798,68 @@
                 const fallback = familyName && familyName !== 'My Family' ? familyName : (user.email || '').split('@')[0];
                 _dashFirstName = firstName || fallback;
                 document.getElementById('pageTitle').textContent = _dashFirstName ? 'Welcome, ' + _dashFirstName : 'Dashboard';
-                const now = new Date();
-                document.getElementById('pageSubtitle').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
             }
-
             const { year, month } = WealthAPI.getCurrentYearMonth();
-            const [monthData, portfolio, goals, familyMembers, sparkData] = await Promise.all([
+            initMonthNav(year, month);
+            const prevM = month === 1 ? 12 : month - 1, prevY = month === 1 ? year - 1 : year;
+            const monthLabel = new Date(year, month - 1, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            const [monthData, prevMonthData, portfolio, goals, familyMembers, setupProg, liabData] = await Promise.all([
                 WealthAPI.monthly.getMonth(year, month).catch(() => []),
+                WealthAPI.monthly.getMonth(prevY, prevM).catch(() => []),
                 WealthAPI.portfolio.summary(year, month).catch(() => null),
                 WealthAPI.goals.getAll().catch(() => []),
                 WealthAPI.family.getMembers().catch(() => []),
-                buildSparkData(6)
+                WealthAPI.setup.getProgress().catch(() => null),
+                WealthAPI.liabilities.getAll().catch(() => null),
             ]);
-
+            _totalLiabilities = liabData?.summary?.totalOutstanding || 0;
             allFamilyMembers = familyMembers || [];
             buildDashboardPersonTabs(allFamilyMembers);
-
-            const members       = Array.isArray(monthData) ? monthData : [];
-            const totalIncome      = members.reduce((s, m) => s + (m.income      || 0), 0);
-            const totalExpenses    = members.reduce((s, m) => s + (m.expenditure || 0), 0);
-            const totalInvestments = members.reduce((s, m) => s + (m.investments || 0), 0);
-            const netWorth         = portfolio ? (portfolio.totalNetWorth || 0) : 0;
-            const byAssetClass     = portfolio ? (portfolio.byAssetClass  || []) : [];
-
-            renderMetrics(totalIncome, totalExpenses, totalInvestments, netWorth, sparkData);
-            const savingsRate = totalIncome > 0 ? Math.max(0, (1 - totalExpenses / totalIncome) * 100) : 0;
-            renderGauge(totalIncome, savingsRate);
-            renderIncomeExpenseBars(totalIncome, totalExpenses);
-            renderGoals(goals);
-            renderAllocation(byAssetClass);
-            renderActivity(members);
-            renderNetWorthChart(3);
-            updateHeroCard(netWorth, totalIncome, totalExpenses, totalInvestments, _dashFirstName);
-
-            const hasMonthlyData    = totalIncome > 0 || totalExpenses > 0;
-            const hasInvestmentData = totalInvestments > 0;
-            const hasPortfolioEntries = byAssetClass && byAssetClass.length > 0;
-            renderFtuxNudge(hasMonthlyData, hasInvestmentData, hasPortfolioEntries);
-
-            const hasGoalData = goals && goals.length > 0;
-            const sV = (id, v) => { const el = document.getElementById(id); if (el) el.style.display = v ? '' : 'none'; };
-            // Always show core metric sections — empty states render within (flat sparklines, prompts)
-            sV('metricCards', true);
-            sV('savingsGauge', true);
-            sV('incomeExpenseChart', true);
-            // Portfolio sections shown only when data exists
-            sV('allocationCard', hasPortfolioEntries);
-            sV('activityCard', hasPortfolioEntries || hasMonthlyData);
-            // Goals shown only when goals exist
-            sV('goalsGrid', hasGoalData);
-            sV('mainChart', true);
-
-            const revealEls = document.querySelectorAll('#dashboardGrid > *:not(.hero-metric-card):not(.ftux-nudge-section):not(.family-setup-widget)');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('wos-reveal', 'visible'); observer.unobserve(e.target); } });
+            const members = Array.isArray(monthData) ? monthData : [];
+            const prevMems = Array.isArray(prevMonthData) ? prevMonthData : [];
+            const income = members.reduce((s, m) => s + (m.income || 0), 0);
+            const expenses = members.reduce((s, m) => s + (m.expenditure || 0), 0);
+            const investments = members.reduce((s, m) => s + (m.investments || 0), 0);
+            const prevIncome = prevMems.reduce((s, m) => s + (m.income || 0), 0);
+            const prevExpenses = prevMems.reduce((s, m) => s + (m.expenditure || 0), 0);
+            const prevInvestments = prevMems.reduce((s, m) => s + (m.investments || 0) , 0);
+            const netWorth = (portfolio ? (portfolio.totalNetWorth || 0) : 0) - _totalLiabilities;
+            const byAssetClass = portfolio ? (portfolio.byAssetClass || []) : [];
+            renderCashflowCard(income, expenses, investments, prevIncome, prevExpenses, prevInvestments, monthLabel);
+            renderPortfolioSummary(netWorth, byAssetClass, _totalLiabilities);
+            renderGoalsCompact(goals);
+            // Auto-detect completion and write back to DB if needed
+            const hasMonthlyData = income > 0 || expenses > 0;
+            const hasPortfolioEntries = byAssetClass.length > 0;
+            const hasFamilySetup = allFamilyMembers.length > 1;
+            const hasGoals = Array.isArray(goals) && goals.length > 0;
+            if (setupProg) {
+                const writes = [];
+                if (hasFamilySetup && !setupProg.familyDone) writes.push(WealthAPI.setup.markStep('family', 1));
+                if (hasMonthlyData && !setupProg.monthlyDone) writes.push(WealthAPI.setup.markStep('monthly', 1));
+                if (hasPortfolioEntries && !setupProg.portfolioDone) writes.push(WealthAPI.setup.markStep('portfolio', 1));
+                if (hasGoals && !setupProg.goalsDone) writes.push(WealthAPI.setup.markStep('goals', 1));
+                if (writes.length) {
+                    await Promise.all(writes).catch(() => {});
+                    const fresh = await WealthAPI.setup.getProgress().catch(() => setupProg);
+                    _setupProg = fresh;
+                    renderSetupJourney(fresh);
+                } else {
+                    _setupProg = setupProg;
+                    renderSetupJourney(setupProg);
+                }
+            } else {
+                document.getElementById('ftuxNudgeSection').style.display = 'none';
+            }
+            document.querySelectorAll('#dashboardGrid > *').forEach((el, i) => {
+                el.classList.add('wos-reveal'); el.style.transitionDelay = (i * 0.05) + 's';
+            });
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
             }, { threshold: 0.05 });
-            revealEls.forEach((el, i) => { el.classList.add('wos-reveal'); el.style.transitionDelay = (i * 0.05) + 's'; observer.observe(el); });
+            document.querySelectorAll('#dashboardGrid > *').forEach(el => obs.observe(el));
         }
 
-        document.querySelectorAll('.chart-tab[data-months]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
-                btn.classList.add('active');
-                renderNetWorthChart(parseInt(btn.dataset.months, 10));
-            });
-        });
 
         initDashboard().catch(err => console.error('Dashboard init error:', err));
     </script>

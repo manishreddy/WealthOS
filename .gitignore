@@ -12,6 +12,7 @@ server/wealthos.db-wal
 .env
 .env.local
 .env.*
+!.env.example
 
 # OS
 .DS_Store
@@ -24,3 +25,5 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+.vercel/
+server/.env

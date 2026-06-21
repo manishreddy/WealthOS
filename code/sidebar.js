@@ -22,25 +22,26 @@
     demo:        `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
     rupee:       `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="18" y2="3"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="15" y1="21" x2="6" y2="8"/><path d="M6 3a5 5 0 0 1 0 10h2"/></svg>`,
     fire:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+    liabilities: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
   };
 
   const NAV = [
     { href: 'dashboard.html',          icon: ICONS.dashboard,   label: 'Dashboard' },
     { href: 'monthly-tracker.html',    icon: ICONS.monthly,     label: 'Monthly Tracker' },
-    { href: 'savings-plan.html',       icon: ICONS.savings,     label: 'Monthly Investments' },
     { divider: true },
     { href: 'portfolio.html',          icon: ICONS.portfolio,   label: 'Portfolio' },
+    { href: 'liabilities.html',        icon: ICONS.liabilities, label: 'Liabilities' },
     { href: 'goals.html',              icon: ICONS.goals,       label: 'Goals' },
-    { href: 'fire.html',               icon: ICONS.fire,        label: 'FIRE Calculator' },
-    { href: 'planned.html',            icon: ICONS.planned,     label: 'Life Plan' },
+    { href: 'fire.html',               icon: ICONS.fire,        label: 'Retirement Planning' },
+    { href: 'projections.html',        icon: ICONS.planned,     label: 'Projections' },
     { href: 'financial-planning.html', icon: ICONS.planning,    label: 'Financial Planning' },
-    { href: 'proj-vs-actuals.html',    icon: ICONS.projections, label: 'Proj vs Actuals' },
     { divider: true },
-    { href: 'wealthbot.html',          icon: ICONS.wealthbot,   label: 'WealthBot' },
     { href: 'settings.html',           icon: ICONS.settings,    label: 'Settings' },
   ];
 
-  const currentFile = window.location.pathname.split('/').pop() || 'dashboard.html';
+  // savings-plan.html is a sub-page of Monthly Tracker; treat it as such for active highlighting
+  const _rawFile = window.location.pathname.split('/').pop() || 'dashboard.html';
+  const currentFile = _rawFile === 'savings-plan.html' ? 'monthly-tracker.html' : _rawFile;
 
   // ── CSS ──────────────────────────────────────────────────────────────────────
   const css = `
@@ -48,18 +49,17 @@
     .wos-sidebar {
       width: 240px;
       min-width: 240px;
-      background: var(--bg-sidebar, #F5F5F5);
-      border-right: 1px solid var(--sidebar-border, rgba(0,0,0,0.07));
+      background: var(--bg-sidebar, #111827);
+      border-right: 1px solid var(--sidebar-border, rgba(255,255,255,0.06));
       padding: 24px 12px 20px;
       display: flex;
       flex-direction: column;
       gap: 0;
-      position: sticky;
-      top: 0;
       height: 100vh;
       overflow: hidden;
       transition: background 180ms, border-color 180ms;
       z-index: 100;
+      flex-shrink: 0;
     }
 
     /* Logo */
@@ -86,7 +86,7 @@
       font-family: var(--font, 'Inter', sans-serif);
       font-size: 1.0625rem;
       font-weight: 800;
-      color: var(--text-primary, #111);
+      color: #FFFFFF;
       letter-spacing: -0.04em;
     }
     .wos-logo-text em {
@@ -107,7 +107,7 @@
     .wos-nav::-webkit-scrollbar { width: 0; }
     .wos-nav-divider {
       height: 1px;
-      background: var(--sidebar-border, rgba(0,0,0,0.07));
+      background: var(--sidebar-border, rgba(255,255,255,0.06));
       margin: 8px 4px;
     }
     .wos-nav-item {
@@ -118,7 +118,7 @@
       border-radius: 10px;
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--sidebar-text-muted, #888);
+      color: var(--sidebar-text, #94A3B8);
       text-decoration: none;
       cursor: pointer;
       transition: background 130ms, color 130ms;
@@ -131,13 +131,15 @@
       font-family: var(--font, 'Inter', sans-serif);
     }
     .wos-nav-item:hover {
-      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
-      color: var(--sidebar-text, #111);
+      background: var(--sidebar-hover-bg, rgba(255,255,255,0.06));
+      color: #fff;
     }
     .wos-nav-item.active {
-      background: var(--sidebar-active-bg, #111);
-      color: var(--sidebar-active-text, #fff);
+      background: var(--sidebar-active-bg, rgba(143,230,44,0.12));
+      color: var(--sidebar-active-text, #8FE62C);
       font-weight: 600;
+      border-left: 3px solid var(--sidebar-active-text, #8FE62C);
+      padding-left: 9px;
     }
     .wos-nav-icon {
       width: 20px;
@@ -175,11 +177,11 @@
       border-radius: 10px;
       cursor: pointer;
       transition: background 130ms;
-      color: var(--sidebar-text-muted, #888);
+      color: var(--sidebar-text-muted, #64748B);
     }
     .wos-theme-row:hover {
-      background: var(--sidebar-hover-bg, rgba(0,0,0,0.05));
-      color: var(--sidebar-text, #111);
+      background: var(--sidebar-hover-bg, rgba(255,255,255,0.06));
+      color: #fff;
     }
     .wos-theme-inner {
       display: flex;
@@ -193,7 +195,7 @@
     .wos-toggle {
       width: 36px;
       height: 20px;
-      background: var(--border, rgba(0,0,0,0.12));
+      background: var(--sidebar-border, rgba(255,255,255,0.12));
       border-radius: 10px;
       position: relative;
       transition: background 0.25s;
@@ -222,13 +224,18 @@
       left: 0;
       right: 0;
       height: 56px;
-      background: var(--bg-sidebar, #F5F5F5);
-      border-bottom: 1px solid var(--sidebar-border, rgba(0,0,0,0.07));
+      /* Notched phones: push bar below status bar */
+      padding-top: env(safe-area-inset-top, 0px);
+      height: calc(56px + env(safe-area-inset-top, 0px));
+      background: var(--bg-sidebar, #111827);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding-left: max(16px, env(safe-area-inset-left, 16px));
+      padding-right: max(16px, env(safe-area-inset-right, 16px));
       z-index: 200;
-      transition: background 180ms, border-color 180ms;
+      transition: background 180ms;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04);
     }
     .wos-mobile-logo {
       display: flex;
@@ -250,7 +257,7 @@
       font-family: var(--font, 'Inter', sans-serif);
       font-size: 1rem;
       font-weight: 800;
-      color: var(--text-primary, #111);
+      color: #FFFFFF;
       letter-spacing: -0.04em;
     }
     .wos-mobile-logo-text em { font-style: normal; color: var(--accent, #8FE62C); }
@@ -262,20 +269,20 @@
       justify-content: center;
       border: none;
       background: none;
-      color: var(--text-primary, #111);
+      color: #fff;
       cursor: pointer;
       border-radius: 8px;
       transition: background 130ms;
       flex-shrink: 0;
     }
-    .wos-hamburger:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.06)); }
+    .wos-hamburger:hover { background: var(--sidebar-hover-bg, rgba(255,255,255,0.06)); }
     .wos-mobile-greeting {
       flex: 1;
       margin-left: 10px;
       font-family: var(--font, 'Inter', sans-serif);
       font-size: 0.9375rem;
       font-weight: 700;
-      color: var(--text-primary, #111);
+      color: #fff;
       letter-spacing: -0.025em;
       white-space: nowrap;
       overflow: hidden;
@@ -291,7 +298,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
       z-index: 300;
       opacity: 0;
       pointer-events: none;
@@ -307,16 +316,16 @@
       display: flex; align-items: center; gap: 9px;
       padding: 8px 12px; border-radius: 10px;
       font-size: 0.8125rem; font-weight: 500;
-      color: var(--sidebar-text-muted, #888);
+      color: var(--sidebar-text-muted, #64748B);
       text-decoration: none;
-      border: 1px solid var(--sidebar-border, rgba(0,0,0,0.08));
+      border: 1px solid var(--sidebar-border, rgba(255,255,255,0.06));
       transition: background 130ms, color 130ms, border-color 130ms;
       font-family: var(--font, 'Inter', sans-serif);
       letter-spacing: -0.01em;
     }
     .wos-demo-btn:hover {
       background: rgba(143,230,44,0.07);
-      color: var(--sidebar-text, #111);
+      color: #fff;
       border-color: rgba(143,230,44,0.45);
     }
     [data-theme="dark"] .wos-demo-btn {
@@ -341,7 +350,7 @@
     /* Bottom divider */
     .wos-bottom-divider {
       height: 1px;
-      background: var(--sidebar-border, rgba(0,0,0,0.07));
+      background: var(--sidebar-border, rgba(255,255,255,0.06));
       margin: 6px 0;
     }
 
@@ -353,13 +362,13 @@
       transition: background 130ms;
       cursor: pointer;
     }
-    .wos-profile-row:hover { background: var(--sidebar-hover-bg, rgba(0,0,0,0.05)); }
+    .wos-profile-row:hover { background: var(--sidebar-hover-bg, rgba(255,255,255,0.06)); }
     .wos-profile-avatar {
       width: 30px; height: 30px; border-radius: 50%;
-      background: var(--text-primary, #111);
+      background: rgba(255,255,255,0.12);
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 0.75rem;
-      color: var(--bg, #EBEBEB);
+      color: #fff;
       flex-shrink: 0; letter-spacing: 0.02em;
       font-family: var(--font, 'Inter', sans-serif);
       transition: background 180ms;
@@ -368,12 +377,12 @@
     .wos-profile-info { flex: 1; min-width: 0; }
     .wos-profile-name {
       font-size: 0.8125rem; font-weight: 600;
-      color: var(--sidebar-text, #111); letter-spacing: -0.01em;
+      color: var(--sidebar-text, #94A3B8); letter-spacing: -0.01em;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       font-family: var(--font, 'Inter', sans-serif);
     }
     .wos-profile-email {
-      font-size: 0.65rem; color: var(--sidebar-text-muted, #888);
+      font-size: 0.65rem; color: var(--sidebar-text-muted, #64748B);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       font-family: var(--font, 'Inter', sans-serif);
       margin-top: 1px;
@@ -384,7 +393,7 @@
       display: flex; align-items: center; gap: 8px;
       padding: 8px 12px; border-radius: 10px;
       font-size: 0.8125rem; font-weight: 500;
-      color: var(--sidebar-text-muted, #888);
+      color: var(--sidebar-text-muted, #64748B);
       cursor: pointer; border: none; background: none;
       width: 100%; text-align: left;
       font-family: var(--font, 'Inter', sans-serif);
@@ -403,15 +412,17 @@
 
     /* ── Shared layout collapse ──────────────────────────────────────── */
     @media (max-width: 768px) {
-      /* app-container collapses to single column */
+      /* app-container collapses to single column and reverts to scrolling body */
       .app-container {
         grid-template-columns: 1fr !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
       }
 
-      /* Push content below the fixed mobile bar + ensure consistent padding */
+      /* Push content below the fixed mobile bar (safe-area aware) */
       .main-content {
-        margin-top: 56px !important;
-        padding: 16px;
+        margin-top: calc(56px + env(safe-area-inset-top, 0px)) !important;
         overflow-x: hidden;
         max-width: 100%;
       }
@@ -430,13 +441,14 @@
         height: 100vh;
         height: -webkit-fill-available;
         height: 100dvh;
-        width: 260px !important;
+        width: 280px !important;
         min-width: 0 !important;
+        padding-top: max(24px, env(safe-area-inset-top, 24px));
+        padding-left: max(12px, env(safe-area-inset-left, 12px));
         transform: translateX(-100%);
-        transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), background 180ms;
+        transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), background 180ms;
         z-index: 400;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-        /* Allow full sidebar scroll as last-resort fallback on very small screens */
+        box-shadow: 8px 0 32px rgba(0,0,0,0.25);
         overflow-y: auto;
       }
       .wos-sidebar.open {
@@ -446,8 +458,8 @@
       .wos-sidebar-bottom {
         position: sticky;
         bottom: 0;
-        background: var(--bg-sidebar, #F5F5F5);
-        padding-bottom: env(safe-area-inset-bottom, 8px);
+        background: var(--bg-sidebar, #111827);
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
         margin-top: auto;
       }
 
@@ -501,8 +513,12 @@
         <span class="wos-nav-icon">${item.icon}</span>
         <span class="wos-nav-label">${item.label}</span>
       `;
-      // Close drawer on nav click (mobile)
-      a.addEventListener('click', closeDrawer);
+      // PJAX nav: intercept click, swap content without full reload
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeDrawer();
+        _pjaxNavigate(item.href);
+      });
       nav.appendChild(a);
     });
 
@@ -512,52 +528,9 @@
     const bottom = document.createElement('div');
     bottom.className = 'wos-sidebar-bottom';
 
-    // View Demo button (distinct outlined style)
-    const demoLink = document.createElement('a');
-    demoLink.href = 'demo-account.html';
-    demoLink.target = '_blank';
-    demoLink.rel = 'noopener';
-    demoLink.className = 'wos-demo-btn';
-    demoLink.innerHTML = `<span class="wos-nav-icon">${ICONS.demo}</span><span>View Demo</span><span class="wos-demo-badge">Preview</span>`;
-    demoLink.addEventListener('click', closeDrawer);
-    bottom.appendChild(demoLink);
+    // View Demo button removed
 
-    // Theme toggle
-    const isDark = getSavedTheme() === 'dark';
-    const themeRow = document.createElement('div');
-    themeRow.className = 'wos-theme-row';
-    themeRow.innerHTML = `
-      <div class="wos-theme-inner">
-        <span id="wosThemeIcon">${isDark ? ICONS.sun : ICONS.moon}</span>
-        <span id="wosThemeLabel">${isDark ? 'Light mode' : 'Dark mode'}</span>
-      </div>
-      <div class="wos-toggle${isDark ? ' on' : ''}" id="wosToggle">
-        <div class="wos-toggle-knob"></div>
-      </div>
-    `;
-    themeRow.addEventListener('click', toggleTheme);
-    bottom.appendChild(themeRow);
-
-    // Divider above profile
-    const divider = document.createElement('div');
-    divider.className = 'wos-bottom-divider';
-    bottom.appendChild(divider);
-
-    // Profile row (avatar + name + email → links to settings)
-    const profileRow = document.createElement('a');
-    profileRow.href = 'settings.html';
-    profileRow.className = 'wos-profile-row';
-    profileRow.innerHTML = `
-      <div class="wos-profile-avatar" id="wosProfileAvatar">?</div>
-      <div class="wos-profile-info">
-        <div class="wos-profile-name" id="wosProfileName">My Account</div>
-        <div class="wos-profile-email" id="wosProfileEmail"></div>
-      </div>
-    `;
-    profileRow.addEventListener('click', closeDrawer);
-    bottom.appendChild(profileRow);
-
-    // Separate logout button
+    // Logout button
     const logoutBtn = document.createElement('button');
     logoutBtn.className = 'wos-logout-btn';
     logoutBtn.id = 'wosProfileLogout';
@@ -699,8 +672,10 @@
   // ── Portfolio value ──────────────────────────────────────────────────────────
   function loadPortfolioTotal() {
     const now = new Date();
-    fetch(`/api/portfolio/?year=${now.getFullYear()}&month=${now.getMonth() + 1}`, {
-      credentials: 'same-origin'
+    getSupabase().then(sb => sb.auth.getSession()).then(({ data: { session } }) => {
+      return fetch(`/api/portfolio/?year=${now.getFullYear()}&month=${now.getMonth() + 1}`, {
+        headers: session ? { 'Authorization': 'Bearer ' + session.access_token } : {}
+      });
     })
       .then(r => r.ok ? r.json() : [])
       .then(memberData => {
@@ -715,6 +690,193 @@
       .catch(() => {});
   }
 
+  // ── PJAX Navigation Engine ────────────────────────────────────────────────────
+  // Intercepts sidebar nav clicks and swaps <main> content without a full page reload,
+  // eliminating the white-flash "scraping" effect during navigation.
+
+  const _pjaxNavHrefs = new Set(NAV.filter(i => i.href).map(i => i.href));
+  let   _pjaxBusy     = false;
+
+  async function _pjaxNavigate(href) {
+    // Normalise to filename only (strips leading path & query for lookup)
+    const file = href.split('?')[0].split('/').pop();
+
+    // Only PJAX for known sidebar pages; fall through to full nav otherwise
+    if (!_pjaxNavHrefs.has(file)) {
+      window.location.href = href;
+      return;
+    }
+    if (_pjaxBusy) return;
+    _pjaxBusy = true;
+
+    try {
+      // ── 1. Fade out current content (quick, 80ms) ────────────────────────────
+      const main = document.querySelector('main.main-content');
+      if (main) {
+        main.style.transition = 'opacity 80ms ease';
+        main.style.opacity    = '0';
+      }
+
+      // ── 2. Fetch target page (in parallel with the fade-out) ─────────────────
+      const res = await fetch(href, { cache: 'default' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const html = await res.text();
+      const newDoc = (new DOMParser()).parseFromString(html, 'text/html');
+
+      // ── 3. Bail early if target is a stub/redirect (no main content) ─────────
+      const newMain = newDoc.querySelector('main.main-content');
+      if (!newMain) throw new Error('Fetched page has no main.main-content');
+
+      // ── 4. Update document title ─────────────────────────────────────────────
+      document.title = newDoc.title;
+
+      // ── 5. Inject missing <link rel="stylesheet"> tags (dedup by href) ────────
+      const pendingLinks = [];
+      newDoc.querySelectorAll('head link[rel="stylesheet"]').forEach(link => {
+        const h    = link.getAttribute('href');
+        if (!h) return;
+        const norm = h.replace(/^\.\//, '').replace(/^\//, '');
+        if (document.querySelector(`link[href="${h}"], link[href="${norm}"], link[href="/${norm}"]`)) return;
+        const el = document.createElement('link');
+        el.rel  = 'stylesheet';
+        el.href = h;
+        pendingLinks.push(new Promise(r => { el.onload = el.onerror = r; }));
+        document.head.appendChild(el);
+      });
+      // Await new CSS so the swapped content is styled before it becomes visible
+      if (pendingLinks.length) await Promise.all(pendingLinks);
+
+      // ── 6. Swap page-specific inline <style> blocks ──────────────────────────
+      // Remove previous PJAX-injected styles, then inject every style from the
+      // new page (no content-based dedup — duplicate rules are harmless).
+      document.querySelectorAll('style[data-pjax]').forEach(s => s.remove());
+      newDoc.querySelectorAll('style').forEach(s => {
+        const el = document.createElement('style');
+        el.setAttribute('data-pjax', '1');
+        el.textContent = s.textContent;
+        document.head.appendChild(el);
+      });
+
+      // ── 7. Load <head> external scripts not yet on page (e.g. Chart.js CDN) ──
+      const pendingHeadScripts = [];
+      newDoc.querySelectorAll('head script[src]').forEach(oldScript => {
+        const src  = oldScript.getAttribute('src');
+        if (!src) return;
+        const norm = src.replace(/^\.\//, '').replace(/^\//, '');
+        if (document.querySelector(
+          `script[src="${src}"], script[src="${norm}"], script[src="/${norm}"]`
+        )) return; // already loaded
+        pendingHeadScripts.push(new Promise(resolve => {
+          const s  = document.createElement('script');
+          s.src    = src;
+          s.onload = s.onerror = resolve;
+          document.head.appendChild(s);
+        }));
+      });
+      if (pendingHeadScripts.length) await Promise.all(pendingHeadScripts);
+
+      // ── 8. Swap <main> content ────────────────────────────────────────────────
+      if (main) {
+        main.innerHTML = newMain.innerHTML;
+        main.className = newMain.className;
+      }
+
+      // ── 9. Swap body-level modals / overlays (elements outside <main>) ────────
+      document.querySelectorAll('[data-pjax-body]').forEach(el => el.remove());
+      const firstBodyScript = document.body.querySelector('script');
+      Array.from(newDoc.body.children).forEach(el => {
+        const tag = el.tagName.toLowerCase();
+        if (tag === 'script' || tag === 'style' || tag === 'aside') return;
+        if (el.classList.contains('app-container') || el.id === 'sidebar-root') return;
+        const clone = document.importNode(el, true);
+        clone.setAttribute('data-pjax-body', '1');
+        document.body.insertBefore(clone, firstBodyScript || null);
+      });
+
+      // ── 10. Inject page scripts; capture DOMContentLoaded callbacks ───────────
+      // Intercept document.addEventListener so DCL callbacks from new page scripts
+      // can be captured and fired manually (DOMContentLoaded won't re-fire natively).
+      const _origAEL = document.addEventListener.bind(document);
+      const _dcl     = [];
+      document.addEventListener = function(type, fn, opts) {
+        if (type === 'DOMContentLoaded') { _dcl.push(fn); return; }
+        _origAEL(type, fn, opts);
+      };
+
+      const bodyScripts = Array.from(newDoc.querySelectorAll('body script'));
+      for (const oldScript of bodyScripts) {
+        if (oldScript.src) {
+          const src  = oldScript.getAttribute('src');
+          if (!src) continue;
+          const norm = src.replace(/^\.\//, '').replace(/^\//, '');
+          // Skip already-loaded external scripts (api.js, sidebar.js, user-menu.js …)
+          if (document.querySelector(
+            `script[src="${src}"], script[src="${norm}"], script[src="/${norm}"]`
+          )) continue;
+          await new Promise(resolve => {
+            const s  = document.createElement('script');
+            s.src    = src;
+            s.onload = s.onerror = resolve;
+            document.body.appendChild(s);
+          });
+        } else {
+          const code = oldScript.textContent.trim();
+          if (!code) continue;
+          const s = document.createElement('script');
+          s.textContent = code;
+          document.body.appendChild(s);
+        }
+      }
+
+      // Restore real addEventListener (before any callbacks run)
+      document.addEventListener = _origAEL;
+
+      // ── 11. Update URL & sidebar active state ────────────────────────────────
+      history.pushState({ pjax: true, href }, document.title, href);
+
+      const activeFile = file === 'savings-plan.html' ? 'monthly-tracker.html' : file;
+      document.querySelectorAll('.wos-nav-item').forEach(item => {
+        const ih = (item.getAttribute('href') || '').split('/').pop().split('?')[0];
+        item.classList.toggle('active', ih === activeFile);
+      });
+
+      // ── 12. Fade IN — force reflow then transition from opacity:0 ────────────
+      // Using void offsetHeight to commit the opacity:0 starting state so the
+      // browser correctly transitions to opacity:1 rather than snapping.
+      if (main) main.scrollTop = 0; else window.scrollTo(0, 0);
+      _pjaxBusy = false; // unblock before DCL callbacks in case they navigate
+      if (main) {
+        main.style.transition = '';       // clear any stale transition
+        main.style.opacity    = '0';      // start point
+        main.style.transform  = 'translateY(6px)';
+        void main.offsetHeight;           // force layout commit (registers opacity:0)
+        main.style.transition = 'opacity 200ms ease-out, transform 200ms ease-out';
+        main.style.opacity    = '1';
+        main.style.transform  = 'translateY(0)';
+        main.addEventListener('transitionend', () => main.removeAttribute('style'), { once: true });
+      }
+
+      // ── 13. Fire DCL callbacks async — data loads while page is already visible
+      (async () => {
+        for (const fn of _dcl) {
+          try { await fn(); } catch (e) { console.error('[PJAX] init error:', e); }
+        }
+      })();
+
+    } catch (err) {
+      console.warn('[PJAX] Navigation failed, falling back to full load:', err);
+      window.location.href = href;
+    } finally {
+      // Ensure _pjaxBusy is cleared even on error
+      _pjaxBusy = false;
+    }
+  }
+
+  // Handle browser back / forward
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.pjax) _pjaxNavigate(e.state.href);
+  });
+
   // ── Init ─────────────────────────────────────────────────────────────────────
   function init() {
     const savedTheme = getSavedTheme();
@@ -726,6 +888,24 @@
     applyThemeUI(savedTheme);
     setTimeout(loadUserProfile, 100);
     setTimeout(loadPortfolioTotal, 300);
+    // Stamp initial history entry so popstate back to first page also uses PJAX
+    if (!history.state || !history.state.pjax) {
+      history.replaceState(
+        { pjax: true, href: window.location.href },
+        document.title,
+        window.location.href
+      );
+    }
+    // Mark page-specific body-level elements (modals, overlays outside <main>) so
+    // PJAX cleans them up when navigating away from the initial page load.
+    // Exclude sidebar-generated elements — they must persist across PJAX navigations.
+    Array.from(document.body.children).forEach(el => {
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'script' || tag === 'style' || tag === 'aside') return;
+      if (el.classList.contains('app-container') || el.id === 'sidebar-root') return;
+      if (el.classList.contains('wos-mobile-bar') || el.classList.contains('wos-overlay')) return;
+      el.setAttribute('data-pjax-body', '1');
+    });
   }
 
   if (document.readyState === 'loading') {

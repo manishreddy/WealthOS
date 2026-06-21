@@ -485,8 +485,12 @@ class AIImport {
           try {
             const directForm = new FormData();
             directForm.append('file', this._csvFile);
+            const _dSb = await getSupabase();
+            const { data: { session: _dSess } } = await _dSb.auth.getSession();
             const dResp = await fetch(this.config.directParser, {
-              method: 'POST', credentials: 'same-origin', body: directForm
+              method: 'POST',
+              headers: _dSess ? { 'Authorization': 'Bearer ' + _dSess.access_token } : {},
+              body: directForm
             });
             if (dResp.ok) {
               const dData = await dResp.json();
@@ -513,9 +517,11 @@ class AIImport {
           status.textContent = '⏳ Converting Excel to text…';
           const form = new FormData();
           form.append('file', this._csvFile);
+          const _cSb = await getSupabase();
+          const { data: { session: _cSess } } = await _cSb.auth.getSession();
           const convResp = await fetch('/api/import/excel-to-text', {
             method: 'POST',
-            credentials: 'same-origin',
+            headers: _cSess ? { 'Authorization': 'Bearer ' + _cSess.access_token } : {},
             body: form
           });
           if (!convResp.ok) throw new Error('Failed to convert Excel file');
@@ -532,7 +538,13 @@ class AIImport {
         body = JSON.stringify({ prompt: prompt + '\n\nData:\n' + text.substring(0, 6000) });
       }
 
-      const resp = await fetch('/api/ai-parse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body });
+      const _aSb = await getSupabase();
+      const { data: { session: _aSess } } = await _aSb.auth.getSession();
+      const resp = await fetch('/api/ai-parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(_aSess ? { 'Authorization': 'Bearer ' + _aSess.access_token } : {}) },
+        body
+      });
       if (!resp.ok) throw new Error('API error ' + resp.status);
       const result = await resp.json();
       const raw = (result.result || '').trim();

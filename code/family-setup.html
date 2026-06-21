@@ -11,7 +11,7 @@
 
         body {
             font-family: var(--font), 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg, #f9fafb);
+            background: var(--bg, #F4F6F8);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -21,7 +21,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Header bar ── */
         .setup-header {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -30,230 +29,209 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            background: var(--bg, #f9fafb);
-            border-bottom: 1px solid var(--border, #e5e7eb);
+            background: var(--bg, #F4F6F8);
+            border-bottom: 1px solid var(--border, #E5E8EC);
             z-index: 100;
         }
-        .brand-link {
-            display: flex; align-items: center; gap: 10px; text-decoration: none;
-        }
+        .brand-link { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .brand-mark {
             width: 32px; height: 32px; border-radius: 9px;
             background: var(--accent, #8FE62C);
             display: flex; align-items: center; justify-content: center;
         }
-        .brand-name {
-            font-size: 1rem; font-weight: 800; color: var(--text-primary, #111);
-            letter-spacing: -0.04em;
-        }
+        .brand-name { font-size: 1rem; font-weight: 800; color: var(--text-primary, #0F172A); letter-spacing: -0.04em; }
         .brand-name em { font-style: normal; color: var(--accent, #8FE62C); }
-        .step-badge {
-            font-size: 0.8125rem; color: var(--text-secondary, #6b7280); font-weight: 500;
-        }
+        .step-indicator { font-size: 0.8125rem; color: var(--text-secondary, #64748B); font-weight: 500; }
 
-        /* ── Card ── */
+        /* Card */
         .setup-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 14px;
             padding: 48px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            box-shadow: var(--card-light-shadow, 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04));
+            border: 1px solid var(--border, #E5E8EC);
             width: 100%;
-            max-width: 600px;
+            max-width: 560px;
             margin-top: 56px;
             animation: wos-card-pop 0.45s cubic-bezier(0.22,1,0.36,1) both;
         }
 
-        /* ── Steps container ── */
-        .step-wrap { position: relative; overflow: hidden; }
-
-        .setup-step {
-            display: none;
+        /* Progress dots */
+        .progress-dots { display: flex; gap: 6px; margin-bottom: 32px; }
+        .progress-dot {
+            height: 4px; border-radius: 9999px;
+            background: var(--border, #E5E8EC);
+            transition: all 0.35s ease; flex: 1;
         }
+        .progress-dot.active { background: var(--accent, #8FE62C); }
+        .progress-dot.done { background: var(--accent, #8FE62C); }
+
+        /* Steps */
+        .setup-step { display: none; }
         .setup-step.active {
             display: block;
             animation: wos-slide-left 0.35s cubic-bezier(0.22,1,0.36,1) both;
         }
         .setup-step.going-back {
+            display: block;
             animation: wos-slide-right 0.35s cubic-bezier(0.22,1,0.36,1) both;
         }
 
-        /* Progress dots */
-        .step-dots {
-            display: flex; gap: 6px; margin-bottom: 32px;
-        }
-        .step-dot {
-            height: 4px; border-radius: 9999px;
-            background: var(--border, #e5e7eb);
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-        .step-dot.active { background: #0066ff; }
-        .step-dot.done { background: #00C805; }
-
-        /* Typography */
         .setup-eyebrow {
             font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: #0066ff; margin-bottom: 8px;
+            letter-spacing: 0.08em; color: var(--text-secondary, #64748B); margin-bottom: 8px;
         }
         .setup-title {
-            font-size: 1.75rem; font-weight: 700; color: #1a1a1a;
+            font-size: 1.75rem; font-weight: 700; color: var(--text-primary, #0F172A);
             margin-bottom: 10px; letter-spacing: -0.03em; line-height: 1.2;
         }
         .setup-desc {
-            font-size: 0.9375rem; color: #6b7280; line-height: 1.6; margin-bottom: 32px;
+            font-size: 0.9375rem; color: var(--text-secondary, #64748B); line-height: 1.6; margin-bottom: 28px;
         }
 
-        /* Solo/Family choice cards */
-        .choice-cards {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px;
+        /* Personalisation hint */
+        .personalise-hint {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 12px 14px;
+            background: rgba(143,230,44,0.06);
+            border: 1px solid rgba(143,230,44,0.2);
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-size: 0.875rem; color: var(--text-secondary, #64748B); line-height: 1.5;
         }
-        .choice-card {
-            padding: 24px 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-align: center;
-            background: white;
-        }
-        .choice-card:hover { border-color: #0066ff; background: rgba(0,102,255,0.02); }
-        .choice-card.selected { border-color: #0066ff; background: rgba(0,102,255,0.05); }
-        .choice-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
-        .choice-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .choice-desc { font-size: 0.8125rem; color: #9ca3af; line-height: 1.4; }
+        .personalise-hint span { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
-        /* Form fields */
-        .form-group { margin-bottom: 20px; }
+        /* Form */
+        .form-group { margin-bottom: 18px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .form-label {
-            display: block; font-size: 0.875rem; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;
+            display: block; font-size: 0.875rem; font-weight: 600;
+            color: var(--text-primary, #0F172A); margin-bottom: 6px;
         }
-        .form-hint {
-            font-size: 0.8125rem; color: #9ca3af; margin-bottom: 8px; display: block;
+        .form-label .opt {
+            font-weight: 400; color: var(--text-tertiary, #94A3B8); font-size: 0.8125rem;
         }
         .form-input, .form-select {
             width: 100%; padding: 13px 16px; font-size: 0.9375rem;
-            border: 2px solid #e5e7eb; border-radius: 10px;
-            font-family: var(--font), 'Segoe UI', sans-serif;
-            transition: all 0.2s ease; background: white; color: #1a1a1a;
+            border: 1.5px solid var(--input-border, #CBD5E1); border-radius: 8px;
+            font-family: inherit; transition: all 0.2s ease;
+            background: white; color: var(--text-primary, #0F172A);
         }
         .form-input:focus, .form-select:focus {
-            outline: none; border-color: #0066ff;
-            box-shadow: 0 0 0 3px rgba(0,102,255,0.1);
+            outline: none;
+            border-color: var(--input-focus-border, #8FE62C);
+            box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(143,230,44,0.15));
         }
-        .form-input::placeholder { color: #d1d5db; }
+        .form-input::placeholder { color: var(--text-tertiary, #94A3B8); }
 
-        /* Members */
-        .members-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        /* Mode toggle */
+        .mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+        .mode-card {
+            padding: 20px 16px; border: 2px solid var(--border, #E5E8EC);
+            border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+            text-align: center; background: white;
+        }
+        .mode-card:hover { border-color: var(--accent, #8FE62C); background: rgba(143,230,44,0.03); }
+        .mode-card.selected { border-color: var(--accent, #8FE62C); background: rgba(143,230,44,0.07); }
+        .mode-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .mode-title { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary, #0F172A); margin-bottom: 3px; }
+        .mode-desc { font-size: 0.8125rem; color: var(--text-tertiary, #94A3B8); line-height: 1.4; }
+
+        /* Family reveal */
+        .family-section {
+            overflow: hidden; max-height: 0; opacity: 0;
+            transition: max-height 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+        }
+        .family-section.visible { max-height: 1000px; opacity: 1; }
+
+        .section-divider { height: 1px; background: var(--border, #E5E8EC); margin: 0 0 24px; }
+
+        .subsection-label { font-size: 0.875rem; font-weight: 600; color: var(--text-primary, #0F172A); margin-bottom: 4px; }
+        .subsection-hint { font-size: 0.8125rem; color: var(--text-tertiary, #94A3B8); margin-bottom: 14px; }
+
+        /* Members list */
+        .members-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .member-row {
             display: flex; align-items: center; gap: 12px;
-            padding: 14px 16px; background: #f9fafb;
-            border-radius: 12px; border: 1px solid #e5e7eb;
-            animation: wos-slide-up 0.3s cubic-bezier(0.22,1,0.36,1) both;
+            padding: 12px 14px; background: var(--bg, #F4F6F8);
+            border-radius: 10px; border: 1px solid var(--border, #E5E8EC);
         }
         .member-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--accent, #8FE62C);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
+            color: #111; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
         }
         .member-details { flex: 1; min-width: 0; }
-        .member-name { font-size: 0.9375rem; font-weight: 600; color: #1a1a1a; }
-        .member-rel { font-size: 0.8125rem; color: #9ca3af; }
+        .member-name { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary, #0F172A); }
+        .member-meta { font-size: 0.8125rem; color: var(--text-tertiary, #94A3B8); }
+        .invite-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.75rem; font-weight: 600; color: var(--text-secondary, #64748B);
+            background: rgba(15,23,42,0.04); border-radius: 6px;
+            padding: 2px 7px; margin-left: 4px;
+        }
         .btn-remove-member {
-            padding: 6px 12px; background: transparent; border: 1px solid #e5e7eb;
-            border-radius: 7px; font-size: 0.8125rem; color: #9ca3af;
+            padding: 5px 10px; background: transparent; border: 1px solid var(--border, #E5E8EC);
+            border-radius: 6px; font-size: 0.8125rem; color: var(--text-tertiary, #94A3B8);
             cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
         }
         .btn-remove-member:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
 
-        .add-member-form {
-            padding: 20px; background: #f9fafb; border-radius: 14px;
-            border: 1.5px dashed #e5e7eb; margin-bottom: 12px;
-            display: none;
-        }
-        .add-member-form.visible { display: block; animation: wos-slide-down 0.25s ease both; }
-        .add-member-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .add-member-actions { display: flex; gap: 8px; }
+        .panel-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .add-member-btns {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+        /* Invite toggle link */
+        .invite-toggle-link {
+            font-size: 0.8125rem; color: var(--text-secondary, #64748B);
+            cursor: pointer; white-space: nowrap; text-decoration: none;
+            transition: color 0.2s;
         }
-        .btn-add-member {
-            padding: 13px; background: transparent;
-            border: 2px dashed #e5e7eb; border-radius: 10px;
-            font-size: 0.9375rem; font-weight: 600; color: #0066ff;
-            cursor: pointer; transition: all 0.25s ease; font-family: inherit;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .btn-add-member:hover { border-color: #0066ff; background: rgba(0,102,255,0.04); }
-        .btn-add-member.invite { color: #7c3aed; }
-        .btn-add-member.invite:hover { border-color: #7c3aed; background: rgba(124,58,237,0.04); }
-
-        .invite-badge {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 0.75rem; font-weight: 600; color: #7c3aed;
-            background: rgba(124,58,237,0.08); border-radius: 6px;
-            padding: 2px 8px; margin-left: 4px;
-        }
-
-        @media (max-width: 480px) {
-            .add-member-btns { grid-template-columns: 1fr; }
-        }
-
-        /* Benefit callout */
-        .benefit-box {
-            display: flex; gap: 12px; align-items: flex-start;
-            padding: 14px 16px; background: rgba(0,102,255,0.05);
-            border-radius: 12px; border: 1px solid rgba(0,102,255,0.12);
-            margin-bottom: 24px;
-        }
-        .benefit-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
-        .benefit-text { font-size: 0.875rem; color: #374151; line-height: 1.5; }
-        .benefit-text strong { color: #1a1a1a; }
+        .invite-toggle-link:hover { color: var(--text-primary, #0F172A); }
 
         /* Buttons */
-        .btn-group { display: flex; gap: 10px; margin-top: 32px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 28px; }
         .btn {
             flex: 1; padding: 14px 20px; border: none; border-radius: 10px;
             font-size: 0.9375rem; font-weight: 700; cursor: pointer;
             transition: all 0.2s ease; font-family: inherit;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-            color: white;
-        }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,102,255,0.3); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-primary { background: var(--cta-bg, #8FE62C); color: var(--cta-text, #111); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(143,230,44,0.35); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-primary.loading { color: transparent; position: relative; }
         .btn-primary.loading::after {
             content: ''; position: absolute; width: 18px; height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white;
+            border: 2.5px solid rgba(17,17,17,0.2); border-top-color: #111;
             border-radius: 50%; animation: wos-spin 0.7s linear infinite;
             top: 50%; left: 50%; transform: translate(-50%,-50%);
         }
-        .btn-secondary {
-            background: white; color: #6b7280; border: 2px solid #e5e7eb; flex: 0 0 auto; padding: 14px 24px;
+        .btn-back {
+            background: white; color: var(--text-secondary, #64748B);
+            border: 1.5px solid var(--border, #E5E8EC); flex: 0 0 auto; padding: 14px 20px;
         }
-        .btn-secondary:hover { border-color: #0066ff; color: #0066ff; }
+        .btn-back:hover { border-color: var(--border-strong, #CBD5E1); color: var(--text-primary, #0F172A); }
 
         .skip-link {
             display: block; text-align: center; margin-top: 16px;
-            font-size: 0.875rem; color: #9ca3af; cursor: pointer;
+            font-size: 0.875rem; color: var(--text-tertiary, #94A3B8); cursor: pointer;
             text-decoration: none; transition: color 0.2s;
         }
-        .skip-link:hover { color: #6b7280; }
+        .skip-link:hover { color: var(--text-secondary, #64748B); }
 
-        @media (max-width: 640px) {
-            .setup-card { padding: 32px 24px; margin-top: 56px; }
-            .choice-cards { grid-template-columns: 1fr; }
+        .error-msg { font-size: 0.8125rem; color: #ef4444; margin-top: 6px; display: none; }
+
+        @media (max-width: 600px) {
+            .setup-card { padding: 32px 20px; }
             .setup-header { padding: 0 20px; }
-            .add-member-row { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; gap: 10px; }
+            .panel-row2 { grid-template-columns: 1fr; }
+            .panel-row3 { grid-template-columns: 1fr 1fr; }
+            .add-member-btns { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header bar -->
     <header class="setup-header">
         <a href="/" class="brand-link">
             <div class="brand-mark">
@@ -264,299 +242,288 @@
             </div>
             <span class="brand-name">Wealth<em>OS</em></span>
         </a>
-        <span class="step-badge">Step 2 of 3 — Account Setup</span>
+        <span class="step-indicator" id="stepIndicator">Step 1 of 2</span>
     </header>
 
     <div class="setup-card">
 
-        <!-- Progress dots -->
-        <div class="step-dots">
-            <div class="step-dot done" id="dot0"></div>
-            <div class="step-dot active" id="dot1"></div>
-            <div class="step-dot" id="dot2"></div>
+        <div class="progress-dots">
+            <div class="progress-dot active" id="dot0"></div>
+            <div class="progress-dot" id="dot1"></div>
         </div>
 
-        <div class="step-wrap">
+        <!-- ── Step 1: About you ── -->
+        <div class="setup-step active" id="step1">
+            <div class="setup-eyebrow">About you</div>
+            <h2 class="setup-title">Let's personalise your experience</h2>
+            <p class="setup-desc">A few details help us tailor insights, projections, and alerts to your life stage.</p>
 
-            <!-- Step A: Solo or Family? -->
-            <div class="setup-step active" id="stepA">
-                <div class="setup-eyebrow">How you'll track</div>
-                <h2 class="setup-title">Solo or with family?</h2>
-                <p class="setup-desc">WealthOS works great for individuals and for households. You can always add family members later.</p>
-
-                <div class="choice-cards">
-                    <div class="choice-card" id="choiceSolo" onclick="selectMode('solo')">
-                        <span class="choice-icon">👤</span>
-                        <div class="choice-title">Solo</div>
-                        <div class="choice-desc">Track just my own finances and investments</div>
-                    </div>
-                    <div class="choice-card" id="choiceFamily" onclick="selectMode('family')">
-                        <span class="choice-icon">👨‍👩‍👧‍👦</span>
-                        <div class="choice-title">Family</div>
-                        <div class="choice-desc">Track our household finances together</div>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="btnANext" onclick="goToStep('B')" disabled>Continue →</button>
-                </div>
-                <a class="skip-link" onclick="skipAll()">Set up later →</a>
+            <div class="personalise-hint">
+                <span>✨</span>
+                Your name, age, and date of birth help us calculate retirement timelines, FIRE targets, and goal projections accurately — they're never shared.
             </div>
 
-            <!-- Step B: Family name + members (only if family mode) -->
-            <div class="setup-step" id="stepB">
-                <div class="setup-eyebrow">Family account</div>
-                <h2 class="setup-title">Name your family account</h2>
-                <p class="setup-desc">Give your household a name — this will appear across your dashboard and reports.</p>
+            <div class="form-group">
+                <label class="form-label" for="userNameInput">Your name</label>
+                <input type="text" id="userNameInput" class="form-input" placeholder="e.g. Manish" autocomplete="given-name" maxlength="60">
+                <div class="error-msg" id="userNameError">Please enter your name to continue.</div>
+            </div>
 
-                <div class="benefit-box">
-                    <span class="benefit-icon">💡</span>
-                    <div class="benefit-text"><strong>Why it helps:</strong> With a family account you can see combined net worth, split income and expenses per person, and track shared goals like a home purchase or education fund.</div>
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="userDobInput">Date of birth <span class="opt">(optional)</span></label>
+                    <input type="date" id="userDobInput" class="form-input" onchange="calcAgeFromDob('userDobInput','userAgeInput')">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="familyNameInput">Family name</label>
-                    <span class="form-hint">No default — type a name that feels right for your household.</span>
-                    <input type="text" id="familyNameInput" class="form-input" placeholder="e.g. The Sharmas" autocomplete="off" maxlength="60">
-                    <div id="familyNameError" style="font-size:0.8125rem;color:#ef4444;margin-top:6px;display:none;"></div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="userAgeInput">Age <span class="opt">(optional)</span></label>
+                    <input type="number" id="userAgeInput" class="form-input" placeholder="e.g. 32" min="1" max="120">
                 </div>
+            </div>
 
-                <!-- Members -->
-                <div style="margin-bottom:8px;font-size:0.875rem;font-weight:600;color:#1a1a1a;">Family members <span style="color:#9ca3af;font-weight:400">(optional — you can add later)</span></div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="goToStep2()">Continue →</button>
+            </div>
+            <a class="skip-link" onclick="skipAll()">Set up later →</a>
+        </div>
+
+        <!-- ── Step 2: Account type ── -->
+        <div class="setup-step" id="step2">
+            <div class="setup-eyebrow">Account setup</div>
+            <h2 class="setup-title">Setup your account</h2>
+            <p class="setup-desc">Choose how you'd like to track finances. You can always update this later.</p>
+
+            <div class="mode-toggle">
+                <div class="mode-card" id="cardSolo" onclick="selectMode('solo')">
+                    <span class="mode-icon">👤</span>
+                    <div class="mode-title">Solo</div>
+                    <div class="mode-desc">Track just my own finances</div>
+                </div>
+                <div class="mode-card" id="cardFamily" onclick="selectMode('family')">
+                    <span class="mode-icon">👨‍👩‍👧‍👦</span>
+                    <div class="mode-title">Family</div>
+                    <div class="mode-desc">Track our household together</div>
+                </div>
+            </div>
+
+            <!-- Family details — revealed on selection -->
+            <div class="family-section" id="familySection">
+                <div class="section-divider"></div>
+
+                <!-- Added members appear here -->
                 <div class="members-list" id="membersList"></div>
 
-                <div class="add-member-form" id="addMemberForm">
-                    <div class="add-member-row">
-                        <input type="text" class="form-input" id="memberNameInput" placeholder="Name (e.g. Priya)">
-                        <select class="form-select" id="memberRelInput">
-                            <option value="">Relationship</option>
-                            <option value="spouse">Spouse / Partner</option>
-                            <option value="child">Child</option>
-                            <option value="parent">Parent</option>
-                            <option value="sibling">Sibling</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="add-member-actions">
-                        <button class="btn btn-primary" style="flex:1;padding:10px;" onclick="confirmAddMember()">Add</button>
-                        <button class="btn btn-secondary" style="flex:0 0 auto;padding:10px 16px;" onclick="hideAddMemberForm()">Cancel</button>
-                    </div>
-                </div>
+                <!-- Add member form — always open when family is selected -->
+                <div id="addMemberWrap">
+                    <div class="subsection-label" id="memberFormLabel">Add a family member</div>
+                    <div class="subsection-hint">You can add more members any time.</div>
 
-                <div class="add-member-form" id="inviteMemberForm">
-                    <div style="font-size:0.8125rem;color:#7c3aed;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
-                        <span>✉</span> Invite by email
-                    </div>
-                    <div style="font-size:0.8125rem;color:#9ca3af;margin-bottom:12px;">An invite link will be emailed when you save your family setup.</div>
-                    <div class="add-member-row">
-                        <input type="text" class="form-input" id="inviteNameInput" placeholder="Name (e.g. Priya)">
-                        <select class="form-select" id="inviteRelInput">
-                            <option value="">Relationship</option>
-                            <option value="spouse">Spouse / Partner</option>
-                            <option value="child">Child</option>
-                            <option value="parent">Parent</option>
-                            <option value="sibling">Sibling</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <input type="email" class="form-input" id="inviteEmailInput" placeholder="Email address (e.g. priya@email.com)">
-                        <div id="inviteEmailError" style="font-size:0.8125rem;color:#ef4444;margin-top:4px;display:none;"></div>
-                    </div>
-                    <div class="add-member-actions">
-                        <button class="btn btn-primary" style="flex:1;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="confirmInviteMember()">Add member</button>
-                        <button class="btn btn-secondary" style="flex:0 0 auto;padding:10px 16px;" onclick="hideInviteForm()">Cancel</button>
+                    <div id="addMemberForm">
+                        <div class="panel-row2" style="margin-bottom:10px;">
+                            <input type="text" class="form-input" id="memberNameInput" placeholder="Name (e.g. Priya)">
+                            <select class="form-select" id="memberRelInput">
+                                <option value="">Relationship</option>
+                                <option value="spouse">Spouse / Partner</option>
+                                <option value="child">Child</option>
+                                <option value="parent">Parent</option>
+                                <option value="sibling">Sibling</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="panel-row2" style="margin-bottom:10px;">
+                            <div>
+                                <label class="form-label" style="font-size:0.8125rem;margin-bottom:4px;">Date of birth <span class="opt">(optional)</span></label>
+                                <input type="date" class="form-input" id="memberDobInput" onchange="calcAgeFromDob('memberDobInput','memberAgeInput')">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size:0.8125rem;margin-bottom:4px;">Age <span class="opt">(optional)</span></label>
+                                <input type="number" class="form-input" id="memberAgeInput" placeholder="e.g. 30" min="0" max="120">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label class="form-label" style="font-size:0.8125rem;margin-bottom:4px;">Email <span class="opt">(optional — sends them an invite)</span></label>
+                            <input type="email" class="form-input" id="memberEmailInput" placeholder="e.g. priya@email.com">
+                            <div class="error-msg" id="memberEmailError"></div>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="confirmAddMember()">Add family member</button>
                     </div>
                 </div>
-
-                <div class="add-member-btns" id="addMemberBtns">
-                    <button class="btn-add-member" id="showAddMemberBtn" onclick="showAddMemberForm()">+ Add manually</button>
-                    <button class="btn-add-member invite" id="showInviteBtn" onclick="showInviteForm()">✉ Invite by email</button>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-secondary" onclick="goToStep('A')">← Back</button>
-                    <button class="btn btn-primary" id="btnBSave" onclick="saveFamilyAndContinue()">Save &amp; continue →</button>
-                </div>
-                <a class="skip-link" onclick="skipAll()">Skip for now — set up later →</a>
             </div>
 
+            <div class="btn-group">
+                <button class="btn btn-back" onclick="goToStep1()">← Back</button>
+                <button class="btn btn-primary" id="continueBtn" onclick="handleContinue()" disabled>Continue →</button>
+            </div>
+            <a class="skip-link" onclick="skipAll()">Set up later →</a>
         </div>
+
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/supabase-client.js"></script>
 <script src="/api.js"></script>
 <script src="auth.js"></script>
 <script>
+    async function authHeaders() {
+        const s = await getSupabase();
+        const { data: { session } } = await s.auth.getSession();
+        return session ? { 'Authorization': 'Bearer ' + session.access_token } : {};
+    }
+
     (async () => {
-        if (!(await WealthAPI.auth.requireAuth())) return;
+        const sbClient = await getSupabase();
+        const { data: { session: _sess } } = await sbClient.auth.getSession();
+        if (!_sess) { window.location.href = '/login'; return; }
+        const user = _sess.user;
+        if (user && user.user_metadata && user.user_metadata.name) {
+            document.getElementById('userNameInput').value = user.user_metadata.name;
+        }
     })();
+
+    function calcAgeFromDob(dobId, ageId) {
+        const dob = document.getElementById(dobId).value;
+        if (!dob) return;
+        const today = new Date();
+        const birth = new Date(dob);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        if (age >= 0 && age <= 120) document.getElementById(ageId).value = age;
+    }
 
     let selectedMode = null;
     let pendingMembers = [];
-    let currentStep = 'A';
+    let userProfile = {};
 
+    // ── Step navigation ──
+    function goToStep2() {
+        const name = document.getElementById('userNameInput').value.trim();
+        const errEl = document.getElementById('userNameError');
+        if (!name) { errEl.style.display = 'block'; document.getElementById('userNameInput').focus(); return; }
+        errEl.style.display = 'none';
+
+        userProfile = {
+            name,
+            age: document.getElementById('userAgeInput').value || null,
+            dob: document.getElementById('userDobInput').value || null,
+        };
+
+        switchStep('step1', 'step2', false);
+        document.getElementById('stepIndicator').textContent = 'Step 2 of 2';
+        document.getElementById('dot0').className = 'progress-dot done';
+        document.getElementById('dot1').className = 'progress-dot active';
+    }
+
+    function goToStep1() {
+        switchStep('step2', 'step1', true);
+        document.getElementById('stepIndicator').textContent = 'Step 1 of 2';
+        document.getElementById('dot0').className = 'progress-dot active';
+        document.getElementById('dot1').className = 'progress-dot';
+    }
+
+    function switchStep(fromId, toId, back) {
+        const from = document.getElementById(fromId);
+        const to = document.getElementById(toId);
+        from.classList.remove('active', 'going-back');
+        from.style.display = 'none';
+        to.classList.remove('active', 'going-back');
+        if (back) to.classList.add('going-back');
+        to.style.display = 'block';
+        to.classList.add('active');
+    }
+
+    // ── Mode selection ──
     function selectMode(mode) {
         selectedMode = mode;
-        document.getElementById('choiceSolo').classList.toggle('selected', mode === 'solo');
-        document.getElementById('choiceFamily').classList.toggle('selected', mode === 'family');
-        document.getElementById('btnANext').disabled = false;
-    }
+        document.getElementById('cardSolo').classList.toggle('selected', mode === 'solo');
+        document.getElementById('cardFamily').classList.toggle('selected', mode === 'family');
+        document.getElementById('continueBtn').disabled = false;
 
-    function updateDots(step) {
-        const map = { A: 1, B: 2 };
-        const idx = map[step] || 1;
-        ['dot0', 'dot1', 'dot2'].forEach((id, i) => {
-            const el = document.getElementById(id);
-            el.classList.remove('active', 'done');
-            if (i < idx) el.classList.add('done');
-            else if (i === idx) el.classList.add('active');
-        });
-    }
-
-    function goToStep(step, back = false) {
-        if (step === 'B' && selectedMode === 'solo') {
-            skipAll();
-            return;
+        const section = document.getElementById('familySection');
+        if (mode === 'family') {
+            section.classList.add('visible');
+            setTimeout(() => document.getElementById('memberNameInput').focus(), 150);
+        } else {
+            section.classList.remove('visible');
         }
-        const current = document.getElementById('step' + currentStep);
-        const next = document.getElementById('step' + step);
-        if (!next) return;
-        current.classList.remove('active', 'going-back');
-        current.style.display = 'none';
-        next.classList.remove('going-back');
-        if (back) next.classList.add('going-back');
-        next.style.display = 'block';
-        next.classList.add('active');
-        currentStep = step;
-        updateDots(step);
     }
 
-    function skipAll() {
-        try { localStorage.setItem('wealthos_setup_mode', selectedMode || 'solo'); } catch(e) {}
-        window.location.href = '/onboarding.html';
+    // ── Continue ──
+    async function handleContinue() {
+        const btn = document.getElementById('continueBtn');
+        btn.disabled = true;
+        btn.classList.add('loading');
+        try {
+            await WealthAPI.auth.updateProfile({ name: userProfile.name, age: userProfile.age, dob: userProfile.dob }).catch(() => {});
+            if (selectedMode === 'family') {
+                for (const m of pendingMembers) {
+                    await WealthAPI.family.addMember({ name: m.name, role: m.relation, email: m.email || '', age: m.age || '', dob: m.dob || '' }).catch(() => {});
+                }
+                try { localStorage.setItem('wealthos_setup_mode', 'family'); } catch(e) {}
+            } else {
+                try { localStorage.setItem('wealthos_setup_mode', 'solo'); } catch(e) {}
+            }
+            window.location.href = '/dashboard.html';
+        } catch(err) {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+        }
     }
 
-    // ── Member management ──
+    function skipAll() { window.location.href = '/dashboard.html'; }
+
+    // ── Members ──
     function renderMembers() {
         const list = document.getElementById('membersList');
-        if (pendingMembers.length === 0) {
-            list.innerHTML = '';
-            return;
-        }
-        list.innerHTML = pendingMembers.map((m, i) => `
+        list.innerHTML = pendingMembers.map((m, i) => {
+            const meta = [capitalize(m.relation), m.age ? `Age ${m.age}` : '', m.email || ''].filter(Boolean).join(' · ');
+            return `
             <div class="member-row">
                 <div class="member-avatar">${m.name.charAt(0).toUpperCase()}</div>
                 <div class="member-details">
                     <div class="member-name">${m.name}${m.email ? '<span class="invite-badge">✉ invited</span>' : ''}</div>
-                    <div class="member-rel">${capitalize(m.relation)}${m.email ? ' · ' + m.email : ''}</div>
+                    <div class="member-meta">${meta}</div>
                 </div>
                 <button class="btn-remove-member" onclick="removeMember(${i})">Remove</button>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
+        // Update label after first member added
+        document.getElementById('memberFormLabel').textContent =
+            pendingMembers.length ? 'Add another member' : 'Add a family member';
     }
 
-    function capitalize(s) {
-        return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-    }
+    function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
-    function showAddMemberForm() {
-        hideInviteForm(true);
-        document.getElementById('addMemberForm').classList.add('visible');
-        document.getElementById('addMemberBtns').style.display = 'none';
-        document.getElementById('memberNameInput').focus();
-    }
-
-    function hideAddMemberForm(silent) {
-        document.getElementById('addMemberForm').classList.remove('visible');
-        document.getElementById('memberNameInput').value = '';
+    function resetAddForm() {
+        ['memberNameInput','memberAgeInput','memberDobInput','memberEmailInput'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('memberRelInput').value = '';
-        if (!silent) document.getElementById('addMemberBtns').style.display = 'grid';
-    }
-
-    function showInviteForm() {
-        hideAddMemberForm(true);
-        document.getElementById('inviteMemberForm').classList.add('visible');
-        document.getElementById('addMemberBtns').style.display = 'none';
-        document.getElementById('inviteEmailError').style.display = 'none';
-        document.getElementById('inviteNameInput').focus();
-    }
-
-    function hideInviteForm(silent) {
-        document.getElementById('inviteMemberForm').classList.remove('visible');
-        document.getElementById('inviteNameInput').value = '';
-        document.getElementById('inviteRelInput').value = '';
-        document.getElementById('inviteEmailInput').value = '';
-        document.getElementById('inviteEmailError').style.display = 'none';
-        if (!silent) document.getElementById('addMemberBtns').style.display = 'grid';
+        document.getElementById('memberEmailError').style.display = 'none';
+        document.getElementById('memberNameInput').focus();
     }
 
     function confirmAddMember() {
         const name = document.getElementById('memberNameInput').value.trim();
         const relation = document.getElementById('memberRelInput').value;
+        const email = document.getElementById('memberEmailInput').value.trim();
+        const errEl = document.getElementById('memberEmailError');
+        errEl.style.display = 'none';
         if (!name) { document.getElementById('memberNameInput').focus(); return; }
         if (!relation) { document.getElementById('memberRelInput').focus(); return; }
-        pendingMembers.push({ name, relation });
-        renderMembers();
-        hideAddMemberForm();
-    }
-
-    function confirmInviteMember() {
-        const name = document.getElementById('inviteNameInput').value.trim();
-        const relation = document.getElementById('inviteRelInput').value;
-        const email = document.getElementById('inviteEmailInput').value.trim();
-        const errEl = document.getElementById('inviteEmailError');
-        errEl.style.display = 'none';
-        if (!name) { document.getElementById('inviteNameInput').focus(); return; }
-        if (!relation) { document.getElementById('inviteRelInput').focus(); return; }
-        if (!email) { errEl.textContent = 'Please enter an email address.'; errEl.style.display = 'block'; document.getElementById('inviteEmailInput').focus(); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; document.getElementById('inviteEmailInput').focus(); return; }
-        pendingMembers.push({ name, relation, email });
-        renderMembers();
-        hideInviteForm();
-    }
-
-    window.removeMember = function(i) {
-        pendingMembers.splice(i, 1);
-        renderMembers();
-    };
-
-    // ── Save family & go to onboarding ──
-    async function saveFamilyAndContinue() {
-        const familyName = document.getElementById('familyNameInput').value.trim();
-        const errorEl = document.getElementById('familyNameError');
-        errorEl.style.display = 'none';
-
-        if (!familyName) {
-            errorEl.textContent = 'Please enter a family name to continue, or skip below.';
-            errorEl.style.display = 'block';
-            document.getElementById('familyNameInput').focus();
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errEl.textContent = 'Please enter a valid email address.';
+            errEl.style.display = 'block';
             return;
         }
-
-        const btn = document.getElementById('btnBSave');
-        btn.disabled = true;
-        btn.classList.add('loading');
-
-        try {
-            await WealthAPI.family.updateName(familyName);
-
-            for (const m of pendingMembers) {
-                try {
-                    await WealthAPI.family.addMember({ name: m.name, role: m.relation, email: m.email || '' });
-                } catch (e) {
-                    console.warn('Member add failed:', e.message);
-                }
-            }
-
-            try { localStorage.setItem('wealthos_setup_mode', 'family'); } catch(e) {}
-            window.location.href = '/onboarding.html';
-        } catch (err) {
-            errorEl.textContent = err.message || 'Failed to save. Please try again.';
-            errorEl.style.display = 'block';
-            btn.disabled = false;
-            btn.classList.remove('loading');
-        }
+        pendingMembers.push({
+            name, relation,
+            email: email || null,
+            age: document.getElementById('memberAgeInput').value || null,
+            dob: document.getElementById('memberDobInput').value || null,
+        });
+        renderMembers();
+        resetAddForm();
     }
+
+    window.removeMember = function(i) { pendingMembers.splice(i, 1); renderMembers(); };
 </script>
 </body>
 </html>
