@@ -78,7 +78,7 @@ function registerAuthRoutes(app) {
     const ssl = { rejectUnauthorized: false };
 
     const [directDns, poolerDns, directTcp5432, pooler5432Tcp, pooler6543Tcp,
-           directPg, poolerPg5432, poolerPg6543] = await Promise.all([
+           directPg, poolerPg5432, poolerPg6543, poolerPg5432plain, poolerPg6543plain] = await Promise.all([
       dnsCheck(DIRECT_HOST),
       dnsCheck(POOLER_HOST),
       tcpCheck(DIRECT_HOST, 5432),
@@ -87,11 +87,25 @@ function registerAuthRoutes(app) {
       pgCheck({ user: 'postgres', password: pwd, host: DIRECT_HOST, port: 5432, database: DB_NAME, ssl }),
       pgCheck({ user: DB_USER, password: pwd, host: POOLER_HOST, port: 5432, database: DB_NAME, ssl }),
       pgCheck({ user: DB_USER, password: pwd, host: POOLER_HOST, port: 6543, database: DB_NAME, ssl }),
+      pgCheck({ user: 'postgres', password: pwd, host: POOLER_HOST, port: 5432, database: DB_NAME, ssl }),
+      pgCheck({ user: 'postgres', password: pwd, host: POOLER_HOST, port: 6543, database: DB_NAME, ssl }),
     ]);
 
+    const envUrl = process.env.DATABASE_URL || '';
+    const envHost = (envUrl.match(/@([^:/]+)/) || [])[1] || 'not-found';
+    const envPort = (envUrl.match(/:(\d+)\//) || [])[1] || 'not-found';
+    const envUser = (envUrl.match(/\/\/([^:]+):/) || [])[1] || 'not-found';
+
     res.json({
+      envParsed: { host: envHost, port: envPort, user: envUser },
       direct: { dns: directDns, tcp5432: directTcp5432, pg5432: directPg },
-      pooler: { dns: poolerDns, tcp5432: pooler5432Tcp, tcp6543: pooler6543Tcp, pg5432: poolerPg5432, pg6543: poolerPg6543 },
+      pooler: {
+        dns: poolerDns, tcp5432: pooler5432Tcp, tcp6543: pooler6543Tcp,
+        pgProjectRef5432: poolerPg5432,
+        pgProjectRef6543: poolerPg6543,
+        pgPlain5432: poolerPg5432plain,
+        pgPlain6543: poolerPg6543plain,
+      },
     });
   });
 
