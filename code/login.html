@@ -273,9 +273,12 @@
           <label for="inputEmail">Email</label>
           <input type="email" id="inputEmail" name="email" placeholder="you@example.com" autocomplete="email" required>
         </div>
-        <div class="field">
+        <div class="field" id="fieldPassword">
           <label for="inputPassword">Password</label>
-          <input type="password" id="inputPassword" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" required>
+          <input type="password" id="inputPassword" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
+        </div>
+        <div id="forgotRow" style="margin:-4px 0 16px;text-align:right;display:none;">
+          <a onclick="showForgot()" style="font-size:13px;color:var(--text-secondary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</a>
         </div>
 
         <button type="submit" class="submit-btn" id="submitBtn">
@@ -308,6 +311,8 @@
 <script src="/supabase-client.js"></script>
 <script>
   let isRegister = false;
+  let isForgot   = false;
+  let isReset    = false;
   let _sb = null;
 
   async function sb() {
@@ -315,38 +320,130 @@
     return _sb;
   }
 
-  function toggleMode() {
-    isRegister = !isRegister;
-    document.getElementById('formTitle').textContent   = isRegister ? 'Create account' : 'Welcome back';
-    document.getElementById('formSub').textContent     = isRegister ? 'Set up your WealthOS account' : 'Sign in to your WealthOS account';
-    document.getElementById('submitLabel').textContent = isRegister ? 'Create Account' : 'Sign In';
-    document.getElementById('toggleText').textContent  = isRegister ? 'Already have an account?' : "Don't have an account?";
-    document.getElementById('toggleLink').textContent  = isRegister ? 'Sign in' : 'Create one';
-    document.getElementById('fieldName').classList.toggle('visible', isRegister);
-    document.getElementById('inputPassword').autocomplete = isRegister ? 'new-password' : 'current-password';
+  function applyMode() {
+    const title    = document.getElementById('formTitle');
+    const sub      = document.getElementById('formSub');
+    const label    = document.getElementById('submitLabel');
+    const togText  = document.getElementById('toggleText');
+    const togLink  = document.getElementById('toggleLink');
+    const fieldName = document.getElementById('fieldName');
+    const fieldPw  = document.getElementById('fieldPassword');
+    const fieldEmail = document.querySelector('.field:has(#inputEmail)');
+    const forgotRow = document.getElementById('forgotRow');
+    const pwInput  = document.getElementById('inputPassword');
+    const pwLabel  = fieldPw.querySelector('label');
     document.getElementById('errorMsg').classList.remove('visible');
+
+    if (isReset) {
+      title.textContent    = 'Set new password';
+      sub.textContent      = 'Enter your new WealthOS password';
+      label.textContent    = 'Update Password';
+      togText.textContent  = '';
+      togLink.textContent  = 'Back to sign in';
+      togLink.onclick      = showSignIn;
+      fieldName.classList.remove('visible');
+      fieldEmail.style.display = 'none';
+      fieldPw.style.display    = '';
+      forgotRow.style.display  = 'none';
+      pwLabel.textContent      = 'New Password';
+      pwInput.autocomplete     = 'new-password';
+      pwInput.required         = true;
+    } else if (isForgot) {
+      title.textContent    = 'Reset password';
+      sub.textContent      = "We'll email you a reset link";
+      label.textContent    = 'Send Reset Link';
+      togText.textContent  = '';
+      togLink.textContent  = 'Back to sign in';
+      togLink.onclick      = showSignIn;
+      fieldName.classList.remove('visible');
+      fieldEmail.style.display = '';
+      fieldPw.style.display    = 'none';
+      forgotRow.style.display  = 'none';
+      pwInput.required         = false;
+    } else if (isRegister) {
+      title.textContent    = 'Create account';
+      sub.textContent      = 'Set up your WealthOS account';
+      label.textContent    = 'Create Account';
+      togText.textContent  = 'Already have an account?';
+      togLink.textContent  = 'Sign in';
+      togLink.onclick      = showSignIn;
+      fieldName.classList.add('visible');
+      fieldEmail.style.display = '';
+      fieldPw.style.display    = '';
+      forgotRow.style.display  = 'none';
+      pwLabel.textContent      = 'Password';
+      pwInput.autocomplete     = 'new-password';
+      pwInput.required         = true;
+    } else {
+      title.textContent    = 'Welcome back';
+      sub.textContent      = 'Sign in to your WealthOS account';
+      label.textContent    = 'Sign In';
+      togText.textContent  = "Don't have an account?";
+      togLink.textContent  = 'Create one';
+      togLink.onclick      = toggleMode;
+      fieldName.classList.remove('visible');
+      fieldEmail.style.display = '';
+      fieldPw.style.display    = '';
+      forgotRow.style.display  = '';
+      pwLabel.textContent      = 'Password';
+      pwInput.autocomplete     = 'current-password';
+      pwInput.required         = true;
+    }
   }
+
+  function toggleMode() { isRegister = !isRegister; isForgot = false; isReset = false; applyMode(); }
+  function showForgot()  { isForgot = true;  isRegister = false; isReset = false; applyMode(); }
+  function showSignIn()  { isForgot = false; isRegister = false; isReset = false; applyMode(); }
+  function showReset()   { isReset = true;   isForgot = false;   isRegister = false; applyMode(); }
 
   document.getElementById('authForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn   = document.getElementById('submitBtn');
     const errEl = document.getElementById('errorMsg');
     errEl.classList.remove('visible');
+    errEl.style.cssText = '';
     btn.disabled = true;
+    const origLabel = document.getElementById('submitLabel').textContent;
+    document.getElementById('submitLabel').textContent = 'Please wait…';
 
     const email    = document.getElementById('inputEmail').value.trim();
     const password = document.getElementById('inputPassword').value;
     const name     = document.getElementById('inputName').value.trim();
 
+    const done = () => { btn.disabled = false; document.getElementById('submitLabel').textContent = origLabel; };
+
     try {
       const client = await sb();
+
+      if (isReset) {
+        const { error } = await client.auth.updateUser({ password });
+        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); done(); return; }
+        errEl.style.cssText = 'color:#16a34a;background:#f0fdf4;border-color:#bbf7d0';
+        errEl.textContent = 'Password updated! Redirecting…';
+        errEl.classList.add('visible');
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 1200);
+        return;
+      }
+
+      if (isForgot) {
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/login'
+        });
+        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); done(); return; }
+        errEl.style.cssText = 'color:#16a34a;background:#f0fdf4;border-color:#bbf7d0';
+        errEl.textContent = 'Reset link sent! Check your email.';
+        errEl.classList.add('visible');
+        done();
+        return;
+      }
+
       if (isRegister) {
         const { data, error } = await client.auth.signUp({ email, password });
-        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); btn.disabled = false; return; }
+        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); done(); return; }
         if (!data.session) {
           errEl.style.cssText = 'color:#16a34a;background:#f0fdf4;border-color:#bbf7d0';
           errEl.textContent = 'Account created! Check your email to confirm, then sign in.';
-          errEl.classList.add('visible'); btn.disabled = false; return;
+          errEl.classList.add('visible'); done(); return;
         }
         const provRes = await fetch('/api/auth/provision', {
           method: 'POST',
@@ -354,11 +451,10 @@
           body: JSON.stringify({ name })
         });
         const provData = await provRes.json();
-        if (provData.error) { errEl.textContent = provData.error; errEl.classList.add('visible'); btn.disabled = false; return; }
+        if (provData.error) { errEl.textContent = provData.error; errEl.classList.add('visible'); done(); return; }
       } else {
         const { data: signInData, error } = await client.auth.signInWithPassword({ email, password });
-        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); btn.disabled = false; return; }
-        // Safety net: provision user if not yet provisioned (email-confirm flow)
+        if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); done(); return; }
         await fetch('/api/auth/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + signInData.session.access_token },
@@ -369,18 +465,27 @@
     } catch (err) {
       errEl.textContent = 'Something went wrong. Please try again.';
       errEl.classList.add('visible');
-      btn.disabled = false;
+      done();
     }
   });
 
-  if (new URLSearchParams(window.location.search).get('register') === '1') toggleMode();
+  // Detect password recovery link (Supabase appends #access_token=...&type=recovery)
+  (async () => {
+    const client = await sb();
+    client.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') showReset();
+    });
+  })();
 
-  // Auto-redirect if already logged in
+  if (new URLSearchParams(window.location.search).get('register') === '1') { isRegister = true; applyMode(); }
+  else applyMode();
+
+  // Auto-redirect if already logged in (skip during reset flow)
   (async () => {
     try {
       const client = await sb();
       const { data: { session } } = await client.auth.getSession();
-      if (session) window.location.href = '/dashboard.html';
+      if (session && !isReset) window.location.href = '/dashboard.html';
     } catch (e) {}
   })();
 </script>
