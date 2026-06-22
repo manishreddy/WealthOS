@@ -2,11 +2,21 @@
 
 const { Pool } = require('pg');
 
+// Node's URL parser treats # as a fragment delimiter, which breaks passwords
+// containing #. Parse with regex so the full password is captured correctly
+// regardless of whether # is encoded as %23 or left bare.
+function parseDbUrl(url) {
+  if (!url) return {};
+  const m = url.match(/^postgres(?:ql)?:\/\/([^:@]+)(?::([^@]*))?@([^:\/]+)(?::(\d+))?\/([^?]+)/);
+  if (!m) return { connectionString: url };
+  const [, user, rawPwd, host, port, database] = m;
+  const password = rawPwd != null ? decodeURIComponent(rawPwd.replace(/\+/g, '%2B')) : undefined;
+  const ssl = host !== 'localhost' ? { rejectUnauthorized: false } : false;
+  return { user, password, host, port: port ? parseInt(port, 10) : 5432, database, ssl };
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('localhost')
-    ? false
-    : { rejectUnauthorized: false },
+  ...parseDbUrl(process.env.DATABASE_URL),
   max: 5,
   idleTimeoutMillis: 60000,
   connectionTimeoutMillis: 8000,
