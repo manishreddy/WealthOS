@@ -343,7 +343,11 @@
       if (isRegister) {
         const { data, error } = await client.auth.signUp({ email, password });
         if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); btn.disabled = false; return; }
-        // Provision user row in our DB
+        if (!data.session) {
+          errEl.style.cssText = 'color:#16a34a;background:#f0fdf4;border-color:#bbf7d0';
+          errEl.textContent = 'Account created! Check your email to confirm, then sign in.';
+          errEl.classList.add('visible'); btn.disabled = false; return;
+        }
         const provRes = await fetch('/api/auth/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
@@ -352,8 +356,14 @@
         const provData = await provRes.json();
         if (provData.error) { errEl.textContent = provData.error; errEl.classList.add('visible'); btn.disabled = false; return; }
       } else {
-        const { error } = await client.auth.signInWithPassword({ email, password });
+        const { data: signInData, error } = await client.auth.signInWithPassword({ email, password });
         if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); btn.disabled = false; return; }
+        // Safety net: provision user if not yet provisioned (email-confirm flow)
+        await fetch('/api/auth/provision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + signInData.session.access_token },
+          body: JSON.stringify({ name: email.split('@')[0] })
+        }).catch(() => {});
       }
       window.location.href = '/dashboard.html';
     } catch (err) {

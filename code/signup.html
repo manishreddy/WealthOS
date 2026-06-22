@@ -200,6 +200,17 @@
                 btn.textContent = 'Create Account';
                 return;
             }
+            // Email confirmation is enabled — session is null until user confirms
+            if (!data.session) {
+                errEl.style.color = '#16a34a';
+                errEl.style.background = '#f0fdf4';
+                errEl.style.borderColor = '#bbf7d0';
+                errEl.textContent = 'Account created! Check your email to confirm, then sign in.';
+                errEl.classList.add('visible');
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+                return;
+            }
             // Provision user row in our DB
             const provRes = await fetch('/api/auth/provision', {
                 method: 'POST',
