@@ -37,7 +37,7 @@ function registerAuthRoutes(app) {
     const { Pool } = require('pg');
 
     const DIRECT_HOST = 'db.tfgovjiwyrepdinmkkzr.supabase.co';
-    const POOLER_HOST = 'aws-0-ap-south-1.pooler.supabase.com';
+    const POOLER_HOST = 'aws-1-ap-south-1.pooler.supabase.com';
     const DB_USER = 'postgres.tfgovjiwyrepdinmkkzr';
     const DB_NAME = 'postgres';
 
