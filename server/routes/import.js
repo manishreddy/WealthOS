@@ -5,10 +5,6 @@ const multer = require('multer');
 const Anthropic = require('@anthropic-ai/sdk');
 const { query } = require('../db');
 const { readWorkbookFromBuffer, readCsvFromBuffer, sheetToArrayOfArrays, getSheetNames, getSheet } = require('../utils/excel');
-const { spawnSync } = require('child_process');
-const os = require('os');
-const path = require('path');
-const fs = require('fs');
 
 const router = express.Router();
 // Vercel serverless has 4.5MB request body limit
@@ -503,23 +499,21 @@ router.post('/parse-holdings', upload.single('file'), async (req, res) => {
 });
 
 // ── CAS PDF Parser ───────────────────────────────────────────────────────────
-function extractCasText(buffer, password) {
-  const tmpPath = path.join(os.tmpdir(), `cas_${Date.now()}_${Math.random().toString(36).slice(2)}.pdf`);
+async function extractCasText(buffer, password) {
+  const { PDFParse, PasswordException } = require('pdf-parse');
+  const parser = new PDFParse({ data: buffer, password: password || '' });
+  let result;
   try {
-    fs.writeFileSync(tmpPath, buffer);
-    const args = ['-upw', password, '-layout', tmpPath, '-'];
-    const result = spawnSync('pdftotext', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
-    if (result.error) throw new Error('pdftotext not found. Please install poppler-utils.');
-    if (result.status !== 0) {
-      const stderr = (result.stderr || '').toLowerCase();
-      if (stderr.includes('password') || stderr.includes('incorrect')) throw new Error('Incorrect PDF password.');
-      throw new Error('Failed to read PDF. ' + (result.stderr || '').substring(0, 200));
+    result = await parser.getText();
+  } catch (err) {
+    if (err instanceof PasswordException || (err.message || '').toLowerCase().includes('password')) {
+      throw new Error('Incorrect PDF password.');
     }
-    if (!result.stdout || result.stdout.length < 100) throw new Error('PDF appears to be empty or unreadable.');
-    return result.stdout;
-  } finally {
-    try { fs.unlinkSync(tmpPath); } catch {}
+    throw new Error('Failed to read PDF: ' + (err.message || err));
   }
+  const text = result.text || '';
+  if (text.trim().length < 100) throw new Error('PDF appears to be empty or unreadable.');
+  return text;
 }
 
 async function parseCasWithClaude(text) {
@@ -626,7 +620,7 @@ router.post('/parse-cas', upload.single('file'), async (req, res) => {
     const password = (req.body.password || '').trim();
     if (!password) return res.status(400).json({ error: 'PDF password is required.' });
 
-    const text = extractCasText(req.file.buffer, password);
+    const text = await extractCasText(req.file.buffer, password);
     const holdings = await parseCasWithClaude(text);
 
     console.log(`[parse-cas] Extracted ${holdings.length} holdings`);
