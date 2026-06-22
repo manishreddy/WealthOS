@@ -30,17 +30,69 @@ function registerAuthRoutes(app) {
     });
   });
 
-  // Temporary diagnostic: tests DB connection and DNS from Vercel runtime
+  // Temporary diagnostic: tests multiple DB connection paths from Vercel runtime
   app.get('/api/health/db', async (req, res) => {
     const dns = require('dns').promises;
-    const dbUrl = process.env.DATABASE_URL || '';
-    const hostMatch = dbUrl.match(/@([^:\/]+)/);
-    const host = hostMatch ? hostMatch[1] : 'not-found';
-    let dnsResult = null, dnsErr = null;
-    try { dnsResult = await dns.lookup(host, { all: true }); } catch (e) { dnsErr = e.message; }
-    let dbResult = null, dbErr = null;
-    try { const r = await query('SELECT 1 AS ok'); dbResult = r.rows[0]; } catch (e) { dbErr = { msg: e.message, code: e.code }; }
-    res.json({ host, dns: dnsResult || dnsErr, db: dbResult || dbErr });
+    const net = require('net');
+    const { Pool } = require('pg');
+
+    const DIRECT_HOST = 'db.tfgovjiwyrepdinmkkzr.supabase.co';
+    const POOLER_HOST = 'aws-0-ap-south-1.pooler.supabase.com';
+    const DB_USER = 'postgres.tfgovjiwyrepdinmkkzr';
+    const DB_NAME = 'postgres';
+
+    // Helper: DNS lookup
+    async function dnsCheck(h) {
+      try { return await dns.lookup(h, { all: true }); } catch (e) { return { err: e.message }; }
+    }
+
+    // Helper: TCP reachability
+    async function tcpCheck(h, p) {
+      return new Promise(resolve => {
+        const s = net.createConnection({ host: h, port: p, timeout: 4000 });
+        s.once('connect', () => { s.destroy(); resolve('ok'); });
+        s.once('error', e => { s.destroy(); resolve({ err: e.message }); });
+        s.once('timeout', () => { s.destroy(); resolve({ err: 'timeout' }); });
+      });
+    }
+
+    // Helper: PostgreSQL SELECT 1
+    async function pgCheck(opts) {
+      const p = new Pool({ ...opts, max: 1, connectionTimeoutMillis: 6000 });
+      try {
+        const r = await p.query('SELECT 1 AS ok');
+        return r.rows[0];
+      } catch (e) {
+        return { err: e.message, code: e.code };
+      } finally {
+        await p.end().catch(() => {});
+      }
+    }
+
+    const pwd = (() => {
+      const m = (process.env.DATABASE_URL || '').match(/\/\/[^:]+:([^@]+)@/);
+      if (!m) return '';
+      return decodeURIComponent(m[1].replace(/\+/g, '%2B'));
+    })();
+
+    const ssl = { rejectUnauthorized: false };
+
+    const [directDns, poolerDns, directTcp5432, pooler5432Tcp, pooler6543Tcp,
+           directPg, poolerPg5432, poolerPg6543] = await Promise.all([
+      dnsCheck(DIRECT_HOST),
+      dnsCheck(POOLER_HOST),
+      tcpCheck(DIRECT_HOST, 5432),
+      tcpCheck(POOLER_HOST, 5432),
+      tcpCheck(POOLER_HOST, 6543),
+      pgCheck({ user: 'postgres', password: pwd, host: DIRECT_HOST, port: 5432, database: DB_NAME, ssl }),
+      pgCheck({ user: DB_USER, password: pwd, host: POOLER_HOST, port: 5432, database: DB_NAME, ssl }),
+      pgCheck({ user: DB_USER, password: pwd, host: POOLER_HOST, port: 6543, database: DB_NAME, ssl }),
+    ]);
+
+    res.json({
+      direct: { dns: directDns, tcp5432: directTcp5432, pg5432: directPg },
+      pooler: { dns: poolerDns, tcp5432: pooler5432Tcp, tcp6543: pooler6543Tcp, pg5432: poolerPg5432, pg6543: poolerPg6543 },
+    });
   });
 
   app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../code/login.html')));
