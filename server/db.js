@@ -12,7 +12,12 @@ function parseDbUrl(url) {
   const [, user, rawPwd, host, port, database] = m;
   const password = rawPwd != null ? decodeURIComponent(rawPwd.replace(/\+/g, '%2B')) : undefined;
   const ssl = host !== 'localhost' ? { rejectUnauthorized: false } : false;
-  return { user, password, host, port: port ? parseInt(port, 10) : 5432, database, ssl };
+  // Supabase Supavisor pooler: transaction mode (6543) requires explicit enablement;
+  // fall back to session mode (5432) which works on all tiers.
+  const resolvedPort = (host.includes('pooler.supabase.com') && parseInt(port, 10) === 6543)
+    ? 5432
+    : (port ? parseInt(port, 10) : 5432);
+  return { user, password, host, port: resolvedPort, database, ssl };
 }
 
 const pool = new Pool({
