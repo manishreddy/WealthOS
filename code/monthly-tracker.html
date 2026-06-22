@@ -4578,9 +4578,14 @@ I invest ₹5000/month in HDFC Midcap MF (Mid Cap), ₹3000 in Nifty 50 ETF, and
             const okInv = await WOS.confirm({ title: 'Delete Investment', message: 'Remove this investment entry? This cannot be undone.', confirmText: 'Delete', danger: true });
             if (!okInv) return;
             try {
-                await WealthAPI.savings.remove(allocCurrentMemberId, invId);
+                if (String(invId).startsWith('demo-')) {
+                    allocCurrentInvestments = (allocCurrentInvestments || []).filter(i => String(i.id) !== String(invId));
+                    allocRenderInvestmentsList();
+                } else {
+                    await WealthAPI.savings.remove(allocCurrentMemberId, invId);
+                    await allocLoadMemberData(allocCurrentMemberId);
+                }
                 WOS.toast('Investment deleted.', 'success');
-                await allocLoadMemberData(allocCurrentMemberId);
             } catch (e) {
                 WOS.toast('Failed to delete: ' + (e.message || e), 'error');
             }
@@ -4592,7 +4597,8 @@ I invest ₹5000/month in HDFC Midcap MF (Mid Cap), ₹3000 in Nifty 50 ETF, and
             const okAll = await WOS.confirm({ title: 'Delete All Investments', message: `Remove all ${allocCurrentInvestments.length} investment${allocCurrentInvestments.length !== 1 ? 's' : ''} for this member? This cannot be undone.`, confirmText: 'Delete All', danger: true });
             if (!okAll) return;
             try {
-                for (const inv of [...allocCurrentInvestments]) {
+                const real = allocCurrentInvestments.filter(i => !String(i.id).startsWith('demo-'));
+                for (const inv of real) {
                     await WealthAPI.savings.remove(allocCurrentMemberId, inv.id);
                 }
                 await allocLoadMemberData(allocCurrentMemberId);
