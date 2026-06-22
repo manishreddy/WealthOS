@@ -655,8 +655,9 @@
     }
     if (logoutBtn && !logoutBtn._bound) {
       logoutBtn._bound = true;
-      logoutBtn.addEventListener('click', () => {
-        window.location.href = '/api/logout';
+      logoutBtn.addEventListener('click', async () => {
+        try { const s = await getSupabase(); await s.auth.signOut(); } catch (e) {}
+        window.location.href = '/login';
       });
     }
   }
