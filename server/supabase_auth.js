@@ -78,7 +78,11 @@ function registerAuthRoutes(app) {
     if (error || !user) return res.status(401).json({ error: 'Not authenticated' });
     try {
       const result = await query(
-        'SELECT id, email, family_name, full_name, created_at FROM users WHERE supabase_auth_id = $1',
+        `SELECT u.id, u.email, u.family_name, u.full_name, u.created_at,
+                fm.dob, fm.age
+         FROM users u
+         LEFT JOIN family_members fm ON fm.user_id = u.id AND fm.role = 'primary'
+         WHERE u.supabase_auth_id = $1`,
         [user.id]
       );
       const appUser = result.rows[0];
@@ -87,7 +91,9 @@ function registerAuthRoutes(app) {
         id: appUser.id, email: appUser.email,
         name: appUser.full_name || null,
         familyName: appUser.family_name,
-        createdAt: appUser.created_at
+        createdAt: appUser.created_at,
+        dob: appUser.dob || null,
+        age: appUser.age || null,
       });
     } catch (err) {
       console.error('auth/user error:', err);

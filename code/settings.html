@@ -245,9 +245,18 @@
                     <div class="s-card">
                         <div class="s-card-header">
                             <div class="s-card-title">Account Details</div>
-                            <div class="s-card-desc">Your family name and login email</div>
+                            <div class="s-card-desc">Your name, date of birth, and login email</div>
                         </div>
                         <div class="s-card-body">
+                            <div class="form-group">
+                                <label class="form-label">Your Name</label>
+                                <input type="text" class="wos-input" id="profileName" placeholder="e.g. Manish">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth <span style="color:var(--text-tertiary);font-weight:400">(optional)</span></label>
+                                <input type="date" class="wos-input" id="profileDob" onchange="calcProfileAge()">
+                                <div class="form-hint" id="profileAgeHint"></div>
+                            </div>
                             <div class="form-group">
                                 <label class="form-label">Family Name</label>
                                 <input type="text" class="wos-input" id="profileFamilyName" placeholder="e.g. Sharma Family">
@@ -678,20 +687,35 @@ async function removeMember(id, name) {
 }
 
 // ── Profile ───────────────────────────────────────────────────────────────
+function calcProfileAge() {
+    const dob = document.getElementById('profileDob').value;
+    const hint = document.getElementById('profileAgeHint');
+    if (!dob) { hint.textContent = ''; return; }
+    const age = calcAge(dob);
+    hint.textContent = age !== null ? `Age ${age}` : '';
+}
+
 async function loadProfile() {
     try {
         const [family, user] = await Promise.all([WealthAPI.family.get(), WealthAPI.auth.getUser()]);
         if (family?.familyName) document.getElementById('profileFamilyName').value = family.familyName;
         if (user?.email)        document.getElementById('profileEmail').value = user.email;
+        if (user?.name)         document.getElementById('profileName').value = user.name;
+        if (user?.dob)        { document.getElementById('profileDob').value = user.dob; calcProfileAge(); }
     } catch(e) {}
 }
 
 async function saveProfile() {
-    const name = (document.getElementById('profileFamilyName').value||'').trim();
-    if (!name) { toast('Enter a family name', 'error'); return; }
+    const familyName = (document.getElementById('profileFamilyName').value||'').trim();
+    const name       = (document.getElementById('profileName').value||'').trim();
+    const dob        = document.getElementById('profileDob').value || '';
+    if (!familyName) { toast('Enter a family name', 'error'); return; }
     try {
-        await WealthAPI.family.updateName(name);
-        toast('Family name saved');
+        await Promise.all([
+            WealthAPI.family.updateName(familyName),
+            (name || dob) ? WealthAPI.auth.updateProfile({ name: name || undefined, dob: dob || undefined }) : Promise.resolve(),
+        ]);
+        toast('Profile saved');
     } catch(e) { toast('Could not save', 'error'); }
 }
 
