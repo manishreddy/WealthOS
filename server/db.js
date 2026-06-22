@@ -33,7 +33,7 @@ async function query(text, params) {
 }
 
 async function initDb() {
-  if (process.env.SKIP_DB_INIT === 'true') { console.log('DB init skipped (production)'); return; }
+  if (process.env.RUN_DB_INIT !== 'true') { console.log('DB init skipped (set RUN_DB_INIT=true to run)'); return; }
   // users must exist before any foreign-key tables
   await query(`
     CREATE TABLE IF NOT EXISTS users (

@@ -374,8 +374,18 @@
         const { data: { session: _sess } } = await sbClient.auth.getSession();
         if (!_sess) { window.location.href = '/login'; return; }
         const user = _sess.user;
-        if (user && user.user_metadata && user.user_metadata.name) {
-            document.getElementById('userNameInput').value = user.user_metadata.name;
+        // Try metadata first (OAuth), then fall back to DB profile
+        const metaName = user?.user_metadata?.name;
+        if (metaName) {
+            document.getElementById('userNameInput').value = metaName;
+        } else {
+            try {
+                const res = await fetch('/api/auth/user', { headers: await authHeaders() });
+                if (res.ok) {
+                    const profile = await res.json();
+                    if (profile.name) document.getElementById('userNameInput').value = profile.name;
+                }
+            } catch (e) {}
         }
     })();
 

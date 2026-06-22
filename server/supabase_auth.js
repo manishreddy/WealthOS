@@ -147,7 +147,8 @@ function registerAuthRoutes(app) {
       if (name) {
         await query(
           `INSERT INTO family_members (user_id, name, role, risk_profile, display_order)
-           VALUES ($1, $2, 'primary', 'moderate', 0) ON CONFLICT DO NOTHING`,
+           SELECT $1, $2, 'primary', 'moderate', 0
+           WHERE NOT EXISTS (SELECT 1 FROM family_members WHERE user_id = $1 AND role = 'primary')`,
           [appUser.id, name]
         ).catch(() => {});
       }
