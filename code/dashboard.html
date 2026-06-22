@@ -313,7 +313,10 @@
 
             <!-- Person tabs -->
             <div class="person-tabs-container" id="personTabsContainer" style="display:none;">
-                <div class="person-tabs" id="personTabsList"></div>
+                <div class="person-tabs" id="personTabsList">
+                  <span class="skeleton" style="display:inline-block;width:64px;height:30px;border-radius:20px"></span>
+                  <span class="skeleton" style="display:inline-block;width:64px;height:30px;border-radius:20px;margin-left:8px;opacity:.6"></span>
+                </div>
                 <div class="person-tabs-actions"><a href="settings.html" class="settings-link-btn">⚙️ Manage members</a></div>
             </div>
 
@@ -330,7 +333,7 @@
                         </div>
                         <div class="cashflow-month-nav">
                             <button class="cashflow-month-nav-btn" id="prevMonthBtn">‹</button>
-                            <span class="cashflow-month-nav-label" id="monthNavLabel">Loading…</span>
+                            <span class="skeleton skeleton-text" id="monthNavLabel" style="width:110px;display:inline-block;vertical-align:middle"></span>
                             <button class="cashflow-month-nav-btn" id="nextMonthBtn">›</button>
                         </div>
                     </div>
@@ -344,7 +347,22 @@
                             <div class="cashflow-rate-label">savings rate</div>
                         </div>
                     </div>
-                    <div class="cashflow-rows" id="cashflowRows"></div>
+                    <div class="cashflow-rows" id="cashflowRows">
+                      <div class="cashflow-row">
+                        <span class="skeleton" style="width:18px;height:13px;border-radius:3px;flex-shrink:0"></span>
+                        <span class="skeleton" style="width:72px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                        <div class="cashflow-bar-wrap"><div class="skeleton" style="height:7px;border-radius:4px;width:62%"></div></div>
+                        <span class="skeleton" style="width:78px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                        <span class="skeleton" style="width:30px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                      </div>
+                      <div class="cashflow-row">
+                        <span class="skeleton" style="width:18px;height:13px;border-radius:3px;flex-shrink:0"></span>
+                        <span class="skeleton" style="width:58px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                        <div class="cashflow-bar-wrap"><div class="skeleton" style="height:7px;border-radius:4px;width:38%"></div></div>
+                        <span class="skeleton" style="width:78px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                        <span class="skeleton" style="width:30px;height:.9em;border-radius:3px;flex-shrink:0"></span>
+                      </div>
+                    </div>
                 </div>
 
                 <!-- Mid row: Portfolio Summary + Goals Snapshot -->
@@ -354,14 +372,57 @@
                             <div class="ps-title">Portfolio</div>
                             <a href="portfolio.html" class="ps-link">View details →</a>
                         </div>
-                        <div id="psContent"></div>
+                        <div id="psContent">
+                          <div class="skeleton skeleton-metric" style="width:150px;margin-bottom:6px"></div>
+                          <div class="skeleton skeleton-text" style="width:90px;margin-bottom:18px"></div>
+                          <div style="display:flex;flex-direction:column;gap:10px">
+                            <div style="display:flex;align-items:center;gap:8px">
+                              <span class="skeleton" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:60px;height:.85em;border-radius:3px;flex-shrink:0"></span>
+                              <div style="flex:1;height:5px;border-radius:3px;overflow:hidden;background:var(--border)"><div class="skeleton" style="height:100%;width:60%"></div></div>
+                              <span class="skeleton" style="width:28px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:58px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px">
+                              <span class="skeleton" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:48px;height:.85em;border-radius:3px;flex-shrink:0"></span>
+                              <div style="flex:1;height:5px;border-radius:3px;overflow:hidden;background:var(--border)"><div class="skeleton" style="height:100%;width:25%"></div></div>
+                              <span class="skeleton" style="width:28px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:58px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px">
+                              <span class="skeleton" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:40px;height:.85em;border-radius:3px;flex-shrink:0"></span>
+                              <div style="flex:1;height:5px;border-radius:3px;overflow:hidden;background:var(--border)"><div class="skeleton" style="height:100%;width:12%"></div></div>
+                              <span class="skeleton" style="width:28px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                              <span class="skeleton" style="width:58px;height:.8em;border-radius:3px;flex-shrink:0"></span>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                     <div class="goals-snapshot-card" id="goalsSnapshotCard">
                         <div class="gs-header">
                             <div class="gs-title">Goals</div>
                             <a href="goals.html" class="gs-link">View all →</a>
                         </div>
-                        <div class="goals-compact-list" id="goalsCompactList"></div>
+                        <div class="goals-compact-list" id="goalsCompactList">
+                          <div class="goal-compact-row" style="pointer-events:none">
+                            <span class="skeleton" style="width:26px;height:26px;border-radius:8px;flex-shrink:0"></span>
+                            <div class="goal-compact-body">
+                              <div class="skeleton skeleton-text" style="width:68%;margin-bottom:7px"></div>
+                              <div class="goal-compact-bar"><div class="skeleton" style="height:4px;width:55%;border-radius:2px"></div></div>
+                            </div>
+                            <span class="skeleton" style="width:32px;height:1em;border-radius:3px;flex-shrink:0"></span>
+                          </div>
+                          <div class="goal-compact-row" style="pointer-events:none">
+                            <span class="skeleton" style="width:26px;height:26px;border-radius:8px;flex-shrink:0"></span>
+                            <div class="goal-compact-body">
+                              <div class="skeleton skeleton-text" style="width:52%;margin-bottom:7px"></div>
+                              <div class="goal-compact-bar"><div class="skeleton" style="height:4px;width:35%;border-radius:2px"></div></div>
+                            </div>
+                            <span class="skeleton" style="width:32px;height:1em;border-radius:3px;flex-shrink:0"></span>
+                          </div>
+                        </div>
                     </div>
                 </div>
 
@@ -790,6 +851,7 @@
         // ── Main init ─────────────────────────────────────────────────────────
         async function initDashboard() {
             if (!(await WealthAPI.auth.requireAuth())) return;
+            WealthProgress.start();
             const user = await WealthAPI.auth.getUser();
             if (user) {
                 const fullName = user.name || user.fullName || '';
@@ -858,6 +920,7 @@
                 entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
             }, { threshold: 0.05 });
             document.querySelectorAll('#dashboardGrid > *').forEach(el => obs.observe(el));
+            WealthProgress.done();
         }
 
 

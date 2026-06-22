@@ -7,6 +7,7 @@
     <title>WealthOS - Goals Planning</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -1517,7 +1518,7 @@ body {
     <div class="app-container">
         <aside id="sidebar-root"></aside>
 
-        <main class="main-content">
+        <main class="main-content wos-page-enter">
 
             <div class="page-header">
                 <div>
@@ -1537,22 +1538,22 @@ body {
             <div class="summary-grid">
                 <div class="summary-card">
                     <div class="summary-label">Total Goals</div>
-                    <div class="summary-value" id="totalGoalsCount">—</div>
-                    <div class="summary-detail" id="onTrackDetail">Loading...</div>
+                    <div class="summary-value" id="totalGoalsCount"><span class="skeleton skeleton-metric" style="display:block;width:50px;height:2rem"></span></div>
+                    <div class="summary-detail" id="onTrackDetail"></div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Goals Status</div>
-                    <div class="summary-value" id="onTrackCount">—</div>
-                    <div class="summary-detail" id="goalsStatusDetail">Loading...</div>
+                    <div class="summary-value" id="onTrackCount"><span class="skeleton skeleton-text" style="width:80px"></span></div>
+                    <div class="summary-detail" id="goalsStatusDetail"></div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Monthly Commitment</div>
-                    <div class="summary-value" id="totalMonthlyCommitment">—</div>
+                    <div class="summary-value" id="totalMonthlyCommitment"><span class="skeleton skeleton-metric" style="display:block;width:90px;height:2rem"></span></div>
                     <div class="summary-detail">Total monthly contributions</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Total Target</div>
-                    <div class="summary-value" id="totalTargetAmount">—</div>
+                    <div class="summary-value" id="totalTargetAmount"><span class="skeleton skeleton-metric" style="display:block;width:90px;height:2rem"></span></div>
                     <div class="summary-detail">Across all goals</div>
                 </div>
             </div>
@@ -1585,10 +1586,9 @@ body {
                 </div>
 
                 <div class="goals-container" id="goalsContainer">
-                    <div class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <div>Loading your goals...</div>
-                    </div>
+                  <div class="skeleton skeleton-card" style="min-height:110px;margin-bottom:14px"></div>
+                  <div class="skeleton skeleton-card" style="min-height:110px;margin-bottom:14px;opacity:.7"></div>
+                  <div class="skeleton skeleton-card" style="min-height:110px;opacity:.45"></div>
                 </div>
             </div>
 
@@ -1878,6 +1878,7 @@ body {
             updateSummary();
 
             // Fetch fresh data (foreground on first visit, silent background refresh on return)
+            WealthProgress.start();
             let authOk, members, goals;
             try {
                 [authOk, members, goals] = await Promise.all([
@@ -1887,13 +1888,14 @@ body {
                 ]);
             } catch (err) {
                 console.error('Failed to load data:', err);
+                WealthProgress.done();
                 if (!cached) {
                     const container = document.getElementById('goalsContainer');
                     if (container) container.innerHTML = '<div class="loading-state" style="color:var(--text-secondary);">Unable to load goals. Please refresh.</div>';
                 }
                 return;
             }
-            if (!authOk) return;
+            if (!authOk) { WealthProgress.done(); return; }
 
             familyMembers = members || [];
             allGoals = goals || [];
@@ -1901,6 +1903,7 @@ body {
 
             renderGoals();
             updateSummary();
+            WealthProgress.done();
         }
 
         // ─── Render goal list ────────────────────────────────────────────────────

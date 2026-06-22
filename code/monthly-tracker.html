@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="user-menu.css">
     <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -1677,7 +1678,7 @@ body {
     <div class="app-container">
         <aside id="sidebar-root"></aside>
 
-        <main class="main-content">
+        <main class="main-content wos-page-enter">
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Monthly Tracker</h1>
@@ -1765,17 +1766,17 @@ body {
             <div class="month-strip">
                 <div class="mss-item">
                     <div class="mss-label">Income</div>
-                    <div class="mss-value" id="summaryIncome">₹0</div>
+                    <div class="mss-value" id="summaryIncome"><span class="skeleton skeleton-metric" style="display:block;width:120px"></span></div>
                     <div class="mss-sub" id="summaryIncomeChange"></div>
                 </div>
                 <div class="mss-item">
                     <div class="mss-label">Expenditure</div>
-                    <div class="mss-value" id="summaryExpenditure">₹0</div>
+                    <div class="mss-value" id="summaryExpenditure"><span class="skeleton skeleton-metric" style="display:block;width:120px"></span></div>
                     <div class="mss-sub" id="summaryInvestRate"></div>
                 </div>
                 <div class="mss-item">
                     <div class="mss-label">Savings &amp; Investments</div>
-                    <div class="mss-value" id="summaryInvestments">₹0</div>
+                    <div class="mss-value" id="summaryInvestments"><span class="skeleton skeleton-metric" style="display:block;width:90px"></span></div>
                     <div class="mss-sub" id="summaryNetChange"></div>
                 </div>
             </div>
@@ -1915,7 +1916,10 @@ body {
                 </div>
 
                 <div class="history-list" id="historyList">
-                    <!-- dynamically populated by loadHistory() -->
+                  <div class="skeleton" style="height:38px;border-radius:8px;margin-bottom:8px"></div>
+                  <div class="skeleton" style="height:34px;border-radius:6px;margin-bottom:6px;opacity:.75"></div>
+                  <div class="skeleton" style="height:34px;border-radius:6px;margin-bottom:6px;opacity:.55"></div>
+                  <div class="skeleton" style="height:34px;border-radius:6px;opacity:.35"></div>
                 </div>
             </div>
 
@@ -2418,6 +2422,7 @@ body {
         // ===================================
         async function loadCurrentView() {
             if (familyMembers.length === 0) return;
+            WealthProgress.start();
 
             if (currentMemberId === null) {
                 // Combined view
@@ -2432,6 +2437,7 @@ body {
             await loadHistory();
             // Show/hide "Copy Last Month" based on whether prev month has data
             checkLastMonthData();
+            WealthProgress.done();
         }
 
         async function loadMemberView(memberId) {

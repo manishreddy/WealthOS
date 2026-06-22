@@ -1,3 +1,15 @@
+const WealthProgress = (() => {
+  let bar = null;
+  function ensure() {
+    if (!bar) { bar = document.createElement('div'); bar.id = 'wos-progress-bar'; document.body.prepend(bar); }
+    return bar;
+  }
+  return {
+    start() { ensure(); bar.classList.remove('wos-pb-done'); },
+    done()  { if (!bar) return; bar.classList.add('wos-pb-done'); setTimeout(() => { bar?.remove(); bar = null; }, 400); }
+  };
+})();
+
 /**
  * WealthOS Shared Sidebar — Design System Edition
  * Drop <aside id="sidebar-root"></aside> + <script src="sidebar.js"> into any page.

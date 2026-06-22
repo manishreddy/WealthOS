@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="controls.css">
     <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font); background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
@@ -203,7 +204,7 @@
 <div class="app-container">
     <aside id="sidebar-root"></aside>
 
-    <main class="main-content">
+    <main class="main-content wos-page-enter">
         <div class="page-title">Settings</div>
         <div class="page-subtitle">Manage your family, import data, and security</div>
 
@@ -235,7 +236,8 @@
                         </div>
                         <div class="s-card-body">
                             <div class="member-grid" id="memberGrid">
-                                <div style="color:var(--text-tertiary);font-size:0.875rem;padding:8px 0;">Loading…</div>
+                              <div class="skeleton" style="height:120px;border-radius:14px"></div>
+                              <div class="skeleton" style="height:120px;border-radius:14px;opacity:.65"></div>
                             </div>
                         </div>
                     </div>
@@ -529,10 +531,13 @@ function formatRs(v) {
 
 // ── Family members ────────────────────────────────────────────────────────
 async function loadMembers() {
+    WealthProgress.start();
     try {
         _members = await WealthAPI.family.getMembers();
         renderGrid();
+        WealthProgress.done();
     } catch(e) {
+        WealthProgress.done();
         document.getElementById('memberGrid').innerHTML =
             `<p style="color:#dc2626;font-size:0.875rem;">Could not load members. Please refresh.</p>`;
     }

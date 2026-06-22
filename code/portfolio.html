@@ -7,6 +7,7 @@
     <title>WealthOS - Portfolio Command Center</title>
     <link rel="stylesheet" href="design-system.css">
     <link rel="stylesheet" href="dark-overrides.css">
+    <link rel="stylesheet" href="css/animations.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1866,7 +1867,7 @@ body {
     <div class="app-container">
         <aside id="sidebar-root"></aside>
 
-        <main class="main-content">
+        <main class="main-content wos-page-enter">
 
             <div class="page-header">
                 <div>
@@ -1974,19 +1975,19 @@ body {
             <div class="allocation-grid">
                 <div class="networth-card">
                     <div class="networth-card-title">Total Portfolio Value</div>
-                    <div class="networth-card-value" id="totalNetWorth">Loading...</div>
+                    <div class="networth-card-value" id="totalNetWorth"><span class="skeleton skeleton-metric" style="display:block;width:200px"></span></div>
                     <div class="networth-breakdown">
                         <div class="breakdown-item">
                             <span class="breakdown-label">Total Invested</span>
-                            <span class="breakdown-value" id="totalInvested">--</span>
+                            <span class="breakdown-value" id="totalInvested"><span class="skeleton" style="display:inline-block;width:72px;height:.9em;border-radius:4px;vertical-align:middle"></span></span>
                         </div>
                         <div class="breakdown-item">
                             <span class="breakdown-label">Total Gain/Loss</span>
-                            <span class="breakdown-value" id="totalGainLoss">--</span>
+                            <span class="breakdown-value" id="totalGainLoss"><span class="skeleton" style="display:inline-block;width:72px;height:.9em;border-radius:4px;vertical-align:middle"></span></span>
                         </div>
                         <div class="breakdown-item">
                             <span class="breakdown-label">Total Assets</span>
-                            <span class="breakdown-value" id="totalAssetsCount">--</span>
+                            <span class="breakdown-value" id="totalAssetsCount"><span class="skeleton" style="display:inline-block;width:50px;height:.9em;border-radius:4px;vertical-align:middle"></span></span>
                         </div>
                     </div>
                 </div>
@@ -2141,6 +2142,9 @@ body {
                             </tr>
                         </thead>
                         <tbody id="assetsTableBody">
+                          <tr><td colspan="9"><div class="skeleton" style="height:40px;border-radius:6px;margin:8px 0"></div></td></tr>
+                          <tr><td colspan="9"><div class="skeleton" style="height:36px;border-radius:6px;margin:6px 0;opacity:.7"></div></td></tr>
+                          <tr><td colspan="9"><div class="skeleton" style="height:36px;border-radius:6px;margin:6px 0;opacity:.5"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -2629,6 +2633,7 @@ body {
         });
 
         async function loadPageData() {
+            WealthProgress.start();
             try {
                 const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
                 const prevYear  = currentMonth === 1 ? currentYear - 1 : currentYear;
@@ -2673,9 +2678,11 @@ body {
                 renderEquityBreakdown();
                 populateMemberDropdown();
                 loadLiabilityDashboard();
+                WealthProgress.done();
 
             } catch (err) {
                 console.error('Failed to load portfolio data:', err);
+                WealthProgress.done();
                 showError('Failed to load portfolio data. Please refresh the page.');
             }
         }
