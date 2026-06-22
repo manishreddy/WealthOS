@@ -30,6 +30,19 @@ function registerAuthRoutes(app) {
     });
   });
 
+  // Temporary diagnostic: tests DB connection and DNS from Vercel runtime
+  app.get('/api/health/db', async (req, res) => {
+    const dns = require('dns').promises;
+    const dbUrl = process.env.DATABASE_URL || '';
+    const hostMatch = dbUrl.match(/@([^:\/]+)/);
+    const host = hostMatch ? hostMatch[1] : 'not-found';
+    let dnsResult = null, dnsErr = null;
+    try { dnsResult = await dns.lookup(host, { all: true }); } catch (e) { dnsErr = e.message; }
+    let dbResult = null, dbErr = null;
+    try { const r = await query('SELECT 1 AS ok'); dbResult = r.rows[0]; } catch (e) { dbErr = { msg: e.message, code: e.code }; }
+    res.json({ host, dns: dnsResult || dnsErr, db: dbResult || dbErr });
+  });
+
   app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../code/login.html')));
   app.get('/api/login', (req, res) => res.redirect('/login'));
   app.get('/api/logout', (req, res) => res.redirect('/login'));

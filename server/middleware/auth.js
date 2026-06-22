@@ -36,7 +36,7 @@ async function verifyToken(req, res, next) {
     req.userEmail = user.email;
     next();
   } catch (err) {
-    console.error('Auth middleware error:', err);
+    console.error('Auth middleware error:', err.code, err.message);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
