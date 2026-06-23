@@ -1,5 +1,23 @@
 'use strict';
 
+// pdfjs-dist uses DOMMatrix for transform calculations; polyfill for Node.js < 22
+if (typeof globalThis.DOMMatrix === 'undefined') {
+  globalThis.DOMMatrix = class DOMMatrix {
+    constructor() {
+      this.a=1;this.b=0;this.c=0;this.d=1;this.e=0;this.f=0;
+      this.m11=1;this.m12=0;this.m13=0;this.m14=0;
+      this.m21=0;this.m22=1;this.m23=0;this.m24=0;
+      this.m31=0;this.m32=0;this.m33=1;this.m34=0;
+      this.m41=0;this.m42=0;this.m43=0;this.m44=1;
+    }
+    multiply(m) { return this; }
+    translate(x, y) { return this; }
+    scale(s) { return this; }
+    inverse() { return this; }
+    transformPoint(p) { return p || {x:0,y:0}; }
+  };
+}
+
 const express = require('express');
 const multer = require('multer');
 const Anthropic = require('@anthropic-ai/sdk');
@@ -626,8 +644,9 @@ router.post('/parse-cas', upload.single('file'), async (req, res) => {
     console.log(`[parse-cas] Extracted ${holdings.length} holdings`);
     return res.json({ success: true, data: holdings });
   } catch (err) {
-    console.error('[parse-cas] error:', err.message);
-    return res.status(err.message.includes('password') ? 400 : 500).json({ error: err.message });
+    console.error('[parse-cas] error:', err.message, err.stack);
+    const msg = err.message || 'Unknown error';
+    return res.status(msg.toLowerCase().includes('password') ? 400 : 500).json({ error: msg });
   }
 });
 
